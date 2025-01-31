@@ -1,0 +1,90 @@
+:root {
+    --primary-light: #f87316;
+    --primary-light-dim: #f79652;
+    --primary-dark: #f87316;
+    --primary-dark-dim: #f79652;
+
+    --secondary-light: #27262b;
+    --secondary-light-dim: #53525a;
+    --secondary-dark: #27262b;
+    --secondary-dark-dim: #53525a;
+
+    --primary: var(--primary-dark);
+    --primary-dim: var(--primary-dark-dim);
+    --on-primary: #ffffff;
+    --on-primary-dim: var(--on-primary);
+    --secondary: var(--secondary-dark);
+    --secondary-dim: var(--secondary-dark-dim);
+    --on-secondary: #ffffff;
+    --on-secondary-dim: #ffffff;
+
+    --surface: #f8fafc;
+    --on-surface: #000;
+    --on-surface-muted: #6b7280;
+
+    --surface-dim: #e5e7eb;
+    --on-surface-dim: #000;
+    --on-surface-dim-muted: #6b7280;
+
+    --surface-container: #ffffff;
+    --on-surface-container: #000;
+    --on-surface-container-muted: #6b7280;
+
+    --surface-dim-container: #f3f4f6;
+    --on-surface-dim-container: #000;
+    --on-surface-dim-container-muted: #6b7280;
+
+    --outline: #d1d5db;
+    --outline-variant: #ebeef3;
+
+    --danger: #941010;
+    --on-danger: #ffffff;
+
+    --danger-dim: #730f0f;
+    --on-danger-dim: #ffffff;
+
+    --shade: rgba(0, 0, 0, 0.1);
+
+    --backdrop: rgba(0, 0, 0, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --primary: var(--primary-light);
+        --primary-dim: var(--primary-light-dim);
+        --on-primary: #ffffff;
+        --on-primary-dim: var(--on-primary);
+        --secondary: var(--secondary-light);
+        --secondary-dim: var(--secondary-light-dim);
+        --on-secondary: #000;
+        --on-secondary-dim: #000;
+
+        --surface: #161921;
+        --on-surface: #f3f4f5;
+        --on-surface-muted: #9ca3af;
+
+        --surface-dim: #1f2937;
+        --on-surface-dim: #f3f4f5;
+
+        --surface-container: #000;
+        --on-surface-container: #f3f4f5;
+
+        --surface-dim-container: #1f2937;
+        --on-surface-dim-container: #f3f4f5;
+
+        --outline: #374151;
+        --outline-variant: #1f2937;
+        
+        --danger: #e35f5f;
+        --on-danger: #000;
+
+        --danger-dim: #b85c5c;
+        --on-danger-dim: #000;
+
+        --shade: rgba(128, 128, 128, 0.175);
+    }
+
+    html {
+        color-scheme: dark;
+    }
+}

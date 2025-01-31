@@ -1,0 +1,39 @@
+@reference "./index.css";
+
+@layer components {
+  .btn {
+    @apply flex items-center gap-2 rounded-md w-fit transition-colors disabled:opacity-50 disabled:pointer-events-none cursor-pointer;
+  }
+
+  .btn-icon {
+    @apply grid place-content-center;
+  }
+
+  .btn-default {
+    @apply bg-transparent text-on-surface hover:bg-surface-dim hover:text-on-surface-dim border border-transparent;
+  }
+
+  .btn-container {
+    @apply bg-surface-container text-on-surface-container hover:bg-surface-dim-container hover:text-on-surface-dim-container shadow border border-outline-variant;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-on-primary hover:bg-primary-dim hover:text-on-primary-dim shadow border border-primary;
+  }
+
+  .btn-destructive {
+    @apply bg-danger text-on-danger hover:bg-danger-dim hover:text-on-danger-dim shadow border border-danger;
+  }
+
+  .btn-sm {
+    @apply min-h-7 px-2 text-sm;
+  }
+
+  .btn-md {
+    @apply min-h-8 px-2.5;
+  }
+
+  .btn-lg {
+    @apply min-h-10 px-2.5;
+  }
+}

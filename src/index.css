@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: var(--primary);
+  --color-primary-dim: var(--primary-dim);
+  --color-on-primary: var(--on-primary);
+  --color-on-primary-dim: var(--on-primary-dim);
+  --color-secondary: var(--secondary);
+  --color-on-secondary: var(--on-secondary);
+  --color-secondary-dim: var(--secondary-dim);
+  --color-on-secondary-dim: var(--on-secondary-dim);
+
+  --color-surface: var(--surface);
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-muted: var(--on-surface-muted);
+
+  --color-surface-dim: var(--surface-dim);
+  --color-on-surface-dim: var(--on-surface-dim);
+  --color-on-surface-dim-muted: var(--on-surface-dim-muted);
+
+  --color-surface-container: var(--surface-container);
+  --color-on-surface-container: var(--on-surface-container);
+  --color-on-surface-container-muted: var(--on-surface-container-muted);
+  
+  --color-surface-dim-container: var(--surface-dim-container);
+  --color-on-surface-dim-container: var(--on-surface-dim-container);
+  --color-on-surface-dim-container-muted: var(--on-surface-dim-container-muted);
+
+  --color-outline: var(--outline);
+  --color-outline-variant: var(--outline-variant);
+
+  --color-danger: var(--danger);
+  --color-on-danger: var(--on-danger);
+
+  --color-danger-dim: var(--danger-dim);
+  --color-on-danger-dim: var(--on-danger-dim);
+
+  --color-shade: var(--shade);
+  --color-backdrop: var(--backdrop);
+
+
+  --animate-slideUpIn: slideUpIn 150ms ease-in-out forwards;
+  --animate-slideDownOut: slideDownOut 150ms ease-in-out forwards;
+  --animate-fadeIn: fadeIn 150ms ease-in-out forwards;
+  --animate-fadeOut: fadeOut 150ms ease-in-out forwards;
+
+  @keyframes slideUpIn {
+    0% {
+      transform: translateY(50%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  @keyframes slideDownOut {
+    0% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(50%);
+      opacity: 0;
+    }
+  }
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  @keyframes fadeOut {
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+}
+
+@font-face{
+  font-family: "Gabarito";
+  src:local("Gabarito"),
+  url('./assets/fonts/Gabarito-VariableFont_wght.ttf') 
+}
+
+html {
+  padding: 0;
+  margin: 0;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100vh;
+  max-height: 100dvh;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Gabarito", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  height: 100%;
+  box-sizing: border-box;
+}
+

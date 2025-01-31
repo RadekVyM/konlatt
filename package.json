@@ -1,0 +1,45 @@
+{
+  "name": "thesis",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "npm run asbuild:release && vite",
+    "build": "npm run asbuild:release && tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "asbuild:debug": "asc src/as/assembly/index.ts --target debug --runtime minimal --exportRuntime",
+    "asbuild:release": "asc src/as/assembly/index.ts --target release --runtime minimal --exportRuntime",
+    "test": "vitest run",
+    "bench": "vitest bench"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-icons": "^5.4.0",
+    "react-router-dom": "^7.1.4",
+    "tailwind-merge": "^2.6.0",
+    "tailwindcss": "^4.0.0",
+    "zustand": "^5.0.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "@vitejs/plugin-react": "^4.3.4",
+    "assemblyscript": "^0.27.32",
+    "babel-plugin-react-compiler": "^19.0.0-beta-27714ef-20250124",
+    "eslint": "^9.17.0",
+    "eslint-plugin-react-compiler": "^19.0.0-beta-27714ef-20250124",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.16",
+    "globals": "^15.14.0",
+    "typescript": "~5.6.2",
+    "typescript-eslint": "^8.18.2",
+    "vite": "^6.0.5",
+    "vitest": "^3.0.4"
+  }
+}

@@ -1,0 +1,1 @@
+export type ContextResponseType = "end" | "progress"
