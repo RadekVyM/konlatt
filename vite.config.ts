@@ -16,6 +16,14 @@ export default defineConfig({
     }),
     tailwindcss()
   ],
+  worker: {
+    rollupOptions: {
+      output: {
+        format: "es",
+      }
+    },
+    format: "es",
+  } as any,
   build: {
     target: "es2022",
   },

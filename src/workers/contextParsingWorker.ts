@@ -1,19 +1,16 @@
-import { parseBurmeister } from "../services/contextParsers";
 import { ContextParsingRequest } from "../types/ContextParsingRequest";
-import { ContextParsingEndResponse } from "../types/ContextParsingResponse";
+import { ContextParsingResponse } from "../types/ContextParsingResponse";
 
-const onmessage = (event: MessageEvent<ContextParsingRequest>) => {
-    const content = event.data.content;
+self.onmessage = async (event: MessageEvent<ContextParsingRequest>) => {
+    // https://www.audjust.com/blog/wasm-and-workers
+    const { parseBurmeister } = await import("../services/contextParsing");
 
-    const context = parseBurmeister(content);
-    const message: ContextParsingEndResponse = {
-        type: "end",
+    const context = parseBurmeister(event.data.content);
+    const message: ContextParsingResponse = {
         context
     };
 
-    postMessage(message);
+    self.postMessage(message);
 
     self.close();
 };
-
-addEventListener("message", onmessage);

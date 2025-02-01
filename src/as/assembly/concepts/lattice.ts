@@ -7,16 +7,19 @@ export function conceptsToLattice(concepts: Array<FormalConcept>): Array<Array<i
     // It is still not usable for lots of concepts – works quite fine with 3000 concepts
     const startTime = Date.now();
 
-    // lattice[i] = a set of direct subconcepts of a concept concepts[i]
-    const lattice: Array<Set<i32>> = new Array<Set<i32>>(concepts.length);
+    // Remember the original index of each concept
     for (let i = 0; i < concepts.length; i++) {
-        lattice[i] = new Set<i32>();
+        concepts[i].attribute = i;
     }
 
-    // sort concepts by intent's length from biggest to smallest
-    // TODO: indexy v tom výsledném svazu platí pro tohle setřízené pole!!!
-    // => třízení bych měl dělat mimo tuhle funkci
+    // Concepts must be ordered by intent's length from biggest to smallest
     concepts.sort((first, second) => second.attributes.length - first.attributes.length);
+
+    // lattice[i] = a set of direct subconcepts of a concept concepts[i]
+    const lattice: StaticArray<LatticeSet> = new StaticArray<LatticeSet>(concepts.length);
+    for (let i = 0; i < concepts.length; i++) {
+        lattice[i] = { set: new Set<i32>(), index: concepts[i].attribute };
+    }
 
     for (let i = 0; i < concepts.length; i++) {
         // (direct) subconcepts of a concept concepts[i]
@@ -27,14 +30,14 @@ export function conceptsToLattice(concepts: Array<FormalConcept>): Array<Array<i
             if (isSortedSubsetOf(concepts[i].attributes, concepts[j].attributes)) {
                 subConcepts.push(j);
                 //lattice.add(`${i}>${j}`);
-                lattice[i].add(j);
+                lattice[i].set.add(j);
 
                 // if one of the subconcepts has j as a subconcept, j is not a subconcept of i
                 for (let k = 0; k < subConcepts.length; k++) { // delete transitive links
-                    const superConcept = subConcepts[k];
+                    const subConcept = subConcepts[k];
                     //if (lattice.has(`${superConcepts[k]}>${j}`)) {
-                    if (lattice[superConcept].has(j)) {
-                        lattice[i].delete(j);
+                    if (lattice[subConcept].set.has(j)) {
+                        lattice[i].set.delete(j);
                         //lattice.delete(`${i}>${j}`);
                         break;
                     }
@@ -45,5 +48,12 @@ export function conceptsToLattice(concepts: Array<FormalConcept>): Array<Array<i
 
     console.log(`lattice: ${Date.now() - startTime} ms`);
 
-    return lattice.map<Array<i32>>((set) => set.values());
+    // Ensure the original order of concepts
+    lattice.sort((first, second) => first.index - second.index);
+    return lattice.map<Array<i32>>((set) => set.set.values());
+}
+
+class LatticeSet {
+    set: Set<i32> = new Set<i32>();
+    index: i32 = -1;
 }

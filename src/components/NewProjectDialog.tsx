@@ -4,6 +4,8 @@ import ContentDialog from "./ContentDialog";
 import { FileSelection, LargeFileSelection } from "./inputs/FileSelection";
 import Button from "./Button";
 import ComboBox from "./inputs/ComboBox";
+import { useNavigate } from "react-router-dom";
+import useConceptLattice from "../hooks/useConceptLattice";
 
 const FILE_INPUT_ACCEPT = "text/*, .cxt, application/json, application/xml";
 const DEFAULT_FILE_TYPE = "burmeister";
@@ -16,6 +18,8 @@ const FILE_TYPES: Array<{ key: string, label: string }> = [
 export default function NewProjectDialog(props: {
     state: DialogState,
 }) {
+    const navigate = useNavigate();
+    const { setupLattice } = useConceptLattice();
     const [selectedFile, setSelectedFile] = useState<File | null | undefined>(null);
     const [selectedFileType, setSelectedFileType] = useState<string>(DEFAULT_FILE_TYPE);
 
@@ -26,12 +30,22 @@ export default function NewProjectDialog(props: {
         }
     }, [props.state.isOpen]);
 
+    async function onCreateClick() {
+        if (!selectedFile) {
+            return;
+        }
+
+        navigate("/project/context", { replace: true });
+        setupLattice(selectedFile);
+        await props.state.hide();
+    }
+
     return (
         <ContentDialog
             ref={props.state.dialogRef}
             state={props.state}
             heading="New project"
-            className="w-full max-w-xl rounded-md">
+            className="w-full max-w-xl max-h-full rounded-md">
             <div
                 className="pt-4">
                 {!selectedFile ?
@@ -60,7 +74,9 @@ export default function NewProjectDialog(props: {
 
                         <Button
                             variant="primary"
-                            className="ml-auto">
+                            className="ml-auto"
+                            onClick={onCreateClick}
+                            disabled={!selectedFile}>
                             Create
                         </Button>
                     </>}

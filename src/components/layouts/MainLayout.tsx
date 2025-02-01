@@ -36,7 +36,7 @@ function Navigation() {
 
     return (
         <nav
-            className="flex gap-4">
+            className="flex gap-4 mb-4">
             {NAV_LINKS.map((link) =>
                 <Button
                     key={link.to}
