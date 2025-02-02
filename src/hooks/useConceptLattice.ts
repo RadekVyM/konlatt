@@ -1,16 +1,7 @@
-import { ContextParsingRequest } from "../types/ContextParsingRequest";
-import { ContextParsingResponse } from "../types/ContextParsingResponse";
-import { RawFormalContext } from "../types/RawFormalContext";
-import ContextParsingWorker from "../workers/contextParsingWorker?worker";
-import ConceptComputationWorker from "../workers/conceptComputationWorker?worker";
-import LatticeComputationWorker from "../workers/latticeComputationWorker?worker";
+import FileToLatticeWorker from "../workers/fileToLatticeWorker?worker";
 import useConceptLatticeStore from "./stores/useConceptLatticeStore";
-import { ConceptComputationRequest } from "../types/ConceptComputationRequest";
-import { RawFormalConcept } from "../types/RawFormalConcept";
-import { ConceptComputationResponse } from "../types/ConceptComputationResponse";
-import { LatticeComputationRequest } from "../types/LatticeComputationRequest";
-import { ConceptLattice } from "../types/ConceptLattice";
-import { LatticeComputationResponse } from "../types/LatticeComputationResponse";
+import { FileToLatticeRequest } from "../types/FileToLatticeRequest";
+import { FileToLatticeResponse } from "../types/FileToLatticeResponse";
 
 let currentWorker: Worker | null = null;
 
@@ -33,54 +24,32 @@ export default function useConceptLattice() {
 
         currentWorker?.terminate();
 
-        currentWorker = new ContextParsingWorker();
-        const contextRequest: ContextParsingRequest = { content: fileContent };
+        currentWorker = new FileToLatticeWorker();
+        const contextRequest: FileToLatticeRequest = { content: fileContent };
         currentWorker.postMessage(contextRequest);
 
-        const context = await new Promise<RawFormalContext>((resolve) => {
-            currentWorker?.addEventListener("message", onContextResponse);
+        await new Promise<undefined>((resolve) => {
+            currentWorker?.addEventListener("message", onResponse);
             
-            function onContextResponse(e: MessageEvent<ContextParsingResponse>) {
-                resolve(e.data.context);
-                currentWorker?.removeEventListener("message", onContextResponse);
+            function onResponse(e: MessageEvent<FileToLatticeResponse>) {
+                switch (e.data.type) {
+                    case "context":
+                        setContext(e.data.context);
+                        setProgressMessage("Computing concepts");
+                        break;
+                    case "concepts":
+                        setConcepts(e.data.concepts);
+                        setProgressMessage("Computing lattice");
+                        break;
+                    case "lattice":
+                        setLattice(e.data.lattice);
+                        currentWorker?.removeEventListener("message", onResponse);
+                        resolve(undefined);
+                        break;
+                }
             }
         });
-        setContext(context);
         
-        currentWorker?.terminate();
-        setProgressMessage("Computing concepts");
-
-        currentWorker = new ConceptComputationWorker();
-        const conceptRequest: ConceptComputationRequest = { context };
-        currentWorker.postMessage(conceptRequest);
-
-        const concepts = await new Promise<Array<RawFormalConcept>>((resolve) => {
-            currentWorker?.addEventListener("message", onContextResponse);
-            
-            function onContextResponse(e: MessageEvent<ConceptComputationResponse>) {
-                resolve(e.data.concepts);
-                currentWorker?.removeEventListener("message", onContextResponse);
-            }
-        });
-        setConcepts(concepts);
-
-        currentWorker?.terminate();
-        setProgressMessage("Computing lattice");
-
-        currentWorker = new LatticeComputationWorker();
-        const latticeRequest: LatticeComputationRequest = { concepts };
-        currentWorker.postMessage(latticeRequest);
-
-        const lattice = await new Promise<ConceptLattice>((resolve) => {
-            currentWorker?.addEventListener("message", onContextResponse);
-            
-            function onContextResponse(e: MessageEvent<LatticeComputationResponse>) {
-                resolve(e.data.lattice);
-                currentWorker?.removeEventListener("message", onContextResponse);
-            }
-        });
-        setLattice(lattice);
-
         currentWorker?.terminate();
         currentWorker = null;
         setProgressMessage(null);

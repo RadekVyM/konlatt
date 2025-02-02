@@ -10,7 +10,7 @@ export default function Container(props: {
     return (
         <As
             className={cn(
-                "bg-surface-container text-on-surface-container shadow rounded-md",
+                "bg-surface-container text-on-surface-container shadow border border-outline-variant rounded-md",
                 props.className)}>
             {props.children}
         </As>

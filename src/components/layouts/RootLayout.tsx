@@ -11,7 +11,7 @@ export default function RootLayout() {
     
     return (
         <div
-            className="flex flex-col px-5">
+            className="h-full max-h-full flex flex-col px-5">
             <header
                 className="flex justify-between items-center py-4">
                 <h1 className="font-semibold text-lg">
@@ -34,7 +34,7 @@ export default function RootLayout() {
             </header>
 
             <main
-                className="flex-1">
+                className="flex-1 overflow-hidden">
                 <Outlet />
             </main>
 

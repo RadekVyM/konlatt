@@ -109,3 +109,31 @@ body {
   box-sizing: border-box;
 }
 
+#root {
+  height: 100%;
+}
+
+.thin-scrollbar {
+  scrollbar-color: var(--outline) transparent;
+  scrollbar-width: thin;
+}
+
+.thin-scrollbar::-webkit-scrollbar {
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  --thumb: var(--outline-variant);
+
+  background: var(--thumb);
+  border-radius: 0.2rem;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb:hover {
+  --thumb: var(--outline);
+}
+
+.thin-scrollbar::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}

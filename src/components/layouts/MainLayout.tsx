@@ -24,7 +24,7 @@ const NAV_LINKS: Array<NavLink> = [
 export default function MainLayout() {
     return (
         <div
-            className="flex flex-col h-full max-w-full">
+            className="flex flex-col h-full max-h-full max-w-full">
             <Navigation />
             <Outlet />
         </div>
