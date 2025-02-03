@@ -15,6 +15,8 @@ export default function useLazyListCount(
     const [displayedCount, setDisplayedCount] = useState(countIncrease);
 
     useEffect(() => {
+        setDisplayedCount(countIncrease);
+
         const target = observerTarget.current;
         const observer = new IntersectionObserver(
             entries => {
@@ -40,7 +42,7 @@ export default function useLazyListCount(
     }, [totalCount, countIncrease, observerTarget]);
 
     function reset() {
-        setDisplayedCount(countIncrease)
+        setDisplayedCount(countIncrease);
     }
 
     return [displayedCount, reset];
