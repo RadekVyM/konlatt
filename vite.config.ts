@@ -23,7 +23,7 @@ export default defineConfig({
       }
     },
     format: "es",
-  } as any,
+  },
   build: {
     target: "es2022",
   },

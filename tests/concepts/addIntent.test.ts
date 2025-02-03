@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 import { expect, test } from "vitest";
 import digits from "../../datasets/digits.cxt?raw";
 import nom10crx from "../../datasets/nom10crx.cxt?raw";

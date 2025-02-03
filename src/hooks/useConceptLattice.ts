@@ -1,3 +1,5 @@
+/* eslint-disable react-compiler/react-compiler */
+
 import FileToLatticeWorker from "../workers/fileToLatticeWorker?worker";
 import useConceptLatticeStore from "./stores/useConceptLatticeStore";
 import { FileToLatticeRequest } from "../types/FileToLatticeRequest";

@@ -3,7 +3,6 @@ import { formalContextHasAttribute, RawFormalContext } from "../../types/RawForm
 import { cn } from "../../utils/tailwind";
 import useDimensions from "../../hooks/useDimensions";
 import "./ContextTable.css";
-import { LuX } from "react-icons/lu";
 
 type ContextTableCell = {
     column: number,
@@ -27,6 +26,9 @@ export default function ContextTable(props: {
     const containerDimensions = useDimensions(containerRef);
     const tableDimensions = useDimensions(tableRef);
     const [containerScroll, setContainerScroll] = useState<[number, number]>([0, 0]);
+    const [hoveredColumn, setHoveredColumn] = useState<number | null>(null);
+    const [hoveredRow, setHoveredRow] = useState<number | null>(null);
+
     const tableContentWidth = props.context.attributes.length * cellWidth;
     const tableContentHeight = props.context.objects.length * cellHeight;
     const columnHeaderSize = tableDimensions.height - tableContentHeight;
@@ -41,6 +43,17 @@ export default function ContextTable(props: {
     const cells = useCells(props.context, skippedRowsCount, skippedColumnsCount, visibleRowsCount, visibleColumnsCount);
     const rowHeaders = useRowHeaders(props.context, skippedRowsCount, visibleRowsCount);
     const columnHeaders = useColumnHeaders(props.context, skippedColumnsCount, visibleColumnsCount);
+
+    function onHoverChange(cell: ContextTableCell | null) {
+        if (cell) {
+            setHoveredColumn(cell.column);
+            setHoveredRow(cell.row);
+        }
+        else {
+            setHoveredColumn(null);
+            setHoveredRow(null);
+        }
+    }
 
     return (
         <div
@@ -58,45 +71,45 @@ export default function ContextTable(props: {
                     gridTemplateRows: `auto repeat(${props.context.objects.length}, ${cellHeight}px) 1fr`,
                     gridTemplateColumns: `auto repeat(${props.context.attributes.length}, ${cellWidth}px) 1fr`,
                 }}>
+                {/*
+                {hoveredRow !== null && hoveredColumn !== null &&
+                    <>
+                        <div
+                            className="col-start-1 bg-surface-light-dim-container rounded-r-md"
+                            style={{
+                                gridRowStart: hoveredRow + 2,
+                                gridColumnEnd: hoveredColumn + 3
+                            }}>
+                        </div>
+                        <div
+                            className="row-start-1 bg-surface-light-dim-container rounded-b-md"
+                            style={{
+                                gridColumnStart: hoveredColumn + 2,
+                                gridRowEnd: hoveredRow + 3
+                            }}>
+                        </div>
+                    </>}
+                */}
+
                 {cells.map((cell) =>
-                    <div
+                    <TableCell
                         key={`${cell.column} ${cell.row}`}
-                        role="cell"
-                        aria-colindex={cell.column + 1}
-                        aria-rowindex={cell.row + 1}
-                        aria-checked={cell.checked}
-                        className={cn("td", cell.checked && "x")}
-                        style={{
-                            gridRowStart: cell.row + 2,
-                            gridColumnStart: cell.column + 2
-                        }}>
-                    </div>)}
+                        cell={cell}
+                        onHoverChange={onHoverChange} />)}
 
                 <div
-                    className="col-start-1 col-end-2 row-start-1 -row-end-1 bg-surface-container border-r border-outline sticky left-0">
+                    className={cn(
+                        "col-start-1 col-end-2 row-start-1 -row-end-1 bg-surface-container sticky left-0",
+                        containerScroll[0] > 0 && "border-r border-outline-variant shadow")}>
                 </div>
 
-                <div
-                    className="row-start-1 row-end-2 col-start-1 -col-end-1 bg-surface-container border-b border-outline sticky top-0">
-                </div>
-
-                {columnHeaders.map((header) =>
-                    <span
-                        key={header.cell}
-                        role="columnheader"
-                        className={cn("ch", columnHeadersSideways && "s")}
-                        style={{
-                            gridColumnStart: header.cell + 2
-                        }}
-                        title={header.content}>
-                        {header.content}
-                    </span>)}
-                    
                 {rowHeaders.map((header) =>
                     <span
                         key={header.cell}
                         role="rowheader"
-                        className="rh"
+                        className={cn(
+                            "rh",
+                            header.cell === hoveredRow && "bg-surface-dim-container rounded-md")}
                         style={{
                             gridRowStart: header.cell + 2
                         }}>
@@ -113,12 +126,62 @@ export default function ContextTable(props: {
                     </div>)}
 
                 <div
+                    className="row-start-1 row-end-2 col-start-1 -col-end-1 bg-surface-container border-b border-outline shadow sticky top-0">
+                </div>
+
+                {columnHeaders.map((header) =>
+                    <div
+                        key={header.cell}
+                        role="columnheader"
+                        className={cn(
+                            "ch",
+                            columnHeadersSideways && "s",
+                            header.cell === hoveredColumn && "bg-surface-dim-container rounded-md")}
+                        style={{
+                            gridColumnStart: header.cell + 2
+                        }}
+                        title={header.content}>
+                        {header.content}
+                    </div>)}
+
+                <div
                     className="row-start-1 row-end-2 col-start-1 col-end-2 bg-surface-container border-b border-outline sticky top-0 left-0">
                 </div>
             </div>
         </div>
     );
 }
+
+function TableCell(props: {
+    cell: ContextTableCell,
+    onHoverChange: (cell: ContextTableCell | null) => void,
+}) {
+    function onPointerEnter() {
+        props.onHoverChange(props.cell);
+    }
+
+    function onPointerLeave() {
+        props.onHoverChange(null);
+    }
+
+    return (
+        <div
+            key={`${props.cell.column} ${props.cell.row}`}
+            role="cell"
+            aria-colindex={props.cell.column + 1}
+            aria-rowindex={props.cell.row + 1}
+            aria-checked={props.cell.checked}
+            className={cn("td", props.cell.checked && "x")}
+            style={{
+                gridRowStart: props.cell.row + 2,
+                gridColumnStart: props.cell.column + 2
+            }}
+            onPointerEnter={onPointerEnter}
+            onPointerLeave={onPointerLeave}>
+        </div>
+    );
+}
+
 
 function useRowHeaders(
     context: RawFormalContext,

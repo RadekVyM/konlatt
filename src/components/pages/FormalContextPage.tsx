@@ -27,12 +27,10 @@ function Context(props: {
     return (
         <Container
             as="section"
-            className={cn("pt-3 flex flex-col overflow-hidden", props.className)}>
-            <CardTitle>Context</CardTitle>
-
+            className={cn("flex flex-col overflow-hidden", props.className)}>
             {context ?
                 <ContextTable
-                    className="flex-1 mt-2"
+                    className="flex-1"
                     context={context} /> :
                 <>nothing</>}
         </Container>

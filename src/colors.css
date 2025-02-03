@@ -30,10 +30,12 @@
     --on-surface-container: #000;
     --on-surface-container-muted: #6b7280;
 
-    --surface-dim-container: #f3f4f6;
+    --surface-dim-container: #eaeef4;
     --on-surface-dim-container: #000;
     --on-surface-dim-container-muted: #6b7280;
 
+    --surface-light-dim-container: #f4f6fb;
+    
     --outline: #d1d5db;
     --outline-variant: #ebeef3;
 
@@ -69,9 +71,11 @@
         --surface-container: #000;
         --on-surface-container: #dbdfe2;
 
-        --surface-dim-container: #1f2937;
+        --surface-dim-container: #19212d;
         --on-surface-dim-container: #f3f4f5;
 
+        --surface-light-dim-container: #10151c;
+    
         --outline: #374151;
         --outline-variant: #1f2937;
         

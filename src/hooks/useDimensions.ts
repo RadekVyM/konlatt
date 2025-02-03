@@ -12,11 +12,12 @@ export default function useDimensions(ref: RefObject<Element | null>) {
     });
 
     useEffect(() => {
-        if (!ref.current) {
+        const observeTarget = ref.current;
+        
+        if (!observeTarget) {
             return;
         }
 
-        const observeTarget = ref.current;
         const resizeObserver = new ResizeObserver(entries => {
             entries.forEach(entry => {
                 setDimensions(entry.contentRect);
@@ -24,7 +25,7 @@ export default function useDimensions(ref: RefObject<Element | null>) {
         });
         resizeObserver.observe(observeTarget);
         return () => resizeObserver.unobserve(observeTarget);
-    }, []);
+    }, [ref]);
 
     return dimensions;
 }

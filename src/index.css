@@ -26,6 +26,8 @@
   --color-on-surface-dim-container: var(--on-surface-dim-container);
   --color-on-surface-dim-container-muted: var(--on-surface-dim-container-muted);
 
+  --color-surface-light-dim-container: var(--surface-light-dim-container);
+
   --color-outline: var(--outline);
   --color-outline-variant: var(--outline-variant);
 

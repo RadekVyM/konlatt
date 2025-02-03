@@ -59,7 +59,7 @@ export default function ComboBox(props: {
                             "flex rounded-md",
                             "focus-within:outline-2",
                             "focus-within:bg-surface-dim-container focus-within:text-on-surface-dim-container",
-                            "hover:bg-surface-dim-container hover:text-on-surface-dim-container")}
+                            "hover:bg-surface-light-dim-container hover:text-on-surface-dim-container")}
                         onPointerDown={() => {
                             props.onKeySelectionChange(item.key);
                         }}

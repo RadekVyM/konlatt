@@ -1,4 +1,4 @@
-import { RefObject, useCallback, useEffect, useState } from "react";
+import { RefObject, useEffect, useState } from "react";
 
 /**
  * Hook that creates operations for managing lazily loaded lists. Returns a number of currently displayed items.
@@ -15,6 +15,7 @@ export default function useLazyListCount(
     const [displayedCount, setDisplayedCount] = useState(countIncrease);
 
     useEffect(() => {
+        const target = observerTarget.current;
         const observer = new IntersectionObserver(
             entries => {
                 if (entries[0].isIntersecting) {
@@ -27,18 +28,20 @@ export default function useLazyListCount(
             { threshold: 0 }
         );
 
-        if (observerTarget.current) {
-            observer.observe(observerTarget.current);
+        if (target) {
+            observer.observe(target);
         }
 
         return () => {
-            if (observerTarget.current) {
-                observer.unobserve(observerTarget.current);
+            if (target) {
+                observer.unobserve(target);
             }
         }
-    }, [totalCount]);
+    }, [totalCount, countIncrease, observerTarget]);
 
-    const reset = useCallback(() => setDisplayedCount(countIncrease), [setDisplayedCount]);
+    function reset() {
+        setDisplayedCount(countIncrease)
+    }
 
     return [displayedCount, reset];
 }

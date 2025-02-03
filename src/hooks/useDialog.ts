@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DialogState } from "../types/DialogState";
 
 export default function useDialog(
@@ -9,22 +9,6 @@ export default function useDialog(
     const [isOpen, setIsOpen] = useState(false);
     const dialogRef = useRef<HTMLDialogElement>(null);
 
-    const show = useCallback(() => {
-        setAnimationClass(openAnimation || "backdrop:animate-fadeIn animate-slideUpIn");
-        setIsOpen(true);
-    }, []);
-
-    const hide = useCallback((): Promise<void> => {
-        setAnimationClass(hideAnimation || "backdrop:animate-fadeOut animate-slideDownOut");
-        return new Promise((resolve) => {
-            const timeout = setTimeout(() => {
-                setIsOpen(false);
-                clearTimeout(timeout);
-                resolve(undefined);
-            }, 150);
-        });
-    }, []);
-
     useEffect(() => {
         if (isOpen) {
             dialogRef.current?.showModal();
@@ -33,6 +17,22 @@ export default function useDialog(
             dialogRef.current?.close();
         }
     }, [isOpen]);
+
+    function show() {
+        setAnimationClass(openAnimation || "backdrop:animate-fadeIn animate-slideUpIn");
+        setIsOpen(true);
+    }
+
+    function hide(): Promise<void> {
+        setAnimationClass(hideAnimation || "backdrop:animate-fadeOut animate-slideDownOut");
+        return new Promise((resolve) => {
+            const timeout = setTimeout(() => {
+                setIsOpen(false);
+                clearTimeout(timeout);
+                resolve(undefined);
+            }, 150);
+        });
+    }
 
     return {
         dialogRef,
