@@ -12,6 +12,6 @@ export function conceptsToLattice(concepts: Array<RawFormalConcept>): ConceptLat
     __collect();
 
     return {
-        mapping: lattice.map((set) => new Set<number>(set)),
+        subConceptsMapping: lattice.map((set) => new Set<number>(set)),
     };
 }

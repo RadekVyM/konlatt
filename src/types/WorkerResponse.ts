@@ -2,7 +2,12 @@ import { RawFormalConcept } from "./RawFormalConcept";
 import { RawFormalContext } from "./RawFormalContext";
 import { ConceptLattice } from "./ConceptLattice";
 
-export type FileToLatticeResponse = ContextParsingResponse | ConceptComputationResponse | LatticeComputationResponse
+export type WorkerResponse = StatusResponse | ContextParsingResponse | ConceptComputationResponse | LatticeComputationResponse
+
+export type StatusResponse = {
+    type: "status",
+    message: string
+}
 
 export type ContextParsingResponse = {
     type: "context",

@@ -1,3 +1,3 @@
 export type ConceptLattice = {
-    mapping: Array<Set<number>>
+    subConceptsMapping: Array<Set<number>>
 }

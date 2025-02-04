@@ -7,6 +7,7 @@ import ContextTable from "../context/ContextTable";
 import Button from "../Button";
 import { formalContextHasAttribute, RawFormalContext } from "../../types/RawFormalContext";
 import { LuChevronLeft } from "react-icons/lu";
+import SearchInput from "../SearchInput";
 
 type ContextItem = {
     index: number,
@@ -156,12 +157,11 @@ function ItemsCard(props: {
                     <CardTitle>{props.title}</CardTitle>
                     <span className="text-xs text-on-surface-container-muted mr-4 mb-2">{props.count}</span>
                 </span>
-                <input
-                    type="text"
+                <SearchInput
+                    className="self-stretch mx-3"
                     value={searchInput}
-                    onChange={(e) => setSearchInput(e.target.value)}
-                    placeholder={props.searchInputPlaceholder}
-                    className="text-sm bg-surface-light-dim-container hover:bg-surface-dim-container self-stretch mx-3 px-2 py-1 rounded-md" />
+                    onChange={setSearchInput}
+                    placeholder={props.searchInputPlaceholder} />
             </header>
 
             <div

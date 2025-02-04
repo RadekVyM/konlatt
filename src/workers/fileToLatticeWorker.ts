@@ -1,37 +1,84 @@
-import { FileToLatticeRequest } from "../types/FileToLatticeRequest";
-import { ConceptComputationResponse, ContextParsingResponse, LatticeComputationResponse } from "../types/FileToLatticeResponse";
+import { ConceptLattice } from "../types/ConceptLattice";
+import { WorkerRequest } from "../types/WorkerRequest";
+import { ConceptComputationResponse, ContextParsingResponse, LatticeComputationResponse, StatusResponse } from "../types/WorkerResponse";
+import { RawFormalConcept } from "../types/RawFormalConcept";
+import { RawFormalContext } from "../types/RawFormalContext";
 
-self.onmessage = async (event: MessageEvent<FileToLatticeRequest>) => {
+let formalContext: RawFormalContext | null = null;
+let formalConcepts: Array<RawFormalConcept> | null = null;
+let conceptLattice: ConceptLattice | null = null;
+
+self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
+    switch (event.data.type) {
+        case "file-to-lattice":
+            await parseFileContent(event.data.content);
+
+            if (!formalContext) {
+                throw new Error("Formal context has not been calculated yet");
+            }
+
+            await calculateConcepts(formalContext);
+
+            if (!formalConcepts) {
+                throw new Error("Formal concepts have not been calculated yet");
+            }
+
+            await calculateLattice(formalConcepts);
+            break;
+    }
+
+    // self.close();
+};
+
+
+async function parseFileContent(fileContent: string) {
+    postStatusMessage("Parsing file");
+
     // https://www.audjust.com/blog/wasm-and-workers
     const { parseBurmeister } = await import("../services/contextParsing");
 
-    const context = parseBurmeister(event.data.content);
+    formalContext = parseBurmeister(fileContent);
     const contextMessage: ContextParsingResponse = {
         type: "context",
-        context
+        context: formalContext
     };
 
     self.postMessage(contextMessage);
+}
+
+async function calculateConcepts(context: RawFormalContext) {
+    postStatusMessage("Computing concepts");
 
     const { computeConcepts } = await import("../services/conceptComputation");
     
-    const concepts = computeConcepts(context);
+    formalConcepts = computeConcepts(context);
     const conceptsMessage: ConceptComputationResponse = {
         type: "concepts",
-        concepts
+        concepts: formalConcepts
     };
 
     self.postMessage(conceptsMessage);
+}
+
+async function calculateLattice(concepts: Array<RawFormalConcept>) {
+    postStatusMessage("Computing lattice");
 
     const { conceptsToLattice } = await import("../services/latticeComputation");
 
-    const lattice = conceptsToLattice(concepts);
+    conceptLattice = conceptsToLattice(concepts);
     const latticeMessage: LatticeComputationResponse = {
         type: "lattice",
-        lattice
+        lattice: conceptLattice
     };
 
     self.postMessage(latticeMessage);
+}
 
-    self.close();
-};
+function postStatusMessage(message: string) {
+    const statusResponse: StatusResponse = {
+        type: "status",
+        message
+    };
+
+    self.postMessage(statusResponse);
+}

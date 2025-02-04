@@ -2,10 +2,15 @@
 
 import FileToLatticeWorker from "../workers/fileToLatticeWorker?worker";
 import useConceptLatticeStore from "./stores/useConceptLatticeStore";
-import { FileToLatticeRequest } from "../types/FileToLatticeRequest";
-import { FileToLatticeResponse } from "../types/FileToLatticeResponse";
+import { FileToLatticeRequest } from "../types/WorkerRequest";
+import { WorkerResponse } from "../types/WorkerResponse";
 
+// Single worker is reused for all formal context calculations
+// This way the data can be kept in the worker to save some time due to fewer serialization
+// When a new file is loaded, new worker is created and the old one destroyed
 let currentWorker: Worker | null = null;
+
+// TODO: Implement a job queue
 
 export default function useConceptLattice() {
     const setProgressMessage = useConceptLatticeStore((state) => state.setProgressMessage);
@@ -20,28 +25,26 @@ export default function useConceptLattice() {
         setConcepts(null);
         setLattice(null);
 
-        setProgressMessage("Parsing file");
-
         const fileContent = await file.text();
 
         currentWorker?.terminate();
-
         currentWorker = new FileToLatticeWorker();
-        const contextRequest: FileToLatticeRequest = { content: fileContent };
-        currentWorker.postMessage(contextRequest);
-
+        
         await new Promise<undefined>((resolve) => {
+            const contextRequest: FileToLatticeRequest = { type: "file-to-lattice", content: fileContent };
+            currentWorker?.postMessage(contextRequest);
             currentWorker?.addEventListener("message", onResponse);
             
-            function onResponse(e: MessageEvent<FileToLatticeResponse>) {
+            function onResponse(e: MessageEvent<WorkerResponse>) {
                 switch (e.data.type) {
+                    case "status":
+                        setProgressMessage(e.data.message);
+                        break;
                     case "context":
                         setContext(e.data.context);
-                        setProgressMessage("Computing concepts");
                         break;
                     case "concepts":
                         setConcepts(e.data.concepts);
-                        setProgressMessage("Computing lattice");
                         break;
                     case "lattice":
                         setLattice(e.data.lattice);
@@ -52,8 +55,6 @@ export default function useConceptLattice() {
             }
         });
         
-        currentWorker?.terminate();
-        currentWorker = null;
         setProgressMessage(null);
     }
 
