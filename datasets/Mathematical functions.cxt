@@ -1,0 +1,119 @@
+B
+
+51
+12
+
+x
+x^2
+x^3
+1 / (1 + x^2)
+|x|
+floor(x)
+1/x^2 on (0;1]
+Indicator function on [0;1]
+x in [0;1] f(x)=1 x=rational f(x) = 0 otherwise
+sin(x)
+1/x on R \ {0}
+sgn(x)
+f(x)=sin(1/x); x / 0; f(0) = 0
+1 / x on R
+1 / x; R \ {0}; f(0)=0
+f(x)=-1; x in [-1;1]; 0 otherwise
+f(x)=cos(1/x); x in [-1;1]; f(0)=0
+f(x)=0
+f(x)=sgn(sin(x))
+cos(x)
+Dirichlet Function
+tan(x)
+sec(x)
+|cos(x)|
+square wave function
+floor(-x)
+f(x)=x; x in [0;1]
+f(x)=x^; x >=0
+f(x)=-e^x, x in [-2,2]
+f(x)=sqrt(x); x>=0
+1 / (1-e^(-x))
+f(x)=x in [0;1]
+f(x)=x; x in N
+f(x)=1; x>=0; 0 otherwise
+f(x)=-1; x>0; f(x)=-1; x<0; f(0)=0
+f(x)=-1; x in (-1;0); 1 if x in (0;1]
+f(x)=c
+f(x) = sgn(x) * log |x|
+f(x)=1/x; x in R \ (-1;1)
+f(x)=-1,x>0=-0,-2, x<0
+f(x)=x,x<0,x+1,x>=0
+f(x)=x,x<=1,x+1,x>1
+f(x)=1/|x|, f(0)=0
+f(x)=|x|*sin(a/x), f(0)=0
+Weierstrass function on small interval
+f(x)=|x|sin(1/x), f(0)=0
+|x|sin(x)
+|sin(x)|*sin(x)
+f(x)=x, x in [-1,0], x^2, x in [0,1]
+x^3-x
+-e^x
+Continuous
+Discontinuous
+Differentiable
+Integrable
+Monotonic
+Strictly Increasing
+Strictly Decreasing
+Periodic
+Even
+Odd
+Unbounded
+Bounded
+X.XXXX...XX.
+X.XX....X.X.
+X.XXXX...XX.
+X.XX....X..X
+X..X....X.X.
+.X.XX...X.X.
+X.XXX.X...X.
+.X.X.......X
+.X.........X
+X.XX...X.X.X
+X.XX.....XX.
+.X.X.....X.X
+.X.......X.X
+.X.......XX.
+.X......X.X.
+.X.X....X.X.
+.X......X..X
+X.XXX..XXX.X
+.X.X...X.X.X
+X.XX...XX..X
+.X.....X...X
+.X.....X.XX.
+.X.....XX.X.
+X..X...XX..X
+.X.X...XX..X
+.X.XX.X...X.
+X.XXX.X..X.X
+X.XXXX....X.
+X.XXX.X....X
+X..XXX....X.
+X.XXXX....X.
+X.XXXX.....X
+.X..XX....X.
+.X.XX......X
+.X.XX....X.X
+.X.XX...X..X
+X.XXX...X..X
+.X.X.....XX.
+X.XXX.X..XX.
+.X.XX.X....X
+.X.XXX....X.
+.X.XXX.....X
+.X.X....X.X.
+X.XX.....XX.
+X..XX.X....X
+X..X.....X.X
+X..X.....XX.
+X..X...X.X.X
+X..XXX.....X
+X.XX.....XX.
+X.XXX.X...X.

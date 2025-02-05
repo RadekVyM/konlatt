@@ -2,11 +2,15 @@ import { RawFormalConcept } from "./RawFormalConcept";
 import { RawFormalContext } from "./RawFormalContext";
 import { ConceptLattice } from "./ConceptLattice";
 
-export type WorkerResponse = StatusResponse | ContextParsingResponse | ConceptComputationResponse | LatticeComputationResponse
+export type WorkerResponse = FinishedResponse | StatusResponse | ContextParsingResponse | ConceptComputationResponse | LatticeComputationResponse
+
+export type FinishedResponse = {
+    type: "finished",
+}
 
 export type StatusResponse = {
     type: "status",
-    message: string
+    message: string | null
 }
 
 export type ContextParsingResponse = {

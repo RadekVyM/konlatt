@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
-import { cn } from "../utils/tailwind";
 import { VariantProps } from "class-variance-authority";
-import { buttonVariants } from "./variants/buttonVariants";
+import { cn } from "../../utils/tailwind";
+import { buttonVariants } from "../variants/buttonVariants";
 
 export default function Button({ className, to, variant, size, disabled, ...rest }: {
     children: React.ReactNode,

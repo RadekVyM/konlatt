@@ -2,7 +2,7 @@ import { forwardRef } from "react";
 import { cn } from "../utils/tailwind";
 import { Dialog, DialogProps } from "./Dialog";
 import { MdClose } from "react-icons/md";
-import Button from "./Button";
+import Button from "./inputs/Button";
 
 type ContentDialogProps = {
     heading: React.ReactNode,

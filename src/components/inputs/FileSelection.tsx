@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import Button from "../Button";
+import Button from "../inputs/Button";
 import { cn } from "../../utils/tailwind";
 import { VariantProps } from "class-variance-authority";
 import { buttonVariants } from "../variants/buttonVariants";

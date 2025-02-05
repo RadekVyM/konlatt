@@ -1,6 +1,6 @@
 import { ConceptLattice } from "../types/ConceptLattice";
 import { WorkerRequest } from "../types/WorkerRequest";
-import { ConceptComputationResponse, ContextParsingResponse, LatticeComputationResponse, StatusResponse } from "../types/WorkerResponse";
+import { ConceptComputationResponse, ContextParsingResponse, FinishedResponse, LatticeComputationResponse, StatusResponse } from "../types/WorkerResponse";
 import { RawFormalConcept } from "../types/RawFormalConcept";
 import { RawFormalContext } from "../types/RawFormalContext";
 
@@ -27,6 +27,8 @@ self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
             break;
     }
 
+    postStatusMessage(null);
+    postFinished();
     // self.close();
 };
 
@@ -74,11 +76,19 @@ async function calculateLattice(concepts: Array<RawFormalConcept>) {
     self.postMessage(latticeMessage);
 }
 
-function postStatusMessage(message: string) {
+function postStatusMessage(message: string | null) {
     const statusResponse: StatusResponse = {
         type: "status",
         message
     };
 
     self.postMessage(statusResponse);
+}
+
+function postFinished() {
+    const finishedResponse: FinishedResponse = {
+        type: "finished",
+    };
+
+    self.postMessage(finishedResponse);
 }

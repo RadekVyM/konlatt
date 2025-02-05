@@ -69,7 +69,7 @@ export default function ContextTable(props: {
                 className="grid justify-start min-h-full min-w-fit context-table"
                 style={{
                     gridTemplateRows: `auto repeat(${props.context.objects.length}, ${cellHeight}px) 1fr`,
-                    gridTemplateColumns: `auto repeat(${props.context.attributes.length}, ${cellWidth}px) 1fr`,
+                    gridTemplateColumns: `minmax(auto, 10rem) repeat(${props.context.attributes.length}, ${cellWidth}px) 1fr`,
                 }}>
                 {/*
                 {hoveredRow !== null && hoveredColumn !== null &&
@@ -112,8 +112,9 @@ export default function ContextTable(props: {
                             header.cell === hoveredRow && "bg-surface-dim-container rounded-md")}
                         style={{
                             gridRowStart: header.cell + 2
-                        }}>
-                        {header.content}
+                        }}
+                        title={header.content}>
+                        <span className="rhc">{header.content}</span>
                     </span>)}
                 
                 {rowHeaders.map((header) =>

@@ -1,0 +1,58 @@
+B
+
+13
+27
+
+CV
+Catan
+Catan Card Game
+Civilization
+Evolution
+Exploding Kittens
+Kingdom Builder
+Lost Cities
+Taluva
+Trekking the National Parks
+Wingspan
+ArkNova
+Dune Imperium
+Domain=Family
+Domain=General
+Domain=Strategy
+MaxPlayers<3
+MaxPlayers<5
+MaxPlayers>=5
+Mechanics=Cards
+Mechanics=Dice
+Mechanics=HexaGird
+Mechanics=Other
+MinAge<12
+MinAge<7
+MinAge>12
+MinPlayers<5
+MinPlayers=1
+MinPlayers=2
+MinPlayers>=5
+PlayTime<30
+PlayTime<60
+PlayTime>60
+Publication<2010
+Publication>=2010
+Rating<6.5
+Rating<7
+Rating<7.5
+Rating<8.5
+Rating>8.5
+..XX..X...X....X.....X.X...
+X.X.X..XX.X..X.....XX...X..
+..XX..X...X....X...XX..X...
+..X..X.X.X..XX.....XX....X.
+..X..XXX....XX.....X.X..X..
+.X...XX....X...X.X...XX....
+..X.....X.X.......X..X.X...
+X..X..X...X......X..X...X..
+..X.X...X.X....X..X.X...X..
+X...X..X...X...X..X.X..X...
+..X..XXX......X....X.X...X.
+..X.X.X.X...X.X....X.X.....
+..X.X.X.....X.X....X.X.....

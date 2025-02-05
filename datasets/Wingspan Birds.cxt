@@ -1,0 +1,57 @@
+B
+
+14
+24
+
+Satyr Tragopan
+Cockatiel
+White-Throated Dipper
+Barrow's Goldeneye
+Common Goldeneye
+Fish Crow
+Black Stork
+Australian Ibis
+Swainshon's Hawk
+Snowy Owl
+Pheasant Coucal
+Sacred Kingfisher
+Greater Flamingo
+Great Hornbill
+Hab_f
+Hab_g
+Hab_w
+Nt_p
+Nt_c
+Nt_g
+Wspan_<=40
+Wspan_<=75
+Wspan_>=75
+Wspan_>=100
+F_wh
+F_wo
+F_f
+F_r
+O_am
+O_eu
+O_af
+O_ap
+Prey_yes
+Prey_no
+Noise_vlw
+Noise_lw
+Noise_lo
+Noise_vlo
+XX.X..XX..X...X....XXX..
+XX..X.XX..X....X...X..X.
+..X.X.XX...XX.X....X.X..
+..X.X..XX..XX....X.X..XX
+..X.X..XX..X.....X.X..X.
+..XX...XX..XX.X....X.X..
+XX.X....XX...X.X...X.X..
+.X.X....XX.XX...X..X.X..
+.X.X....XX...XX...X...X.
+.X...X..XX...XX...X...X.
+.X...X.XX..X...X..X..X..
+XX..X.XX...XX....XX.XX..
+..X..X..XX.X....X..X..X.
+XX..X...XX.X....X..X..XX

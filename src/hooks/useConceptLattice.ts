@@ -10,8 +10,6 @@ import { WorkerResponse } from "../types/WorkerResponse";
 // When a new file is loaded, new worker is created and the old one destroyed
 let currentWorker: Worker | null = null;
 
-// TODO: Implement a job queue
-
 export default function useConceptLattice() {
     const setProgressMessage = useConceptLatticeStore((state) => state.setProgressMessage);
     const setFile = useConceptLatticeStore((state) => state.setFile);
@@ -29,33 +27,30 @@ export default function useConceptLattice() {
 
         currentWorker?.terminate();
         currentWorker = new FileToLatticeWorker();
-        
-        await new Promise<undefined>((resolve) => {
-            const contextRequest: FileToLatticeRequest = { type: "file-to-lattice", content: fileContent };
-            currentWorker?.postMessage(contextRequest);
-            currentWorker?.addEventListener("message", onResponse);
-            
-            function onResponse(e: MessageEvent<WorkerResponse>) {
-                switch (e.data.type) {
-                    case "status":
-                        setProgressMessage(e.data.message);
-                        break;
-                    case "context":
-                        setContext(e.data.context);
-                        break;
-                    case "concepts":
-                        setConcepts(e.data.concepts);
-                        break;
-                    case "lattice":
-                        setLattice(e.data.lattice);
-                        currentWorker?.removeEventListener("message", onResponse);
-                        resolve(undefined);
-                        break;
-                }
+
+        const contextRequest: FileToLatticeRequest = { type: "file-to-lattice", content: fileContent };
+        currentWorker.postMessage(contextRequest);
+        currentWorker.addEventListener("message", onResponse);
+
+        function onResponse(e: MessageEvent<WorkerResponse>) {
+            switch (e.data.type) {
+                case "status":
+                    setProgressMessage(e.data.message);
+                    break;
+                case "context":
+                    setContext(e.data.context);
+                    break;
+                case "concepts":
+                    setConcepts(e.data.concepts);
+                    break;
+                case "lattice":
+                    setLattice(e.data.lattice);
+                    break;
+                case "finished":
+                    currentWorker?.removeEventListener("message", onResponse);
+                    break;
             }
-        });
-        
-        setProgressMessage(null);
+        }
     }
 
     return {

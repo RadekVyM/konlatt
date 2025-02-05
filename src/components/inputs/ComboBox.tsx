@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { cn } from "../../utils/tailwind";
-import Button from "../Button";
+import Button from "../inputs/Button";
 import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md";
 import { usePopover } from "../../hooks/usePopover";
 

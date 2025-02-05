@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { DialogState } from "../types/DialogState";
 import ContentDialog from "./ContentDialog";
 import { FileSelection, LargeFileSelection } from "./inputs/FileSelection";
-import Button from "./Button";
+import Button from "./inputs/Button";
 import ComboBox from "./inputs/ComboBox";
 import { useNavigate } from "react-router-dom";
 import useConceptLattice from "../hooks/useConceptLattice";

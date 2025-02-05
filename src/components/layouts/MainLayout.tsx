@@ -1,5 +1,5 @@
 import { Outlet, useLocation } from "react-router-dom";
-import Button from "../Button";
+import Button from "../inputs/Button";
 
 type NavLink = {
     to: string,

@@ -1,3 +1,13 @@
 Sources of the datatasets:
 - https://upriss.github.io/fca/examples.html
 - https://phoenix.inf.upol.cz/~konecnja/fcalad/
+- https://fca-tools-bundle.com/view-context/62c9a84eef7188125735206d
+- https://fca-tools-bundle.com/view-context/6486de92ef7188e196cd7a40
+- https://fca-tools-bundle.com/view-context/5ee4fe8ace557b551c8b4c2f
+- https://fca-tools-bundle.com/view-context/6620d192ef7188ba63713159
+- https://fca-tools-bundle.com/view-context/668917b8ef718880027bdf3d
+- https://fca-tools-bundle.com/view-context/6671a646ef71882bf540715e
+- https://fca-tools-bundle.com/view-context/643edd11ef7188a6d25d6c1f
+- https://fca-tools-bundle.com/view-context/62c949ecef71881157352069
+- https://fca-tools-bundle.com/view-context/64b0a47eef718814f13ef3ba
+- https://fca-tools-bundle.com/view-context/5d08d8dbce557b92078b4570
