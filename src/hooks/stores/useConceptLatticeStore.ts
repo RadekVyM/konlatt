@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { RawFormalContext } from "../../types/RawFormalContext";
 import { RawFormalConcept } from "../../types/RawFormalConcept";
 import { ConceptLattice } from "../../types/ConceptLattice";
+import LatticeWorkerQueue from "../../workers/LatticeWorkerQueue";
 
 type ConceptLatticeStore = {
     progressMessage: string | null,
@@ -9,6 +10,7 @@ type ConceptLatticeStore = {
     context: RawFormalContext | null,
     concepts: Array<RawFormalConcept> | null,
     lattice: ConceptLattice | null,
+    workerQueue: LatticeWorkerQueue,
     setProgressMessage: (progressMessage: string | null) => void,
     setFile: (file: File | null) => void,
     setContext: (context: RawFormalContext | null) => void,
@@ -22,6 +24,7 @@ const useConceptLatticeStore = create<ConceptLatticeStore>((set) => ({
     context: null,
     concepts: null,
     lattice: null,
+    workerQueue: new LatticeWorkerQueue(),
     setProgressMessage: (progressMessage) => set(() => ({ progressMessage })),
     setFile: (file) => set(() => ({ file })),
     setContext: (context) => set(() => ({ context })),

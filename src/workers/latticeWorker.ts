@@ -1,5 +1,5 @@
 import { ConceptLattice } from "../types/ConceptLattice";
-import { WorkerRequest } from "../types/WorkerRequest";
+import { CompleteWorkerRequest } from "../types/WorkerRequest";
 import { ConceptComputationResponse, ContextParsingResponse, FinishedResponse, LatticeComputationResponse, StatusResponse } from "../types/WorkerResponse";
 import { RawFormalConcept } from "../types/RawFormalConcept";
 import { RawFormalContext } from "../types/RawFormalContext";
@@ -8,53 +8,57 @@ let formalContext: RawFormalContext | null = null;
 let formalConcepts: Array<RawFormalConcept> | null = null;
 let conceptLattice: ConceptLattice | null = null;
 
-self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
+self.onmessage = async (event: MessageEvent<CompleteWorkerRequest>) => {
     switch (event.data.type) {
-        case "file-to-lattice":
-            await parseFileContent(event.data.content);
-
+        case "parse-context":
+            await parseFileContent(event.data.jobId, event.data.content);
+            break;
+        case "concepts":
             if (!formalContext) {
                 throw new Error("Formal context has not been calculated yet");
             }
 
-            await calculateConcepts(formalContext);
-
+            await calculateConcepts(event.data.jobId, formalContext);
+            break;
+        case "lattice":
             if (!formalConcepts) {
                 throw new Error("Formal concepts have not been calculated yet");
             }
 
-            await calculateLattice(formalConcepts);
+            await calculateLattice(event.data.jobId, formalConcepts);
             break;
     }
 
-    postStatusMessage(null);
-    postFinished();
+    postStatusMessage(event.data.jobId, null);
+    postFinished(event.data.jobId);
     // self.close();
 };
 
 
-async function parseFileContent(fileContent: string) {
-    postStatusMessage("Parsing file");
+async function parseFileContent(jobId: number, fileContent: string) {
+    postStatusMessage(jobId, "Parsing file");
 
     // https://www.audjust.com/blog/wasm-and-workers
     const { parseBurmeister } = await import("../services/contextParsing");
 
     formalContext = parseBurmeister(fileContent);
     const contextMessage: ContextParsingResponse = {
-        type: "context",
+        jobId,
+        type: "parse-context",
         context: formalContext
     };
 
     self.postMessage(contextMessage);
 }
 
-async function calculateConcepts(context: RawFormalContext) {
-    postStatusMessage("Computing concepts");
+async function calculateConcepts(jobId: number, context: RawFormalContext) {
+    postStatusMessage(jobId, "Computing concepts");
 
     const { computeConcepts } = await import("../services/conceptComputation");
     
     formalConcepts = computeConcepts(context);
     const conceptsMessage: ConceptComputationResponse = {
+        jobId,
         type: "concepts",
         concepts: formalConcepts
     };
@@ -62,13 +66,14 @@ async function calculateConcepts(context: RawFormalContext) {
     self.postMessage(conceptsMessage);
 }
 
-async function calculateLattice(concepts: Array<RawFormalConcept>) {
-    postStatusMessage("Computing lattice");
+async function calculateLattice(jobId: number, concepts: Array<RawFormalConcept>) {
+    postStatusMessage(jobId, "Computing lattice");
 
     const { conceptsToLattice } = await import("../services/latticeComputation");
 
     conceptLattice = conceptsToLattice(concepts);
     const latticeMessage: LatticeComputationResponse = {
+        jobId,
         type: "lattice",
         lattice: conceptLattice
     };
@@ -76,8 +81,9 @@ async function calculateLattice(concepts: Array<RawFormalConcept>) {
     self.postMessage(latticeMessage);
 }
 
-function postStatusMessage(message: string | null) {
+function postStatusMessage(jobId: number, message: string | null) {
     const statusResponse: StatusResponse = {
+        jobId,
         type: "status",
         message
     };
@@ -85,8 +91,9 @@ function postStatusMessage(message: string | null) {
     self.postMessage(statusResponse);
 }
 
-function postFinished() {
+function postFinished(jobId: number) {
     const finishedResponse: FinishedResponse = {
+        jobId,
         type: "finished",
     };
 
