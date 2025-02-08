@@ -1,14 +1,21 @@
 import { Outlet } from "react-router-dom";
 import Button from "../inputs/Button";
 import { LuFolderPlus, LuLoaderCircle } from "react-icons/lu";
-import useDialog from "../../hooks/useDialog";
-import NewProjectDialog from "../NewProjectDialog";
 import useConceptLatticeStore from "../../hooks/stores/useConceptLatticeStore";
+import useNewProjectStore from "../../hooks/stores/useNewProjectStore";
+import useDialog from "../../hooks/useDialog";
+import { useEffect } from "react";
+import NewProjectDialog from "../NewProjectDialog";
 
 export default function RootLayout() {
-    const dialogState = useDialog();
     const progressMessage = useConceptLatticeStore((state) => state.progressMessage);
     const file = useConceptLatticeStore((state) => state.file);
+    const dialogState = useDialog();
+    const setDialogState = useNewProjectStore((state) => state.setDialogState);
+
+    useEffect(() => {
+        setDialogState(dialogState);
+    }, [dialogState]);
     
     return (
         <div
@@ -16,7 +23,7 @@ export default function RootLayout() {
             <header
                 className="flex justify-between items-center py-2 min-h-13">
                 <h1 className="font-semibold text-lg">
-                    😶 cancellos
+                    😶 konlatt
                 </h1>
 
                 <div
@@ -46,7 +53,7 @@ export default function RootLayout() {
                 className="flex-1 overflow-hidden">
                 <Outlet />
             </main>
-
+            
             <NewProjectDialog
                 state={dialogState} />
         </div>

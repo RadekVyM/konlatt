@@ -10,10 +10,11 @@ import { ContextCompleteItem, ContextItem } from "./types";
 export default function ItemCard(props: {
     item: ContextCompleteItem,
     backButtonContent: React.ReactNode,
+    itemsHeading: React.ReactNode,
     onBackClick: () => void,
 }) {
     return (
-        <>
+        <div className="animate-fadeIn">
             <header>
                 <Button
                     size="sm"
@@ -29,10 +30,14 @@ export default function ItemCard(props: {
                 </CardSectionTitle>
             </header>
 
+            <h3 className="text-on-surface-container-muted text-xs mx-4 mb-1">
+                {props.itemsHeading}:
+            </h3>
+
             <List
                 className="flex-1"
                 items={props.item.items} />
-        </>
+        </div>
     );
 }
 

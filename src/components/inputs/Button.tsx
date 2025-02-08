@@ -11,6 +11,7 @@ export default function Button({ className, to, variant, size, disabled, ...rest
     return to ?
         <Link
             to={to}
+            viewTransition
             className={cn(buttonVariants({ variant, size, className }), disabled && "pointer-events-none opacity-50")}
             children={rest.children} /> :
         <button

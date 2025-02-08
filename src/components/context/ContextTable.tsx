@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { RefObject, useEffect, useRef, useState } from "react";
 import { formalContextHasAttribute, RawFormalContext } from "../../types/RawFormalContext";
 import { cn } from "../../utils/tailwind";
 import useDimensions from "../../hooks/useDimensions";
@@ -17,7 +17,11 @@ type ContextTableCellHeader = {
 
 export default function ContextTable(props: {
     context: RawFormalContext,
+    selectedObject: number | null,
+    selectedAttribute: number | null,
     className?: string,
+    setSelectedObject: React.Dispatch<React.SetStateAction<number | null>>,
+    setSelectedAttribute: React.Dispatch<React.SetStateAction<number | null>>,
 }) {
     const cellHeight = 28;
     const cellWidth = 30;
@@ -44,6 +48,16 @@ export default function ContextTable(props: {
     const rowHeaders = useRowHeaders(props.context, skippedRowsCount, visibleRowsCount);
     const columnHeaders = useColumnHeaders(props.context, skippedColumnsCount, visibleColumnsCount);
 
+    useScrollOnSelection(
+        props.selectedObject,
+        props.selectedAttribute,
+        containerRef,
+        cellWidth,
+        cellHeight,
+        containerDimensions,
+        columnHeaderSize,
+        rowHeaderSize);
+
     function onHoverChange(cell: ContextTableCell | null) {
         if (cell) {
             setHoveredColumn(cell.column);
@@ -52,6 +66,17 @@ export default function ContextTable(props: {
         else {
             setHoveredColumn(null);
             setHoveredRow(null);
+        }
+    }
+
+    function onCellClick(cell: ContextTableCell) {
+        if (cell.column === props.selectedAttribute && cell.row === props.selectedObject) {
+            props.setSelectedAttribute(null);
+            props.setSelectedObject(null);
+        }
+        else {
+            props.setSelectedAttribute(cell.column);
+            props.setSelectedObject(cell.row);
         }
     }
 
@@ -69,33 +94,33 @@ export default function ContextTable(props: {
                 className="grid justify-start min-h-full min-w-fit context-table"
                 style={{
                     gridTemplateRows: `auto repeat(${props.context.objects.length}, ${cellHeight}px) 1fr`,
-                    gridTemplateColumns: `minmax(auto, 10rem) repeat(${props.context.attributes.length}, ${cellWidth}px) 1fr`,
+                    gridTemplateColumns: `auto repeat(${props.context.attributes.length}, ${cellWidth}px) 1fr`,
                 }}>
-                {/*
-                {hoveredRow !== null && hoveredColumn !== null &&
-                    <>
-                        <div
-                            className="col-start-1 bg-surface-light-dim-container rounded-r-md"
-                            style={{
-                                gridRowStart: hoveredRow + 2,
-                                gridColumnEnd: hoveredColumn + 3
-                            }}>
-                        </div>
-                        <div
-                            className="row-start-1 bg-surface-light-dim-container rounded-b-md"
-                            style={{
-                                gridColumnStart: hoveredColumn + 2,
-                                gridRowEnd: hoveredRow + 3
-                            }}>
-                        </div>
-                    </>}
-                */}
+                {props.selectedObject !== null &&
+                    <div
+                        className="col-start-2 -col-end-2 bg-primary-lite rounded-r-md"
+                        style={{
+                            gridRowStart: props.selectedObject + 2,
+                            gridRowEnd: props.selectedObject + 3,
+                        }}>
+                    </div>}
+
+                {props.selectedAttribute !== null &&
+                    <div
+                        className="row-start-2 -row-end-2 bg-primary-lite rounded-b-md"
+                        style={{
+                            gridColumnStart: props.selectedAttribute + 2,
+                            gridColumnEnd: props.selectedAttribute + 3,
+                        }}>
+                    </div>}
 
                 {cells.map((cell) =>
                     <TableCell
                         key={`${cell.column} ${cell.row}`}
                         cell={cell}
-                        onHoverChange={onHoverChange} />)}
+                        selected={cell.row === props.selectedObject || cell.column === props.selectedAttribute}
+                        onHoverChange={onHoverChange}
+                        onClick={onCellClick} />)}
 
                 <div
                     className={cn(
@@ -109,7 +134,8 @@ export default function ContextTable(props: {
                         role="rowheader"
                         className={cn(
                             "rh",
-                            header.cell === hoveredRow && "bg-surface-dim-container rounded-md")}
+                            header.cell === props.selectedObject && "selected rounded-l-md",
+                            header.cell === hoveredRow && "hovered")}
                         style={{
                             gridRowStart: header.cell + 2
                         }}
@@ -137,7 +163,8 @@ export default function ContextTable(props: {
                         className={cn(
                             "ch",
                             columnHeadersSideways && "s",
-                            header.cell === hoveredColumn && "bg-surface-dim-container rounded-md")}
+                            header.cell === hoveredColumn && "hovered",
+                            header.cell === props.selectedAttribute && "selected rounded-t-md")}
                         style={{
                             gridColumnStart: header.cell + 2
                         }}
@@ -155,7 +182,9 @@ export default function ContextTable(props: {
 
 function TableCell(props: {
     cell: ContextTableCell,
+    selected: boolean,
     onHoverChange: (cell: ContextTableCell | null) => void,
+    onClick: (cell: ContextTableCell) => void,
 }) {
     function onPointerEnter() {
         props.onHoverChange(props.cell);
@@ -165,21 +194,26 @@ function TableCell(props: {
         props.onHoverChange(null);
     }
 
+    function onClick() {
+        props.onClick(props.cell);
+    }
+
     return (
-        <div
+        <button
             key={`${props.cell.column} ${props.cell.row}`}
             role="cell"
             aria-colindex={props.cell.column + 1}
             aria-rowindex={props.cell.row + 1}
             aria-checked={props.cell.checked}
-            className={cn("td", props.cell.checked && "x")}
+            className={cn("td", props.cell.checked && "x", props.selected && "selected")}
             style={{
                 gridRowStart: props.cell.row + 2,
                 gridColumnStart: props.cell.column + 2
             }}
             onPointerEnter={onPointerEnter}
-            onPointerLeave={onPointerLeave}>
-        </div>
+            onPointerLeave={onPointerLeave}
+            onClick={onClick}>
+        </button>
     );
 }
 
@@ -238,4 +272,38 @@ function useCells(
     }
 
     return cells;
+}
+
+function useScrollOnSelection(
+    selectedObject: number | null,
+    selectedAttribute: number | null,
+    containerRef: RefObject<HTMLDivElement | null>,
+    cellWidth: number,
+    cellHeight: number,
+    containerDimensions: { width: number; height: number; },
+    columnHeaderSize: number,
+    rowHeaderSize: number
+) {
+    const previousSelectedObjectRef = useRef<number | null>(null);
+    const previousSelectedAttributeRef = useRef<number | null>(null);
+
+    useEffect(() => {
+        if (containerRef.current && (selectedObject !== null || selectedAttribute !== null)) {
+            const left = selectedAttribute !== null && selectedAttribute !== previousSelectedAttributeRef.current ?
+                Math.max(0, (selectedAttribute * cellWidth) - ((containerDimensions.width - rowHeaderSize) / 2)) :
+                undefined;
+            const top = selectedObject !== null && selectedObject !== previousSelectedObjectRef.current ?
+                Math.max(0, (selectedObject * cellHeight) - ((containerDimensions.height - columnHeaderSize) / 2)) :
+                undefined;
+
+            containerRef.current.scrollTo({
+                left: left,
+                top: top,
+                behavior: "smooth",
+            });
+        }
+
+        previousSelectedObjectRef.current = selectedObject;
+        previousSelectedAttributeRef.current = selectedAttribute;
+    }, [selectedObject, selectedAttribute]);
 }

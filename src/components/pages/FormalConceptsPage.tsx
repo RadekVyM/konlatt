@@ -3,8 +3,7 @@ import { cn } from "../../utils/tailwind";
 import Container from "../Container";
 import ConceptsList from "../concepts/ConceptsList";
 
-export default function ExportPage() {
-    
+export default function FormalConceptsPage() {
     return (
         <div
             className="grid grid-cols-[1fr_1fr] grid-rows-[5fr_4fr] md:grid-rows-[6fr_4fr] md:grid-cols-[minmax(18rem,2fr)_5fr] xl:grid-cols-[2fr_5fr_1.5fr] xl:grid-rows-1 gap-3 flex-1 pb-4 max-h-full overflow-hidden">

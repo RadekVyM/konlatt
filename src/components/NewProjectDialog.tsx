@@ -6,8 +6,9 @@ import Button from "./inputs/Button";
 import ComboBox from "./inputs/ComboBox";
 import { useNavigate } from "react-router-dom";
 import useConceptLattice from "../hooks/useConceptLattice";
+import useNewProjectStore from "../hooks/stores/useNewProjectStore";
+import { FILE_INPUT_ACCEPT } from "../constants/files";
 
-const FILE_INPUT_ACCEPT = "text/*, .cxt, application/json, application/xml";
 const DEFAULT_FILE_TYPE = "burmeister";
 const FILE_TYPES: Array<{ key: string, label: string }> = [
     { key: "burmeister", label: "Burmeister (.cxt)" },
@@ -20,7 +21,7 @@ export default function NewProjectDialog(props: {
 }) {
     const navigate = useNavigate();
     const { setupLattice } = useConceptLattice();
-    const [selectedFile, setSelectedFile] = useState<File | null | undefined>(null);
+    const { selectedFile, setSelectedFile } = useNewProjectStore();
     const [selectedFileType, setSelectedFileType] = useState<string>(DEFAULT_FILE_TYPE);
 
     useEffect(() => {

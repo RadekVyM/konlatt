@@ -26,6 +26,7 @@ export default function AttributesList(props: {
                 <ItemCardContent
                     item={selectedAttribute}
                     backButtonContent="All attributes"
+                    itemsHeading={`${selectedAttribute.items.length} object${selectedAttribute.items.length === 1 ? "" : "s"}`}
                     onBackClick={() => props.setSelectedAttributeIndex(null)} /> :
                 <ItemsCardContent
                     items={attributes}

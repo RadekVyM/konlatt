@@ -26,6 +26,7 @@ export default function ObjectsList(props: {
                 <ItemCardContent
                     item={selectedObject}
                     backButtonContent="All objects"
+                    itemsHeading={`${selectedObject.items.length} attribute${selectedObject.items.length === 1 ? "" : "s"}`}
                     onBackClick={() => props.setSelectedObjectIndex(null)} /> :
                 <ItemsCardContent
                     items={objects}

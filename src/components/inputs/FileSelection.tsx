@@ -38,17 +38,20 @@ export function LargeFileSelection(props: {
     return (
         <FileSelectionBase
             className={cn(
-                "grid grid-flow-row justify-items-center gap-y-4 p-12 border-dashed text-on-surface-container-muted hover:text-on-surface-container-muted",
+                "grid place-content-center p-12 border-dashed text-on-surface-container-muted hover:text-on-surface-container-muted",
                 "border-2 border-outline border-dashed",
                 props.className)}
             onFileSelect={props.onFileSelect}
             accept={props.accept}
             fileType={props.fileType}>
-            <LuFileUp
-                className="w-8 h-8"/>
-            <span className="font-semibold">
-                {props.file?.name || <>Click to upload <span className="font-normal">or drag and drop</span></>}
-            </span>
+            <div
+                className="grid grid-flow-row justify-items-center gap-y-4">
+                <LuFileUp
+                    className="w-8 h-8"/>
+                <span className="font-semibold">
+                    {props.file?.name || <>Click to upload <span className="font-normal">or drag and drop</span></>}
+                </span>
+            </div>
         </FileSelectionBase>
     )
 }

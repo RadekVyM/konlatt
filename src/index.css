@@ -3,6 +3,7 @@
 @theme {
   --color-primary: var(--primary);
   --color-primary-dim: var(--primary-dim);
+  --color-primary-lite: var(--primary-lite);
   --color-on-primary: var(--on-primary);
   --color-on-primary-dim: var(--on-primary-dim);
   --color-secondary: var(--secondary);

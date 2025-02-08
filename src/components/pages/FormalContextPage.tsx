@@ -6,7 +6,7 @@ import ContextTable from "../context/ContextTable";
 import ObjectsList from "../context/ObjectsList";
 import AttributesList from "../context/AttributesList";
 
-export default function ExportPage() {
+export default function FormalContextPage() {
     const context = useConceptLatticeStore((state) => state.context);
     const [selectedObject, setSelectedObject] = useState<number | null>(null);
     const [selectedAttribute, setSelectedAttribute] = useState<number | null>(null);
@@ -19,7 +19,11 @@ export default function ExportPage() {
     return (
         <div className="grid grid-cols-[1fr_1fr] grid-rows-[4fr_3fr] lg:grid-rows-1 lg:grid-cols-[5fr_2fr_2fr] gap-3 flex-1 pb-4 max-h-full overflow-hidden">
             <Context
-                className="col-start-1 col-end-3 lg:col-end-2" />
+                className="col-start-1 col-end-3 lg:col-end-2"
+                selectedObject={selectedObject}
+                selectedAttribute={selectedAttribute}
+                setSelectedObject={setSelectedObject}
+                setSelectedAttribute={setSelectedAttribute} />
 
             <ObjectsList
                 className="lg:col-start-2 lg:col-end-3 lg:min-w-48"
@@ -34,7 +38,11 @@ export default function ExportPage() {
 }
 
 function Context(props: {
+    selectedObject: number | null,
+    selectedAttribute: number | null,
     className?: string,
+    setSelectedObject: React.Dispatch<React.SetStateAction<number | null>>,
+    setSelectedAttribute: React.Dispatch<React.SetStateAction<number | null>>,
 }) {
     const context = useConceptLatticeStore((state) => state.context);
 
@@ -44,9 +52,16 @@ function Context(props: {
             className={cn("flex flex-col overflow-hidden", props.className)}>
             {context ?
                 <ContextTable
-                    className="flex-1"
+                    className="flex-1 animate-fadeIn"
+                    selectedObject={props.selectedObject}
+                    selectedAttribute={props.selectedAttribute}
+                    setSelectedObject={props.setSelectedObject}
+                    setSelectedAttribute={props.setSelectedAttribute}
                     context={context} /> :
-                <>nothing</>}
+                <div
+                    className="flex-1 grid place-content-center text-sm text-on-surface-container-muted">
+                    Nothing found
+                </div>}
         </Container>
     );
 }

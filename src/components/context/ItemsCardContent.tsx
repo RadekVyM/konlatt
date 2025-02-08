@@ -20,7 +20,7 @@ export default function ItemsCardContent(props: {
     const [searchInput, setSearchInput] = useState<string>("");
 
     return (
-        <>
+        <div className="animate-fadeIn">
             <header
                 className="pb-3 flex flex-col">
                 <span
@@ -43,7 +43,7 @@ export default function ItemsCardContent(props: {
                 itemContent={props.itemContent}
                 itemFilter={props.itemFilter}
                 setSelectedItem={props.setSelectedItem} />
-        </>
+        </div>
     );
 }
 

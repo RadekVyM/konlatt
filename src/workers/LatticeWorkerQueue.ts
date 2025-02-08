@@ -31,7 +31,7 @@ export default class LatticeWorkerQueue {
 
     public cancelJob(jobId: number) {
         if (this.currentJob && this.currentJob.id === jobId) {
-            // TODO: I need to terminate the worker, create a new one and reinitialize it
+            // TODO: I need to terminate the worker, create a new one and reinitialize it if I want to cancel a WASM computation
 
             this.currentJob = null;
             
