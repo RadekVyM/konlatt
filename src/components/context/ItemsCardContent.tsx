@@ -30,7 +30,7 @@ export default function ItemsCardContent(props: {
                     <span className="text-xs text-on-surface-container-muted mr-4">{props.count}</span>
                 </span>
                 <SearchInput
-                    className="self-stretch mx-3"
+                    className="self-stretch mx-4"
                     value={searchInput}
                     onChange={setSearchInput}
                     placeholder={props.searchInputPlaceholder} />

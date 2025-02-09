@@ -6,6 +6,7 @@ import CardItemsLazyList from "../CardItemsLazyList";
 import useLazyListCount from "../../hooks/useLazyListCount";
 import { cn } from "../../utils/tailwind";
 import NothingFound from "../NothingFound";
+import SearchInput from "../SearchInput";
 
 type TabItem = "objects" | "attributes"
 
@@ -26,7 +27,7 @@ export default function ConceptDetail(props: {
     return (
         <>
             <header
-                className="mb-2">
+                className="mb-3">
                 <BackButton
                     onClick={onBackClick}>
                     All concepts
@@ -98,6 +99,7 @@ function ObjectsList(props: {
 
     return (
         <ItemsList
+            searchPlaceholder="Search objects..."
             itemIndexes={props.objectIndexes}
             itemContent={(index) => context?.objects[index]} />
     );
@@ -110,16 +112,20 @@ function AttributesList(props: {
 
     return (
         <ItemsList
+            searchPlaceholder="Search attributes..."
             itemIndexes={props.attributeIndexes}
             itemContent={(index) => context?.attributes[index]} />
     );
 }
 
 function ItemsList(props: {
+    searchPlaceholder: string,
     itemIndexes: Array<number>,
     itemContent: (index: number) => React.ReactNode,
 }) {
     const observerTargetRef = useRef<HTMLDivElement>(null);
+    const [searchInput, setSearchInput] = useState("");
+    // TODO: implement search
     const [displayedItemsCount] = useLazyListCount(props.itemIndexes.length, 20, observerTargetRef);
     const displayedObjectIndexes = props.itemIndexes.slice(0, displayedItemsCount);
 
@@ -131,17 +137,25 @@ function ItemsList(props: {
     }
 
     return (
-        <CardItemsLazyList
-            className="flex-1"
-            observerTargetRef={observerTargetRef}>
-            {displayedObjectIndexes.map((index, i) =>
-                <li
-                    key={index}
-                    className={cn(
-                        "px-3 py-1.5",
-                        i < props.itemIndexes.length - 1 && "border-b border-outline-variant")}>
-                    {props.itemContent(index)}
-                </li>)}
-        </CardItemsLazyList>
+        <>
+            <SearchInput
+                className="mx-4 mb-2"
+                placeholder={props.searchPlaceholder}
+                value={searchInput}
+                onChange={setSearchInput} />
+
+            <CardItemsLazyList
+                className="flex-1"
+                observerTargetRef={observerTargetRef}>
+                {displayedObjectIndexes.map((index, i) =>
+                    <li
+                        key={index}
+                        className={cn(
+                            "px-3 py-1.5",
+                            i < props.itemIndexes.length - 1 && "border-b border-outline-variant")}>
+                        {props.itemContent(index)}
+                    </li>)}
+            </CardItemsLazyList>
+        </>
     );
 }

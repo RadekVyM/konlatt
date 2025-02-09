@@ -83,7 +83,7 @@ export default function ContextTable(props: {
     return (
         <div
             ref={containerRef}
-            className={cn("overflow-auto relative thin-scrollbar text-on-surface-container", props.className)}
+            className={cn("overflow-auto relative thin-scrollbar text-on-surface-container scroll-smooth", props.className)}
             onScroll={(e) => setContainerScroll([e.currentTarget.scrollLeft, e.currentTarget.scrollTop])}>
             <div
                 ref={tableRef}
