@@ -1,11 +1,11 @@
 import { useRef } from "react";
 import useLazyListCount from "../../hooks/useLazyListCount";
-import Button from "../inputs/Button";
-import { LuChevronLeft } from "react-icons/lu";
 import CardSectionTitle from "../CardSectionTitle";
 import CardItemsLazyList from "../CardItemsLazyList";
 import { cn } from "../../utils/tailwind";
 import { ContextCompleteItem, ContextItem } from "./types";
+import BackButton from "../BackButton";
+import NothingFound from "../NothingFound";
 
 export default function ItemCard(props: {
     item: ContextCompleteItem,
@@ -14,15 +14,12 @@ export default function ItemCard(props: {
     onBackClick: () => void,
 }) {
     return (
-        <div className="animate-fadeIn">
+        <>
             <header>
-                <Button
-                    size="sm"
-                    className="pl-1 ml-2 mb-1"
+                <BackButton
                     onClick={props.onBackClick}>
-                    <LuChevronLeft />
                     {props.backButtonContent}
-                </Button>
+                </BackButton>
 
                 <CardSectionTitle
                     className="mx-4 mb-2">
@@ -37,7 +34,7 @@ export default function ItemCard(props: {
             <List
                 className="flex-1"
                 items={props.item.items} />
-        </div>
+        </>
     );
 }
 
@@ -51,11 +48,9 @@ function List(props: {
 
     if (displayedItems.length === 0) {
         return (
-            <div
-                className={cn("grid place-content-center text-sm text-on-surface-container-muted", props.className)}>
-                Nothing found
-            </div>
-        )
+            <NothingFound
+                className={props.className} />
+        );
     }
 
     return (

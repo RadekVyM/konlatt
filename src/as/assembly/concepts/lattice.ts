@@ -1,4 +1,5 @@
-// Based on code used here: https://upriss.github.io/educaJS/binaryRelations/binRel.html?ttype=lattice&rtype=fca&graph=%7B%5Bgreen%2Cblue%5D%2C%20%5Borange%2Cred%5D%2C%20%5Bgreen%2Cblue%5D%2C%20%5Borange%2Cyellow%5D%2C%20%5Bviolet%2Cblue%5D%2C%20%5Bviolet%2Cred%5D%2C%20%5Bgreen%2Cyellow%5D%7D%20%0A
+// Based on algorithm used here:
+// https://github.com/upriss/fcastone/blob/84742cc23eed9a3b986f6fde3d6476fae3bbd9fe/fcastone#L816
 
 import { FormalConcept } from "../types/FormalConcept";
 import { isSortedSubsetOf } from "../utils/arrays";
@@ -21,24 +22,26 @@ export function conceptsToLattice(concepts: Array<FormalConcept>): Array<Array<i
         lattice[i] = { set: new Set<i32>(), index: concepts[i].attribute };
     }
 
+    // direct subconcepts of a concept concepts[i]
+    const subConcepts: StaticArray<i32> = new StaticArray<i32>(concepts.length);
+    let subConceptsCount = 0;
+
     for (let i = 0; i < concepts.length; i++) {
-        // (direct) subconcepts of a concept concepts[i]
-        const subConcepts: Array<i32> = new Array<i32>();
+        subConceptsCount = 0;
 
         for (let j = i - 1; j >= 0; j--) {
             // j is subconcept of i
             if (isSortedSubsetOf(concepts[i].attributes, concepts[j].attributes)) {
-                subConcepts.push(j);
-                //lattice.add(`${i}>${j}`);
+                subConcepts[subConceptsCount] = j;
+                subConceptsCount++;
                 lattice[i].set.add(j);
 
-                // if one of the subconcepts has j as a subconcept, j is not a subconcept of i
-                for (let k = 0; k < subConcepts.length; k++) { // delete transitive links
+                // if one of the subconcepts has j as a direct subconcept, j is not a direct subconcept of i
+                // delete transitive links
+                for (let k = 0; k < subConceptsCount; k++) {
                     const subConcept = subConcepts[k];
-                    //if (lattice.has(`${superConcepts[k]}>${j}`)) {
                     if (lattice[subConcept].set.has(j)) {
                         lattice[i].set.delete(j);
-                        //lattice.delete(`${i}>${j}`);
                         break;
                     }
                 }

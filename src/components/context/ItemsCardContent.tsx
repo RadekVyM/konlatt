@@ -5,6 +5,7 @@ import Button from "../inputs/Button";
 import SearchInput from "../SearchInput";
 import CardItemsLazyList from "../CardItemsLazyList";
 import CardSectionTitle from "../CardSectionTitle";
+import NothingFound from "../NothingFound";
 
 export default function ItemsCardContent(props: {
     title: string,
@@ -20,7 +21,7 @@ export default function ItemsCardContent(props: {
     const [searchInput, setSearchInput] = useState<string>("");
 
     return (
-        <div className="animate-fadeIn">
+        <>
             <header
                 className="pb-3 flex flex-col">
                 <span
@@ -43,7 +44,7 @@ export default function ItemsCardContent(props: {
                 itemContent={props.itemContent}
                 itemFilter={props.itemFilter}
                 setSelectedItem={props.setSelectedItem} />
-        </div>
+        </>
     );
 }
 
@@ -64,11 +65,9 @@ function List(props: {
 
     if (displayedItems.length === 0) {
         return (
-            <div
-                className={cn("grid place-content-center text-sm text-on-surface-container-muted", props.className)}>
-                Nothing found
-            </div>
-        )
+            <NothingFound
+                className={props.className} />
+        );
     }
 
     return (

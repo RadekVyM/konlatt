@@ -1,0 +1,5 @@
+@reference "../index.css";
+
+.card-section > * {
+    @apply animate-fadeIn;
+}

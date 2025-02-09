@@ -5,6 +5,7 @@ import Container from "../Container";
 import ContextTable from "../context/ContextTable";
 import ObjectsList from "../context/ObjectsList";
 import AttributesList from "../context/AttributesList";
+import NothingFound from "../NothingFound";
 
 export default function FormalContextPage() {
     const context = useConceptLatticeStore((state) => state.context);
@@ -58,10 +59,8 @@ function Context(props: {
                     setSelectedObject={props.setSelectedObject}
                     setSelectedAttribute={props.setSelectedAttribute}
                     context={context} /> :
-                <div
-                    className="flex-1 grid place-content-center text-sm text-on-surface-container-muted">
-                    Nothing found
-                </div>}
+                <NothingFound
+                    className="flex-1" />}
         </Container>
     );
 }

@@ -1,22 +1,40 @@
 import { useRef, useState } from "react";
 import useConceptLatticeStore from "../../hooks/stores/useConceptLatticeStore";
 import { cn } from "../../utils/tailwind";
-import Container from "../Container";
 import SearchInput from "../SearchInput";
 import useLazyListCount from "../../hooks/useLazyListCount";
 import Button from "../inputs/Button";
 import CardItemsLazyList from "../CardItemsLazyList";
+import { CardSection } from "../CardSection";
+import ConceptDetail from "./ConceptDetail";
+import NothingFound from "../NothingFound";
 
 export default function Concepts(props: {
     className?: string,
+}) {
+    const [selectedConceptIndex, setSelectedConceptIndex] = useState<number | null>(null);
+
+    return (
+        <CardSection
+            className={props.className}>
+            {selectedConceptIndex === null ?
+                <ConceptsList
+                    setSelectedConceptIndex={setSelectedConceptIndex} /> :
+                <ConceptDetail
+                    selectedConceptIndex={selectedConceptIndex}
+                    setSelectedConceptIndex={setSelectedConceptIndex} />}
+        </CardSection>
+    );
+}
+
+function ConceptsList(props: {
+    setSelectedConceptIndex: (index: number | null) => void,
 }) {
     const [searchInput, setSearchInput] = useState<string>("");
     const concepts = useConceptLatticeStore((state) => state.concepts);
 
     return (
-        <Container
-            as="section"
-            className={cn("pt-3 flex flex-col overflow-hidden", props.className)}>
+        <>
             <header
                 className="pb-3 flex flex-col">
                 <span
@@ -34,16 +52,18 @@ export default function Concepts(props: {
                     placeholder="Search concepts..." />
             </header>
 
-            <ConceptsList
+            <List
                 className="flex-1"
-                searchInput={searchInput} />
-        </Container>
+                searchInput={searchInput}
+                setSelectedConceptIndex={props.setSelectedConceptIndex} />
+        </>
     );
 }
 
-function ConceptsList(props: {
+function List(props: {
     className?: string,
     searchInput: string,
+    setSelectedConceptIndex: (index: number | null) => void,
 }) {
     const observerTargetRef = useRef<HTMLDivElement>(null);
     const concepts = useConceptLatticeStore((state) => state.concepts);
@@ -54,11 +74,9 @@ function ConceptsList(props: {
 
     if (!context || !concepts || filteredConcepts.length === 0) {
         return (
-            <div
-                className={cn("grid place-content-center text-sm text-on-surface-container-muted", props.className)}>
-                Nothing found
-            </div>
-        )
+            <NothingFound
+                className={props.className} />
+        );
     }
 
     return (
@@ -73,7 +91,7 @@ function ConceptsList(props: {
                         index < filteredConcepts.length - 1 && "border-b border-outline-variant")}>
                     <Button
                         className="w-full text-start py-1.5"
-                        onClick={() => {}}>
+                        onClick={() => props.setSelectedConceptIndex(index)}>
                         <div>
                             <div className="mb-0.5 text-sm line-clamp-3">
                                 {item.objects.length > 0 ?

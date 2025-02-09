@@ -45,7 +45,7 @@
     .ch {
         @apply isolate row-start-1 sticky top-0 font-semibold text-sm pb-2 pt-3 text-center;
     }
-    
+
     .s {
         writing-mode: sideways-lr;
         text-orientation: mixed;
