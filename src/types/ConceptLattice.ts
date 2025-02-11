@@ -1,3 +1,4 @@
 export type ConceptLattice = {
-    subConceptsMapping: Array<Set<number>>
+    readonly subconceptsMapping: ReadonlyArray<Set<number>>,
+    readonly superconceptsMapping: ReadonlyArray<Set<number>>,
 }

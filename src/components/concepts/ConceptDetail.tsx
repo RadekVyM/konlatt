@@ -93,7 +93,7 @@ function TabButton(props: {
 }
 
 function ObjectsList(props: {
-    objectIndexes: Array<number>,
+    objectIndexes: ReadonlyArray<number>,
 }) {
     const context = useConceptLatticeStore((state) => state.context);
 
@@ -106,7 +106,7 @@ function ObjectsList(props: {
 }
 
 function AttributesList(props: {
-    attributeIndexes: Array<number>,
+    attributeIndexes: ReadonlyArray<number>,
 }) {
     const context = useConceptLatticeStore((state) => state.context);
 
@@ -120,7 +120,7 @@ function AttributesList(props: {
 
 function ItemsList(props: {
     searchPlaceholder: string,
-    itemIndexes: Array<number>,
+    itemIndexes: ReadonlyArray<number>,
     itemContent: (index: number) => React.ReactNode,
 }) {
     const observerTargetRef = useRef<HTMLDivElement>(null);

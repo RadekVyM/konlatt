@@ -1,11 +1,11 @@
 const FORMAL_CONTEXT_CELL_SIZE: number = 64;
 
 export type RawFormalContext = {
-    context: Array<bigint>,
-    objects: Array<string>,
-    attributes: Array<string>,
-    cellsPerObject: number,
-    cellSize: number
+    readonly context: ReadonlyArray<bigint>,
+    readonly objects: ReadonlyArray<string>,
+    readonly attributes: ReadonlyArray<string>,
+    readonly cellsPerObject: number,
+    readonly cellSize: number
 }
 
 export function formalContextHasAttribute(context: RawFormalContext, object: number, attribute: number): boolean {

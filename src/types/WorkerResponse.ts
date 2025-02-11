@@ -1,6 +1,6 @@
-import { RawFormalConcept } from "./RawFormalConcept";
 import { RawFormalContext } from "./RawFormalContext";
 import { ConceptLattice } from "./ConceptLattice";
+import { FormalConcepts } from "./FormalConcepts";
 
 export type WorkerResponse = FinishedResponse | StatusResponse | ContextParsingResponse | ConceptComputationResponse | LatticeComputationResponse
 
@@ -20,7 +20,7 @@ export type ContextParsingResponse = {
 
 export type ConceptComputationResponse = {
     type: "concepts",
-    concepts: Array<RawFormalConcept>
+    concepts: FormalConcepts
 } & BaseResponse
 
 export type LatticeComputationResponse = {

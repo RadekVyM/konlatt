@@ -1,11 +1,11 @@
 import { ConceptLattice } from "../types/ConceptLattice";
 import { CompleteWorkerRequest } from "../types/WorkerRequest";
 import { ConceptComputationResponse, ContextParsingResponse, FinishedResponse, LatticeComputationResponse, StatusResponse } from "../types/WorkerResponse";
-import { RawFormalConcept } from "../types/RawFormalConcept";
 import { RawFormalContext } from "../types/RawFormalContext";
+import { FormalConcepts } from "../types/FormalConcepts";
 
 let formalContext: RawFormalContext | null = null;
-let formalConcepts: Array<RawFormalConcept> | null = null;
+let formalConcepts: FormalConcepts | null = null;
 let conceptLattice: ConceptLattice | null = null;
 
 self.onmessage = async (event: MessageEvent<CompleteWorkerRequest>) => {
@@ -66,7 +66,7 @@ async function calculateConcepts(jobId: number, context: RawFormalContext) {
     self.postMessage(conceptsMessage);
 }
 
-async function calculateLattice(jobId: number, concepts: Array<RawFormalConcept>) {
+async function calculateLattice(jobId: number, concepts: FormalConcepts) {
     postStatusMessage(jobId, "Computing lattice");
 
     const { conceptsToLattice } = await import("../services/latticeComputation");

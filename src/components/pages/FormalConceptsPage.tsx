@@ -24,7 +24,8 @@ function Diagram(props: {
         <Container
             as="section"
             className={cn("overflow-hidden", props.className)}>
-            <p>Links count in the lattice: {lattice?.subConceptsMapping.reduce((prev, curr) => prev + curr.size, 0)}</p>
+            <p>Links count in the lattice: {lattice?.subconceptsMapping.reduce((prev, curr) => prev + curr.size, 0)}</p>
+            <p>Links count in the lattice: {lattice?.superconceptsMapping.reduce((prev, curr) => prev + curr.size, 0)}</p>
         </Container>
     );
 }

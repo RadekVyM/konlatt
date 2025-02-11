@@ -1,17 +1,12 @@
 // Based on algorithm used here:
 // https://github.com/upriss/fcastone/blob/84742cc23eed9a3b986f6fde3d6476fae3bbd9fe/fcastone#L816
 
-import { FormalConcept } from "../types/FormalConcept";
+import { IndexedFormalConcept } from "../types/FormalConcept";
 import { isSortedSubsetOf } from "../utils/arrays";
 
-export function conceptsToLattice(concepts: Array<FormalConcept>): Array<Array<i32>> {
+export function conceptsToLattice(concepts: Array<IndexedFormalConcept>): Array<Array<i32>> {
     // It is still not usable for lots of concepts – works quite fine with 3000 concepts
     const startTime = Date.now();
-
-    // Remember the original index of each concept
-    for (let i = 0; i < concepts.length; i++) {
-        concepts[i].attribute = i;
-    }
 
     // Concepts must be ordered by intent's length from biggest to smallest
     concepts.sort((first, second) => second.attributes.length - first.attributes.length);
@@ -19,7 +14,7 @@ export function conceptsToLattice(concepts: Array<FormalConcept>): Array<Array<i
     // lattice[i] = a set of direct subconcepts of a concept concepts[i]
     const lattice: StaticArray<LatticeSet> = new StaticArray<LatticeSet>(concepts.length);
     for (let i = 0; i < concepts.length; i++) {
-        lattice[i] = { set: new Set<i32>(), index: concepts[i].attribute };
+        lattice[i] = { set: new Set<i32>(), index: concepts[i].index };
     }
 
     // direct subconcepts of a concept concepts[i]
