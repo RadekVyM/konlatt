@@ -2,6 +2,7 @@ import useConceptLatticeStore from "../../hooks/stores/useConceptLatticeStore";
 import { cn } from "../../utils/tailwind";
 import Container from "../Container";
 import ConceptsList from "../concepts/ConceptsList";
+import DiagramCanvas from "../concepts/DiagramCanvas";
 
 export default function FormalConceptsPage() {
     return (
@@ -23,9 +24,11 @@ function Diagram(props: {
     return (
         <Container
             as="section"
-            className={cn("overflow-hidden", props.className)}>
-            <p>Links count in the lattice: {lattice?.subconceptsMapping.reduce((prev, curr) => prev + curr.size, 0)}</p>
-            <p>Links count in the lattice: {lattice?.superconceptsMapping.reduce((prev, curr) => prev + curr.size, 0)}</p>
+            className={cn("overflow-hidden relative", props.className)}>
+            <p className="absolute bottom-0">Links count in the lattice: {lattice?.subconceptsMapping.reduce((prev, curr) => prev + curr.size, 0)}</p>
+            <p className="absolute bottom-10">Links count in the lattice: {lattice?.superconceptsMapping.reduce((prev, curr) => prev + curr.size, 0)}</p>
+            <DiagramCanvas
+                className="w-full h-full" />
         </Container>
     );
 }

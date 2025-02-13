@@ -1,4 +1,4 @@
-export type WorkerRequest = ContextParsingRequest | ConceptComputationRequest | LatticeComputationRequest
+export type WorkerRequest = ContextParsingRequest | ConceptComputationRequest | LatticeComputationRequest | LayoutComputationRequest
 
 export type CompleteWorkerRequest = {
     jobId: number,
@@ -15,4 +15,8 @@ export type ConceptComputationRequest = {
 
 export type LatticeComputationRequest = {
     type: "lattice",
+}
+
+export type LayoutComputationRequest = {
+    type: "layout",
 }

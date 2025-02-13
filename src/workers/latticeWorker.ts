@@ -1,12 +1,14 @@
 import { ConceptLattice } from "../types/ConceptLattice";
 import { CompleteWorkerRequest } from "../types/WorkerRequest";
-import { ConceptComputationResponse, ContextParsingResponse, FinishedResponse, LatticeComputationResponse, StatusResponse } from "../types/WorkerResponse";
+import { ConceptComputationResponse, ContextParsingResponse, FinishedResponse, LatticeComputationResponse, LayoutComputationResponse, StatusResponse } from "../types/WorkerResponse";
 import { RawFormalContext } from "../types/RawFormalContext";
 import { FormalConcepts } from "../types/FormalConcepts";
+import { ConceptLatticeLayout } from "../types/ConceptLatticeLayout";
 
 let formalContext: RawFormalContext | null = null;
 let formalConcepts: FormalConcepts | null = null;
 let conceptLattice: ConceptLattice | null = null;
+let layout: ConceptLatticeLayout | null = null;
 
 self.onmessage = async (event: MessageEvent<CompleteWorkerRequest>) => {
     switch (event.data.type) {
@@ -26,6 +28,16 @@ self.onmessage = async (event: MessageEvent<CompleteWorkerRequest>) => {
             }
 
             await calculateLattice(event.data.jobId, formalConcepts);
+            break;
+        case "layout":
+            if (!formalConcepts) {
+                throw new Error("Formal concepts have not been calculated yet");
+            }
+            if (!conceptLattice) {
+                throw new Error("Concept lattice has not been calculated yet");
+            }
+
+            await calculateLayout(event.data.jobId, formalConcepts, conceptLattice);
             break;
     }
 
@@ -79,6 +91,21 @@ async function calculateLattice(jobId: number, concepts: FormalConcepts) {
     };
 
     self.postMessage(latticeMessage);
+}
+
+async function calculateLayout(jobId: number, concepts: FormalConcepts, lattice: ConceptLattice) {
+    postStatusMessage(jobId, "Computing layout");
+
+    const { computeLayeredLayout } = await import("../services/layouts/layeredLayout");
+
+    layout = computeLayeredLayout(concepts, lattice);
+    const layoutMessage: LayoutComputationResponse = {
+        jobId,
+        type: "layout",
+        layout
+    };
+
+    self.postMessage(layoutMessage);
 }
 
 function postStatusMessage(jobId: number, message: string | null) {

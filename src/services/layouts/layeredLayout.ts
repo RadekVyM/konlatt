@@ -1,60 +1,33 @@
 import { ConceptLattice } from "../../types/ConceptLattice";
 import { ConceptLatticeLayout } from "../../types/ConceptLatticeLayout";
-import { FormalConcepts, getSupremum } from "../../types/FormalConcepts";
-import { Point } from "../../types/Point";
+import { FormalConcepts } from "../../types/FormalConcepts";
+import { createPoint, Point } from "../../types/Point";
+import { assignNodesToLayersByLongestPath } from "./layers";
 
 export function computeLayeredLayout(formalConcepts: FormalConcepts, lattice: ConceptLattice): ConceptLatticeLayout {
-    const layout = new Array<Point>(lattice.subconceptsMapping.length);
+    const { layers } = assignNodesToLayersByLongestPath(formalConcepts, lattice.subconceptsMapping);
 
-    assignNodesToLayersByLongestPath(formalConcepts, lattice.subconceptsMapping);
+    // create dummy nodes
 
-    return layout;
+    // reduce crossing
+
+    // assign coordinates properly
+
+    return createLayout(lattice, layers);
 }
 
-function assignNodesToLayersByLongestPath(formalConcepts: FormalConcepts, subconceptsMapping: ReadonlyArray<Set<number>>) {
-    const layersMapping = new Array<number>(subconceptsMapping.length);
-    const layers = new Array<Set<number>>(subconceptsMapping.length);
-    const visited = new Array<boolean>(subconceptsMapping.length);
-    const supremum = getSupremum(formalConcepts);
+function createLayout(lattice: ConceptLattice, layers: Array<Set<number>>) {
+    const layout = new Array<Point>(lattice.subconceptsMapping.length);
 
-    layersMapping[supremum.index] = 0;
-    layers[0] = new Set<number>();
-    layers[0].add(supremum.index);
+    for (let i = 0; i < layers.length; i++) {
+        const layer = layers[i];
 
-    dfs(supremum.index);
-
-    // computing topological order and longest paths at the same time
-    // https://en.wikipedia.org/wiki/Longest_path_problem#Acyclic_graphs
-    function dfs(currentIndex: number) {
-        const subconcepts = subconceptsMapping[currentIndex];
-        visited[currentIndex] = true;
-
-        for (const subconceptIndex of subconcepts) {
-            if (!visited[subconceptIndex]) {
-                dfs(subconceptIndex);
-            }
-            
-            const newLayer = layersMapping[currentIndex] + 1;
-
-            if (layersMapping[subconceptIndex] === undefined || newLayer > layersMapping[subconceptIndex]) {
-                layersMapping[subconceptIndex] = newLayer;
-
-                if (layers[newLayer] === undefined) {
-                    layers[newLayer] = new Set<number>();
-                }
-                if (layersMapping[subconceptIndex] === undefined) {
-                    // Remove the concept from it's layer
-                    layers[layersMapping[currentIndex]].delete(currentIndex);
-                }
-                
-                // Add the concept to it's new layer
-                layers[newLayer].add(subconceptIndex);
-            }
+        let j = 0;
+        for (const node of layer.values()) {
+            layout[node] = createPoint(j * 20, i * 20, 0);
+            j++;
         }
     }
 
-    return {
-        layersMapping,
-        layers,
-    };
+    return layout;
 }

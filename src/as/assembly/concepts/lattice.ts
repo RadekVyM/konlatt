@@ -46,9 +46,18 @@ export function conceptsToLattice(concepts: Array<IndexedFormalConcept>): Array<
 
     console.log(`lattice: ${Date.now() - startTime} ms`);
 
+    const result = new Array<Array<i32>>(lattice.length);
+    
     // Ensure the original order of concepts
-    lattice.sort((first, second) => first.index - second.index);
-    return lattice.map<Array<i32>>((set) => set.set.values());
+    for (let i = 0; i < lattice.length; i++) {
+        const value = lattice[i];
+        const subconcepts = result[value.index] = value.set.values();
+        for (let j = 0; j < subconcepts.length; j++) {
+            subconcepts[j] = lattice[subconcepts[j]].index;
+        }
+    }
+
+    return result;
 }
 
 class LatticeSet {
