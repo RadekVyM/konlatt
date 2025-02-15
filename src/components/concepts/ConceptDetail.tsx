@@ -7,10 +7,12 @@ import useLazyListCount from "../../hooks/useLazyListCount";
 import { cn } from "../../utils/tailwind";
 import NothingFound from "../NothingFound";
 import SearchInput from "../SearchInput";
+import CardSection from "../CardSection";
 
 type TabItem = "objects" | "attributes"
 
 export default function ConceptDetail(props: {
+    className?: string,
     selectedConceptIndex: number,
     setSelectedConceptIndex: (index: number | null) => void,
 }) {
@@ -25,7 +27,8 @@ export default function ConceptDetail(props: {
     }
 
     return (
-        <>
+        <CardSection
+            className={props.className}>
             <header
                 className="mb-3">
                 <BackButton
@@ -49,7 +52,7 @@ export default function ConceptDetail(props: {
                     <AttributesList
                         attributeIndexes={selectedConcept?.attributes || []} /> :
                     undefined}
-        </>
+        </CardSection>
     );
 }
 

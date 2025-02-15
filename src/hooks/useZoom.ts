@@ -17,7 +17,8 @@ export type OnZoomChangeCallback = (param: ZoomTransform) => void
  * @returns Operation for zooming an element content
  */
 export default function useZoom(
-    dimensions: { width: number, height: number },
+    width: number,
+    height: number,
     elementRef: RefObject<Element | null>,
     scaleExtent?: ZoomScaleExtent,
     onZoomChange?: OnZoomChangeCallback
@@ -32,7 +33,7 @@ export default function useZoom(
         const element = d3Selection.select(elementRef.current);
 
         const currentZoom = (zoomRef.current || d3Zoom.zoom<Element, unknown>())
-            .extent([[0, 0], [dimensions.width, dimensions.height]])
+            .extent([[0, 0], [width, height]])
             .scaleExtent([scaleExtent?.min || 1, scaleExtent?.max || 2])
             .on("zoom", (event) => {
                 const transform = event.transform as { k: number, x: number, y: number };
@@ -45,7 +46,7 @@ export default function useZoom(
         zoomRef.current = currentZoom;
 
         element.call(currentZoom);
-    }, [dimensions.width, dimensions.height, elementRef, scaleExtent]);
+    }, [width, height, elementRef, scaleExtent]);
 
     function zoomTo(zoomTransform: ZoomTransform) {
         if (!zoomRef.current || !elementRef.current) {

@@ -42,10 +42,10 @@
   --color-backdrop: var(--backdrop);
 
 
-  --animate-slideUpIn: slideUpIn 150ms ease-in-out forwards;
-  --animate-slideDownOut: slideDownOut 150ms ease-in-out forwards;
-  --animate-fadeIn: fadeIn 150ms ease-in-out forwards;
-  --animate-fadeOut: fadeOut 150ms ease-in-out forwards;
+  --animate-slideUpIn: slideUpIn 200ms ease-in-out forwards;
+  --animate-slideDownOut: slideDownOut 200ms ease-in-out forwards;
+  --animate-fadeIn: fadeIn 200ms ease-in-out forwards;
+  --animate-fadeOut: fadeOut 200ms ease-in-out forwards;
 
   @keyframes slideUpIn {
     0% {

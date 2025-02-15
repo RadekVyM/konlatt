@@ -6,15 +6,18 @@ import { cn } from "../../utils/tailwind";
 import { ContextCompleteItem, ContextItem } from "./types";
 import BackButton from "../BackButton";
 import NothingFound from "../NothingFound";
+import CardSection from "../CardSection";
 
 export default function ItemCard(props: {
+    className?: string,
     item: ContextCompleteItem,
     backButtonContent: React.ReactNode,
     itemsHeading: React.ReactNode,
     onBackClick: () => void,
 }) {
     return (
-        <>
+        <CardSection
+            className={props.className}>
             <header>
                 <BackButton
                     onClick={props.onBackClick}>
@@ -34,7 +37,7 @@ export default function ItemCard(props: {
             <List
                 className="flex-1"
                 items={props.item.items} />
-        </>
+        </CardSection>
     );
 }
 

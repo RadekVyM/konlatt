@@ -1,10 +1,11 @@
 import useConceptLatticeStore from "../../hooks/stores/useConceptLatticeStore";
 import { formalContextHasAttribute, RawFormalContext } from "../../types/RawFormalContext";
-import { CardSection } from "../CardSection";
+import { CardContainer } from "../CardContainer";
 import ItemsCardContent from "./ItemsCardContent";
 import ItemCardContent from "./ItemCardContent";
 import { ContextCompleteItem, ContextItem } from "./types";
 import { searchFilter } from "./utils";
+import { cn } from "../../utils/tailwind";
 
 type ContextObjectItem = ContextItem
 
@@ -20,24 +21,25 @@ export default function ObjectsList(props: {
         null;
 
     return (
-        <CardSection
+        <CardContainer
             className={props.className}>
-            {selectedObject ? 
+            <ItemsCardContent
+                className={cn(selectedObject && "hidden")}
+                items={objects}
+                title="Objects"
+                count={context?.objects.length || 0}
+                searchInputPlaceholder="Search objects..."
+                itemContent={(item: ContextObjectItem) => item.title}
+                itemKey={(item: ContextObjectItem) => item.index}
+                setSelectedItem={(item: ContextObjectItem) => props.setSelectedObjectIndex(item.index)}
+                itemFilter={searchFilter} />
+            {selectedObject &&
                 <ItemCardContent
                     item={selectedObject}
                     backButtonContent="All objects"
                     itemsHeading={`${selectedObject.items.length} attribute${selectedObject.items.length === 1 ? "" : "s"}`}
-                    onBackClick={() => props.setSelectedObjectIndex(null)} /> :
-                <ItemsCardContent
-                    items={objects}
-                    title="Objects"
-                    count={context?.objects.length || 0}
-                    searchInputPlaceholder="Search objects..."
-                    itemContent={(item: ContextObjectItem) => item.title}
-                    itemKey={(item: ContextObjectItem) => item.index}
-                    setSelectedItem={(item: ContextObjectItem) => props.setSelectedObjectIndex(item.index)}
-                    itemFilter={searchFilter} />}
-        </CardSection>
+                    onBackClick={() => props.setSelectedObjectIndex(null)} />}
+        </CardContainer>
     );
 }
 

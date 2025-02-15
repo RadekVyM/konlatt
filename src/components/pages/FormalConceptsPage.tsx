@@ -7,7 +7,7 @@ import DiagramCanvas from "../concepts/DiagramCanvas";
 export default function FormalConceptsPage() {
     return (
         <div
-            className="grid grid-cols-[1fr_1fr] grid-rows-[5fr_4fr] md:grid-rows-[6fr_4fr] md:grid-cols-[minmax(18rem,2fr)_5fr] xl:grid-cols-[2fr_5fr_1.5fr] xl:grid-rows-1 gap-3 flex-1 pb-4 max-h-full overflow-hidden">
+            className="grid grid-cols-[1fr_1fr] grid-rows-[5fr_4fr] md:grid-rows-[6fr_4fr] md:grid-cols-[minmax(18rem,2fr)_5fr] xl:grid-cols-[1fr_2.5fr_1fr] xl:grid-rows-1 gap-3 flex-1 pb-4 max-h-full overflow-hidden">
             <ConceptsList />
             <Diagram
                 className="col-start-1 col-end-3 row-start-1 row-end-2 md:col-start-2 md:col-end-3 md:row-start-1 md:row-end-3 xl:row-end-2" />
@@ -20,15 +20,19 @@ function Diagram(props: {
     className?: string,
 }) {
     const lattice = useConceptLatticeStore((state) => state.lattice);
+    const layout = useConceptLatticeStore((state) => state.layout);
+    const concepts = useConceptLatticeStore((state) => state.concepts);
 
     return (
         <Container
             as="section"
             className={cn("overflow-hidden relative", props.className)}>
-            <p className="absolute bottom-0">Links count in the lattice: {lattice?.subconceptsMapping.reduce((prev, curr) => prev + curr.size, 0)}</p>
-            <p className="absolute bottom-10">Links count in the lattice: {lattice?.superconceptsMapping.reduce((prev, curr) => prev + curr.size, 0)}</p>
-            <DiagramCanvas
-                className="w-full h-full" />
+            {lattice && layout && concepts &&
+                <DiagramCanvas
+                    className="w-full h-full"
+                    layout={layout}
+                    concepts={concepts}
+                    lattice={lattice} />}
         </Container>
     );
 }

@@ -11,7 +11,6 @@ export function assignNodesToLayersByLongestPath(formalConcepts: FormalConcepts,
 
     topologicalSort(supremum.index);
 
-    // computing topological order and longest paths at the same time
     // https://en.wikipedia.org/wiki/Longest_path_problem#Acyclic_graphs
     function topologicalSort(currentIndex: number) {
         const subconcepts = subconceptsMapping[currentIndex];
@@ -37,22 +36,21 @@ export function assignNodesToLayersByLongestPath(formalConcepts: FormalConcepts,
 
         for (const subconceptIndex of subconcepts.values()) {
             if (layersMapping[subconceptIndex] === undefined || newLayer > layersMapping[subconceptIndex]) {
-                layersMapping[subconceptIndex] = newLayer;
-        
                 if (layers[newLayer] === undefined) {
                     layers[newLayer] = new Set<number>();
                 }
-                if (layersMapping[subconceptIndex] === undefined) {
+                if (layersMapping[subconceptIndex] !== undefined) {
                     // Remove the concept from it's layer
-                    layers[layersMapping[orderedIndex]].delete(orderedIndex);
+                    layers[layersMapping[subconceptIndex]].delete(subconceptIndex);
                 }
                 
+                layersMapping[subconceptIndex] = newLayer;
                 // Add the concept to it's new layer
                 layers[newLayer].add(subconceptIndex);
             }
         }
     }
-    
+
     return {
         layersMapping,
         layers,

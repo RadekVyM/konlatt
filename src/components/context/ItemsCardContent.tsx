@@ -6,22 +6,24 @@ import SearchInput from "../SearchInput";
 import CardItemsLazyList from "../CardItemsLazyList";
 import CardSectionTitle from "../CardSectionTitle";
 import NothingFound from "../NothingFound";
+import CardSection from "../CardSection";
 
 export default function ItemsCardContent(props: {
     title: string,
     count: number,
     searchInputPlaceholder: string,
     items: Array<any>,
+    className?: string,
     itemKey: (item: any) => string | number,
     itemContent: (item: any) => React.ReactNode,
     itemFilter: (item: any, searchTerms: Array<string>) => boolean,
     setSelectedItem: (item: any) => void,
-    className?: string,
 }) {
     const [searchInput, setSearchInput] = useState<string>("");
 
     return (
-        <>
+        <CardSection
+            className={props.className}>
             <header
                 className="pb-3 flex flex-col">
                 <span
@@ -44,7 +46,7 @@ export default function ItemsCardContent(props: {
                 itemContent={props.itemContent}
                 itemFilter={props.itemFilter}
                 setSelectedItem={props.setSelectedItem} />
-        </>
+        </CardSection>
     );
 }
 

@@ -5,9 +5,10 @@ import SearchInput from "../SearchInput";
 import useLazyListCount from "../../hooks/useLazyListCount";
 import Button from "../inputs/Button";
 import CardItemsLazyList from "../CardItemsLazyList";
-import { CardSection } from "../CardSection";
+import { CardContainer } from "../CardContainer";
 import ConceptDetail from "./ConceptDetail";
 import NothingFound from "../NothingFound";
+import CardSection from "../CardSection";
 
 export default function Concepts(props: {
     className?: string,
@@ -15,26 +16,29 @@ export default function Concepts(props: {
     const [selectedConceptIndex, setSelectedConceptIndex] = useState<number | null>(null);
 
     return (
-        <CardSection
+        <CardContainer
             className={props.className}>
-            {selectedConceptIndex === null ?
-                <ConceptsList
-                    setSelectedConceptIndex={setSelectedConceptIndex} /> :
+            <ConceptsList
+                className={cn(selectedConceptIndex !== null && "hidden")}
+                setSelectedConceptIndex={setSelectedConceptIndex} />
+            {selectedConceptIndex !== null &&
                 <ConceptDetail
                     selectedConceptIndex={selectedConceptIndex}
                     setSelectedConceptIndex={setSelectedConceptIndex} />}
-        </CardSection>
+        </CardContainer>
     );
 }
 
 function ConceptsList(props: {
+    className?: string,
     setSelectedConceptIndex: (index: number | null) => void,
 }) {
     const [searchInput, setSearchInput] = useState<string>("");
     const concepts = useConceptLatticeStore((state) => state.concepts);
 
     return (
-        <>
+        <CardSection
+            className={props.className}>
             <header
                 className="pb-3 flex flex-col">
                 <span
@@ -56,7 +60,7 @@ function ConceptsList(props: {
                 className="flex-1"
                 searchInput={searchInput}
                 setSelectedConceptIndex={props.setSelectedConceptIndex} />
-        </>
+        </CardSection>
     );
 }
 
