@@ -27,12 +27,12 @@ function subconceptsToSuperconcetsMapping(subconceptsMapping: Array<Set<number>>
     for (let i = 0; i < subconceptsMapping.length; i++) {
         const subconcepts = subconceptsMapping[i];
 
-        for (let j = 0; j < subconcepts.size; j++) {
-            if (superconceptsMapping[j] === undefined) {
-                superconceptsMapping[j] = new Set<number>();
+        for (const subconcept of subconcepts) {
+            if (superconceptsMapping[subconcept] === undefined) {
+                superconceptsMapping[subconcept] = new Set<number>();
             }
 
-            superconceptsMapping[j].add(i);
+            superconceptsMapping[subconcept].add(i);
         }
     }
 

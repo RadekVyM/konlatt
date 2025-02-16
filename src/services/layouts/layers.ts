@@ -43,7 +43,7 @@ export function assignNodesToLayersByLongestPath(formalConcepts: FormalConcepts,
                     // Remove the concept from it's layer
                     layers[layersMapping[subconceptIndex]].delete(subconceptIndex);
                 }
-                
+
                 layersMapping[subconceptIndex] = newLayer;
                 // Add the concept to it's new layer
                 layers[newLayer].add(subconceptIndex);
