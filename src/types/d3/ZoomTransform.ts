@@ -1,0 +1,1 @@
+export type ZoomTransform = { scale: number, x: number, y: number }

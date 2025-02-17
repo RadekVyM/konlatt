@@ -1,15 +1,21 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import useDimensions from "../../hooks/useDimensions";
 import { ConceptLatticeLayout } from "../../types/ConceptLatticeLayout";
 import { ConceptLattice } from "../../types/ConceptLattice";
 import { FormalConcepts } from "../../types/FormalConcepts";
-import useZoom, { ZoomTransform } from "../../hooks/useZoom";
+import useZoom from "../../hooks/useZoom";
+import { RawFormalContext } from "../../types/RawFormalContext";
+import { ZoomTransform } from "../../types/d3/ZoomTransform";
+import { createQuadTree, invertEventPoint } from "../../utils/d3";
+
+const LAYOUT_SCALE = 60;
 
 export default function DiagramCanvas(props: {
     className?: string,
     layout: ConceptLatticeLayout,
     lattice: ConceptLattice,
     concepts: FormalConcepts,
+    formalContext: RawFormalContext,
 }) {
     const containerRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -17,7 +23,9 @@ export default function DiagramCanvas(props: {
     const dimensions = useDimensions(containerRef);
     const width = dimensions.width * window.devicePixelRatio;
     const height = dimensions.height * window.devicePixelRatio;
-    const drawDiagram = useDrawDiagram(props.layout, props.lattice, props.concepts);
+    const quadTree = useQuadTree(props.layout);
+    const [hoveredIndex, setHoveredIndex] = useState<null | number>(null);
+    const drawDiagram = useDrawDiagram(props.layout, props.lattice, props.concepts, props.formalContext, hoveredIndex);
 
     useZoom(width, height, canvasRef, { min: 0.05, max: 4 }, setZoomTransform);
 
@@ -48,16 +56,27 @@ export default function DiagramCanvas(props: {
             <canvas
                 ref={canvasRef}
                 className="w-full h-full"
+                onPointerMove={(e) => {
+                    const point = invertEventPoint(e, zoomTransform);
+                    const node = quadTree.find(toLayoutCoord(point[0], width), toLayoutCoord(point[1], height));
+                    setHoveredIndex(node ? node.index : null);
+                }}
                 width={width}
                 height={height} />
         </div>
     );
 }
 
+function useQuadTree(layout: ConceptLatticeLayout) {
+    return useMemo(() => createQuadTree(layout), [layout]);
+}
+
 function useDrawDiagram(
     layout: ConceptLatticeLayout,
     lattice: ConceptLattice,
     concepts: FormalConcepts,
+    formalContext: RawFormalContext,
+    hoveredIndex: number | null,
 ) {
     function drawDiagram(context: CanvasRenderingContext2D, width: number, height: number, computedStyle: CSSStyleDeclaration) {
         const primaryColor = computedStyle.getPropertyValue("--primary");
@@ -73,20 +92,53 @@ function useDrawDiagram(
                 const endPoint = layout[subconceptIndex];
                 context.strokeStyle = outlineColor;
                 context.beginPath();
-                context.moveTo(startPoint[0] + centerX, startPoint[1] + centerY);
-                context.lineTo(endPoint[0] + centerX, endPoint[1] + centerY);
+                context.moveTo((startPoint[0] * LAYOUT_SCALE) + centerX, (startPoint[1] * LAYOUT_SCALE) + centerY);
+                context.lineTo((endPoint[0] * LAYOUT_SCALE) + centerX, (endPoint[1] * LAYOUT_SCALE) + centerY);
                 context.stroke();
             }
         }
-        
+
         for (const concept of concepts) {
             const point = layout[concept.index];
-            context.fillStyle = primaryColor;
+            const x = (point[0] * LAYOUT_SCALE) + centerX;
+            const y = (point[1] * LAYOUT_SCALE) + centerY;
+
+            context.save();
+            context.fillStyle = hoveredIndex === concept.index ? "red" : primaryColor;
             context.beginPath();
-            context.arc(point[0] + centerX, point[1] + centerY, 5, 0, 2 * Math.PI);
+            context.arc(x, y, 5, 0, 2 * Math.PI);
             context.fill();
+            context.restore();
+
+            const objectLabels = lattice.objectsLabeling.get(concept.index);
+            const attributeLabels = lattice.attributesLabeling.get(concept.index);
+
+            context.save();
+            context.textAlign = "center";
+            context.textBaseline = "hanging";
+            context.font = "6px sans-serif";
+            if (objectLabels) {
+                const label = objectLabels.map((l) => formalContext.objects[l]).join(", ");
+                
+                context.fillText(label, x, y + 7);
+            }
+            context.restore();
+            
+            context.save();
+            context.textAlign = "center";
+            context.font = "6px sans-serif";
+            if (attributeLabels) {
+                const label = attributeLabels.map((l) => formalContext.attributes[l]).join(", ");
+
+                context.fillText(label, x, y - 7);
+            }
+            context.restore();
         }
     }
 
     return drawDiagram;
+}
+
+function toLayoutCoord(coord: number, size: number) {
+    return (coord - ((size/ window.devicePixelRatio) / 2)) / LAYOUT_SCALE;
 }

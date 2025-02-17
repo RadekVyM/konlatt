@@ -6,28 +6,50 @@ import { assignNodesToLayersByLongestPath } from "./layers";
 
 export function computeLayeredLayout(formalConcepts: FormalConcepts, lattice: ConceptLattice): ConceptLatticeLayout {
     const { layers, layersMapping } = assignNodesToLayersByLongestPath(formalConcepts, lattice.subconceptsMapping);
-    const { layersWithFakes, horizontalCoords, fakeSuperconceptsMapping } = addFakes(formalConcepts.length, lattice.subconceptsMapping, layers, layersMapping);
-    const orderedLayers = reduceCrossingsUsingAverage(formalConcepts.length, layersWithFakes, horizontalCoords, lattice.superconceptsMapping, fakeSuperconceptsMapping);
+    const { layersWithFakes, horizontalCoords, fakeSuperconceptsMapping, fakeSubconceptsMapping } = addFakes(
+        formalConcepts.length,
+        lattice.subconceptsMapping,
+        layers,
+        layersMapping);
+
+    let orderedLayers = reduceCrossingsUsingAverage(
+        formalConcepts.length,
+        layersWithFakes,
+        horizontalCoords,
+        [lattice.superconceptsMapping],
+        [fakeSuperconceptsMapping]);
+    orderedLayers = reduceCrossingsUsingAverage(
+        formalConcepts.length,
+        orderedLayers,
+        horizontalCoords,
+        [lattice.subconceptsMapping],
+        [fakeSubconceptsMapping]);
+    orderedLayers = reduceCrossingsUsingAverage(
+        formalConcepts.length,
+        orderedLayers,
+        horizontalCoords,
+        [lattice.superconceptsMapping, lattice.subconceptsMapping],
+        [fakeSuperconceptsMapping, fakeSubconceptsMapping]);
 
     return createLayout(formalConcepts.length, orderedLayers);
 }
 
 function createLayout(conceptsCount: number, layers: Array<Array<number>>) {
     const layout = new Array<Point>(conceptsCount);
-    let top = ((layers.length - 1) * 60) / -2;
+    let top = (layers.length - 1) / -2;
 
     for (let i = 0; i < layers.length; i++) {
         const layer = layers[i];
-        let left = ((layer.length - 1) * 60) / -2;
+        let left = (layer.length - 1) / -2;
 
         for (const node of layer) {
             if (node < conceptsCount) {
                 layout[node] = createPoint(left, top, 0);
             }
-            left += 60;
+            left++;
         }
 
-        top += 60;
+        top++;
     }
 
     return layout;
@@ -35,48 +57,57 @@ function createLayout(conceptsCount: number, layers: Array<Array<number>>) {
 
 function reduceCrossingsUsingAverage(
     conceptsCount: number,
-    layersWithFakes: Array<Array<number>>,
+    layers: Array<Array<number>>,
     horizontalCoords: Array<number>,
-    superconceptsMapping: ReadonlyArray<Set<number>>,
-    fakeSuperconceptsMapping: Map<number, Array<number>>,
+    superconceptsMappings: Array<ReadonlyArray<Set<number>>>,
+    fakeSuperconceptsMappings: Array<Map<number, Array<number>>>,
+    topToBottom: boolean = true,
 ) {
-    const reducedLayers = new Array<Array<number>>(layersWithFakes.length);
-    const averages = new Array<number>(layersWithFakes.reduce((prev, curr) => Math.max(curr.length, prev), 0));
+    const reducedLayers = new Array<Array<number>>(layers.length);
+    const averages = new Array<number>(layers.reduce((prev, curr) => Math.max(curr.length, prev), 0));
+    const first = topToBottom ? 0 : layers.length - 1;
+    const second = topToBottom ? 1 : layers.length - 2;
+    const increase = topToBottom ? 1 : -1;
 
-    reducedLayers[0] = [...layersWithFakes[0]];
-    if (layersWithFakes.length > 1) {
-        reducedLayers[1] = [...layersWithFakes[1]];
+    reducedLayers[first] = [...layers[first]];
+    if (layers.length > 1) {
+        reducedLayers[second] = [...layers[second]];
     }
 
-    for (let i = 2; i < layersWithFakes.length; i++) {
-        const layer = layersWithFakes[i];
+    for (let i = second; i < layers.length && i >= 0; i += increase) {
+        const layer = layers[i];
 
         for (const concept of layer) {
             let sum = 0;
             let count = 0;
 
             if (concept < conceptsCount) {
-                for (const superconcept of superconceptsMapping[concept].values()) {
+                for (const superconceptsMapping of superconceptsMappings) {
+                    for (const superconcept of superconceptsMapping[concept].values()) {
+                        sum += horizontalCoords[superconcept];
+                    }
+
+                    count += superconceptsMapping[concept].size;
+                }
+            }
+
+            for (const fakeSuperconceptsMapping of fakeSuperconceptsMappings) {
+                for (const superconcept of fakeSuperconceptsMapping.get(concept) || []) {
                     sum += horizontalCoords[superconcept];
                 }
 
-                count += superconceptsMapping[concept].size;
+                count += fakeSuperconceptsMapping.get(concept)?.length || 0;
             }
-
-            for (const superconcept of fakeSuperconceptsMapping.get(concept) || []) {
-                sum += horizontalCoords[superconcept];
-            }
-
-            count += fakeSuperconceptsMapping.get(concept)?.length || 0;
 
             averages[concept] = sum / count;
         }
 
         const reducedLayer = reducedLayers[i] = [...layer];
+        const offset = horizontalCoords[layer[0]];
         reducedLayer.sort((a, b) => averages[a] - averages[b]);
 
         for (let j = 0; j < reducedLayer.length; j++) {
-            horizontalCoords[reducedLayer[j]] = j;
+            horizontalCoords[reducedLayer[j]] = j + offset;
         }
     }
 

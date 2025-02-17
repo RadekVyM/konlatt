@@ -40,12 +40,12 @@ export function assignNodesToLayersByLongestPath(formalConcepts: FormalConcepts,
                     layers[newLayer] = new Set<number>();
                 }
                 if (layersMapping[subconceptIndex] !== undefined) {
-                    // Remove the concept from it's layer
+                    // Remove the concept from its layer
                     layers[layersMapping[subconceptIndex]].delete(subconceptIndex);
                 }
 
                 layersMapping[subconceptIndex] = newLayer;
-                // Add the concept to it's new layer
+                // Add the concept to its new layer
                 layers[newLayer].add(subconceptIndex);
             }
         }

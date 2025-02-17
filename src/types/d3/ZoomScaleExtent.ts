@@ -1,0 +1,1 @@
+export type ZoomScaleExtent = { min?: number, max?: number }

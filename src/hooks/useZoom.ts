@@ -1,12 +1,9 @@
 import { RefObject, useEffect, useRef } from "react";
 import * as d3Zoom from "d3-zoom";
 import * as d3Selection from "d3-selection";
-
-export type ZoomTransform = { scale: number, x: number, y: number }
-
-export type ZoomScaleExtent = { min?: number, max?: number }
-
-export type OnZoomChangeCallback = (param: ZoomTransform) => void
+import { ZoomTransform } from "../types/d3/ZoomTransform";
+import { ZoomScaleExtent } from "../types/d3/ZoomScaleExtent";
+import { OnZoomChangeCallback } from "../types/d3/OnZoomChangeCallback";
 
 /**
  * Hook that returns an operation for zooming an element content. It is implemented using the D3.js zoom() function.

@@ -1,0 +1,1 @@
+export type ConceptLatticeLabeling = ReadonlyMap<number, ReadonlyArray<number>>

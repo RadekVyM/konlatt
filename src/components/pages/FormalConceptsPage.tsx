@@ -19,6 +19,7 @@ export default function FormalConceptsPage() {
 function Diagram(props: {
     className?: string,
 }) {
+    const context = useConceptLatticeStore((state) => state.context);
     const lattice = useConceptLatticeStore((state) => state.lattice);
     const layout = useConceptLatticeStore((state) => state.layout);
     const concepts = useConceptLatticeStore((state) => state.concepts);
@@ -27,12 +28,13 @@ function Diagram(props: {
         <Container
             as="section"
             className={cn("overflow-hidden relative", props.className)}>
-            {lattice && layout && concepts &&
+            {context && lattice && layout && concepts &&
                 <DiagramCanvas
                     className="w-full h-full"
                     layout={layout}
                     concepts={concepts}
-                    lattice={lattice} />}
+                    lattice={lattice}
+                    formalContext={context} />}
         </Container>
     );
 }
