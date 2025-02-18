@@ -15,20 +15,20 @@
     --primary-dark-dim: #6c6087;
     --primary-dark-lite: #242229;
 
-    --secondary-light: #27262b;
-    --secondary-light-dim: #53525a;
-    --secondary-dark: #27262b;
-    --secondary-dark-dim: #53525a;
+    --secondary-light: #f4f6fb;
+    --secondary-light-dim: #eaeef4;
+    --secondary-dark: #10151c;
+    --secondary-dark-dim: #19212d;
 
     --primary: var(--primary-light);
     --primary-dim: var(--primary-light-dim);
     --primary-lite: var(--primary-light-lite);
     --on-primary: #ffffff;
     --on-primary-dim: var(--on-primary);
-    --secondary: var(--secondary-dark);
-    --secondary-dim: var(--secondary-dark-dim);
-    --on-secondary: #ffffff;
-    --on-secondary-dim: #ffffff;
+    --secondary: var(--secondary-light);
+    --secondary-dim: var(--secondary-light-dim);
+    --on-secondary: #000;
+    --on-secondary-dim: #000;
 
     --surface: #f8fafc;
     --on-surface: #000;
@@ -69,10 +69,10 @@
         --primary-lite: var(--primary-dark-lite);
         --on-primary: #ffffff;
         --on-primary-dim: var(--on-primary);
-        --secondary: var(--secondary-light);
-        --secondary-dim: var(--secondary-light-dim);
-        --on-secondary: #000;
-        --on-secondary-dim: #000;
+        --secondary: var(--secondary-dark);
+        --secondary-dim: var(--secondary-dark-dim);
+        --on-secondary: #ffffff;
+        --on-secondary-dim: #ffffff;
 
         --surface: #161921;
         --on-surface: #f3f4f5;

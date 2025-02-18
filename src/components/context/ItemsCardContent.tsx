@@ -7,6 +7,9 @@ import CardItemsLazyList from "../CardItemsLazyList";
 import CardSectionTitle from "../CardSectionTitle";
 import NothingFound from "../NothingFound";
 import CardSection from "../CardSection";
+import { searchTermsToRegex } from "../../utils/search";
+import FilterOrderBar from "../FilterOrderBar";
+import Found from "../Found";
 
 export default function ItemsCardContent(props: {
     title: string,
@@ -15,33 +18,40 @@ export default function ItemsCardContent(props: {
     items: Array<any>,
     className?: string,
     itemKey: (item: any) => string | number,
-    itemContent: (item: any) => React.ReactNode,
+    itemContent: (item: any, searchRegex?: RegExp) => React.ReactNode,
     itemFilter: (item: any, searchTerms: Array<string>) => boolean,
     setSelectedItem: (item: any) => void,
 }) {
     const [searchInput, setSearchInput] = useState<string>("");
+    const searchTerms = searchInput.trim().split(" ").filter((t) => t.length > 0);
+    const filteredItems = props.items.filter((item) => props.itemFilter(item, searchTerms));
 
     return (
         <CardSection
             className={props.className}>
             <header
-                className="pb-3 flex flex-col">
-                <span
-                    className="flex justify-between items-center mb-2">
-                    <CardSectionTitle className="mx-4">{props.title}</CardSectionTitle>
-                    <span className="text-xs text-on-surface-container-muted mr-4">{props.count}</span>
-                </span>
-                <SearchInput
-                    className="self-stretch mx-4"
-                    value={searchInput}
-                    onChange={setSearchInput}
-                    placeholder={props.searchInputPlaceholder} />
+                className="pb-1.5 flex flex-col">
+                <CardSectionTitle className="mx-4 mb-2">{props.title}</CardSectionTitle>
+                <div
+                    className="self-stretch flex mx-4 mb-2 gap-2">
+                    <SearchInput
+                        className="flex-1"
+                        value={searchInput}
+                        onChange={setSearchInput}
+                        placeholder="Search concepts..." />
+                    <FilterOrderBar />
+                </div>
+
+                <Found
+                    className="mx-4"
+                    found={filteredItems.length}
+                    total={props.count} />
             </header>
 
             <List
                 className="flex-1"
-                searchInput={searchInput}
-                items={props.items}
+                searchTerms={searchTerms}
+                items={filteredItems}
                 itemKey={props.itemKey}
                 itemContent={props.itemContent}
                 itemFilter={props.itemFilter}
@@ -52,18 +62,17 @@ export default function ItemsCardContent(props: {
 
 function List(props: {
     className?: string,
-    searchInput: string,
+    searchTerms: Array<string>,
     items: Array<any>,
     itemKey: (item: any) => string | number,
-    itemContent: (item: any) => React.ReactNode,
+    itemContent: (item: any, searchRegex?: RegExp) => React.ReactNode,
     itemFilter: (item: any, searchTerms: Array<string>) => boolean,
     setSelectedItem: (item: any) => void,
 }) {
     const observerTargetRef = useRef<HTMLDivElement>(null);
-    const searchTerms = props.searchInput.trim().split(" ").filter((t) => t.length > 0);
-    const filteredItems = props.items.filter((item) => props.itemFilter(item, searchTerms));
-    const [displayedItemsCount] = useLazyListCount(filteredItems.length, 20, observerTargetRef);
-    const displayedItems = filteredItems.slice(0, displayedItemsCount);
+    const searchRegex = searchTermsToRegex(props.searchTerms);
+    const [displayedItemsCount] = useLazyListCount(props.items.length, 20, observerTargetRef);
+    const displayedItems = props.items.slice(0, displayedItemsCount);
 
     if (displayedItems.length === 0) {
         return (
@@ -81,11 +90,11 @@ function List(props: {
                     key={props.itemKey(item)}
                     className={cn(
                         "px-1 py-0.5",
-                        index < props.items.length - 1 && "border-b border-outline-variant")}>
+                        index < displayedItems.length - 1 && "border-b border-outline-variant")}>
                     <Button
                         className="w-full text-start"
                         onClick={() => props.setSelectedItem(item)}>
-                        {props.itemContent(item)}
+                        {props.itemContent(item, searchRegex)}
                     </Button>
                 </li>)}
         </CardItemsLazyList>

@@ -1,8 +1,8 @@
 import { useRef } from "react";
 import { cn } from "../../utils/tailwind";
 import Button from "../inputs/Button";
-import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md";
 import { usePopover } from "../../hooks/usePopover";
+import { LuChevronDown, LuChevronUp } from "react-icons/lu";
 
 type ComboBoxItem = {
     key: string,
@@ -19,6 +19,7 @@ export default function ComboBox(props: {
 }) {
     const divRef = useRef<HTMLDivElement>(null);
     const [isOpen, togglePopover, closePopover] = usePopover(divRef);
+    const id = `${props.id}-combobox`;
 
     return (
         <div
@@ -28,21 +29,21 @@ export default function ComboBox(props: {
                 className="w-full h-full flex justify-start"
                 variant="container"
                 role="combobox"
-                aria-labelledby="select button"
+                aria-labelledby={`${id}-label`}
                 aria-haspopup="listbox"
                 aria-expanded={isOpen}
-                aria-controls={`${props.id}-select-dropdown`}
+                aria-controls={id}
                 onClick={togglePopover}>
-                <span className="flex-1 text-start">{props.items.find((item) => item.key === props.selectedKey)?.label}</span>
+                <span id={`${id}-label`} className="flex-1 text-start">{props.items.find((item) => item.key === props.selectedKey)?.label}</span>
                 {
                     isOpen ?
-                        <MdArrowDropUp /> :
-                        <MdArrowDropDown />
+                        <LuChevronUp /> :
+                        <LuChevronDown />
                 }
             </Button>
             <ul
                 role="listbox"
-                id={`${props.id}-select-dropdown`}
+                id={id}
                 className={cn(
                     "absolute w-full left-0 right-0 z-50 mt-1 max-h-56 flex flex-col p-1.5 gap-y-1",
                     "overflow-y-auto thin-scrollbar",
@@ -71,13 +72,13 @@ export default function ComboBox(props: {
                         <input
                             className="sr-only"
                             type="radio"
-                            id={`${props.id}-${item.key}-select-dropdown`}
+                            id={`${id}-${item.key}`}
                             value={item.key}
                             checked={props.selectedKey === item.key}
                             onChange={(e) => props.onKeySelectionChange(e.currentTarget.value)} />
                         <label
                             className="flex-1 py-0.5 px-2 cursor-pointer"
-                            htmlFor={`${props.id}-${item.key}-select-dropdown`}>
+                            htmlFor={`${id}-${item.key}`}>
                             {item.label}
                         </label>
                     </li>)}

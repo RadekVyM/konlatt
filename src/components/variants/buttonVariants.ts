@@ -12,6 +12,8 @@ export const buttonVariants = cva(
                     "btn-destructive",
                 primary:
                     "btn-primary",
+                secondary:
+                    "btn-secondary",
                 container:
                     "btn-container",
                 "icon-default":
@@ -20,6 +22,8 @@ export const buttonVariants = cva(
                     "btn-destructive btn-icon px-0 aspect-square",
                 "icon-primary":
                     "btn-primary btn-icon px-0 aspect-square",
+                "icon-secondary":
+                    "btn-secondary btn-icon px-0 aspect-square",
                 "icon-container":
                     "btn-container btn-icon px-0 aspect-square",
             },

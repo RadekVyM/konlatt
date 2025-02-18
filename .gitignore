@@ -38,3 +38,5 @@ dist-ssr
 /src/as/index.wasm
 /src/as/index.wasm.map
 /src/as/index.wat
+
+/tests/__snapshots__

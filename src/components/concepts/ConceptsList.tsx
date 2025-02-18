@@ -9,6 +9,9 @@ import { CardContainer } from "../CardContainer";
 import ConceptDetail from "./ConceptDetail";
 import NothingFound from "../NothingFound";
 import CardSection from "../CardSection";
+import { LuDownload } from "react-icons/lu";
+import FilterOrderBar from "../FilterOrderBar";
+import Found from "../Found";
 
 export default function Concepts(props: {
     className?: string,
@@ -40,20 +43,36 @@ function ConceptsList(props: {
         <CardSection
             className={props.className}>
             <header
-                className="pb-3 flex flex-col">
-                <span
-                    className="flex justify-between items-center">
+                className="pb-1.5 flex flex-col">
+                <div
+                    className="flex justify-between items-center mb-2.5">
                     <h2
-                        className="mx-4 mb-2 text-lg font-semibold">
+                        className="mx-4 text-lg font-semibold">
                         Concepts
                     </h2>
-                    <span className="text-xs text-on-surface-container-muted mr-4 mb-2">{concepts?.length}</span>
-                </span>
-                <SearchInput
-                    className="self-stretch mx-3"
-                    value={searchInput}
-                    onChange={setSearchInput}
-                    placeholder="Search concepts..." />
+
+                    <Button
+                        className="mr-4"
+                        title="Export"
+                        variant="icon-default"
+                        size="sm">
+                        <LuDownload />
+                    </Button>
+                </div>
+                <div
+                    className="self-stretch flex mx-4 mb-2 gap-2">
+                    <SearchInput
+                        className="flex-1"
+                        value={searchInput}
+                        onChange={setSearchInput}
+                        placeholder="Search concepts..." />
+                    <FilterOrderBar />
+                </div>
+
+                <Found
+                    className="mx-4"
+                    found={concepts?.length || 0}
+                    total={concepts?.length || 0} />
             </header>
 
             <List

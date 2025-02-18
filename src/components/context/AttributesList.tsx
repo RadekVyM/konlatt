@@ -6,6 +6,7 @@ import ItemCardContent from "./ItemCardContent";
 import { ContextCompleteItem, ContextItem } from "./types";
 import { searchFilter } from "./utils";
 import { cn } from "../../utils/tailwind";
+import HighlightedSearchTerms from "../HighlightedSearchTerms";
 
 export type ContextAttributeItem = ContextItem
 
@@ -29,7 +30,10 @@ export default function AttributesList(props: {
                 title="Attributes"
                 count={context?.attributes.length || 0}
                 searchInputPlaceholder="Search attributes..."
-                itemContent={(item: ContextAttributeItem) => item.title}
+                itemContent={(item: ContextAttributeItem, regex) =>
+                    <HighlightedSearchTerms
+                        text={item.title}
+                        regex={regex} />}
                 itemKey={(item: ContextAttributeItem) => item.index}
                 setSelectedItem={(item: ContextAttributeItem) => props.setSelectedAttributeIndex(item.index)}
                 itemFilter={searchFilter} />

@@ -118,7 +118,7 @@ function useDrawDiagram(
             context.textBaseline = "hanging";
             context.font = "6px sans-serif";
             if (objectLabels) {
-                const label = objectLabels.map((l) => formalContext.objects[l]).join(", ");
+                const label = objectLabels.map((l) => formalContext.objects[l]).join(", ").substring(0, 50);
                 
                 context.fillText(label, x, y + 7);
             }
@@ -128,7 +128,7 @@ function useDrawDiagram(
             context.textAlign = "center";
             context.font = "6px sans-serif";
             if (attributeLabels) {
-                const label = attributeLabels.map((l) => formalContext.attributes[l]).join(", ");
+                const label = attributeLabels.map((l) => formalContext.attributes[l]).join(", ").substring(0, 50);
 
                 context.fillText(label, x, y - 7);
             }

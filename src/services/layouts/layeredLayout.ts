@@ -11,7 +11,7 @@ export function computeLayeredLayout(formalConcepts: FormalConcepts, lattice: Co
         lattice.subconceptsMapping,
         layers,
         layersMapping);
-
+        
     let orderedLayers = reduceCrossingsUsingAverage(
         formalConcepts.length,
         layersWithFakes,
@@ -23,7 +23,8 @@ export function computeLayeredLayout(formalConcepts: FormalConcepts, lattice: Co
         orderedLayers,
         horizontalCoords,
         [lattice.subconceptsMapping],
-        [fakeSubconceptsMapping]);
+        [fakeSubconceptsMapping],
+        false);
     orderedLayers = reduceCrossingsUsingAverage(
         formalConcepts.length,
         orderedLayers,

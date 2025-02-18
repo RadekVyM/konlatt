@@ -21,6 +21,10 @@
     @apply bg-primary text-on-primary hover:bg-primary-dim hover:text-on-primary-dim shadow border border-primary hover:border-primary-dim;
   }
 
+  .btn-secondary {
+    @apply bg-secondary text-on-secondary hover:bg-secondary-dim hover:text-on-secondary-dim border border-secondary hover:border-secondary-dim;
+  }
+
   .btn-destructive {
     @apply bg-danger text-on-danger hover:bg-danger-dim hover:text-on-danger-dim shadow border border-danger;
   }

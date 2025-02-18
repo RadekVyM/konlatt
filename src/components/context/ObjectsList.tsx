@@ -6,6 +6,7 @@ import ItemCardContent from "./ItemCardContent";
 import { ContextCompleteItem, ContextItem } from "./types";
 import { searchFilter } from "./utils";
 import { cn } from "../../utils/tailwind";
+import HighlightedSearchTerms from "../HighlightedSearchTerms";
 
 type ContextObjectItem = ContextItem
 
@@ -29,7 +30,10 @@ export default function ObjectsList(props: {
                 title="Objects"
                 count={context?.objects.length || 0}
                 searchInputPlaceholder="Search objects..."
-                itemContent={(item: ContextObjectItem) => item.title}
+                itemContent={(item: ContextObjectItem, regex) =>
+                    <HighlightedSearchTerms
+                        text={item.title}
+                        regex={regex} />}
                 itemKey={(item: ContextObjectItem) => item.index}
                 setSelectedItem={(item: ContextObjectItem) => props.setSelectedObjectIndex(item.index)}
                 itemFilter={searchFilter} />
