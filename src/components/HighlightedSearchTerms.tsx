@@ -14,7 +14,7 @@ export default function HighlightedSearchTerms(props: {
                 .map((s, index) => {
                     props.regex!.lastIndex = 0;
                     return props.regex!.test(s) ?
-                        <span key={index} className="text-on-primary-dim bg-primary-dim rounded-xs">{s}</span> :
+                        <span key={index} className="text-primary bg-primary-lite rounded-xs">{s}</span> :
                         s;
                 })}
         </span>

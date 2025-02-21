@@ -3,10 +3,10 @@ import { parseBurmeister } from "../src/services/contextParsing";
 import { computeConcepts } from "../src/services/conceptComputation";
 import { conceptsToLattice } from "../src/services/latticeComputation";
 import { RawFormalContext } from "../src/types/RawFormalContext";
-import { FormalConcepts } from "../src/types/FormalConcepts";
+import { FormalConcepts, getSupremum } from "../src/types/FormalConcepts";
 import { ConceptLattice } from "../src/types/ConceptLattice";
 import { DIGITS, LATTICE, LIVEINWATER, NOM5SHUTTLE, TEALADY, TestValue } from "./constants/flowTestValues";
-import { assignNodesToLayersByLongestPath } from "../src/services/layouts/layers";
+import { assignNodesToLayersByLongestPath } from "../src/services/layers";
 
 describe.each<TestValue>([
     DIGITS,
@@ -44,7 +44,7 @@ describe.each<TestValue>([
     }, 60000);
 
     test(`layers by the longest path: ${value.title}`, () => {
-        const { layers } = assignNodesToLayersByLongestPath(concepts, lattice.subconceptsMapping);
+        const { layers } = assignNodesToLayersByLongestPath(getSupremum(concepts), lattice.subconceptsMapping);
 
         for (let i = 0; i < value.byLongestPathLayersCounts.length; i++) {
             expect(layers[i].size).toBe(value.byLongestPathLayersCounts[i]);

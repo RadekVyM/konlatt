@@ -2,7 +2,7 @@ import { __collect, conceptsToLattice as conceptsToLatticeAs } from "../as"
 import { ConceptLattice } from "../types/ConceptLattice";
 import { ConceptLatticeLabeling } from "../types/ConceptLatticeLabeling";
 import { FormalConcept, FormalConcepts, getInfimum, getSupremum } from "../types/FormalConcepts";
-import { breadthFirstSearch } from "../utils/graphs";
+import { assignNodesToLayersByLongestPath } from "./layers";
 
 /**
  * 
@@ -16,7 +16,6 @@ export function conceptsToLattice(concepts: FormalConcepts): ConceptLattice {
 
     const subconceptsMapping = lattice.map((set) => new Set<number>(set));
     const superconceptsMapping = subconceptsToSuperconcetsMapping(subconceptsMapping);
-    // TODO: Does the labeling work?
     const objectsLabeling = getObjectsLabeling(concepts, superconceptsMapping);
     const attributesLabeling = getAttributesLabeling(concepts, subconceptsMapping);
 
@@ -55,37 +54,40 @@ function subconceptsToSuperconcetsMapping(subconceptsMapping: Array<Set<number>>
 function getObjectsLabeling(concepts: FormalConcepts, superconceptsMapping: ReadonlyArray<Set<number>>): ConceptLatticeLabeling {
     const infimum = getInfimum(concepts);
 
-    return getLabeling(concepts, infimum.index, superconceptsMapping, (concept) => concept.objects);
+    return getLabeling(concepts, infimum, superconceptsMapping, (concept) => concept.objects);
 }
 
 function getAttributesLabeling(concepts: FormalConcepts, subconceptsMapping: ReadonlyArray<Set<number>>): ConceptLatticeLabeling {
     const supremum = getSupremum(concepts);
 
-    return getLabeling(concepts, supremum.index, subconceptsMapping, (concept) => concept.attributes);
+    return getLabeling(concepts, supremum, subconceptsMapping, (concept) => concept.attributes);
 }
 
 function getLabeling(
     concepts: FormalConcepts,
-    startIndex: number,
-    relation: ReadonlyArray<Set<number>>,
+    startConcept: FormalConcept,
+    coverRelation: ReadonlyArray<Set<number>>,
     conceptItems: (concept: FormalConcept) => ReadonlyArray<number>
 ): ConceptLatticeLabeling {
     const labeling = new Map<number, ReadonlyArray<number>>();
     const alreadyAppeared = new Set<number>();
+    const { layers } = assignNodesToLayersByLongestPath(startConcept, coverRelation);
 
-    breadthFirstSearch(startIndex, relation, (currentIndex) => {
-        const concept = concepts[currentIndex];
-        const labels = new Array<number>();
+    for (const layer of layers) {
+        for (const conceptIndex of layer) {
+            const concept = concepts[conceptIndex];
+            const labels = new Array<number>();
 
-        for (const item of conceptItems(concept)) {
-            if (!alreadyAppeared.has(item)) {
-                alreadyAppeared.add(item);
-                labels.push(item);
+            for (const item of conceptItems(concept)) {
+                if (!alreadyAppeared.has(item)) {
+                    alreadyAppeared.add(item);
+                    labels.push(item);
+                }
             }
-        }
 
-        labeling.set(currentIndex, labels);
-    });
+            labeling.set(conceptIndex, labels);
+        }
+    }
 
     return labeling;
 }

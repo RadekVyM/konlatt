@@ -16,6 +16,8 @@ export default function DiagramCanvas(props: {
     lattice: ConceptLattice,
     concepts: FormalConcepts,
     formalContext: RawFormalContext,
+    selectedConceptIndex: number | null,
+    setSelectedConceptIndex: React.Dispatch<React.SetStateAction<number | null>>,
 }) {
     const containerRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -23,9 +25,12 @@ export default function DiagramCanvas(props: {
     const dimensions = useDimensions(containerRef);
     const width = dimensions.width * window.devicePixelRatio;
     const height = dimensions.height * window.devicePixelRatio;
-    const quadTree = useQuadTree(props.layout);
     const [hoveredIndex, setHoveredIndex] = useState<null | number>(null);
-    const drawDiagram = useDrawDiagram(props.layout, props.lattice, props.concepts, props.formalContext, hoveredIndex);
+    const drawDiagram = useDrawDiagram(props.layout, props.lattice, props.concepts, props.formalContext, hoveredIndex, props.selectedConceptIndex);
+    const {
+        onPointerMove,
+        onClick,
+    } = useCanvasInteraction(props.layout, zoomTransform, width, height, setHoveredIndex, props.setSelectedConceptIndex);
 
     useZoom(width, height, canvasRef, { min: 0.05, max: 4 }, setZoomTransform);
 
@@ -56,11 +61,8 @@ export default function DiagramCanvas(props: {
             <canvas
                 ref={canvasRef}
                 className="w-full h-full"
-                onPointerMove={(e) => {
-                    const point = invertEventPoint(e, zoomTransform);
-                    const node = quadTree.find(toLayoutCoord(point[0], width), toLayoutCoord(point[1], height));
-                    setHoveredIndex(node ? node.index : null);
-                }}
+                onPointerMove={onPointerMove}
+                onClick={onClick}
                 width={width}
                 height={height} />
         </div>
@@ -71,14 +73,49 @@ function useQuadTree(layout: ConceptLatticeLayout) {
     return useMemo(() => createQuadTree(layout), [layout]);
 }
 
+function useCanvasInteraction(
+    layout: ConceptLatticeLayout,
+    zoomTransform: ZoomTransform,
+    width: number,
+    height: number,
+    setHoveredIndex: React.Dispatch<React.SetStateAction<number | null>>,
+    setSelectedIndex: React.Dispatch<React.SetStateAction<number | null>>,
+) {
+    const quadTree = useQuadTree(layout);
+
+    function onPointerMove(e: React.PointerEvent<HTMLCanvasElement>) {
+        const node = findNode(e);
+        setHoveredIndex(node ? node.index : null);
+    }
+
+    function onClick(e: React.PointerEvent<HTMLCanvasElement>) {
+        const node = findNode(e);
+        setSelectedIndex((old) => old === node?.index ?
+            null :
+            node ? node.index : null);
+    }
+
+    function findNode(e: React.PointerEvent<HTMLCanvasElement>) {
+        const point = invertEventPoint(e, zoomTransform);
+        return quadTree.find(toLayoutCoord(point[0], width), toLayoutCoord(point[1], height), 6 / LAYOUT_SCALE);
+    }
+
+    return {
+        onPointerMove,
+        onClick,
+    };
+}
+
 function useDrawDiagram(
     layout: ConceptLatticeLayout,
     lattice: ConceptLattice,
     concepts: FormalConcepts,
     formalContext: RawFormalContext,
     hoveredIndex: number | null,
+    selectedIndex: number | null,
 ) {
     function drawDiagram(context: CanvasRenderingContext2D, width: number, height: number, computedStyle: CSSStyleDeclaration) {
+        const onSurfaceColor = computedStyle.getPropertyValue("--on-surface-container");
         const primaryColor = computedStyle.getPropertyValue("--primary");
         const outlineColor = computedStyle.getPropertyValue("--outline");
         const centerX = width / 2;
@@ -104,7 +141,9 @@ function useDrawDiagram(
             const y = (point[1] * LAYOUT_SCALE) + centerY;
 
             context.save();
-            context.fillStyle = hoveredIndex === concept.index ? "red" : primaryColor;
+            context.fillStyle = selectedIndex === concept.index ?
+                primaryColor :
+                hoveredIndex === concept.index ? primaryColor : onSurfaceColor;
             context.beginPath();
             context.arc(x, y, 5, 0, 2 * Math.PI);
             context.fill();
@@ -116,7 +155,8 @@ function useDrawDiagram(
             context.save();
             context.textAlign = "center";
             context.textBaseline = "hanging";
-            context.font = "6px sans-serif";
+            context.font = "6px Gabarito";
+            context.fillStyle = onSurfaceColor;
             if (objectLabels) {
                 const label = objectLabels.map((l) => formalContext.objects[l]).join(", ").substring(0, 50);
                 
@@ -126,7 +166,8 @@ function useDrawDiagram(
             
             context.save();
             context.textAlign = "center";
-            context.font = "6px sans-serif";
+            context.font = "6px Gabarito";
+            context.fillStyle = onSurfaceColor;
             if (attributeLabels) {
                 const label = attributeLabels.map((l) => formalContext.attributes[l]).join(", ").substring(0, 50);
 

@@ -12,22 +12,26 @@ import CardSection from "../CardSection";
 import { LuDownload } from "react-icons/lu";
 import FilterOrderBar from "../FilterOrderBar";
 import Found from "../Found";
+import { FormalConcept } from "../../types/FormalConcepts";
+import { RawFormalContext } from "../../types/RawFormalContext";
+import HighlightedSearchTerms from "../HighlightedSearchTerms";
+import { searchTermsToRegex } from "../../utils/search";
 
 export default function Concepts(props: {
     className?: string,
+    selectedConceptIndex: number | null,
+    setSelectedConceptIndex: React.Dispatch<React.SetStateAction<number | null>>,
 }) {
-    const [selectedConceptIndex, setSelectedConceptIndex] = useState<number | null>(null);
-
     return (
         <CardContainer
             className={props.className}>
             <ConceptsList
-                className={cn(selectedConceptIndex !== null && "hidden")}
-                setSelectedConceptIndex={setSelectedConceptIndex} />
-            {selectedConceptIndex !== null &&
+                className={cn(props.selectedConceptIndex !== null && "hidden")}
+                setSelectedConceptIndex={props.setSelectedConceptIndex} />
+            {props.selectedConceptIndex !== null &&
                 <ConceptDetail
-                    selectedConceptIndex={selectedConceptIndex}
-                    setSelectedConceptIndex={setSelectedConceptIndex} />}
+                    selectedConceptIndex={props.selectedConceptIndex}
+                    setSelectedConceptIndex={props.setSelectedConceptIndex} />}
         </CardContainer>
     );
 }
@@ -38,6 +42,11 @@ function ConceptsList(props: {
 }) {
     const [searchInput, setSearchInput] = useState<string>("");
     const concepts = useConceptLatticeStore((state) => state.concepts);
+    const context = useConceptLatticeStore((state) => state.context);
+    const searchTerms = searchInput.trim().split(" ").filter((t) => t.length > 0);
+    const filteredConcepts = concepts && context ?
+        concepts.filter((concept) => conceptsFilter(concept, searchTerms, context)) :
+        [];
 
     return (
         <CardSection
@@ -71,13 +80,14 @@ function ConceptsList(props: {
 
                 <Found
                     className="mx-4"
-                    found={concepts?.length || 0}
+                    found={filteredConcepts.length}
                     total={concepts?.length || 0} />
             </header>
 
             <List
                 className="flex-1"
-                searchInput={searchInput}
+                filteredConcepts={filteredConcepts}
+                searchTerms={searchTerms}
                 setSelectedConceptIndex={props.setSelectedConceptIndex} />
         </CardSection>
     );
@@ -85,17 +95,18 @@ function ConceptsList(props: {
 
 function List(props: {
     className?: string,
-    searchInput: string,
+    filteredConcepts: Array<FormalConcept>,
+    searchTerms: Array<string>,
     setSelectedConceptIndex: (index: number | null) => void,
 }) {
     const observerTargetRef = useRef<HTMLDivElement>(null);
     const concepts = useConceptLatticeStore((state) => state.concepts);
     const context = useConceptLatticeStore((state) => state.context);
-    const filteredConcepts = concepts || [];
-    const [displayedItemsCount] = useLazyListCount(filteredConcepts.length, 20, observerTargetRef);
-    const displayedItems = filteredConcepts.slice(0, displayedItemsCount);
+    const [displayedItemsCount] = useLazyListCount(props.filteredConcepts.length, 20, observerTargetRef);
+    const displayedItems = props.filteredConcepts.slice(0, displayedItemsCount);
+    const searchRegex = searchTermsToRegex(props.searchTerms);
 
-    if (!context || !concepts || filteredConcepts.length === 0) {
+    if (!context || !concepts || props.filteredConcepts.length === 0) {
         return (
             <NothingFound
                 className={props.className} />
@@ -111,19 +122,23 @@ function List(props: {
                     key={index}
                     className={cn(
                         "px-1 py-0.5",
-                        index < filteredConcepts.length - 1 && "border-b border-outline-variant")}>
+                        index < props.filteredConcepts.length - 1 && "border-b border-outline-variant")}>
                     <Button
                         className="w-full text-start py-1.5"
                         onClick={() => props.setSelectedConceptIndex(index)}>
                         <div>
                             <div className="mb-0.5 text-sm line-clamp-3">
                                 {item.objects.length > 0 ?
-                                    item.objects.map((o) => context?.objects[o]).join(", ").substring(0, 800) :
+                                    <HighlightedSearchTerms
+                                        text={item.objects.map((o) => context?.objects[o]).join(", ").substring(0, 800)}
+                                        regex={searchRegex} /> :
                                     <span className="italic">No objects</span>}
                             </div>
                             <div className="text-on-surface-container-muted text-xs line-clamp-3">
                                 {item.attributes.length > 0 ?
-                                    item.attributes.map((a) => context?.attributes[a]).join(", ").substring(0, 800) :
+                                    <HighlightedSearchTerms
+                                        text={item.attributes.map((a) => context?.attributes[a]).join(", ").substring(0, 800)}
+                                        regex={searchRegex} /> :
                                     <span className="italic">No attributes</span>}
                             </div>
                         </div>
@@ -131,4 +146,11 @@ function List(props: {
                 </li>)}
         </CardItemsLazyList>
     );
+}
+
+function conceptsFilter(concept: FormalConcept, searchTerms: Array<string>, context: RawFormalContext): boolean {
+    return searchTerms
+        .map((term) => term.toLowerCase())
+        .every((term) => concept.objects.some((o) => context.objects[o].toLowerCase().includes(term)) ||
+            concept.attributes.some((a) => context.attributes[a].toLowerCase().includes(term)));
 }

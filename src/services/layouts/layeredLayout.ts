@@ -1,11 +1,11 @@
 import { ConceptLattice } from "../../types/ConceptLattice";
 import { ConceptLatticeLayout } from "../../types/ConceptLatticeLayout";
-import { FormalConcepts } from "../../types/FormalConcepts";
+import { FormalConcepts, getSupremum } from "../../types/FormalConcepts";
 import { createPoint, Point } from "../../types/Point";
-import { assignNodesToLayersByLongestPath } from "./layers";
+import { assignNodesToLayersByLongestPath } from "../layers";
 
 export function computeLayeredLayout(formalConcepts: FormalConcepts, lattice: ConceptLattice): ConceptLatticeLayout {
-    const { layers, layersMapping } = assignNodesToLayersByLongestPath(formalConcepts, lattice.subconceptsMapping);
+    const { layers, layersMapping } = assignNodesToLayersByLongestPath(getSupremum(formalConcepts), lattice.subconceptsMapping);
     const { layersWithFakes, horizontalCoords, fakeSuperconceptsMapping, fakeSubconceptsMapping } = addFakes(
         formalConcepts.length,
         lattice.subconceptsMapping,

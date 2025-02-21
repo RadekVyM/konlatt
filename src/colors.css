@@ -8,16 +8,25 @@
     --primary-dark-lite: #242921;
     */
 
+    /*
     --primary-light: #5c4d7d;
     --primary-light-dim: #7d6e9c;
     --primary-light-lite: #f4f0ff;
     --primary-dark: #7a67a6;
     --primary-dark-dim: #6c6087;
     --primary-dark-lite: #242229;
+    */
+
+    --primary-light: #ed1870;
+    --primary-light-dim: #dd226f;
+    --primary-light-lite: #fef0f8;
+    --primary-dark: #ed1870;
+    --primary-dark-dim: #dd226f;
+    --primary-dark-lite: #290916;
 
     --secondary-light: #f4f6fb;
     --secondary-light-dim: #eaeef4;
-    --secondary-dark: #10151c;
+    --secondary-dark: #252d3c;
     --secondary-dark-dim: #19212d;
 
     --primary: var(--primary-light);
@@ -87,7 +96,7 @@
         --surface-dim-container: #19212d;
         --on-surface-dim-container: #f3f4f5;
 
-        --surface-light-dim-container: #10151c;
+        --surface-light-dim-container: #252d3c;
     
         --outline: #374151;
         --outline-variant: #1f2937;
