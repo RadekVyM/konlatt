@@ -3,7 +3,7 @@ import useConceptLatticeStore from "../../hooks/stores/useConceptLatticeStore";
 import { cn } from "../../utils/tailwind";
 import Container from "../Container";
 import ConceptsList from "../concepts/ConceptsList";
-import DiagramCanvas from "../concepts/DiagramCanvas";
+import ConceptsDiagram from "../concepts/ConceptsDiagram";
 
 export default function FormalConceptsPage() {
     const context = useConceptLatticeStore((state) => state.context);
@@ -33,24 +33,13 @@ function Diagram(props: {
     selectedConceptIndex: number | null,
     setSelectedConceptIndex: React.Dispatch<React.SetStateAction<number | null>>,
 }) {
-    const context = useConceptLatticeStore((state) => state.context);
-    const lattice = useConceptLatticeStore((state) => state.lattice);
-    const layout = useConceptLatticeStore((state) => state.layout);
-    const concepts = useConceptLatticeStore((state) => state.concepts);
-
     return (
         <Container
             as="section"
             className={cn("overflow-hidden relative", props.className)}>
-            {context && lattice && layout && concepts &&
-                <DiagramCanvas
-                    className="w-full h-full"
-                    layout={layout}
-                    concepts={concepts}
-                    lattice={lattice}
-                    formalContext={context}
-                    selectedConceptIndex={props.selectedConceptIndex}
-                    setSelectedConceptIndex={props.setSelectedConceptIndex} />}
+            <ConceptsDiagram
+                selectedConceptIndex={props.selectedConceptIndex}
+                setSelectedConceptIndex={props.setSelectedConceptIndex} />
         </Container>
     );
 }

@@ -50,32 +50,30 @@ self.onmessage = async (event: MessageEvent<CompleteWorkerRequest>) => {
 async function parseFileContent(jobId: number, fileContent: string) {
     postStatusMessage(jobId, "Parsing file");
 
+    if (formalContext) {
+        self.postMessage(createContextParsingResponse(jobId, formalContext));
+        return;
+    }
+
     // https://www.audjust.com/blog/wasm-and-workers
     const { parseBurmeister } = await import("../services/contextParsing");
 
     formalContext = parseBurmeister(fileContent);
-    const contextMessage: ContextParsingResponse = {
-        jobId,
-        type: "parse-context",
-        context: formalContext
-    };
-
-    self.postMessage(contextMessage);
+    self.postMessage(createContextParsingResponse(jobId, formalContext));
 }
 
 async function calculateConcepts(jobId: number, context: RawFormalContext) {
     postStatusMessage(jobId, "Computing concepts");
 
+    if (formalConcepts) {
+        self.postMessage(createConceptComputationResponse(jobId, formalConcepts));
+        return;
+    }
+
     const { computeConcepts } = await import("../services/conceptComputation");
     
     formalConcepts = computeConcepts(context);
-    const conceptsMessage: ConceptComputationResponse = {
-        jobId,
-        type: "concepts",
-        concepts: formalConcepts
-    };
-
-    self.postMessage(conceptsMessage);
+    self.postMessage(createConceptComputationResponse(jobId, formalConcepts));
 }
 
 async function calculateLattice(jobId: number, concepts: FormalConcepts) {
@@ -125,4 +123,20 @@ function postFinished(jobId: number) {
     };
 
     self.postMessage(finishedResponse);
+}
+
+function createContextParsingResponse(jobId: number, context: RawFormalContext): ContextParsingResponse {
+    return {
+        jobId,
+        type: "parse-context",
+        context
+    };
+}
+
+function createConceptComputationResponse(jobId: number, concepts: FormalConcepts): ConceptComputationResponse {
+    return {
+        jobId,
+        type: "concepts",
+        concepts
+    };
 }

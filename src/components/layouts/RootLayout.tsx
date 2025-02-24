@@ -19,11 +19,11 @@ export default function RootLayout() {
     
     return (
         <div
-            className="h-full max-h-full flex flex-col px-5">
+            className="h-full max-h-full flex flex-col">
             <header
-                className="flex justify-between items-center py-2 min-h-13">
-                <h1 className="font-semibold text-lg">
-                    😶 konlatt
+                className="flex justify-between items-center py-2 px-4 min-h-13">
+                <h1 className="with-logo flex gap-2.5 items-center font-semibold text-xl">
+                    konlatt
                 </h1>
 
                 <div
@@ -50,7 +50,7 @@ export default function RootLayout() {
             </header>
 
             <main
-                className="flex-1 overflow-hidden">
+                className="flex-1 px-4 overflow-hidden">
                 <Outlet />
             </main>
             

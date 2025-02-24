@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useDimensions from "../../hooks/useDimensions";
 import { ConceptLatticeLayout } from "../../types/ConceptLatticeLayout";
 import { ConceptLattice } from "../../types/ConceptLattice";
@@ -114,7 +114,7 @@ function useDrawDiagram(
     hoveredIndex: number | null,
     selectedIndex: number | null,
 ) {
-    function drawDiagram(context: CanvasRenderingContext2D, width: number, height: number, computedStyle: CSSStyleDeclaration) {
+    const drawDiagram = useCallback((context: CanvasRenderingContext2D, width: number, height: number, computedStyle: CSSStyleDeclaration) => {
         const onSurfaceColor = computedStyle.getPropertyValue("--on-surface-container");
         const primaryColor = computedStyle.getPropertyValue("--primary");
         const outlineColor = computedStyle.getPropertyValue("--outline");
@@ -126,6 +126,7 @@ function useDrawDiagram(
             const subconcepts = lattice.subconceptsMapping[concept.index];
 
             for (const subconceptIndex of subconcepts) {
+                // TODO: endPoint is sometimes undefined when drawing nom10shuttle 
                 const endPoint = layout[subconceptIndex];
                 context.strokeStyle = outlineColor;
                 context.beginPath();
@@ -175,7 +176,7 @@ function useDrawDiagram(
             }
             context.restore();
         }
-    }
+    }, [layout, lattice, concepts, formalContext, hoveredIndex, selectedIndex]);
 
     return drawDiagram;
 }

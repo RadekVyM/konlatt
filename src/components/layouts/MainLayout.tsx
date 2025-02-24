@@ -40,7 +40,7 @@ export default function MainLayout() {
 function Navigation() {
     return (
         <nav
-            className="flex gap-4 mb-4">
+            className="flex gap-3 mb-3">
             {NAV_LINKS.map((link) =>
                 <NavigationItem
                     key={link.to}

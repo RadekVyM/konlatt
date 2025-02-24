@@ -6,6 +6,8 @@ import ContextTable from "../context/ContextTable";
 import ObjectsList from "../context/ObjectsList";
 import AttributesList from "../context/AttributesList";
 import NothingFound from "../NothingFound";
+import CardSectionTitle from "../CardSectionTitle";
+import ExportButton from "../ExportButton";
 
 export default function FormalContextPage() {
     const context = useConceptLatticeStore((state) => state.context);
@@ -18,9 +20,14 @@ export default function FormalContextPage() {
     }, [context]);
 
     return (
-        <div className="grid grid-cols-[1fr_1fr] grid-rows-[4fr_3fr] lg:grid-rows-1 lg:grid-cols-[5fr_2fr_2fr] gap-3 flex-1 pb-4 max-h-full overflow-hidden">
+        <div className="
+            grid gap-3
+            grid-rows-[4fr_3fr] grid-cols-[1fr_1fr]
+            md:grid-rows-[1fr_1fr] md:grid-cols-[5fr_3fr]
+            lg:grid-rows-1 lg:grid-cols-[5fr_2fr_2fr]
+            flex-1 pb-4 max-h-full overflow-hidden">
             <Context
-                className="col-start-1 col-end-3 lg:col-end-2"
+                className="col-start-1 col-end-3 md:col-end-2 md:row-start-1 md:row-end-3 lg:row-auto"
                 selectedObject={selectedObject}
                 selectedAttribute={selectedAttribute}
                 setSelectedObject={setSelectedObject}
@@ -51,6 +58,12 @@ function Context(props: {
         <Container
             as="section"
             className={cn("flex flex-col overflow-hidden", props.className)}>
+            <header
+                className="flex justify-between items-center pt-3 pb-2 border-b border-outline-variant">
+                <CardSectionTitle className="mx-4">Context</CardSectionTitle>
+                <ExportButton
+                    className="mr-4" />
+            </header>
             {context ?
                 <ContextTable
                     className="flex-1 animate-fadeIn"

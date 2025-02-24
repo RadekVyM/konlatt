@@ -10,6 +10,7 @@ import CardSection from "../CardSection";
 import { searchTermsToRegex } from "../../utils/search";
 import FilterOrderBar from "../FilterOrderBar";
 import Found from "../Found";
+import ExportButton from "../ExportButton";
 
 export default function ItemsCardContent(props: {
     title: string,
@@ -31,7 +32,12 @@ export default function ItemsCardContent(props: {
             className={props.className}>
             <header
                 className="pb-1.5 flex flex-col">
-                <CardSectionTitle className="mx-4 mb-2">{props.title}</CardSectionTitle>
+                <div
+                    className="mb-2 flex justify-between">
+                    <CardSectionTitle className="mx-4">{props.title}</CardSectionTitle>
+                    <ExportButton
+                        className="mr-4" />
+                </div>
                 <div
                     className="self-stretch flex mx-4 mb-2 gap-2">
                     <SearchInput

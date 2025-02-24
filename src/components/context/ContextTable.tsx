@@ -41,8 +41,8 @@ export default function ContextTable(props: {
 
     const skippedRowsCount = Math.floor(Math.max(0, containerScroll[1] - columnHeaderSize) / cellHeight);
     const skippedColumnsCount = Math.floor(Math.max(0, containerScroll[0] - rowHeaderSize) / cellWidth);
-    const visibleRowsCount = Math.min(Math.ceil(containerDimensions.height / cellHeight), props.context.objects.length);
-    const visibleColumnsCount = Math.min(Math.ceil(containerDimensions.width / cellWidth), props.context.attributes.length);
+    const visibleRowsCount = Math.min(Math.ceil(containerDimensions.height / cellHeight) + 1, props.context.objects.length - skippedRowsCount, props.context.objects.length);
+    const visibleColumnsCount = Math.min(Math.ceil(containerDimensions.width / cellWidth) + 1, props.context.attributes.length - skippedColumnsCount, props.context.attributes.length);
 
     const cells = useCells(props.context, skippedRowsCount, skippedColumnsCount, visibleRowsCount, visibleColumnsCount);
     const rowHeaders = useRowHeaders(props.context, skippedRowsCount, visibleRowsCount);

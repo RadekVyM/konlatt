@@ -9,13 +9,13 @@ import { CardContainer } from "../CardContainer";
 import ConceptDetail from "./ConceptDetail";
 import NothingFound from "../NothingFound";
 import CardSection from "../CardSection";
-import { LuDownload } from "react-icons/lu";
 import FilterOrderBar from "../FilterOrderBar";
 import Found from "../Found";
 import { FormalConcept } from "../../types/FormalConcepts";
 import { RawFormalContext } from "../../types/RawFormalContext";
 import HighlightedSearchTerms from "../HighlightedSearchTerms";
 import { searchTermsToRegex } from "../../utils/search";
+import ExportButton from "../ExportButton";
 
 export default function Concepts(props: {
     className?: string,
@@ -60,13 +60,8 @@ function ConceptsList(props: {
                         Concepts
                     </h2>
 
-                    <Button
-                        className="mr-4"
-                        title="Export"
-                        variant="icon-default"
-                        size="sm">
-                        <LuDownload />
-                    </Button>
+                    <ExportButton
+                        className="mr-4" />
                 </div>
                 <div
                     className="self-stretch flex mx-4 mb-2 gap-2">

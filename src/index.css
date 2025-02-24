@@ -142,3 +142,18 @@ body {
 .thin-scrollbar::-webkit-scrollbar-track {
   @apply bg-transparent;
 }
+
+.with-logo::before {
+  content: "";
+  background-image: url("/images/logo_light.svg");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  @apply block w-5 h-5;
+}
+
+@media (prefers-color-scheme: dark) {
+  .with-logo::before {
+    background-image: url("/images/logo_dark.svg");
+  }
+}

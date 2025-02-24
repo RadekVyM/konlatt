@@ -34,7 +34,7 @@ export default class LatticeWorkerQueue {
             // TODO: I need to terminate the worker, create a new one and reinitialize it if I want to cancel a WASM computation
 
             this.currentJob = null;
-            
+
             this.next();
         }
         else {
