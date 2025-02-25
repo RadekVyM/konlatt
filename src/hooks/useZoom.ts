@@ -1,9 +1,8 @@
-import { RefObject, useEffect, useRef } from "react";
+import { RefObject, useEffect, useRef, useState } from "react";
 import * as d3Zoom from "d3-zoom";
 import * as d3Selection from "d3-selection";
 import { ZoomTransform } from "../types/d3/ZoomTransform";
 import { ZoomScaleExtent } from "../types/d3/ZoomScaleExtent";
-import { OnZoomChangeCallback } from "../types/d3/OnZoomChangeCallback";
 
 /**
  * Hook that returns an operation for zooming an element content. It is implemented using the D3.js zoom() function.
@@ -14,56 +13,67 @@ import { OnZoomChangeCallback } from "../types/d3/OnZoomChangeCallback";
  * @returns Operation for zooming an element content
  */
 export default function useZoom(
-    width: number,
-    height: number,
     elementRef: RefObject<Element | null>,
+    canMove: boolean = true,
     scaleExtent?: ZoomScaleExtent,
-    onZoomChange?: OnZoomChangeCallback
 ) {
     const zoomRef = useRef<d3Zoom.ZoomBehavior<Element, unknown> | null>(null);
+    const [zoomTransform, setZoomTransform] = useState<ZoomTransform>({ scale: 1, x: 0, y: 0 });
 
     useEffect(() => {
-        if (!elementRef.current || !onZoomChange) {
+        if (!elementRef.current) {
             return;
         }
 
         const element = d3Selection.select(elementRef.current);
 
         const currentZoom = (zoomRef.current || d3Zoom.zoom<Element, unknown>())
-            .extent([[0, 0], [width, height]])
             .scaleExtent([scaleExtent?.min || 1, scaleExtent?.max || 2])
             .on("zoom", (event) => {
                 const transform = event.transform as { k: number, x: number, y: number };
-
-                if (onZoomChange) {
-                    onZoomChange({ scale: transform.k, x: transform.x, y: transform.y });
-                }
+                setZoomTransform({ scale: transform.k, x: transform.x, y: transform.y });
             });
 
         zoomRef.current = currentZoom;
 
-        element.call(currentZoom);
-    }, [width, height, elementRef, scaleExtent]);
+        const selection = element.call(currentZoom);
 
-    function zoomTo(zoomTransform: ZoomTransform) {
+        if (!canMove) {
+            selection
+                .on("mousedown.zoom", null)
+                .on("touchstart.zoom", null);
+        }
+    }, [elementRef, scaleExtent, canMove]);
+
+    function updateExtent(width: number, height: number) {
+        zoomRef.current?.extent([[0, 0], [width, height]]);
+    }
+
+    function zoomTo(newZoomTransform: ZoomTransform) {
         if (!zoomRef.current || !elementRef.current) {
             return;
         }
 
         const element = d3Selection.select(elementRef.current);
 
-        const width = elementRef.current.clientWidth / 2;
-        const height = elementRef.current.clientHeight / 2;
+        const width = elementRef.current.clientWidth;
+        const height = elementRef.current.clientHeight;
 
-        element.transition().duration(750).call(
+        const scaleDiff = 1 + (newZoomTransform.scale - zoomTransform.scale);
+        const horizontalOffset = width - (width * scaleDiff);
+        const verticalOffset = height - (height * scaleDiff);
+
+        element.transition().duration(400).call(
             zoomRef.current.transform,
             d3Zoom.zoomIdentity
-                .translate(zoomTransform.x + width - (width * zoomTransform.scale), zoomTransform.y + height - (height * zoomTransform.scale))
-                .scale(zoomTransform.scale)
+                .translate(newZoomTransform.x + horizontalOffset / 2, newZoomTransform.y + verticalOffset / 2)
+                .scale(newZoomTransform.scale)
         );
     }
 
     return {
-        zoomTo
+        zoomTransform,
+        zoomTo,
+        updateExtent,
     };
 }
