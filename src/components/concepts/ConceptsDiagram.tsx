@@ -1,5 +1,5 @@
 import { LuMaximize, LuMinus, LuMove, LuPlus, LuRedo2, LuUndo2 } from "react-icons/lu";
-import useConceptLatticeStore from "../../hooks/stores/useConceptLatticeStore";
+import useProjectStore from "../../hooks/stores/useProjectStore";
 import Button from "../inputs/Button";
 import DiagramCanvas from "./DiagramCanvas";
 import { cn } from "../../utils/tailwind";
@@ -7,19 +7,24 @@ import { useRef, useState } from "react";
 import useEventListener from "../../hooks/useEventListener";
 import { ZoomTransform } from "../../types/d3/ZoomTransform";
 import useZoom from "../../hooks/useZoom";
+import { ZoomScaleExtent } from "../../types/d3/ZoomScaleExtent";
+import { useDiagramOffsets } from "../../hooks/useDiagramOffsets";
+
+const ZOOM_SCALE_EXTENT: ZoomScaleExtent = { min: 0.05, max: 4 };
 
 export default function ConceptsDiagram(props: {
     selectedConceptIndex: number | null,
     setSelectedConceptIndex: React.Dispatch<React.SetStateAction<number | null>>,
 }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const context = useConceptLatticeStore((state) => state.context);
-    const lattice = useConceptLatticeStore((state) => state.lattice);
-    const layout = useConceptLatticeStore((state) => state.layout);
-    const concepts = useConceptLatticeStore((state) => state.concepts);
+    const context = useProjectStore((state) => state.context);
+    const lattice = useProjectStore((state) => state.lattice);
+    const layout = useProjectStore((state) => state.layout);
+    const concepts = useProjectStore((state) => state.concepts);
     const [canMoveNodes, setCanMoveNodes] = useState(false);
+    const { diagramOffsets, canUndo, canRedo, updateNodeOffset, undo, redo } = useDiagramOffsets();
 
-    const { zoomTransform, updateExtent, zoomTo } = useZoom(canvasRef, !canMoveNodes, { min: 0.05, max: 4 });
+    const { zoomTransform, updateExtent, zoomTo } = useZoom(canvasRef, !canMoveNodes, ZOOM_SCALE_EXTENT);
 
     useEventListener("keydown", (event) => {
         setCanMoveNodes(event.key === "Control");
@@ -31,7 +36,7 @@ export default function ConceptsDiagram(props: {
 
     return (
         <>
-            {context && lattice && layout && concepts &&
+            {context && lattice && layout && concepts && diagramOffsets &&
                 <DiagramCanvas
                     ref={canvasRef}
                     className="w-full h-full"
@@ -43,7 +48,9 @@ export default function ConceptsDiagram(props: {
                     zoomTransform={zoomTransform}
                     selectedConceptIndex={props.selectedConceptIndex}
                     setSelectedConceptIndex={props.setSelectedConceptIndex}
-                    updateExtent={updateExtent} />}
+                    updateExtent={updateExtent}
+                    diagramOffsets={diagramOffsets}
+                    updateNodeOffset={updateNodeOffset} />}
             
             <FullscreenButton
                 className="absolute top-0 right-0 m-3" />
@@ -53,7 +60,11 @@ export default function ConceptsDiagram(props: {
                 <ZoomBar
                     zoomTransform={zoomTransform}
                     zoomTo={zoomTo} />
-                <UndoRedoBar />
+                <UndoRedoBar
+                    canUndo={canUndo}
+                    canRedo={canRedo}
+                    redo={redo}
+                    undo={undo} />
             </div>
 
             <MoveToggle
@@ -86,14 +97,14 @@ function ZoomBar(props: {
     function onIncrease() {
         props.zoomTo({
             ...props.zoomTransform,
-            scale: (Math.ceil(props.zoomTransform.scale / ZOOM_STEP) * ZOOM_STEP) + ZOOM_STEP,
+            scale: Math.min(ZOOM_SCALE_EXTENT.max || 1, (Math.ceil(props.zoomTransform.scale / ZOOM_STEP) * ZOOM_STEP) + ZOOM_STEP),
         });
     }
 
     function onDecrease() {
         props.zoomTo({
             ...props.zoomTransform,
-            scale: (Math.floor(props.zoomTransform.scale / ZOOM_STEP) * ZOOM_STEP) - ZOOM_STEP,
+            scale: Math.max(ZOOM_SCALE_EXTENT.min || 0, (Math.floor(props.zoomTransform.scale / ZOOM_STEP) * ZOOM_STEP) - ZOOM_STEP),
         });
     }
 
@@ -102,7 +113,9 @@ function ZoomBar(props: {
             className={cn("flex items-center gap-1 bg-secondary rounded-md", props.className)}>
             <Button
                 variant="icon-secondary"
-                onClick={onDecrease}>
+                title="Zoom out"
+                onClick={onDecrease}
+                disabled={props.zoomTransform.scale <= (ZOOM_SCALE_EXTENT.min || 0)}>
                 <LuMinus />
             </Button>
             <span className="text-sm w-10 text-center">
@@ -110,7 +123,9 @@ function ZoomBar(props: {
             </span>
             <Button
                 variant="icon-secondary"
-                onClick={onIncrease}>
+                title="Zoom in"
+                onClick={onIncrease}
+                disabled={props.zoomTransform.scale >= (ZOOM_SCALE_EXTENT.max || 0)}>
                 <LuPlus />
             </Button>
         </div>
@@ -119,16 +134,26 @@ function ZoomBar(props: {
 
 function UndoRedoBar(props: {
     className?: string,
+    canUndo: boolean,
+    canRedo: boolean,
+    undo: () => void,
+    redo: () => void,
 }) {
     return (
         <div
             className={cn("flex items-center bg-secondary rounded-md", props.className)}>
             <Button
-                variant="icon-secondary">
+                variant="icon-secondary"
+                title="Undo"
+                disabled={!props.canUndo}
+                onClick={props.undo}>
                 <LuUndo2 />
             </Button>
             <Button
-                variant="icon-secondary">
+                variant="icon-secondary"
+                title="Redo"
+                disabled={!props.canRedo}
+                onClick={props.redo}>
                 <LuRedo2 />
             </Button>
         </div>
@@ -144,7 +169,11 @@ function MoveToggle(props: {
         <Button
             className={props.className}
             variant={props.selected ? "icon-primary" : "icon-secondary"}
-            onClick={props.onToggle}>
+            onClick={props.onToggle}
+            type="button"
+            role="switch"
+            aria-checked={props.selected}
+            title="Enable node movements">
             <LuMove />
         </Button>
     );

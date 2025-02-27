@@ -1,15 +1,15 @@
 import { Outlet } from "react-router-dom";
 import Button from "../inputs/Button";
 import { LuFolderPlus, LuLoaderCircle } from "react-icons/lu";
-import useConceptLatticeStore from "../../hooks/stores/useConceptLatticeStore";
+import useProjectStore from "../../hooks/stores/useProjectStore";
 import useNewProjectStore from "../../hooks/stores/useNewProjectStore";
 import useDialog from "../../hooks/useDialog";
 import { useEffect } from "react";
 import NewProjectDialog from "../NewProjectDialog";
 
 export default function RootLayout() {
-    const progressMessage = useConceptLatticeStore((state) => state.progressMessage);
-    const file = useConceptLatticeStore((state) => state.file);
+    const progressMessage = useProjectStore((state) => state.progressMessage);
+    const file = useProjectStore((state) => state.file);
     const dialogState = useDialog();
     const setDialogState = useNewProjectStore((state) => state.setDialogState);
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import useConceptLatticeStore from "../../hooks/stores/useConceptLatticeStore";
+import useProjectStore from "../../hooks/stores/useProjectStore";
 import { cn } from "../../utils/tailwind";
 import Container from "../Container";
 import ContextTable from "../context/ContextTable";
@@ -10,7 +10,7 @@ import CardSectionTitle from "../CardSectionTitle";
 import ExportButton from "../ExportButton";
 
 export default function FormalContextPage() {
-    const context = useConceptLatticeStore((state) => state.context);
+    const context = useProjectStore((state) => state.context);
     const [selectedObject, setSelectedObject] = useState<number | null>(null);
     const [selectedAttribute, setSelectedAttribute] = useState<number | null>(null);
 
@@ -52,7 +52,7 @@ function Context(props: {
     setSelectedObject: React.Dispatch<React.SetStateAction<number | null>>,
     setSelectedAttribute: React.Dispatch<React.SetStateAction<number | null>>,
 }) {
-    const context = useConceptLatticeStore((state) => state.context);
+    const context = useProjectStore((state) => state.context);
 
     return (
         <Container

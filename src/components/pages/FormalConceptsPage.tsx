@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import useConceptLatticeStore from "../../hooks/stores/useConceptLatticeStore";
+import useProjectStore from "../../hooks/stores/useProjectStore";
 import { cn } from "../../utils/tailwind";
 import Container from "../Container";
 import ConceptsList from "../concepts/ConceptsList";
 import ConceptsDiagram from "../concepts/ConceptsDiagram";
 
 export default function FormalConceptsPage() {
-    const context = useConceptLatticeStore((state) => state.context);
+    const context = useProjectStore((state) => state.context);
     const [selectedConceptIndex, setSelectedConceptIndex] = useState<number | null>(null);
 
     useEffect(() => {

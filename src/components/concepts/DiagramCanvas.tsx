@@ -6,6 +6,7 @@ import { FormalConcepts } from "../../types/FormalConcepts";
 import { RawFormalContext } from "../../types/RawFormalContext";
 import { ZoomTransform } from "../../types/d3/ZoomTransform";
 import { createQuadTree, invertEventPoint } from "../../utils/d3";
+import { createPoint, Point } from "../../types/Point";
 
 const LAYOUT_SCALE = 60;
 
@@ -19,8 +20,10 @@ export default function DiagramCanvas(props: {
     zoomTransform: ZoomTransform,
     canMoveNodes: boolean,
     selectedConceptIndex: number | null,
+    diagramOffsets: Array<Point>,
     setSelectedConceptIndex: React.Dispatch<React.SetStateAction<number | null>>,
     updateExtent: (width: number, height: number) => void,
+    updateNodeOffset: (node: number, offset: Point) => void,
 }) {
     const containerRef = useRef<HTMLDivElement>(null);
     const dimensions = useDimensions(containerRef);
@@ -34,9 +37,19 @@ export default function DiagramCanvas(props: {
         onPointerUp,
         onPointerMove,
         onClick,
-    } = useCanvasInteraction(props.layout, props.zoomTransform, width, height, props.canMoveNodes, setHoveredIndex, props.setSelectedConceptIndex);
+    } = useCanvasInteraction(
+        props.layout,
+        props.zoomTransform,
+        width,
+        height,
+        props.canMoveNodes,
+        props.diagramOffsets,
+        setHoveredIndex,
+        props.setSelectedConceptIndex,
+        props.updateNodeOffset);
     const drawDiagram = useDrawDiagram(
         props.layout,
+        props.diagramOffsets,
         props.lattice,
         props.concepts,
         props.formalContext,
@@ -86,8 +99,8 @@ export default function DiagramCanvas(props: {
     );
 }
 
-function useQuadTree(layout: ConceptLatticeLayout) {
-    return useMemo(() => createQuadTree(layout), [layout]);
+function useQuadTree(layout: ConceptLatticeLayout, diagramOffsets: Array<Point>) {
+    return useMemo(() => createQuadTree(layout, diagramOffsets), [layout, diagramOffsets]);
 }
 
 function useCanvasInteraction(
@@ -96,13 +109,15 @@ function useCanvasInteraction(
     width: number,
     height: number,
     canMoveNodes: boolean,
+    diagramOffsets: Array<Point>,
     setHoveredIndex: React.Dispatch<React.SetStateAction<number | null>>,
     setSelectedIndex: React.Dispatch<React.SetStateAction<number | null>>,
+    updateNodeOffset: (node: number, offset: Point) => void,
 ) {
     const dragStartPointRef = useRef<[number, number]>([0, 0]);
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
     const [dragOffset, setDragOffset] = useState<[number, number]>([0, 0]);
-    const quadTree = useQuadTree(layout);
+    const quadTree = useQuadTree(layout, diagramOffsets);
 
     function onPointerDown(e: React.PointerEvent<HTMLCanvasElement>) {
         if (!canMoveNodes) {
@@ -115,6 +130,9 @@ function useCanvasInteraction(
     }
 
     function onPointerUp() {
+        if (draggedIndex !== null) {
+            updateNodeOffset(draggedIndex, createPoint(dragOffset[0], dragOffset[1], 0));
+        }
         setDraggedIndex(null);
         setDragOffset([0, 0]);
         dragStartPointRef.current = [0, 0];
@@ -170,6 +188,7 @@ function useCanvasInteraction(
 
 function useDrawDiagram(
     layout: ConceptLatticeLayout,
+    diagramOffsets: Array<Point>,
     lattice: ConceptLattice,
     concepts: FormalConcepts,
     formalContext: RawFormalContext,
@@ -188,20 +207,23 @@ function useDrawDiagram(
         for (const concept of concepts) {
             const isStartPointDragged = draggedIndex === concept.index;
             const startPoint = layout[concept.index];
+            const startOffset = diagramOffsets[concept.index];
             const subconcepts = lattice.subconceptsMapping[concept.index];
+            const startX = ((startPoint[0] + startOffset[0] + (isStartPointDragged ? dragOffset[0] : 0)) * LAYOUT_SCALE) + centerX;
+            const startY = ((startPoint[1] + startOffset[1] + (isStartPointDragged ? dragOffset[1] : 0)) * LAYOUT_SCALE) + centerY;
 
             for (const subconceptIndex of subconcepts) {
                 const isEndPointDragged = draggedIndex === subconceptIndex;
                 // TODO: endPoint is sometimes undefined when drawing nom10shuttle
                 const endPoint = layout[subconceptIndex];
+                const endOffset = diagramOffsets[subconceptIndex];
+
                 context.strokeStyle = outlineColor;
                 context.beginPath();
-                context.moveTo(
-                    ((startPoint[0] + (isStartPointDragged ? dragOffset[0] : 0)) * LAYOUT_SCALE) + centerX,
-                    ((startPoint[1] + (isStartPointDragged ? dragOffset[1] : 0)) * LAYOUT_SCALE) + centerY);
+                context.moveTo(startX, startY);
                 context.lineTo(
-                    ((endPoint[0] + (isEndPointDragged ? dragOffset[0] : 0)) * LAYOUT_SCALE) + centerX,
-                    ((endPoint[1] + (isEndPointDragged ? dragOffset[1] : 0)) * LAYOUT_SCALE) + centerY);
+                    ((endPoint[0] + endOffset[0] + (isEndPointDragged ? dragOffset[0] : 0)) * LAYOUT_SCALE) + centerX,
+                    ((endPoint[1] + endOffset[1] + (isEndPointDragged ? dragOffset[1] : 0)) * LAYOUT_SCALE) + centerY);
                 context.stroke();
             }
         }
@@ -209,8 +231,9 @@ function useDrawDiagram(
         for (const concept of concepts) {
             const isDragged = draggedIndex === concept.index;
             const point = layout[concept.index];
-            const x = ((point[0] + (isDragged ? dragOffset[0] : 0)) * LAYOUT_SCALE) + centerX;
-            const y = ((point[1] + (isDragged ? dragOffset[1] : 0)) * LAYOUT_SCALE) + centerY;
+            const offset = diagramOffsets[concept.index];
+            const x = ((point[0] + offset[0] + (isDragged ? dragOffset[0] : 0)) * LAYOUT_SCALE) + centerX;
+            const y = ((point[1] + offset[1] + (isDragged ? dragOffset[1] : 0)) * LAYOUT_SCALE) + centerY;
 
             context.save();
             context.fillStyle = selectedIndex === concept.index ?
@@ -247,7 +270,7 @@ function useDrawDiagram(
             }
             context.restore();
         }
-    }, [layout, lattice, concepts, formalContext, hoveredIndex, selectedIndex, draggedIndex, dragOffset]);
+    }, [layout, diagramOffsets, lattice, concepts, formalContext, hoveredIndex, selectedIndex, draggedIndex, dragOffset]);
 
     return drawDiagram;
 }

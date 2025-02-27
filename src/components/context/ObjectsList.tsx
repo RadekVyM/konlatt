@@ -1,4 +1,4 @@
-import useConceptLatticeStore from "../../hooks/stores/useConceptLatticeStore";
+import useProjectStore from "../../hooks/stores/useProjectStore";
 import { formalContextHasAttribute, RawFormalContext } from "../../types/RawFormalContext";
 import { CardContainer } from "../CardContainer";
 import ItemsCardContent from "./ItemsCardContent";
@@ -15,7 +15,7 @@ export default function ObjectsList(props: {
     selectedObjectIndex: number | null,
     setSelectedObjectIndex: (index: number | null) => void,
 }) {
-    const context = useConceptLatticeStore((state) => state.context);
+    const context = useProjectStore((state) => state.context);
     const objects = (context?.objects || []).map<ContextObjectItem>((title, index) => ({ index, title }));
     const selectedObject = context && props.selectedObjectIndex !== null ?
         getContextObject(context, props.selectedObjectIndex) :

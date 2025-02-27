@@ -4,6 +4,10 @@ import { ConceptLattice } from "../../types/ConceptLattice";
 import LatticeWorkerQueue from "../../workers/LatticeWorkerQueue";
 import { FormalConcepts } from "../../types/FormalConcepts";
 import { ConceptLatticeLayout } from "../../types/ConceptLatticeLayout";
+import { Point } from "../../types/Point";
+import { NodeOffsetMemento } from "../../types/NodeOffsetMemento";
+
+type DiagramOffsetMementos = { undos: Array<NodeOffsetMemento>, redos: Array<NodeOffsetMemento> }
 
 type ConceptLatticeStore = {
     progressMessage: string | null,
@@ -13,15 +17,19 @@ type ConceptLatticeStore = {
     lattice: ConceptLattice | null,
     layout: ConceptLatticeLayout | null,
     workerQueue: LatticeWorkerQueue,
+    diagramOffsets: Array<Point> | null,
+    diagramOffsetMementos: DiagramOffsetMementos,
     setProgressMessage: (progressMessage: string | null) => void,
     setFile: (file: File | null) => void,
     setContext: (context: RawFormalContext | null) => void,
     setConcepts: (concepts: FormalConcepts | null) => void,
     setLattice: (lattice: ConceptLattice | null) => void,
     setLayout: (layout: ConceptLatticeLayout | null) => void,
+    setDiagramOffsets: (diagramOffsets: Array<Point> | null) => void,
+    setDiagramOffsetMementos: (diagramOffsetMementos: DiagramOffsetMementos) => void,
 }
 
-const useConceptLatticeStore = create<ConceptLatticeStore>((set) => ({
+const useProjectStore = create<ConceptLatticeStore>((set) => ({
     progressMessage: null,
     file: null,
     context: null,
@@ -29,12 +37,16 @@ const useConceptLatticeStore = create<ConceptLatticeStore>((set) => ({
     lattice: null,
     layout: null,
     workerQueue: new LatticeWorkerQueue(),
+    diagramOffsets: null,
+    diagramOffsetMementos: { redos: [], undos: [] },
     setProgressMessage: (progressMessage) => set(() => ({ progressMessage })),
     setFile: (file) => set(() => ({ file })),
     setContext: (context) => set(() => ({ context })),
     setConcepts: (concepts) => set(() => ({ concepts })),
     setLattice: (lattice) => set(() => ({ lattice })),
     setLayout: (layout) => set(() => ({ layout })),
+    setDiagramOffsets: (diagramOffsets) => set(() => ({ diagramOffsets })),
+    setDiagramOffsetMementos: (diagramOffsetMementos) => set(() => ({ diagramOffsetMementos })),
 }));
 
-export default useConceptLatticeStore;
+export default useProjectStore;

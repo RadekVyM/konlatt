@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import useConceptLatticeStore from "../../hooks/stores/useConceptLatticeStore";
+import useProjectStore from "../../hooks/stores/useProjectStore";
 import BackButton from "../BackButton";
 import Button from "../inputs/Button";
 import CardItemsLazyList from "../CardItemsLazyList";
@@ -17,7 +17,7 @@ export default function ConceptDetail(props: {
     setSelectedConceptIndex: (index: number | null) => void,
 }) {
     const [currentTab, setCurrentTab] = useState<TabItem>("objects");
-    const concepts = useConceptLatticeStore((state) => state.concepts);
+    const concepts = useProjectStore((state) => state.concepts);
     const selectedConcept = props.selectedConceptIndex !== null && concepts !== null && props.selectedConceptIndex < concepts.length ?
         concepts[props.selectedConceptIndex] :
         null;
@@ -98,7 +98,7 @@ function TabButton(props: {
 function ObjectsList(props: {
     objectIndexes: ReadonlyArray<number>,
 }) {
-    const context = useConceptLatticeStore((state) => state.context);
+    const context = useProjectStore((state) => state.context);
 
     return (
         <ItemsList
@@ -111,7 +111,7 @@ function ObjectsList(props: {
 function AttributesList(props: {
     attributeIndexes: ReadonlyArray<number>,
 }) {
-    const context = useConceptLatticeStore((state) => state.context);
+    const context = useProjectStore((state) => state.context);
 
     return (
         <ItemsList

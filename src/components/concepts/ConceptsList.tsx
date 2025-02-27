@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import useConceptLatticeStore from "../../hooks/stores/useConceptLatticeStore";
+import useProjectStore from "../../hooks/stores/useProjectStore";
 import { cn } from "../../utils/tailwind";
 import SearchInput from "../SearchInput";
 import useLazyListCount from "../../hooks/useLazyListCount";
@@ -41,8 +41,8 @@ function ConceptsList(props: {
     setSelectedConceptIndex: (index: number | null) => void,
 }) {
     const [searchInput, setSearchInput] = useState<string>("");
-    const concepts = useConceptLatticeStore((state) => state.concepts);
-    const context = useConceptLatticeStore((state) => state.context);
+    const concepts = useProjectStore((state) => state.concepts);
+    const context = useProjectStore((state) => state.context);
     const searchTerms = searchInput.trim().split(" ").filter((t) => t.length > 0);
     const filteredConcepts = concepts && context ?
         concepts.filter((concept) => conceptsFilter(concept, searchTerms, context)) :
@@ -95,8 +95,8 @@ function List(props: {
     setSelectedConceptIndex: (index: number | null) => void,
 }) {
     const observerTargetRef = useRef<HTMLDivElement>(null);
-    const concepts = useConceptLatticeStore((state) => state.concepts);
-    const context = useConceptLatticeStore((state) => state.context);
+    const concepts = useProjectStore((state) => state.concepts);
+    const context = useProjectStore((state) => state.context);
     const [displayedItemsCount] = useLazyListCount(props.filteredConcepts.length, 20, observerTargetRef);
     const displayedItems = props.filteredConcepts.slice(0, displayedItemsCount);
     const searchRegex = searchTermsToRegex(props.searchTerms);
