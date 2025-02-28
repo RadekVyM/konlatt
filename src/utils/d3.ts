@@ -1,14 +1,13 @@
 
 import * as d3Zoom from "d3-zoom";
 import * as d3Quadtree from "d3-quadtree";
-import * as d3Selection from "d3-selection";
 import { ZoomTransform } from "../types/d3/ZoomTransform";
 import { ConceptLatticeLayout } from "../types/ConceptLatticeLayout";
 import { QuadNode } from "../types/QuadNode";
 import { Point } from "../types/Point";
 
-export function invertEventPoint(event: React.PointerEvent<HTMLElement>, zoomTransform: ZoomTransform) {
-    return invertPoint(d3Selection.pointer(event), zoomTransform);
+export function invertEventPoint(point: [number, number], zoomTransform: ZoomTransform) {
+    return invertPoint(point, zoomTransform);
 }
 
 export function invertPoint(point: [number, number], zoomTransform: ZoomTransform) {

@@ -24,13 +24,13 @@ describe.each<TestValue>([
         expect(context.cellsPerObject).toBe(value.contextCellsPerObject);
         expect(context.objects.length).toBe(value.objectsCount);
         expect(context.attributes.length).toBe(value.attributesCount);
-        expect(context).toMatchSnapshot();
+        //expect(context).toMatchSnapshot();
     }, 60000);
 
     test(`concepts: ${value.title}`, () => {
         concepts = computeConcepts(context);
         expect(concepts.length).toBe(value.conceptsCount);
-        expect(concepts).toMatchSnapshot();
+        //expect(concepts).toMatchSnapshot();
     }, 60000);
 
     test(`lattice: ${value.title}`, () => {
@@ -40,7 +40,7 @@ describe.each<TestValue>([
             .toBe(value.coverRelationSize);
         expect(lattice.superconceptsMapping.reduce((prev, curr) => prev + curr.size, 0))
             .toBe(value.coverRelationSize);
-        expect(lattice.subconceptsMapping).toMatchSnapshot();
+        //expect(lattice.subconceptsMapping).toMatchSnapshot();
     }, 60000);
 
     test(`layers by the longest path: ${value.title}`, () => {

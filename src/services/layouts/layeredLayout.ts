@@ -6,7 +6,7 @@ import { assignNodesToLayersByLongestPath } from "../layers";
 
 export function computeLayeredLayout(formalConcepts: FormalConcepts, lattice: ConceptLattice): ConceptLatticeLayout {
     const { layers, layersMapping } = assignNodesToLayersByLongestPath(getSupremum(formalConcepts), lattice.subconceptsMapping);
-    const { layersWithFakes, horizontalCoords, fakeSuperconceptsMapping, fakeSubconceptsMapping } = addFakes(
+    const { layersWithDummies, horizontalCoords, dummySuperconceptsMapping, dummySubconceptsMapping } = addDummies(
         formalConcepts.length,
         lattice.subconceptsMapping,
         layers,
@@ -14,23 +14,23 @@ export function computeLayeredLayout(formalConcepts: FormalConcepts, lattice: Co
         
     let orderedLayers = reduceCrossingsUsingAverage(
         formalConcepts.length,
-        layersWithFakes,
+        layersWithDummies,
         horizontalCoords,
         [lattice.superconceptsMapping],
-        [fakeSuperconceptsMapping]);
+        [dummySuperconceptsMapping]);
     orderedLayers = reduceCrossingsUsingAverage(
         formalConcepts.length,
         orderedLayers,
         horizontalCoords,
         [lattice.subconceptsMapping],
-        [fakeSubconceptsMapping],
+        [dummySubconceptsMapping],
         false);
     orderedLayers = reduceCrossingsUsingAverage(
         formalConcepts.length,
         orderedLayers,
         horizontalCoords,
         [lattice.superconceptsMapping, lattice.subconceptsMapping],
-        [fakeSuperconceptsMapping, fakeSubconceptsMapping]);
+        [dummySuperconceptsMapping, dummySubconceptsMapping]);
 
     return createLayout(formalConcepts.length, orderedLayers);
 }
@@ -61,7 +61,7 @@ function reduceCrossingsUsingAverage(
     layers: Array<Array<number>>,
     horizontalCoords: Array<number>,
     superconceptsMappings: Array<ReadonlyArray<Set<number>>>,
-    fakeSuperconceptsMappings: Array<Map<number, Array<number>>>,
+    dummySuperconceptsMappings: Array<Map<number, Array<number>>>,
     topToBottom: boolean = true,
 ) {
     const reducedLayers = new Array<Array<number>>(layers.length);
@@ -92,12 +92,12 @@ function reduceCrossingsUsingAverage(
                 }
             }
 
-            for (const fakeSuperconceptsMapping of fakeSuperconceptsMappings) {
-                for (const superconcept of fakeSuperconceptsMapping.get(concept) || []) {
+            for (const dummySuperconceptsMapping of dummySuperconceptsMappings) {
+                for (const superconcept of dummySuperconceptsMapping.get(concept) || []) {
                     sum += horizontalCoords[superconcept];
                 }
 
-                count += fakeSuperconceptsMapping.get(concept)?.length || 0;
+                count += dummySuperconceptsMapping.get(concept)?.length || 0;
             }
 
             averages[concept] = sum / count;
@@ -115,16 +115,16 @@ function reduceCrossingsUsingAverage(
     return reducedLayers;
 }
 
-function addFakes(
+function addDummies(
     conceptsCount: number,
     subconceptsMapping: ReadonlyArray<Set<number>>,
     layers: Array<Set<number>>,
     layersMapping: Array<number>
 ) {
-    const fakeSubconceptsMapping = new Map<number, Array<number>>();
-    const fakeSuperconceptsMapping = new Map<number, Array<number>>();
+    const dummySubconceptsMapping = new Map<number, Array<number>>();
+    const dummySuperconceptsMapping = new Map<number, Array<number>>();
     const horizontalCoords = new Array<number>(conceptsCount);
-    const layersWithFakes = new Array<Array<number>>(layers.length);
+    const layersWithDummies = new Array<Array<number>>(layers.length);
     const max = layers.reduce((prev, curr) => Math.max(curr.size, prev), 0);
 
     for (let i = 0; i < layers.length; i++) {
@@ -137,23 +137,23 @@ function addFakes(
             horizontalCoords[value] = j + offset;
         }
 
-        layersWithFakes[i] = values;
+        layersWithDummies[i] = values;
     }
 
-    addFakesToLayers(
+    addDummiesToLayers(
         conceptsCount,
         subconceptsMapping,
         layersMapping,
         horizontalCoords,
-        layersWithFakes,
-        fakeSubconceptsMapping,
-        fakeSuperconceptsMapping);
+        layersWithDummies,
+        dummySubconceptsMapping,
+        dummySuperconceptsMapping);
 
     // Make the coords precise
-    const maxWithFakes = layersWithFakes.reduce((prev, curr) => Math.max(curr.length, prev), 0);
-    for (let i = 0; i < layersWithFakes.length; i++) {
+    const maxWithDummies = layersWithDummies.reduce((prev, curr) => Math.max(curr.length, prev), 0);
+    for (let i = 0; i < layersWithDummies.length; i++) {
         const layer = layers[i];
-        const offset = (maxWithFakes - layer.size) / 2;
+        const offset = (maxWithDummies - layer.size) / 2;
         let j = 0;
 
         for (const value of layer) {
@@ -163,23 +163,23 @@ function addFakes(
     }
 
     return {
-        layersWithFakes,
+        layersWithDummies: layersWithDummies,
         horizontalCoords,
-        fakeSubconceptsMapping,
-        fakeSuperconceptsMapping,
+        dummySubconceptsMapping: dummySubconceptsMapping,
+        dummySuperconceptsMapping: dummySuperconceptsMapping,
     };
 }
 
-function addFakesToLayers(
+function addDummiesToLayers(
     conceptsCount: number,
     subconceptsMapping: ReadonlyArray<Set<number>>,
     layersMapping: Array<number>,
     horizontalCoords: Array<number>,
-    layersWithFakes: Array<Array<number>>,
-    fakeSubconceptsMapping: Map<number, Array<number>>,
-    fakeSuperconceptsMapping: Map<number, Array<number>>,
+    layersWithDummies: Array<Array<number>>,
+    dummySubconceptsMapping: Map<number, Array<number>>,
+    dummySuperconceptsMapping: Map<number, Array<number>>,
 ) {
-    let newFake = conceptsCount;
+    let newDummy = conceptsCount;
 
     for (let from = 0; from < subconceptsMapping.length; from++) {
         const fromLayer = layersMapping[from];
@@ -189,30 +189,30 @@ function addFakesToLayers(
             const diff = Math.abs(toLayer - fromLayer);
 
             if (diff > 1) {
-                // add fakes
+                // add dummies 
                 let previousSuperconcept = from;
 
                 for (let i = 1; i <= diff - 1; i++) {
                     const ratio = i / (toLayer - fromLayer);
                     const coord = Math.round((ratio * (horizontalCoords[to] - horizontalCoords[from])) + horizontalCoords[from]);
-                    const targetLayer = layersWithFakes[fromLayer + i];
+                    const targetLayer = layersWithDummies[fromLayer + i];
 
-                    targetLayer.splice(coord, 0, newFake);
-                    horizontalCoords[newFake] = coord;
+                    targetLayer.splice(coord, 0, newDummy);
+                    horizontalCoords[newDummy] = coord;
 
                     for (let j = coord + 1; j < targetLayer.length; j++) {
                         horizontalCoords[targetLayer[j]]++;
                     }
 
-                    addSubconceptToMapping(fakeSubconceptsMapping, previousSuperconcept, newFake);
-                    addSubconceptToMapping(fakeSuperconceptsMapping, newFake, previousSuperconcept);
+                    addSubconceptToMapping(dummySubconceptsMapping, previousSuperconcept, newDummy);
+                    addSubconceptToMapping(dummySuperconceptsMapping, newDummy, previousSuperconcept);
 
-                    previousSuperconcept = newFake;
-                    newFake++;
+                    previousSuperconcept = newDummy;
+                    newDummy++;
                 }
 
-                addSubconceptToMapping(fakeSubconceptsMapping, previousSuperconcept, to);
-                addSubconceptToMapping(fakeSuperconceptsMapping, to, previousSuperconcept);
+                addSubconceptToMapping(dummySubconceptsMapping, previousSuperconcept, to);
+                addSubconceptToMapping(dummySuperconceptsMapping, to, previousSuperconcept);
             }
         }
     }

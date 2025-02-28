@@ -7,6 +7,7 @@ import { RawFormalContext } from "../../types/RawFormalContext";
 import { ZoomTransform } from "../../types/d3/ZoomTransform";
 import { createQuadTree, invertEventPoint } from "../../utils/d3";
 import { createPoint, Point } from "../../types/Point";
+import useEventListener from "../../hooks/useEventListener";
 
 const LAYOUT_SCALE = 60;
 
@@ -18,7 +19,7 @@ export default function DiagramCanvas(props: {
     concepts: FormalConcepts,
     formalContext: RawFormalContext,
     zoomTransform: ZoomTransform,
-    canMoveNodes: boolean,
+    isEditable: boolean,
     selectedConceptIndex: number | null,
     diagramOffsets: Array<Point>,
     setSelectedConceptIndex: React.Dispatch<React.SetStateAction<number | null>>,
@@ -34,15 +35,15 @@ export default function DiagramCanvas(props: {
         draggedIndex,
         dragOffset,
         onPointerDown,
-        onPointerUp,
         onPointerMove,
         onClick,
     } = useCanvasInteraction(
+        containerRef,
         props.layout,
         props.zoomTransform,
         width,
         height,
-        props.canMoveNodes,
+        props.isEditable,
         props.diagramOffsets,
         setHoveredIndex,
         props.setSelectedConceptIndex,
@@ -85,14 +86,13 @@ export default function DiagramCanvas(props: {
     return (
         <div
             ref={containerRef}
-            className={props.className}>
+            className={props.className}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onClick={onClick}>
             <canvas
                 ref={props.ref}
                 className="w-full h-full"
-                onPointerUp={onPointerUp}
-                onPointerDown={onPointerDown}
-                onPointerMove={onPointerMove}
-                onClick={onClick}
                 width={width}
                 height={height} />
         </div>
@@ -104,11 +104,12 @@ function useQuadTree(layout: ConceptLatticeLayout, diagramOffsets: Array<Point>)
 }
 
 function useCanvasInteraction(
+    containerRef: React.RefObject<HTMLDivElement | null>,
     layout: ConceptLatticeLayout,
     zoomTransform: ZoomTransform,
     width: number,
     height: number,
-    canMoveNodes: boolean,
+    isEditable: boolean,
     diagramOffsets: Array<Point>,
     setHoveredIndex: React.Dispatch<React.SetStateAction<number | null>>,
     setSelectedIndex: React.Dispatch<React.SetStateAction<number | null>>,
@@ -118,40 +119,51 @@ function useCanvasInteraction(
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
     const [dragOffset, setDragOffset] = useState<[number, number]>([0, 0]);
     const quadTree = useQuadTree(layout, diagramOffsets);
+    const isDragging = draggedIndex !== null;
 
-    function onPointerDown(e: React.PointerEvent<HTMLCanvasElement>) {
-        if (!canMoveNodes) {
+    // This is super important to make node dragging work on touch screens
+    useEventListener("touchmove", (e) => {
+        if (isDragging) {
+            e.preventDefault();
+        }
+    }, containerRef, { passive: false });
+
+    useEventListener("pointerup", () => {
+        if (isDragging) {
+            updateNodeOffset(draggedIndex, createPoint(dragOffset[0], dragOffset[1], 0));
+            setDraggedIndex(null);
+            setDragOffset([0, 0]);
+            dragStartPointRef.current = [0, 0];
+        }
+    });
+
+    useEventListener("pointermove", (e) => {
+        if (isDragging) {
+            const [offsetX, offsetY] = getPoint(e.clientX, e.clientY);
+            const start = dragStartPointRef.current;
+            setDragOffset([offsetX - start[0], offsetY - start[1]]);
+        }
+    });
+
+    function onPointerDown(e: React.PointerEvent<HTMLElement>) {
+        if (!isEditable) {
             return;
         }
         const node = findNode(e);
         setDraggedIndex(node ? node.index : null);
 
-        dragStartPointRef.current = getPoint(e);
+        dragStartPointRef.current = getPoint(e.clientX, e.clientY);
     }
 
-    function onPointerUp() {
-        if (draggedIndex !== null) {
-            updateNodeOffset(draggedIndex, createPoint(dragOffset[0], dragOffset[1], 0));
-        }
-        setDraggedIndex(null);
-        setDragOffset([0, 0]);
-        dragStartPointRef.current = [0, 0];
-    }
-
-    function onPointerMove(e: React.PointerEvent<HTMLCanvasElement>) {
-        if (draggedIndex !== null) {
-            const [offsetX, offsetY] = getPoint(e);
-            const start = dragStartPointRef.current;
-            setDragOffset([offsetX - start[0], offsetY - start[1]]);
-        }
-        else {
+    function onPointerMove(e: React.PointerEvent<HTMLElement>) {
+        if (!isDragging) {
             const node = findNode(e);
             setHoveredIndex(node ? node.index : null);
         }
     }
 
-    function onClick(e: React.PointerEvent<HTMLCanvasElement>) {
-        if (canMoveNodes) {
+    function onClick(e: React.PointerEvent<HTMLDivElement>) {
+        if (isEditable) {
             return;
         }
 
@@ -166,20 +178,20 @@ function useCanvasInteraction(
             node ? node.index : null);
     }
 
-    function getPoint(e: React.PointerEvent<HTMLCanvasElement>): [number, number] {
-        const point = invertEventPoint(e, zoomTransform);
-        return [toLayoutCoord(point[0], width), toLayoutCoord(point[1], height)];
+    function findNode(e: React.PointerEvent<HTMLElement>) {
+        const point = getPoint(e.clientX, e.clientY);
+        return quadTree.find(point[0], point[1], 6 / LAYOUT_SCALE);
     }
 
-    function findNode(e: React.PointerEvent<HTMLCanvasElement>) {
-        const point = getPoint(e);
-        return quadTree.find(point[0], point[1], 6 / LAYOUT_SCALE);
+    function getPoint(pointerX: number, pointerY: number): [number, number] {
+        const rect = containerRef.current?.getBoundingClientRect();
+        const point = invertEventPoint([pointerX - (rect?.left || 0), pointerY - (rect?.top || 0)], zoomTransform);
+        return [toLayoutCoord(point[0], width), toLayoutCoord(point[1], height)];
     }
 
     return {
         dragOffset,
         draggedIndex,
-        onPointerUp,
         onPointerDown,
         onPointerMove,
         onClick,
@@ -209,21 +221,19 @@ function useDrawDiagram(
             const startPoint = layout[concept.index];
             const startOffset = diagramOffsets[concept.index];
             const subconcepts = lattice.subconceptsMapping[concept.index];
-            const startX = ((startPoint[0] + startOffset[0] + (isStartPointDragged ? dragOffset[0] : 0)) * LAYOUT_SCALE) + centerX;
-            const startY = ((startPoint[1] + startOffset[1] + (isStartPointDragged ? dragOffset[1] : 0)) * LAYOUT_SCALE) + centerY;
+            const [startX, startY] = getTargetPoint(startPoint, startOffset, dragOffset, isStartPointDragged);
 
             for (const subconceptIndex of subconcepts) {
                 const isEndPointDragged = draggedIndex === subconceptIndex;
                 // TODO: endPoint is sometimes undefined when drawing nom10shuttle
                 const endPoint = layout[subconceptIndex];
                 const endOffset = diagramOffsets[subconceptIndex];
+                const [endX, endY] = getTargetPoint(endPoint, endOffset, dragOffset, isEndPointDragged);
 
                 context.strokeStyle = outlineColor;
                 context.beginPath();
                 context.moveTo(startX, startY);
-                context.lineTo(
-                    ((endPoint[0] + endOffset[0] + (isEndPointDragged ? dragOffset[0] : 0)) * LAYOUT_SCALE) + centerX,
-                    ((endPoint[1] + endOffset[1] + (isEndPointDragged ? dragOffset[1] : 0)) * LAYOUT_SCALE) + centerY);
+                context.lineTo(endX, endY);
                 context.stroke();
             }
         }
@@ -232,8 +242,7 @@ function useDrawDiagram(
             const isDragged = draggedIndex === concept.index;
             const point = layout[concept.index];
             const offset = diagramOffsets[concept.index];
-            const x = ((point[0] + offset[0] + (isDragged ? dragOffset[0] : 0)) * LAYOUT_SCALE) + centerX;
-            const y = ((point[1] + offset[1] + (isDragged ? dragOffset[1] : 0)) * LAYOUT_SCALE) + centerY;
+            const [x, y] = getTargetPoint(point, offset, dragOffset, isDragged);
 
             context.save();
             context.fillStyle = selectedIndex === concept.index ?
@@ -269,6 +278,12 @@ function useDrawDiagram(
                 context.fillText(label, x, y - 7);
             }
             context.restore();
+        }
+
+        function getTargetPoint(point: Point, offset: Point, dragOffset: [number, number], isDragged: boolean) {
+            const x = ((point[0] + offset[0] + (isDragged ? dragOffset[0] : 0)) * LAYOUT_SCALE) + centerX;
+            const y = ((point[1] + offset[1] + (isDragged ? dragOffset[1] : 0)) * LAYOUT_SCALE) + centerY;
+            return [x, y];
         }
     }, [layout, diagramOffsets, lattice, concepts, formalContext, hoveredIndex, selectedIndex, draggedIndex, dragOffset]);
 

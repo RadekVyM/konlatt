@@ -21,17 +21,17 @@ export default function ConceptsDiagram(props: {
     const lattice = useProjectStore((state) => state.lattice);
     const layout = useProjectStore((state) => state.layout);
     const concepts = useProjectStore((state) => state.concepts);
-    const [canMoveNodes, setCanMoveNodes] = useState(false);
+    const [isEditable, setIsEditable] = useState(false);
     const { diagramOffsets, canUndo, canRedo, updateNodeOffset, undo, redo } = useDiagramOffsets();
 
-    const { zoomTransform, updateExtent, zoomTo } = useZoom(canvasRef, !canMoveNodes, ZOOM_SCALE_EXTENT);
+    const { zoomTransform, updateExtent, zoomTo } = useZoom(canvasRef, !isEditable, ZOOM_SCALE_EXTENT);
 
     useEventListener("keydown", (event) => {
-        setCanMoveNodes(event.key === "Control");
+        setIsEditable(event.key === "Control");
     });
 
     useEventListener("keyup", (event) => {
-        setCanMoveNodes((old) => old && event.key !== "Control");
+        setIsEditable((old) => old && event.key !== "Control");
     });
 
     return (
@@ -44,7 +44,7 @@ export default function ConceptsDiagram(props: {
                     concepts={concepts}
                     lattice={lattice}
                     formalContext={context}
-                    canMoveNodes={canMoveNodes}
+                    isEditable={isEditable}
                     zoomTransform={zoomTransform}
                     selectedConceptIndex={props.selectedConceptIndex}
                     setSelectedConceptIndex={props.setSelectedConceptIndex}
@@ -69,8 +69,8 @@ export default function ConceptsDiagram(props: {
 
             <MoveToggle
                 className="absolute bottom-0 right-0 m-3"
-                selected={canMoveNodes}
-                onToggle={() => setCanMoveNodes((old) => !old)} />
+                selected={isEditable}
+                onToggle={() => setIsEditable((old) => !old)} />
         </>
     );
 }
