@@ -10,6 +10,10 @@ import { createPoint, Point } from "../../types/Point";
 import useEventListener from "../../hooks/useEventListener";
 
 const LAYOUT_SCALE = 60;
+const GRID_LINE_STEP = LAYOUT_SCALE;
+const GRID_LINE_STEP_HALF = GRID_LINE_STEP / 2;
+const GRID_LINE_GAP = LAYOUT_SCALE / 16;
+const GRID_LINE_GAP_HALF = GRID_LINE_GAP / 2;
 
 export default function DiagramCanvas(props: {
     className?: string,
@@ -58,6 +62,7 @@ export default function DiagramCanvas(props: {
         props.selectedConceptIndex,
         draggedIndex,
         dragOffset);
+    const drawGrid = useDrawGrid();
 
     useEffect(() => {
         const canvas = props.ref.current;
@@ -70,14 +75,21 @@ export default function DiagramCanvas(props: {
         context.clearRect(0, 0, width, height);
 
         const scale = props.zoomTransform.scale * window.devicePixelRatio;
+        const translateX = props.zoomTransform.x * window.devicePixelRatio;
+        const translateY = props.zoomTransform.y * window.devicePixelRatio;
+        const w = width / window.devicePixelRatio;
+        const h = height / window.devicePixelRatio;
         const computedStyle = getComputedStyle(canvas);
 
         context.save();
-        context.translate(props.zoomTransform.x * window.devicePixelRatio, props.zoomTransform.y * window.devicePixelRatio);
+        context.translate(translateX, translateY);
         context.scale(scale, scale);
-        drawDiagram(context, width / window.devicePixelRatio, height / window.devicePixelRatio, computedStyle);
+        if (props.isEditable) {
+            drawGrid(context, w, h, props.zoomTransform.x, props.zoomTransform.y, props.zoomTransform.scale, computedStyle);
+        }
+        drawDiagram(context, w, h, computedStyle);
         context.restore();
-    }, [width, height, props.zoomTransform.scale, props.zoomTransform.x, props.zoomTransform.y, drawDiagram]);
+    }, [width, height, props.zoomTransform.scale, props.zoomTransform.x, props.zoomTransform.y, props.isEditable, drawDiagram, drawGrid]);
 
     useEffect(() => {
         props.updateExtent(dimensions.width, dimensions.height);
@@ -198,6 +210,60 @@ function useCanvasInteraction(
     };
 }
 
+function useDrawGrid() {
+    const drawGrid = useCallback((
+        context: CanvasRenderingContext2D,
+        width: number,
+        height: number,
+        translateX: number,
+        translateY: number,
+        scale: number,
+        computedStyle: CSSStyleDeclaration
+    ) => {
+        const outlineColor = computedStyle.getPropertyValue("--outline-variant");
+        const centerX = width / 2;
+        const centerY = height / 2;
+
+        const left = -translateX / scale;
+        const top = -translateY / scale;
+        const right = left + (width / scale);
+        const bottom = top + (height / scale);
+        const startX = left + ((centerX - left) % GRID_LINE_STEP);
+        const startY = top + ((centerY - top) % GRID_LINE_STEP);
+
+        context.save();
+        context.strokeStyle = outlineColor;
+        context.setLineDash([GRID_LINE_GAP, GRID_LINE_GAP]);
+        context.beginPath();
+        for (let x = startX - GRID_LINE_STEP_HALF; x < right; x += GRID_LINE_STEP) {
+            context.moveTo(x, startY - GRID_LINE_STEP + GRID_LINE_GAP_HALF);
+            context.lineTo(x, bottom);
+        }
+        for (let y = startY - GRID_LINE_STEP_HALF; y < bottom; y += GRID_LINE_STEP) {
+            context.moveTo(startX - GRID_LINE_STEP + GRID_LINE_GAP_HALF, y);
+            context.lineTo(right, y);
+        }
+        context.stroke();
+        context.restore();
+
+        context.save();
+        context.strokeStyle = outlineColor;
+        context.beginPath();
+        for (let x = startX - GRID_LINE_STEP; x < right; x += GRID_LINE_STEP) {
+            context.moveTo(x, top);
+            context.lineTo(x, bottom);
+        }
+        for (let y = startY - GRID_LINE_STEP; y < bottom; y += GRID_LINE_STEP) {
+            context.moveTo(left, y);
+            context.lineTo(right, y);
+        }
+        context.stroke();
+        context.restore();
+    }, []);
+
+    return drawGrid;
+}
+
 function useDrawDiagram(
     layout: ConceptLatticeLayout,
     diagramOffsets: Array<Point>,
@@ -267,7 +333,7 @@ function useDrawDiagram(
                 context.fillText(label, x, y + 7);
             }
             context.restore();
-            
+
             context.save();
             context.textAlign = "center";
             context.font = "6px Gabarito";

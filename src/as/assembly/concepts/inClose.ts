@@ -23,7 +23,7 @@ export function inClose(context: FormalContext): Array<FormalConcept> {
     const initialConcept: FormalConcept = { attributes: [], objects: initialConceptObjects, attribute: 0 };
     const formalConcepts = new Array<FormalConcept>();
     formalConcepts.push(initialConcept);
-    
+
     inCloseImpl(
         context,
         newExtentBuffer,

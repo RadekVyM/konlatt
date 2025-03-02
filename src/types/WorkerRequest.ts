@@ -2,6 +2,7 @@ export type WorkerRequest = ContextParsingRequest | ConceptComputationRequest | 
 
 export type CompleteWorkerRequest = {
     jobId: number,
+    time: number,
 } & WorkerRequest
 
 export type ContextParsingRequest = {

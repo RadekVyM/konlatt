@@ -11,6 +11,8 @@ let conceptLattice: ConceptLattice | null = null;
 let layout: ConceptLatticeLayout | null = null;
 
 self.onmessage = async (event: MessageEvent<CompleteWorkerRequest>) => {
+    console.log(`[${event.data.type}] sending arguments: ${new Date().getTime() - event.data.time} ms`);
+
     switch (event.data.type) {
         case "parse-context":
             await parseFileContent(event.data.jobId, event.data.content);
@@ -71,7 +73,7 @@ async function calculateConcepts(jobId: number, context: RawFormalContext) {
     }
 
     const { computeConcepts } = await import("../services/conceptComputation");
-    
+
     formalConcepts = computeConcepts(context);
     self.postMessage(createConceptComputationResponse(jobId, formalConcepts));
 }
@@ -84,6 +86,7 @@ async function calculateLattice(jobId: number, concepts: FormalConcepts) {
     conceptLattice = conceptsToLattice(concepts);
     const latticeMessage: LatticeComputationResponse = {
         jobId,
+        time: new Date().getTime(),
         type: "lattice",
         lattice: conceptLattice
     };
@@ -99,6 +102,7 @@ async function calculateLayout(jobId: number, concepts: FormalConcepts, lattice:
     layout = computeLayeredLayout(concepts, lattice);
     const layoutMessage: LayoutComputationResponse = {
         jobId,
+        time: new Date().getTime(),
         type: "layout",
         layout
     };
@@ -109,6 +113,7 @@ async function calculateLayout(jobId: number, concepts: FormalConcepts, lattice:
 function postStatusMessage(jobId: number, message: string | null) {
     const statusResponse: StatusResponse = {
         jobId,
+        time: new Date().getTime(),
         type: "status",
         message
     };
@@ -119,6 +124,7 @@ function postStatusMessage(jobId: number, message: string | null) {
 function postFinished(jobId: number) {
     const finishedResponse: FinishedResponse = {
         jobId,
+        time: new Date().getTime(),
         type: "finished",
     };
 
@@ -128,6 +134,7 @@ function postFinished(jobId: number) {
 function createContextParsingResponse(jobId: number, context: RawFormalContext): ContextParsingResponse {
     return {
         jobId,
+        time: new Date().getTime(),
         type: "parse-context",
         context
     };
@@ -136,6 +143,7 @@ function createContextParsingResponse(jobId: number, context: RawFormalContext):
 function createConceptComputationResponse(jobId: number, concepts: FormalConcepts): ConceptComputationResponse {
     return {
         jobId,
+        time: new Date().getTime(),
         type: "concepts",
         concepts
     };

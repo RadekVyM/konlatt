@@ -36,4 +36,5 @@ export type LayoutComputationResponse = {
 
 type BaseResponse = {
     jobId: number,
+    time: number,
 }

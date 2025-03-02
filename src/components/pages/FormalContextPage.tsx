@@ -21,7 +21,7 @@ export default function FormalContextPage() {
 
     return (
         <div className="
-            grid gap-3
+            grid gap-2
             grid-rows-[4fr_3fr] grid-cols-[1fr_1fr]
             md:grid-rows-[1fr_1fr] md:grid-cols-[5fr_3fr]
             lg:grid-rows-1 lg:grid-cols-[5fr_2fr_2fr]

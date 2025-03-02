@@ -1,4 +1,4 @@
-import { LuMaximize, LuMinus, LuMove, LuPlus, LuRedo2, LuUndo2 } from "react-icons/lu";
+import { LuHand, LuMaximize, LuMinus, LuPlus, LuRedo2, LuUndo2 } from "react-icons/lu";
 import useProjectStore from "../../hooks/stores/useProjectStore";
 import Button from "../inputs/Button";
 import DiagramCanvas from "./DiagramCanvas";
@@ -174,7 +174,7 @@ function MoveToggle(props: {
             role="switch"
             aria-checked={props.selected}
             title="Enable node movements">
-            <LuMove />
+            <LuHand />
         </Button>
     );
 }

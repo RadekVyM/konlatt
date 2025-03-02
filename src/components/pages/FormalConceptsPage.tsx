@@ -15,7 +15,7 @@ export default function FormalConceptsPage() {
 
     return (
         <div
-            className="grid grid-cols-[1fr_1fr] grid-rows-[5fr_4fr] md:grid-rows-[6fr_4fr] md:grid-cols-[minmax(18rem,2fr)_5fr] xl:grid-cols-[1fr_2.5fr_1fr] xl:grid-rows-1 gap-3 flex-1 pb-4 max-h-full overflow-hidden">
+            className="grid grid-cols-[1fr_1fr] grid-rows-[5fr_4fr] md:grid-rows-[6fr_4fr] md:grid-cols-[minmax(18rem,2fr)_5fr] xl:grid-cols-[1fr_2.5fr_1fr] xl:grid-rows-1 gap-2 flex-1 pb-4 max-h-full overflow-hidden">
             <ConceptsList
                 selectedConceptIndex={selectedConceptIndex}
                 setSelectedConceptIndex={setSelectedConceptIndex} />

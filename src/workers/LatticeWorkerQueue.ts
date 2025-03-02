@@ -44,7 +44,7 @@ export default class LatticeWorkerQueue {
 
     public reset() {
         this.worker?.terminate();
-        
+
         this.lastId = 0;
         this.currentJob = null;
         this.queue = [];
@@ -57,12 +57,13 @@ export default class LatticeWorkerQueue {
         if (this.queue.length === 0 || this.currentJob) {
             return;
         }
-        
+
         this.currentJob = this.queue.shift() || null;
         
         if (this.currentJob) {
             const request: CompleteWorkerRequest = {
                 jobId: this.currentJob.id,
+                time: new Date().getTime(),
                 ...this.currentJob.request
             };
 
@@ -93,6 +94,7 @@ export default class LatticeWorkerQueue {
                 this.next();
                 break;
             default:
+                console.log(`[${e.data.type}] receiving response: ${new Date().getTime() - e.data.time} ms`);
                 this.currentJob?.responseCallback(e.data);
                 break;
         }
