@@ -14,6 +14,12 @@ self.onmessage = async (event: MessageEvent<CompleteWorkerRequest>) => {
     console.log(`[${event.data.type}] sending arguments: ${new Date().getTime() - event.data.time} ms`);
 
     switch (event.data.type) {
+        case "cancel":
+            // TODO: handle cancellation
+            // TODO: I need to terminate the worker, create a new one and reinitialize it if I want to cancel a WASM computation
+            
+            postStatusMessage(event.data.jobId, null);
+            return;
         case "parse-context":
             await parseFileContent(event.data.jobId, event.data.content);
             break;

@@ -1,4 +1,4 @@
-import { CompleteWorkerRequest, WorkerRequest } from "../types/WorkerRequest";
+import { CancellationRequest, CompleteWorkerRequest, WorkerRequest } from "../types/WorkerRequest";
 import { WorkerResponse } from "../types/WorkerResponse";
 import LatticeWorker from "../workers/latticeWorker?worker";
 
@@ -31,10 +31,13 @@ export default class LatticeWorkerQueue {
 
     public cancelJob(jobId: number) {
         if (this.currentJob && this.currentJob.id === jobId) {
-            // TODO: I need to terminate the worker, create a new one and reinitialize it if I want to cancel a WASM computation
+            const request: CancellationRequest = {
+                jobId,
+                type: "cancel",
+            };
+            this.worker?.postMessage(request);
 
             this.currentJob = null;
-
             this.next();
         }
         else {

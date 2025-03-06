@@ -14,6 +14,7 @@ const GRID_LINE_STEP = LAYOUT_SCALE;
 const GRID_LINE_STEP_HALF = GRID_LINE_STEP / 2;
 const GRID_LINE_GAP = LAYOUT_SCALE / 16;
 const GRID_LINE_GAP_HALF = GRID_LINE_GAP / 2;
+const GRID_LINES_INVISIBLE_THRESHOLD = 20;
 
 export default function DiagramCanvas(props: {
     className?: string,
@@ -231,20 +232,22 @@ function useDrawGrid() {
         const startX = left + ((centerX - left) % GRID_LINE_STEP);
         const startY = top + ((centerY - top) % GRID_LINE_STEP);
 
-        context.save();
-        context.strokeStyle = outlineColor;
-        context.setLineDash([GRID_LINE_GAP, GRID_LINE_GAP]);
-        context.beginPath();
-        for (let x = startX - GRID_LINE_STEP_HALF; x < right; x += GRID_LINE_STEP) {
-            context.moveTo(x, startY - GRID_LINE_STEP + GRID_LINE_GAP_HALF);
-            context.lineTo(x, bottom);
+        if (GRID_LINE_STEP_HALF * scale > GRID_LINES_INVISIBLE_THRESHOLD) {
+            context.save();
+            context.strokeStyle = outlineColor;
+            context.setLineDash([GRID_LINE_GAP, GRID_LINE_GAP]);
+            context.beginPath();
+            for (let x = startX - GRID_LINE_STEP_HALF; x < right; x += GRID_LINE_STEP) {
+                context.moveTo(x, startY - GRID_LINE_STEP + GRID_LINE_GAP_HALF);
+                context.lineTo(x, bottom);
+            }
+            for (let y = startY - GRID_LINE_STEP_HALF; y < bottom; y += GRID_LINE_STEP) {
+                context.moveTo(startX - GRID_LINE_STEP + GRID_LINE_GAP_HALF, y);
+                context.lineTo(right, y);
+            }
+            context.stroke();
+            context.restore();
         }
-        for (let y = startY - GRID_LINE_STEP_HALF; y < bottom; y += GRID_LINE_STEP) {
-            context.moveTo(startX - GRID_LINE_STEP + GRID_LINE_GAP_HALF, y);
-            context.lineTo(right, y);
-        }
-        context.stroke();
-        context.restore();
 
         context.save();
         context.strokeStyle = outlineColor;

@@ -9,6 +9,7 @@ import { ZoomTransform } from "../../types/d3/ZoomTransform";
 import useZoom from "../../hooks/useZoom";
 import { ZoomScaleExtent } from "../../types/d3/ZoomScaleExtent";
 import { useDiagramOffsets } from "../../hooks/useDiagramOffsets";
+import { isCtrlZ, isEditableElement } from "../../utils/html";
 
 const ZOOM_SCALE_EXTENT: ZoomScaleExtent = { min: 0.05, max: 4 };
 
@@ -17,6 +18,7 @@ export default function ConceptsDiagram(props: {
     setSelectedConceptIndex: React.Dispatch<React.SetStateAction<number | null>>,
 }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const isTemporarilyEditableRef = useRef<boolean>(true);
     const context = useProjectStore((state) => state.context);
     const lattice = useProjectStore((state) => state.lattice);
     const layout = useProjectStore((state) => state.layout);
@@ -26,13 +28,7 @@ export default function ConceptsDiagram(props: {
 
     const { zoomTransform, updateExtent, zoomTo } = useZoom(canvasRef, !isEditable, ZOOM_SCALE_EXTENT);
 
-    useEventListener("keydown", (event) => {
-        setIsEditable(event.key === "Control");
-    });
-
-    useEventListener("keyup", (event) => {
-        setIsEditable((old) => old && event.key !== "Control");
-    });
+    useKeyBoardEvents(isTemporarilyEditableRef, setIsEditable, undo, redo);
 
     return (
         <>
@@ -70,7 +66,10 @@ export default function ConceptsDiagram(props: {
             <MoveToggle
                 className="absolute bottom-0 right-0 m-3"
                 selected={isEditable}
-                onToggle={() => setIsEditable((old) => !old)} />
+                onToggle={() => setIsEditable((old) => {
+                    isTemporarilyEditableRef.current = old;
+                    return !old;
+                })} />
         </>
     );
 }
@@ -177,4 +176,41 @@ function MoveToggle(props: {
             <LuHand />
         </Button>
     );
+}
+
+function useKeyBoardEvents(
+    isTemporarilyEditableRef: React.RefObject<boolean>,
+    setIsEditable: React.Dispatch<React.SetStateAction<boolean>>,
+    undo: () => void,
+    redo: () => void,
+) {
+    useEventListener("keydown", (event) => {
+        if (window.document.activeElement && isEditableElement(window.document.activeElement)) {
+            return;
+        }
+
+        if (event.ctrlKey && isTemporarilyEditableRef.current) {
+            setIsEditable(true);
+        }
+
+        if (isCtrlZ(event)) {
+            event.preventDefault();
+
+            if (event.shiftKey) {
+                redo();
+            }
+            if (!event.shiftKey) {
+                undo();
+            }
+        }
+    });
+
+    useEventListener("keyup", (event) => {
+        if (window.document.activeElement && isEditableElement(window.document.activeElement)) {
+            return;
+        }
+        if (!event.ctrlKey && isTemporarilyEditableRef.current) {
+            setIsEditable(false);
+        }
+    });
 }

@@ -9,4 +9,5 @@ export { conceptsCover } from "./concepts/conceptsCover";
 export { hasAttributes as formalContextHasAttributesTest } from "./tests/formalContextTests";
 export { linkedListTest } from "./tests/linkedListTests";
 export { queueTest } from "./tests/queueTests";
+export { objectTrieTest } from "./tests/trieTests";
 export { isSortedSubsetOfTest } from "./tests/arrayUtilsTests";

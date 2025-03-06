@@ -24,21 +24,30 @@ export function conceptsToLattice(concepts: Array<IndexedFormalConcept>): Array<
     for (let i = 0; i < concepts.length; i++) {
         subConceptsCount = 0;
 
+        if (i % 1000 === 0)
+            trace(i.toString());
+
         for (let j = i - 1; j >= 0; j--) {
             // j is subconcept of i
             if (isSortedSubsetOf(concepts[i].attributes, concepts[j].attributes)) {
                 subConcepts[subConceptsCount] = j;
                 subConceptsCount++;
-                lattice[i].set.add(j);
+                let isTransitive = false;
+                //lattice[i].set.add(j);
 
                 // if one of the subconcepts has j as a direct subconcept, j is not a direct subconcept of i
-                // delete transitive links
+                // ignore transitive links
                 for (let k = 0; k < subConceptsCount; k++) {
                     const subConcept = subConcepts[k];
                     if (lattice[subConcept].set.has(j)) {
-                        lattice[i].set.delete(j);
+                        isTransitive = true;
+                        //lattice[i].set.delete(j);
                         break;
                     }
+                }
+
+                if (!isTransitive) {
+                    lattice[i].set.add(j);
                 }
             }
         }
@@ -47,7 +56,7 @@ export function conceptsToLattice(concepts: Array<IndexedFormalConcept>): Array<
     console.log(`lattice: ${Date.now() - startTime} ms`);
 
     const result = new Array<Array<i32>>(lattice.length);
-    
+
     // Ensure the original order of concepts
     for (let i = 0; i < lattice.length; i++) {
         const value = lattice[i];

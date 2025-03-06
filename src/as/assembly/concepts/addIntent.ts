@@ -2,6 +2,33 @@ import { FormalContext, formalContextHasAttribute } from "../types/FormalContext
 import { copyArray, createSequence, isSortedSubsetOf, sortedIntersect } from "../utils/arrays";
 
 export function addIntent(context: FormalContext): ResultLattice {
+    // TODO: There are probably too many allocations => out of memory errors
+    // Using GC does not work
+    /*
+    RuntimeError: unreachable
+    ❯ ~lib/rt/tlsf/growMemory wasm:/wasm/0004dfda:1:3377
+    ❯ ~lib/rt/tlsf/allocateBlock wasm:/wasm/0004dfda:1:3606
+    ❯ ~lib/rt/tlsf/__alloc wasm:/wasm/0004dfda:1:3707
+    ❯ ~lib/rt/tcms/__new wasm:/wasm/0004dfda:1:3895
+    ❯ ~lib/array/Array<i32>#constructor wasm:/wasm/0004dfda:1:10149
+    ❯ ~lib/set/Set<i32>#values wasm:/wasm/0004dfda:1:14801
+    ❯ src/as/assembly/concepts/addIntent/addObject wasm:/wasm/0004dfda:1:16658
+    ❯ src/as/assembly/concepts/addIntent/addObject wasm:/wasm/0004dfda:1:16710
+    ❯ src/as/assembly/concepts/addIntent/addObject wasm:/wasm/0004dfda:1:16710
+    ❯ src/as/assembly/concepts/addIntent/addObject wasm:/wasm/0004dfda:1:16710
+
+    RuntimeError: unreachable
+    ❯ ~lib/rt/tlsf/growMemory wasm:/wasm/000612de:1:4603
+    ❯ ~lib/rt/tlsf/allocateBlock wasm:/wasm/000612de:1:4832
+    ❯ ~lib/rt/tlsf/__alloc wasm:/wasm/000612de:1:4933
+    ❯ ~lib/rt/itcms/__new wasm:/wasm/000612de:1:5005
+    ❯ ~lib/rt/itcms/__renew wasm:/wasm/000612de:1:5799
+    ❯ ~lib/array/ensureCapacity wasm:/wasm/000612de:1:16818
+    ❯ ~lib/array/Array<i32>#push wasm:/wasm/000612de:1:17539
+    ❯ src/as/assembly/concepts/addIntent/addObject wasm:/wasm/000612de:1:28249
+    ❯ src/as/assembly/concepts/addIntent/addObject wasm:/wasm/000612de:1:28313
+    ❯ src/as/assembly/concepts/addIntent/addObject wasm:/wasm/000612de:1:28313
+    */
     const startTime = Date.now();
 
     const bottomConcept: AddFormalConcept = {
