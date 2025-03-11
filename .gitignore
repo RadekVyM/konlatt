@@ -39,4 +39,10 @@ dist-ssr
 /src/as/index.wasm.map
 /src/as/index.wat
 
+# Compiled C++
+/src/cpp/index.d.ts
+/src/cpp/index.js
+/src/cpp/index.wasm
+
+
 /tests/__snapshots__

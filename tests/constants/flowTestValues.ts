@@ -96,27 +96,27 @@ export const TEALADY: TestValue = {
 export const NOM10CRX: TestValue = {
     title: "nom10crx",
     fileContent: nom10crx,
-    contextCellsPerObject: 2,
+    contextCellsPerObject: 3,
     objectsCount: 653,
     attributesCount: 85,
     conceptsCount: 51078,
-    coverRelationSize: -1,
+    coverRelationSize: 272347,
     byLongestPathLayersCounts: [],
 };
 export const NOM10SHUTTLE: TestValue = {
     title: "nom10shuttle",
     fileContent: nom10shuttle,
-    contextCellsPerObject: 2,
+    contextCellsPerObject: 4,
     objectsCount: 43500,
     attributesCount: 97,
     conceptsCount: 2931,
-    coverRelationSize: -1,
+    coverRelationSize: 10982,
     byLongestPathLayersCounts: [],
 };
 export const NOM5SHUTTLE: TestValue = {
     title: "nom5shuttle",
     fileContent: nom5shuttle,
-    contextCellsPerObject: 1,
+    contextCellsPerObject: 2,
     objectsCount: 43500,
     attributesCount: 52,
     conceptsCount: 1461,
@@ -139,10 +139,10 @@ export const NOM5SHUTTLE: TestValue = {
 export const MUSHROOMEP: TestValue = {
     title: "mushroomep",
     fileContent: mushroomep,
-    contextCellsPerObject: 2,
+    contextCellsPerObject: 4,
     objectsCount: 8124,
     attributesCount: 126,
     conceptsCount: 233116,
-    coverRelationSize: -1,
+    coverRelationSize: 1339713, // Can I be sure that this number is correct?
     byLongestPathLayersCounts: [],
 };

@@ -34,8 +34,11 @@ self.onmessage = async (event: MessageEvent<CompleteWorkerRequest>) => {
             if (!formalConcepts) {
                 throw new Error("Formal concepts have not been calculated yet");
             }
+            if (!formalContext) {
+                throw new Error("Formal context has not been calculated yet");
+            }
 
-            await calculateLattice(event.data.jobId, formalConcepts);
+            await calculateLattice(event.data.jobId, formalConcepts, formalContext);
             break;
         case "layout":
             if (!formalConcepts) {
@@ -66,7 +69,7 @@ async function parseFileContent(jobId: number, fileContent: string) {
     // https://www.audjust.com/blog/wasm-and-workers
     const { parseBurmeister } = await import("../services/contextParsing");
 
-    formalContext = parseBurmeister(fileContent);
+    formalContext = await parseBurmeister(fileContent);
     self.postMessage(createContextParsingResponse(jobId, formalContext));
 }
 
@@ -80,16 +83,16 @@ async function calculateConcepts(jobId: number, context: RawFormalContext) {
 
     const { computeConcepts } = await import("../services/conceptComputation");
 
-    formalConcepts = computeConcepts(context);
+    formalConcepts = await computeConcepts(context);
     self.postMessage(createConceptComputationResponse(jobId, formalConcepts));
 }
 
-async function calculateLattice(jobId: number, concepts: FormalConcepts) {
+async function calculateLattice(jobId: number, concepts: FormalConcepts, context: RawFormalContext) {
     postStatusMessage(jobId, "Computing lattice");
 
     const { conceptsToLattice } = await import("../services/latticeComputation");
 
-    conceptLattice = conceptsToLattice(concepts);
+    conceptLattice = await conceptsToLattice(concepts, context);
     const latticeMessage: LatticeComputationResponse = {
         jobId,
         time: new Date().getTime(),

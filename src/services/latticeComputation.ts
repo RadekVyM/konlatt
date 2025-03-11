@@ -1,7 +1,9 @@
-import { __collect, conceptsToLattice as conceptsToLatticeAs } from "../as"
+import Module from "../cpp";
 import { ConceptLattice } from "../types/ConceptLattice";
 import { ConceptLatticeLabeling } from "../types/ConceptLatticeLabeling";
 import { FormalConcept, FormalConcepts, getInfimum, getSupremum } from "../types/FormalConcepts";
+import { RawFormalContext } from "../types/RawFormalContext";
+import { cppIntMultiArrayToJs, jsArrayToCppIndexedFormalConceptArray, jsArrayToCppUIntArray } from "../utils/cpp";
 import { assignNodesToLayersByLongestPath } from "./layers";
 
 /**
@@ -9,15 +11,32 @@ import { assignNodesToLayersByLongestPath } from "./layers";
  * @param concepts 
  * @returns Array of indexes of children of each concept
  */
-export function conceptsToLattice(concepts: FormalConcepts): ConceptLattice {
-    // I need to be cautious with the types here
-    const lattice = conceptsToLatticeAs(concepts as any);
-    __collect();
+export async function conceptsToLattice(concepts: FormalConcepts, context: RawFormalContext): Promise<ConceptLattice> {
+    const module = await Module();
+    const cppConcepts = jsArrayToCppIndexedFormalConceptArray(module, concepts);
+    const cppContext = jsArrayToCppUIntArray(module, context.context);
 
-    const subconceptsMapping = lattice.map((set) => new Set<number>(set));
-    const superconceptsMapping = subconceptsToSuperconcetsMapping(subconceptsMapping);
+    const lattice = module.conceptsCover(
+        cppConcepts,
+        cppContext,
+        context.cellSize,
+        context.cellsPerObject,
+        context.objects.length,
+        context.attributes.length);
+
+    const superconceptsMapping = [...cppIntMultiArrayToJs(lattice, true)].map((set) => new Set<number>(set));
+    const subconceptsMapping = reverseMapping(superconceptsMapping);
     const objectsLabeling = getObjectsLabeling(concepts, superconceptsMapping);
     const attributesLabeling = getAttributesLabeling(concepts, subconceptsMapping);
+
+    cppContext.delete();
+    for (let i = 0; i < cppConcepts.size(); i++) {
+        const value = cppConcepts.get(i)!;
+        value.attributes.delete();
+        value.objects.delete();
+        value.delete();
+    }
+    cppConcepts.delete();
 
     return {
         subconceptsMapping,
@@ -27,7 +46,7 @@ export function conceptsToLattice(concepts: FormalConcepts): ConceptLattice {
     };
 }
 
-function subconceptsToSuperconcetsMapping(subconceptsMapping: Array<Set<number>>) {
+function reverseMapping(subconceptsMapping: Array<Set<number>>) {
     const superconceptsMapping = new Array<Set<number>>(subconceptsMapping.length);
 
     for (let i = 0; i < subconceptsMapping.length; i++) {

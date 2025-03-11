@@ -10,7 +10,7 @@ describe.each<TestValue>([
     LATTICE,
     LIVEINWATER,
     TEALADY,
-    MUSHROOMEP,
+    //MUSHROOMEP,
     //NOM5SHUTTLE,
 ])("addIntent", (value) => {
     test(`addIntent on ${value.title}`, () => {

@@ -11,9 +11,9 @@ test.each<TestValue>([
     LIVEINWATER,
     TEALADY,
     //NOM5SHUTTLE,
-])("concepts cover", (value) => {
+])("concepts cover", async (value) => {
     const context = parseBurmeister(value.fileContent);
-    const concepts = computeConcepts(context as any);
+    const concepts = await computeConcepts(context as any);
     const lattice = conceptsCover(concepts as any, context);
     expect(lattice.reduce((prev, curr) => prev + curr.length, 0))
         .toBe(value.coverRelationSize);

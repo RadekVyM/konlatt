@@ -38,7 +38,7 @@ export function parseBurmeister(content: string): FormalContext {
 
 function parseContext(objectsCount: i32, attributesCount: i32, content: string, start: i32): FormalContext {
     const cellsPerObjectCount = <i32>Math.ceil(<f64>attributesCount / FORMAL_CONTEXT_CELL_SIZE);
-    const context = new StaticArray<u64>(objectsCount * cellsPerObjectCount);
+    const context = new StaticArray<u32>(objectsCount * cellsPerObjectCount);
     const objects = new StaticArray<string>(objectsCount);
     const attributes = new StaticArray<string>(attributesCount);
 
@@ -70,7 +70,7 @@ function parseContext(objectsCount: i32, attributesCount: i32, content: string, 
         const lineContent = line.line.trim();
         let contextOffset = 0;
         let offset = 0;
-        let value: u64 = 0;
+        let value: u32 = 0;
 
         if (lineContent.length < attributesCount)
             throw new Error(`${INVALID_FILE_MESSAGE} Context could not be parsed.`);

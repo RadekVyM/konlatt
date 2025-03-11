@@ -1,7 +1,7 @@
-export const FORMAL_CONTEXT_CELL_SIZE: i32 = 64;
+export const FORMAL_CONTEXT_CELL_SIZE: i32 = 32;
 
 export class FormalContext {
-    context: StaticArray<u64> = [];
+    context: StaticArray<u32> = [];
     objects: StaticArray<string> = [];
     attributes: StaticArray<string> = [];
     cellsPerObject: i32 = 0;
@@ -11,8 +11,8 @@ export class FormalContext {
 export function formalContextHasAttribute(context: FormalContext, object: i32, attribute: i32): boolean {
     const cellSize = FORMAL_CONTEXT_CELL_SIZE;
     const cell = (object * context.cellsPerObject) + (attribute / cellSize);
-    const cellValue: u64 = context.context[cell];
-    const mask: u64 = 1 << (attribute % cellSize);
+    const cellValue: u32 = context.context[cell];
+    const mask: u32 = 1 << (attribute % cellSize);
 
     return (cellValue & mask) !== 0;
 }

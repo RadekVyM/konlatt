@@ -1,16 +1,21 @@
 import { RawFormalContext } from "../types/RawFormalContext";
-import { __collect, inClose as inCloseAs } from "../as";
+import Module from "../cpp";
 import { FormalConcept } from "../types/FormalConcepts";
-import { RawFormalConcept } from "../types/RawFormalConcept";
+import { cppFormalConceptArrayToJs, jsArrayToCppUIntArray } from "../utils/cpp";
 
-export function computeConcepts(context: RawFormalContext): Array<FormalConcept> {
-    const concepts = inCloseAs(context) as Array<RawFormalConcept>;
-    __collect();
+export async function computeConcepts(context: RawFormalContext): Promise<Array<FormalConcept>> {
+    const module = await Module();
+    const uIntContext = jsArrayToCppUIntArray(module, context.context);
+    const concepts = module.inClose(
+        uIntContext,
+        context.cellSize,
+        context.cellsPerObject,
+        context.objects.length,
+        context.attributes.length
+    );
+    const result: Array<FormalConcept> = [...cppFormalConceptArrayToJs(concepts, true)];
 
-    const result: Array<FormalConcept> = concepts.map((c, index) => ({
-        objects: c.objects,
-        attributes: c.attributes,
-        index,
-    }));
+    uIntContext.delete();
+
     return result;
 }

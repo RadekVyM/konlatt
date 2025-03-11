@@ -19,22 +19,22 @@ describe.each<TestValue>([
     let concepts: FormalConcepts = null!;
     let lattice: ConceptLattice = null!;
 
-    test(`parsing context: ${value.title}`, () => {
-        context = parseBurmeister(value.fileContent);
+    test(`parsing context: ${value.title}`, async () => {
+        context = await parseBurmeister(value.fileContent);
         expect(context.cellsPerObject).toBe(value.contextCellsPerObject);
         expect(context.objects.length).toBe(value.objectsCount);
         expect(context.attributes.length).toBe(value.attributesCount);
         //expect(context).toMatchSnapshot();
     }, 60000);
 
-    test(`concepts: ${value.title}`, () => {
-        concepts = computeConcepts(context);
+    test(`concepts: ${value.title}`, async () => {
+        concepts = await computeConcepts(context);
         expect(concepts.length).toBe(value.conceptsCount);
         //expect(concepts).toMatchSnapshot();
     }, 60000);
 
-    test(`lattice: ${value.title}`, () => {
-        lattice = conceptsToLattice(concepts);
+    test(`lattice: ${value.title}`, async () => {
+        lattice = await conceptsToLattice(concepts, context);
 
         expect(lattice.subconceptsMapping.reduce((prev, curr) => prev + curr.size, 0))
             .toBe(value.coverRelationSize);

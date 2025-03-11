@@ -1,8 +1,19 @@
 import { RawFormalContext } from "../types/RawFormalContext";
-import { __collect, parseBurmeister as parseBurmeisterAs } from "../as";
+import Module from "../cpp";
+import { cppStringArrayToJs, cppUIntArrayToJs } from "../utils/cpp";
 
-export function parseBurmeister(content: string): RawFormalContext {
-    const context = parseBurmeisterAs(content) as RawFormalContext;
-    __collect();
-    return context;
+export async function parseBurmeister(content: string): Promise<RawFormalContext> {
+    const module = await Module();
+    const context = module.parseBurmeister(content);
+    const result: RawFormalContext = {
+        context: [...cppUIntArrayToJs(context.context, true)],
+        attributes: [...cppStringArrayToJs(context.attributes, true)],
+        objects: [...cppStringArrayToJs(context.objects, true)],
+        cellSize: context.cellSize,
+        cellsPerObject: context.cellsPerObject,
+    };
+
+    context.delete();
+
+    return result;
 }

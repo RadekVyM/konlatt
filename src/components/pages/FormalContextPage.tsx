@@ -59,14 +59,14 @@ function Context(props: {
             as="section"
             className={cn("flex flex-col overflow-hidden", props.className)}>
             <header
-                className="flex justify-between items-center pt-3 pb-2 border-b border-outline-variant">
+                className="flex justify-between items-center pt-3 pb-2">
                 <CardSectionTitle className="mx-4">Context</CardSectionTitle>
                 <ExportButton
                     className="mr-4" />
             </header>
             {context ?
                 <ContextTable
-                    className="flex-1 animate-fadeIn"
+                    className="flex-1 animate-fadeIn border-t border-outline-variant"
                     selectedObject={props.selectedObject}
                     selectedAttribute={props.selectedAttribute}
                     setSelectedObject={props.setSelectedObject}
