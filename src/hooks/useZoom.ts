@@ -19,6 +19,7 @@ export default function useZoom(
 ) {
     const zoomRef = useRef<d3Zoom.ZoomBehavior<Element, unknown> | null>(null);
     const [zoomTransform, setZoomTransform] = useState<ZoomTransform>({ scale: 1, x: 0, y: 0 });
+    const [isDragZooming, setIsDragZooming] = useState<boolean>(false);
 
     useEffect(() => {
         if (!elementRef.current) {
@@ -29,6 +30,8 @@ export default function useZoom(
 
         const currentZoom = (zoomRef.current || d3Zoom.zoom<Element, unknown>())
             .scaleExtent([scaleExtent?.min || 1, scaleExtent?.max || 2])
+            .on("start", () => setIsDragZooming(true))
+            .on("end", () => setIsDragZooming(false))
             .on("zoom", (event) => {
                 const transform = event.transform as { k: number, x: number, y: number };
                 setZoomTransform({ scale: transform.k, x: transform.x, y: transform.y });
@@ -73,6 +76,7 @@ export default function useZoom(
 
     return {
         zoomTransform,
+        isDragZooming,
         zoomTo,
         updateExtent,
     };
