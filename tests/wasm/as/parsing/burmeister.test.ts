@@ -1,9 +1,7 @@
 import { expect, test } from "vitest";
-import { __collect, parseBurmeister } from "../../src/as";
-import { RawFormalContext } from "../../src/types/RawFormalContext";
-import nom10crx from "../../datasets/nom10crx.cxt?raw";
-import digits from "../../datasets/digits.cxt?raw";
-import mushroomep from "../../datasets/mushroomep.cxt?raw";
+import { __collect, parseBurmeister } from "../../../../src/wasm/as";
+import { RawFormalContext } from "../../../../src/types/RawFormalContext";
+import { DIGITS, NOM10CRX, MUSHROOMEP } from "../../../constants/flowTestValues";
 
 const DIGITS_CONTEXT = [
     0b1111101,
@@ -22,7 +20,7 @@ const DIGITS_ATTRIBUTES = ["a", "b", "c", "d", "e", "f", "g"];
 const DIGITS_CELLS_PER_OBJECT = 1;
 
 test("digits context is parsed correctly", () => {
-    const context = parseBurmeister(digits) as RawFormalContext;
+    const context = parseBurmeister(DIGITS.fileContent) as RawFormalContext;
     __collect();
 
     expect(context.context).toEqual(DIGITS_CONTEXT);
@@ -32,7 +30,7 @@ test("digits context is parsed correctly", () => {
 });
 
 test("nom10crx context is parsed", () => {
-    const context = parseBurmeister(nom10crx) as RawFormalContext;
+    const context = parseBurmeister(NOM10CRX.fileContent) as RawFormalContext;
     __collect();
 
     expect(context.context.length > 0).toBe(true);
@@ -42,7 +40,7 @@ test("nom10crx context is parsed", () => {
 });
 
 test("mushroomep context is parsed", () => {
-    const context = parseBurmeister(mushroomep) as RawFormalContext;
+    const context = parseBurmeister(MUSHROOMEP.fileContent) as RawFormalContext;
     __collect();
 
     expect(context.context.length > 0).toBe(true);

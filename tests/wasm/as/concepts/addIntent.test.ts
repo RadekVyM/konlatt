@@ -1,9 +1,7 @@
-//@ts-nocheck
-
 import { expect, test, describe } from "vitest";
-import { __collect, __Record14, addIntent, parseBurmeister } from "../../src/as";
-import { RawFormalContext } from "../../src/types/RawFormalContext";
-import { DIGITS, LATTICE, LIVEINWATER, NOM5SHUTTLE, TEALADY, MUSHROOMEP, TestValue } from "../constants/flowTestValues";
+import { __collect, __Record14, addIntent, parseBurmeister } from "../../../../src/wasm/as";
+import { RawFormalContext } from "../../../../src/types/RawFormalContext";
+import { DIGITS, LATTICE, LIVEINWATER, TEALADY, TestValue } from "../../../constants/flowTestValues";
 
 describe.each<TestValue>([
     DIGITS,

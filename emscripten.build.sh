@@ -22,7 +22,7 @@ echo "============================================="
     # Compile C/C++ code
     emcc \
     -lembind \
-    src/cpp/main.cpp \
+    src/wasm/cpp/main.cpp \
     -o ./index.js \
     ${OPTIMIZE} \
     -s ALLOW_MEMORY_GROWTH=1 \
@@ -33,9 +33,11 @@ echo "============================================="
     -fexceptions \
     --emit-tsd ./index.d.ts
 
+    # TODO: -s ASSERTIONS=1 should probably be deleted in the release version
+
     # Move artifacts
-    mv index.{js,wasm} src/cpp/
-    mv index.d.ts src/cpp/
+    mv index.{js,wasm} src/wasm/cpp/
+    mv index.d.ts src/wasm/cpp/
 )
 echo "============================================="
 echo "Compiling wasm bindings done"

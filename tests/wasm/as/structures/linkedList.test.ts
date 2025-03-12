@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { __collect, linkedListTest } from "../../src/as";
+import { __collect, linkedListTest } from "../../../../src/wasm/as";
 
 test("linkedList", () => {
     const result = linkedListTest();

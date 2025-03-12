@@ -23,5 +23,5 @@
     "noUncheckedSideEffectImports": true
   },
   "include": ["src", "tests"],
-  "exclude": ["src/as/assembly"]
+  "exclude": ["src/wasm/as"]
 }

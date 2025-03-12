@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { __collect, isSortedSubsetOfTest } from "../../src/as";
+import { __collect, isSortedSubsetOfTest } from "../../../../src/wasm/as";
 
 test("isSortedSubsetOfTest", () => {
     expect(isSortedSubsetOfTest([], [0, 1, 2, 3])).toBe(true);

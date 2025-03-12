@@ -1,5 +1,5 @@
 import { RawFormalContext } from "../types/RawFormalContext";
-import Module from "../cpp";
+import Module from "../wasm/cpp";
 import { cppStringArrayToJs, cppUIntArrayToJs } from "../utils/cpp";
 
 export async function parseBurmeister(content: string): Promise<RawFormalContext> {

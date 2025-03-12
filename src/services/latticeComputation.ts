@@ -1,4 +1,4 @@
-import Module from "../cpp";
+import Module from "../wasm/cpp";
 import { ConceptLattice } from "../types/ConceptLattice";
 import { ConceptLatticeLabeling } from "../types/ConceptLatticeLabeling";
 import { FormalConcept, FormalConcepts, getInfimum, getSupremum } from "../types/FormalConcepts";
