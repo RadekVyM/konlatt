@@ -2,9 +2,12 @@
 #define INCLOSE_H
 
 #include "FormalConcept.h"
+#include "TimedResult.h"
 #include <vector>
 
-std::vector<FormalConcept> inClose(
+template struct TimedResult<std::vector<FormalConcept>>;
+
+TimedResult<std::vector<FormalConcept>> inClose(
     std::vector<unsigned int> &contextMatrix,
     int cellSize,
     int cellsPerObject,

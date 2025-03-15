@@ -2,6 +2,10 @@ import { CancellationRequest, CompleteWorkerRequest, WorkerRequest } from "../ty
 import { WorkerResponse } from "../types/WorkerResponse";
 import LatticeWorker from "../workers/latticeWorker?worker";
 
+// Single worker is reused for all formal context calculations
+// This way the data can be kept in the worker to save some time due to fewer serialization
+// When a new file is loaded, new worker is created and the old one destroyed
+
 export default class LatticeWorkerQueue {
     private worker: Worker | null = null;
     private lastId: number = 0;

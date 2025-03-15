@@ -3,16 +3,15 @@ import { createQueue, dequeue, enqueue, isQueueEmpty } from "../structures/queue
 import { FormalConcept } from "../types/FormalConcept";
 import { FormalContext, formalContextHasAttribute, hasObjectWithAllAttributes } from "../types/FormalContext";
 import { LinkedList } from "../types/LinkedList";
+import { FormalConceptsTimedResult } from "../types/TimedResult";
 import { copyArray, copyStaticArray } from "../utils/arrays";
 
-const BOOLEAN_CELL_SIZE: i32 = 64;
-
-export function inCloseBurmeister(burmeisterContext: string): Array<FormalConcept> {
+export function inCloseBurmeister(burmeisterContext: string): FormalConceptsTimedResult {
     const context = parseBurmeister(burmeisterContext);
     return inClose(context);
 }
 
-export function inClose(context: FormalContext): Array<FormalConcept> {
+export function inClose(context: FormalContext): FormalConceptsTimedResult {
     const startTime = Date.now();
 
     const initialConceptObjects = new StaticArray<i32>(context.objects.length);
@@ -39,9 +38,10 @@ export function inClose(context: FormalContext): Array<FormalConcept> {
         formalConcepts.push({ attributes: conceptAttributes, objects: [], attribute: 0 });
     }
 
-    console.log(`InClose: ${Date.now() - startTime} ms`);
-
-    return formalConcepts;
+    return {
+        value: formalConcepts,
+        time: Date.now() - startTime,
+    };
 }
 
 function inCloseImpl(

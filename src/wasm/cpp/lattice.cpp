@@ -1,14 +1,21 @@
 #include "FormalConcept.h"
 #include "LatticeItem.h"
 #include "utils.h"
+#include "lattice.h"
 
 #include <stdio.h>
 #include <iostream>
-#include <sstream>
+#include <vector>
+#include <algorithm>
+#include <memory>
+#include <unordered_set>
+#include <map>
 
 using namespace std;
 
-std::vector<std::vector<int>> conceptsToLattice(std::vector<IndexedFormalConcept>& concepts) {
+TimedResult<std::vector<std::vector<int>>> conceptsToLattice(std::vector<IndexedFormalConcept>& concepts) {
+    long long startTime = nowMills();
+
     // Concepts must be ordered by intent's length from longest to shortest
     std::sort(
         concepts.begin(),
@@ -77,11 +84,13 @@ std::vector<std::vector<int>> conceptsToLattice(std::vector<IndexedFormalConcept
 
         result[item.getIndex()] = subconcepts;
     }
+    
+    long long endTime = nowMills();
 
-    return result;
+    return TimedResult<std::vector<std::vector<int>>>(result, (int)endTime - startTime);
 }
 
-std::vector<std::vector<int>> conceptsCover(
+TimedResult<std::vector<std::vector<int>>> conceptsCover(
     std::vector<IndexedFormalConcept>& concepts,
     std::vector<unsigned int>& contextMatrix,
     int cellSize,
@@ -90,6 +99,7 @@ std::vector<std::vector<int>> conceptsCover(
     int contextAttributesCount
 ) {
     //printFormalContext(contextMatrix, cellSize, cellsPerObject, contextObjectsCount, contextAttributesCount);
+    long long startTime = nowMills();
 
     std::unique_ptr<std::map<std::vector<int>, int>> conceptsMap = make_unique<std::map<std::vector<int>, int>>();
 
@@ -151,5 +161,7 @@ std::vector<std::vector<int>> conceptsCover(
         }
     }
 
-    return *lattice;
+    long long endTime = nowMills();
+
+    return TimedResult<std::vector<std::vector<int>>>(*lattice, (int)endTime - startTime);
 }

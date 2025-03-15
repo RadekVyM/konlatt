@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "asbuild:debug": "asc src/wasm/as/main.ts --target debug --runtime minimal --exportRuntime",
     "asbuild:release": "asc src/wasm/as/main.ts --target release --runtime minimal --exportRuntime",
-    "build:emscripten": "docker run --rm -it -v \"%cd%:/src\" -w /src emscripten/emsdk bash -c ./emscripten.build.sh",
+    "build:emscripten": "docker run --rm -it -v \"%cd%:/usr/src\" -w /usr/src emscripten/emsdk bash -c ./emscripten.build.sh",
     "test": "vitest run",
     "bench": "vitest bench"
   },

@@ -1,13 +1,7 @@
-/* eslint-disable react-compiler/react-compiler */
-
 import useProjectStore from "./stores/useProjectStore";
 import { ConceptComputationRequest, ContextParsingRequest, LatticeComputationRequest, LayoutComputationRequest } from "../types/WorkerRequest";
 import { ConceptComputationResponse, ContextParsingResponse, LatticeComputationResponse, LayoutComputationResponse } from "../types/WorkerResponse";
 import { createPoint, Point } from "../types/Point";
-
-// Single worker is reused for all formal context calculations
-// This way the data can be kept in the worker to save some time due to fewer serialization
-// When a new file is loaded, new worker is created and the old one destroyed
 
 export default function useConceptLattice() {
     const setProgressMessage = useProjectStore((state) => state.setProgressMessage);

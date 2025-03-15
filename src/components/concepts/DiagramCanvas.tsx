@@ -10,6 +10,8 @@ import { createPoint, Point } from "../../types/Point";
 import useEventListener from "../../hooks/useEventListener";
 import { QuadNode } from "../../types/QuadNode";
 import { Quadtree } from "d3-quadtree";
+import { Rect } from "../../types/Rect";
+import { crossesRect, isInRect } from "../../utils/rect";
 
 const LAYOUT_SCALE = 60;
 const GRID_LINE_STEP = LAYOUT_SCALE;
@@ -17,6 +19,8 @@ const GRID_LINE_STEP_HALF = GRID_LINE_STEP / 2;
 const GRID_LINE_GAP = LAYOUT_SCALE / 16;
 const GRID_LINE_GAP_HALF = GRID_LINE_GAP / 2;
 const GRID_LINES_INVISIBLE_THRESHOLD = 20;
+const NODE_RADIUS = 5;
+const NODE_RADIUS_INTERACTION = NODE_RADIUS + 1;
 
 export default function DiagramCanvas(props: {
     className?: string,
@@ -39,6 +43,7 @@ export default function DiagramCanvas(props: {
     const width = dimensions.width * window.devicePixelRatio;
     const height = dimensions.height * window.devicePixelRatio;
     const [hoveredIndex, setHoveredIndex] = useState<null | number>(null);
+    const visibleRect = useMemo(() => getVisibleRect(props.zoomTransform, dimensions.width, dimensions.height), [props.zoomTransform, dimensions.width, dimensions.height]);
     const {
         draggedIndex,
         dragOffset,
@@ -68,8 +73,11 @@ export default function DiagramCanvas(props: {
         draggedIndex,
         dragOffset,
         dimensions.width,
+        dimensions.height,
+        visibleRect);
+    const drawGrid = useDrawGrid(
+        dimensions.width,
         dimensions.height);
-    const drawGrid = useDrawGrid();
 
     useEffect(() => {
         const canvas = props.ref.current;
@@ -79,22 +87,20 @@ export default function DiagramCanvas(props: {
             return;
         }
 
-        context.clearRect(0, 0, width, height);
+        context.clearRect(0, 0, canvas.width, canvas.height);
 
         const scale = props.zoomTransform.scale * window.devicePixelRatio;
-        const w = width / window.devicePixelRatio;
-        const h = height / window.devicePixelRatio;
         const computedStyle = getComputedStyle(canvas);
 
         context.save();
         context.translate(props.zoomTransform.x * window.devicePixelRatio, props.zoomTransform.y * window.devicePixelRatio);
         context.scale(scale, scale);
         if (props.isEditable) {
-            drawGrid(context, w, h, props.zoomTransform.x, props.zoomTransform.y, props.zoomTransform.scale, computedStyle);
+            drawGrid(context, props.zoomTransform.x, props.zoomTransform.y, props.zoomTransform.scale, computedStyle);
         }
         drawDiagram(context, computedStyle);
         context.restore();
-    }, [width, height, props.zoomTransform.scale, props.zoomTransform.x, props.zoomTransform.y, props.isEditable, drawDiagram, drawGrid]);
+    }, [props.zoomTransform.scale, props.zoomTransform.x, props.zoomTransform.y, props.isEditable, drawDiagram, drawGrid]);
 
     useEffect(() => {
         props.updateExtent(dimensions.width, dimensions.height);
@@ -116,11 +122,14 @@ export default function DiagramCanvas(props: {
     );
 }
 
-function useQuadTree(layout: ConceptLatticeLayout, diagramOffsets: Array<Point>) {
+function useQuadTree(
+    layout: ConceptLatticeLayout,
+    diagramOffsets: Array<Point>,
+) {
     const quadTreeRef = useRef<Quadtree<QuadNode>>(null);
 
     useEffect(() => {
-        quadTreeRef.current = createQuadTree(layout, diagramOffsets);
+            quadTreeRef.current = createQuadTree(layout, diagramOffsets);
     }, [layout, diagramOffsets]);
 
     return {
@@ -206,7 +215,7 @@ function useCanvasInteraction(
 
     function findNode(e: React.PointerEvent<HTMLElement>) {
         const point = getPoint(e.clientX, e.clientY);
-        return quadTreeRef.current?.find(point[0], point[1], 6 / LAYOUT_SCALE);
+        return quadTreeRef.current?.find(point[0], point[1], NODE_RADIUS_INTERACTION / LAYOUT_SCALE);
     }
 
     function getPoint(pointerX: number, pointerY: number): [number, number] {
@@ -224,11 +233,12 @@ function useCanvasInteraction(
     };
 }
 
-function useDrawGrid() {
+function useDrawGrid(
+    width: number,
+    height: number,
+) {
     const drawGrid = useCallback((
         context: CanvasRenderingContext2D,
-        width: number,
-        height: number,
         translateX: number,
         translateY: number,
         scale: number,
@@ -272,7 +282,7 @@ function useDrawGrid() {
         context.strokeStyle = outlineColor;
         context.setLineDash([]);
         context.stroke();
-    }, []);
+    }, [width, height]);
 
     return drawGrid;
 }
@@ -289,6 +299,7 @@ function useDrawDiagram(
     dragOffset: [number, number],
     width: number,
     height: number,
+    visibleRect: Rect,
 ) {
     const targetPoints = useMemo(() => {
         const centerX = width / 2;
@@ -299,9 +310,11 @@ function useDrawDiagram(
             const offset = diagramOffsets[concept.index];
             const isDragged = draggedIndex === concept.index;
 
-            const x = ((point[0] + offset[0] + (isDragged ? dragOffset[0] : 0)) * LAYOUT_SCALE) + centerX;
-            const y = ((point[1] + offset[1] + (isDragged ? dragOffset[1] : 0)) * LAYOUT_SCALE) + centerY;
-            return [x, y];
+            const normalX = point[0] + offset[0] + (isDragged ? dragOffset[0] : 0);
+            const normalY = point[1] + offset[1] + (isDragged ? dragOffset[1] : 0);
+            const x = (normalX * LAYOUT_SCALE) + centerX;
+            const y = (normalY * LAYOUT_SCALE) + centerY;
+            return [x, y, normalX, normalY];
         });
     }, [concepts, width, height, layout, diagramOffsets, draggedIndex, dragOffset]);
 
@@ -314,12 +327,16 @@ function useDrawDiagram(
 
         for (const concept of concepts) {
             const subconcepts = lattice.subconceptsMapping[concept.index];
-            const [startX, startY] = targetPoints[concept.index];
+            const [startX, startY, normalStartX, normalStartY] = targetPoints[concept.index];
 
             for (const subconceptIndex of subconcepts) {
                 // TODO: endPoint is sometimes undefined when drawing nom10shuttle
-                const [endX, endY] = targetPoints[subconceptIndex];
-                
+                const [endX, endY, normalEndX, normalEndY] = targetPoints[subconceptIndex];
+
+                if (!crossesRect(normalStartX, normalStartY, normalEndX, normalEndY, visibleRect)) {
+                    continue;
+                }
+
                 context.beginPath();
                 context.moveTo(startX, startY);
                 context.lineTo(endX, endY);
@@ -334,11 +351,15 @@ function useDrawDiagram(
                 continue;
             }
 
-            const [x, y] = targetPoints[concept.index];
+            const [x, y, normalX, normalY] = targetPoints[concept.index];
+
+            if (!isInRect(normalX, normalY, visibleRect)) {
+                continue;
+            }
 
             context.beginPath();
             context.moveTo(x, y);
-            context.arc(x, y, 5, 0, 2 * Math.PI);
+            context.arc(x, y, NODE_RADIUS, 0, 2 * Math.PI);
             context.fill();
         }
 
@@ -347,7 +368,7 @@ function useDrawDiagram(
 
             context.beginPath();
             context.fillStyle = primaryColor;
-            context.arc(x, y, 5, 0, 2 * Math.PI);
+            context.arc(x, y, NODE_RADIUS, 0, 2 * Math.PI);
             context.fill();
         }
 
@@ -355,7 +376,7 @@ function useDrawDiagram(
             const [x, y] = targetPoints[selectedIndex];
 
             context.beginPath();
-            context.arc(x, y, 5, 0, 2 * Math.PI);
+            context.arc(x, y, NODE_RADIUS, 0, 2 * Math.PI);
             context.fillStyle = primaryColor;
             context.fill();
         }
@@ -364,7 +385,11 @@ function useDrawDiagram(
         context.fillStyle = onSurfaceColor;
 
         for (const concept of concepts) {
-            const [x, y] = targetPoints[concept.index];
+            const [x, y, normalX, normalY] = targetPoints[concept.index];
+
+            if (!isInRect(normalX, normalY, visibleRect)) {
+                continue;
+            }
 
             const objectLabels = lattice.objectsLabeling.get(concept.index);
             const attributeLabels = lattice.attributesLabeling.get(concept.index);
@@ -385,26 +410,27 @@ function useDrawDiagram(
                 context.fillText(label, x, y - 7);
             }
         }
-    }, [lattice, concepts, formalContext, hoveredIndex, selectedIndex, targetPoints]);
+    }, [lattice, concepts, formalContext, hoveredIndex, selectedIndex, targetPoints, visibleRect]);
 
     return drawDiagram;
 }
 
 function toLayoutCoord(coord: number, size: number) {
-    return (coord - ((size/ window.devicePixelRatio) / 2)) / LAYOUT_SCALE;
+    return (coord - ((size / window.devicePixelRatio) / 2)) / LAYOUT_SCALE;
 }
 
-// @ts-expect-error
-function getVisibleRect(zoomTransform: ZoomTransform, canvasWidth: number, canvasHeight: number): { x: number, y: number, width: number, height: number } {
-    const left = -zoomTransform.x / LAYOUT_SCALE;
-    const top = -zoomTransform.y / LAYOUT_SCALE;
+function getVisibleRect(zoomTransform: ZoomTransform, canvasWidth: number, canvasHeight: number): Rect {
+    const nodeSizeAddition = (NODE_RADIUS) / LAYOUT_SCALE;
+    const left = (zoomTransform.x / zoomTransform.scale) / LAYOUT_SCALE;
+    const top = (zoomTransform.y / zoomTransform.scale) / LAYOUT_SCALE;
     const width = (canvasWidth / zoomTransform.scale) / LAYOUT_SCALE;
     const height = (canvasHeight / zoomTransform.scale) / LAYOUT_SCALE;
-    
+    const halfFactor = 2 / zoomTransform.scale;
+
     return {
-        x: left - (width / 2),
-        y: top - (height / 2),
-        width,
-        height,
+        x: -(width / halfFactor) - left - nodeSizeAddition,
+        y: -(height / halfFactor) - top - nodeSizeAddition,
+        width: width + (2 * nodeSizeAddition),
+        height: height + (2 * nodeSizeAddition),
     };
 }

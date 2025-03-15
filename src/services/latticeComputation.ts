@@ -16,7 +16,7 @@ export async function conceptsToLattice(concepts: FormalConcepts, context: RawFo
     const cppConcepts = jsArrayToCppIndexedFormalConceptArray(module, concepts);
     const cppContext = jsArrayToCppUIntArray(module, context.context);
 
-    const lattice = module.conceptsCover(
+    const result = module.conceptsCover(
         cppConcepts,
         cppContext,
         context.cellSize,
@@ -24,7 +24,9 @@ export async function conceptsToLattice(concepts: FormalConcepts, context: RawFo
         context.objects.length,
         context.attributes.length);
 
-    const superconceptsMapping = [...cppIntMultiArrayToJs(lattice, true)].map((set) => new Set<number>(set));
+    console.log(`ConceptsCover: ${result.time}ms`);
+
+    const superconceptsMapping = [...cppIntMultiArrayToJs(result.value, true)].map((set) => new Set<number>(set));
     const subconceptsMapping = reverseMapping(superconceptsMapping);
     const objectsLabeling = getObjectsLabeling(concepts, superconceptsMapping);
     const attributesLabeling = getAttributesLabeling(concepts, subconceptsMapping);

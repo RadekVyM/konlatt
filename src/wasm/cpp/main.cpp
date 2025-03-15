@@ -1,5 +1,6 @@
 #include "FormalConcept.h"
 #include "FormalContext.h"
+#include "TimedResult.h"
 
 #include <emscripten/bind.h>
 #include <emscripten/emscripten.h>
@@ -46,6 +47,14 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .property("attributes", &IndexedFormalConcept::getAttributesCopy, &IndexedFormalConcept::setAttributes)
         .property("index", &IndexedFormalConcept::getIndex, &IndexedFormalConcept::setIndex)
         ;
+
+    emscripten::value_object<TimedResult<std::vector<FormalConcept>>>("FormalConceptsTimedResult")
+        .field("value", &TimedResult<std::vector<FormalConcept>>::value)
+        .field("time", &TimedResult<std::vector<FormalConcept>>::time);
+
+    emscripten::value_object<TimedResult<std::vector<std::vector<int>>>>("IntMultiArrayTimedResult")
+        .field("value", &TimedResult<std::vector<std::vector<int>>>::value)
+        .field("time", &TimedResult<std::vector<std::vector<int>>>::time);
 
     emscripten::function("parseBurmeister", &parseBurmeister);
     emscripten::function("formalContextHasAttribute", &formalContextHasAttribute);

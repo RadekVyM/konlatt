@@ -64,7 +64,7 @@ function List(props: {
                 <li
                     key={item.index}
                     className={cn(
-                        "px-3 py-1.5 text-start",
+                        "px-3 py-1.5 text-start oa-list-item",
                         index < props.items.length - 1 && "border-b border-outline-variant")}>
                     {item.title}
                 </li>)}

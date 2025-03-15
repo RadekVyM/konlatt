@@ -158,3 +158,13 @@ body {
     background-image: url("/images/logo_dark.svg");
   }
 }
+
+.oa-list-item {
+  content-visibility: auto;
+  contain-intrinsic-size: auto calc(var(--spacing) * 8.5);
+}
+
+.concept-list-item {
+  content-visibility: auto;
+  contain-intrinsic-size: auto calc(var(--spacing) * 20);
+}

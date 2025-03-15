@@ -154,7 +154,7 @@ function ItemsList(props: {
                     <li
                         key={index}
                         className={cn(
-                            "px-3 py-1.5",
+                            "px-3 py-1.5 oa-list-item",
                             i < props.itemIndexes.length - 1 && "border-b border-outline-variant")}>
                         {props.itemContent(index)}
                     </li>)}

@@ -6,16 +6,17 @@ import { cppFormalConceptArrayToJs, jsArrayToCppUIntArray } from "../utils/cpp";
 export async function computeConcepts(context: RawFormalContext): Promise<Array<FormalConcept>> {
     const module = await Module();
     const uIntContext = jsArrayToCppUIntArray(module, context.context);
-    const concepts = module.inClose(
+    const result = module.inClose(
         uIntContext,
         context.cellSize,
         context.cellsPerObject,
         context.objects.length,
         context.attributes.length
     );
-    const result: Array<FormalConcept> = [...cppFormalConceptArrayToJs(concepts, true)];
+    const concepts: Array<FormalConcept> = [...cppFormalConceptArrayToJs(result.value, true)];
+    console.log(`InClose: ${result.time}ms`);
 
     uIntContext.delete();
 
-    return result;
+    return concepts;
 }

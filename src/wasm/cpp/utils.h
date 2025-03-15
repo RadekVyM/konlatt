@@ -2,6 +2,7 @@
 #define UTILS_H
 
 #include <vector>
+#include <string>
 
 bool formalContextHasAttribute(
     std::vector<unsigned int> &contextMatrix,

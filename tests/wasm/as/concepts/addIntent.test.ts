@@ -1,5 +1,5 @@
 import { expect, test, describe } from "vitest";
-import { __collect, __Record14, addIntent, parseBurmeister } from "../../../../src/wasm/as";
+import { __collect, addIntent, parseBurmeister } from "../../../../src/wasm/as";
 import { RawFormalContext } from "../../../../src/types/RawFormalContext";
 import { DIGITS, LATTICE, LIVEINWATER, TEALADY, TestValue } from "../../../constants/flowTestValues";
 
@@ -17,10 +17,6 @@ describe.each<TestValue>([
         __collect();
 
         expect(lattice.formalConcepts.length).toBe(value.conceptsCount);
-        expect(latticeSize(lattice)).toBe(value.coverRelationSize);
+        expect(lattice.coverageRelation.reduce((prev, curr) => prev + curr.length, 0)).toBe(value.coverRelationSize);
     }, 60000);
 });
-
-function latticeSize(lattice: __Record14<never>): number {
-    return lattice.coverageRelation.reduce((prev, curr) => prev + curr.length, 0);
-}

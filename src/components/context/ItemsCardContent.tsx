@@ -95,7 +95,7 @@ function List(props: {
                 <li
                     key={props.itemKey(item)}
                     className={cn(
-                        "px-1 py-0.5",
+                        "px-1 py-0.5 oa-list-item",
                         index < displayedItems.length - 1 && "border-b border-outline-variant")}>
                     <Button
                         className="w-full text-start"

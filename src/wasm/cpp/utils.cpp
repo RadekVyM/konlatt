@@ -5,6 +5,8 @@
 #include <algorithm> 
 #include <cctype>
 #include <locale>
+#include <vector>
+#include <string>
 
 using namespace std;
 

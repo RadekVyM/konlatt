@@ -1,9 +1,12 @@
 #include "utils.h"
 #include "inClose.h"
 #include "FormalConcept.h"
+#include "TimedResult.h"
 
-#include <stdio.h>
 #include <iostream>
+#include <memory>
+#include <queue>
+#include <vector>
 
 using namespace std;
 
@@ -135,7 +138,7 @@ void inCloseImpl(
     }
 }
 
-std::vector<FormalConcept> inClose(
+TimedResult<std::vector<FormalConcept>> inClose(
     std::vector<unsigned int>& contextMatrix,
     int cellSize,
     int cellsPerObject,
@@ -196,7 +199,5 @@ std::vector<FormalConcept> inClose(
 
     long long endTime = nowMills();
 
-    std::cout << "inClose: " << endTime - startTime << "ms\n";
-
-    return *formalConcepts;
+    return TimedResult<std::vector<FormalConcept>>(*formalConcepts, (int)endTime - startTime);
 }

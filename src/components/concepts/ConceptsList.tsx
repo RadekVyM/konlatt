@@ -116,7 +116,7 @@ function List(props: {
                 <li
                     key={index}
                     className={cn(
-                        "px-1 py-0.5",
+                        "px-1 py-0.5 concept-list-item",
                         index < props.filteredConcepts.length - 1 && "border-b border-outline-variant")}>
                     <Button
                         className="w-full text-start py-1.5"
