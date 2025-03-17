@@ -1,0 +1,1 @@
+export const RUNS_COUNT = 50;

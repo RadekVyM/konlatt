@@ -114,13 +114,13 @@ function List(props: {
             observerTargetRef={observerTargetRef}>
             {displayedItems.map((item, index) =>
                 <li
-                    key={index}
+                    key={item.index}
                     className={cn(
                         "px-1 py-0.5 concept-list-item",
                         index < props.filteredConcepts.length - 1 && "border-b border-outline-variant")}>
                     <Button
                         className="w-full text-start py-1.5"
-                        onClick={() => props.setSelectedConceptIndex(index)}>
+                        onClick={() => props.setSelectedConceptIndex(item.index)}>
                         <div>
                             <div className="mb-0.5 text-sm line-clamp-3">
                                 {item.objects.length > 0 ?

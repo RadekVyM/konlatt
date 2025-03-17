@@ -6,6 +6,14 @@ export default defineConfig({
             allow: ["../../.."],
         },
     },
+    worker: {
+      rollupOptions: {
+        output: {
+          format: "es",
+        }
+      },
+      format: "es",
+    },
     build: {
         target: "es2022",
     },

@@ -1,4 +1,4 @@
-import { LuHand, LuMaximize, LuMinus, LuPlus, LuRedo2, LuUndo2 } from "react-icons/lu";
+import { LuDownload, LuHand, LuMaximize, LuMinus, LuPlus, LuRedo2, LuUndo2 } from "react-icons/lu";
 import useProjectStore from "../../hooks/stores/useProjectStore";
 import Button from "../inputs/Button";
 import DiagramCanvas from "./DiagramCanvas";
@@ -48,9 +48,12 @@ export default function ConceptsDiagram(props: {
                     updateExtent={updateExtent}
                     diagramOffsets={diagramOffsets}
                     updateNodeOffset={updateNodeOffset} />}
-            
-            <FullscreenButton
+
+            <ExportButton
                 className="absolute top-0 right-0 m-3" />
+
+            <FullscreenButton
+                className="absolute bottom-0 right-0 m-3" />
 
             <div
                 className="absolute bottom-0 left-0 m-3 flex gap-2">
@@ -62,15 +65,14 @@ export default function ConceptsDiagram(props: {
                     canRedo={canRedo}
                     redo={redo}
                     undo={undo} />
-            </div>
 
-            <MoveToggle
-                className="absolute bottom-0 right-0 m-3"
-                selected={isEditable}
-                onToggle={() => setIsEditable((old) => {
-                    isTemporarilyEditableRef.current = old;
-                    return !old;
-                })} />
+                <MoveToggle
+                    selected={isEditable}
+                    onToggle={() => setIsEditable((old) => {
+                        isTemporarilyEditableRef.current = old;
+                        return !old;
+                    })} />
+            </div>
         </>
     );
 }
@@ -83,6 +85,18 @@ function FullscreenButton(props: {
             className={props.className}
             variant="icon-secondary">
             <LuMaximize />
+        </Button>
+    );
+}
+
+function ExportButton(props: {
+    className?: string,
+}) {
+    return (
+        <Button
+            className={props.className}
+            variant="icon-secondary">
+            <LuDownload />
         </Button>
     );
 }

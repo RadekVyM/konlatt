@@ -44,5 +44,8 @@ dist-ssr
 /src/wasm/cpp/index.js
 /src/wasm/cpp/index.wasm
 
+/benchmarks/native/*.exe
+/benchmarks/native/*.obj
+
 
 /tests/__snapshots__
