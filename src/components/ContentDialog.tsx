@@ -1,14 +1,26 @@
-import { forwardRef } from "react";
+import { forwardRef, useEffect, useRef } from "react";
 import { cn } from "../utils/tailwind";
 import { Dialog, DialogProps } from "./Dialog";
 import { MdClose } from "react-icons/md";
 import Button from "./inputs/Button";
+import { useLocation } from "react-router-dom";
 
 type ContentDialogProps = {
     heading: React.ReactNode,
 } & DialogProps
 
 export const ContentDialog = forwardRef<HTMLDialogElement, ContentDialogProps>(({ heading, className, children, state }, ref) => {
+    const initialLoadRef = useRef<boolean>(true);
+    const location = useLocation();
+
+    useEffect(() => {
+        if (!initialLoadRef.current) {
+            state.hide().then();
+        }
+
+        initialLoadRef.current = false;
+    }, [location, state.hide]);
+
     return (
         <Dialog
             ref={ref}

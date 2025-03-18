@@ -11,7 +11,7 @@ import { assignNodesToLayersByLongestPath } from "./layers";
  * @param concepts 
  * @returns Array of indexes of children of each concept
  */
-export async function conceptsToLattice(concepts: FormalConcepts, context: RawFormalContext): Promise<ConceptLattice> {
+export async function conceptsToLattice(concepts: FormalConcepts, context: RawFormalContext, onProgress?: (progress: number) => void): Promise<ConceptLattice> {
     const module = await Module();
     const cppConcepts = jsArrayToCppIndexedFormalConceptArray(module, concepts);
     const cppContext = jsArrayToCppUIntArray(module, context.context);
@@ -22,7 +22,8 @@ export async function conceptsToLattice(concepts: FormalConcepts, context: RawFo
         context.cellSize,
         context.cellsPerObject,
         context.objects.length,
-        context.attributes.length);
+        context.attributes.length,
+        onProgress);
 
     console.log(`ConceptsCover: ${result.time}ms`);
 

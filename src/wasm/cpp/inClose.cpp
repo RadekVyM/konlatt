@@ -73,6 +73,10 @@ void inCloseImpl(
     std::vector<FormalConcept>& formalConcepts,
     int parentConceptIndex,
     int currentAttribute
+#ifdef __EMSCRIPTEN__
+    , OnProgressCallback& onProgress,
+    bool callOnProgress
+#endif
 ) {
     std::queue<int> conceptsQueue;
 
@@ -120,6 +124,11 @@ void inCloseImpl(
         }
     }
 
+#ifdef __EMSCRIPTEN__
+    int progressCounter = 0;
+    int progressStepsCount = conceptsQueue.size() + 1;
+#endif
+
     while (!conceptsQueue.empty()) {
         int conceptIndex = conceptsQueue.front();
 
@@ -132,7 +141,19 @@ void inCloseImpl(
             newExtentBuffer,
             formalConcepts,
             conceptIndex,
-            formalConcepts[conceptIndex].getAttribute() + 1);
+            formalConcepts[conceptIndex].getAttribute() + 1
+#ifdef __EMSCRIPTEN__
+            , onProgress,
+            false
+#endif
+        );
+
+#ifdef __EMSCRIPTEN__
+        if (callOnProgress && !onProgress.isUndefined()) {
+            progressCounter++;
+            onProgress((double)progressCounter / progressStepsCount);
+        }
+#endif
 
         conceptsQueue.pop();
     }
@@ -144,6 +165,9 @@ TimedResult<std::vector<FormalConcept>> inClose(
     int cellsPerObject,
     int contextObjectsCount,
     int contextAttributesCount
+#ifdef __EMSCRIPTEN__
+    , OnProgressCallback onProgress
+#endif
 ) {
     //printFormalContext(contextMatrix, cellSize, cellsPerObject, contextObjectsCount, contextAttributesCount);
 
@@ -175,7 +199,12 @@ TimedResult<std::vector<FormalConcept>> inClose(
         newExtentBuffer,
         *formalConcepts,
         0,
-        0);
+        0
+#ifdef __EMSCRIPTEN__
+        , onProgress,
+        true
+#endif
+        );
 
     if (!hasObjectWithAllAttributes(
         contextMatrix,
@@ -198,6 +227,12 @@ TimedResult<std::vector<FormalConcept>> inClose(
     }
 
     long long endTime = nowMills();
+
+#ifdef __EMSCRIPTEN__
+    if (!onProgress.isUndefined()) {
+        onProgress(1);
+    }
+#endif
 
     return TimedResult<std::vector<FormalConcept>>(*formalConcepts, (int)endTime - startTime);
 }

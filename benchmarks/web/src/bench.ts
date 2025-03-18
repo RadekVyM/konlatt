@@ -10,7 +10,7 @@ export async function benchCpp(runsCount: number, postMessage: (message: string)
 
     for (let i = 0; i < runsCount; i++) {
         const startTime = new Date().getTime();
-        const concepts = module.inClose(context.context, context.cellSize, context.cellsPerObject, context.objects.size(), context.attributes.size());
+        const concepts = module.inClose(context.context, context.cellSize, context.cellsPerObject, context.objects.size(), context.attributes.size(), undefined);
         const time2 = new Date().getTime() - startTime;
 
         sum += concepts.time;

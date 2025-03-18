@@ -1,12 +1,12 @@
 import { useRef, useState } from "react";
 import useProjectStore from "../../hooks/stores/useProjectStore";
-import BackButton from "../BackButton";
+import BackButton from "../inputs/BackButton";
 import Button from "../inputs/Button";
 import CardItemsLazyList from "../CardItemsLazyList";
 import useLazyListCount from "../../hooks/useLazyListCount";
 import { cn } from "../../utils/tailwind";
 import NothingFound from "../NothingFound";
-import SearchInput from "../SearchInput";
+import SearchInput from "../inputs/SearchInput";
 import CardSection from "../CardSection";
 
 type TabItem = "objects" | "attributes"

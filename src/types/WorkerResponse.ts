@@ -3,7 +3,7 @@ import { ConceptLattice } from "./ConceptLattice";
 import { FormalConcepts } from "./FormalConcepts";
 import { ConceptLatticeLayout } from "./ConceptLatticeLayout";
 
-export type WorkerResponse = FinishedResponse | StatusResponse | ContextParsingResponse | ConceptComputationResponse | LatticeComputationResponse | LayoutComputationResponse
+export type WorkerResponse = FinishedResponse | StatusResponse | ProgressResponse | ContextParsingResponse | ConceptComputationResponse | LatticeComputationResponse | LayoutComputationResponse
 
 export type FinishedResponse = {
     type: "finished",
@@ -12,6 +12,11 @@ export type FinishedResponse = {
 export type StatusResponse = {
     type: "status",
     message: string | null
+} & BaseResponse
+
+export type ProgressResponse = {
+    type: "progress",
+    progress: number
 } & BaseResponse
 
 export type ContextParsingResponse = {

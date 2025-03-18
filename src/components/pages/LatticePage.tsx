@@ -4,8 +4,9 @@ import { cn } from "../../utils/tailwind";
 import Container from "../Container";
 import ConceptsList from "../concepts/ConceptsList";
 import ConceptsDiagram from "../concepts/ConceptsDiagram";
+import PageContainer from "../PageContainer";
 
-export default function FormalConceptsPage() {
+export default function LatticePage() {
     const context = useProjectStore((state) => state.context);
     const [selectedConceptIndex, setSelectedConceptIndex] = useState<number | null>(null);
 
@@ -14,8 +15,8 @@ export default function FormalConceptsPage() {
     }, [context]);
 
     return (
-        <div
-            className="grid grid-cols-[1fr_1fr] grid-rows-[5fr_4fr] md:grid-rows-[6fr_4fr] md:grid-cols-[minmax(18rem,2fr)_5fr] xl:grid-cols-[1fr_2.5fr_1fr] xl:grid-rows-1 gap-2 flex-1 pb-4 max-h-full overflow-hidden">
+        <PageContainer
+            className="grid grid-cols-[1fr_1fr] grid-rows-[5fr_4fr] md:grid-rows-[6fr_4fr] md:grid-cols-[minmax(18rem,2fr)_5fr] xl:grid-cols-[1fr_2.5fr_1fr] xl:grid-rows-1 gap-2">
             <ConceptsList
                 selectedConceptIndex={selectedConceptIndex}
                 setSelectedConceptIndex={setSelectedConceptIndex} />
@@ -24,7 +25,7 @@ export default function FormalConceptsPage() {
                 selectedConceptIndex={selectedConceptIndex}
                 setSelectedConceptIndex={setSelectedConceptIndex} />
             <Config />
-        </div>
+        </PageContainer>
     );
 }
 

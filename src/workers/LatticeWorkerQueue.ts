@@ -16,6 +16,9 @@ export default class LatticeWorkerQueue {
         request: WorkerRequest,
         responseCallback: (response: T) => void,
         statusMessageCallback?: (message: string | null) => void,
+        progressCallback?: (progress: number) => void,
+        startCallback?: (jobId: number) => void,
+        cancelCallback?: (jobId: number) => void,
     ): number {
         this.lastId++;
         const jobId = this.lastId;
@@ -24,7 +27,10 @@ export default class LatticeWorkerQueue {
             id: jobId,
             request,
             responseCallback,
-            statusMessageCallback
+            statusMessageCallback,
+            progressCallback,
+            startCallback,
+            cancelCallback,
         };
 
         this.queue.push(job);
@@ -41,6 +47,9 @@ export default class LatticeWorkerQueue {
             };
             this.worker?.postMessage(request);
 
+            if (this.currentJob.cancelCallback) {
+                this.currentJob.cancelCallback(this.currentJob.id);
+            }
             this.currentJob = null;
             this.next();
         }
@@ -79,6 +88,10 @@ export default class LatticeWorkerQueue {
             }
 
             this.worker.postMessage(request);
+            
+            if (this.currentJob.startCallback) {
+                this.currentJob.startCallback(this.currentJob.id);
+            }
         }
     }
 
@@ -94,6 +107,11 @@ export default class LatticeWorkerQueue {
             case "status":
                 if (this.currentJob?.statusMessageCallback) {
                     this.currentJob?.statusMessageCallback(e.data.message);
+                }
+                break;
+            case "progress":
+                if (this.currentJob?.progressCallback) {
+                    this.currentJob?.progressCallback(e.data.progress);
                 }
                 break;
             case "finished":
@@ -113,4 +131,7 @@ type Job = {
     readonly request: WorkerRequest,
     readonly responseCallback: (response: any) => void,
     readonly statusMessageCallback?: (message: string | null) => void,
+    readonly progressCallback?: (progress: number) => void,
+    readonly startCallback?: (jobId: number) => void,
+    readonly cancelCallback?: (jobId: number) => void,
 }

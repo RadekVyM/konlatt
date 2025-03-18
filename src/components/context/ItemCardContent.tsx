@@ -4,7 +4,7 @@ import CardSectionTitle from "../CardSectionTitle";
 import CardItemsLazyList from "../CardItemsLazyList";
 import { cn } from "../../utils/tailwind";
 import { ContextCompleteItem, ContextItem } from "./types";
-import BackButton from "../BackButton";
+import BackButton from "../inputs/BackButton";
 import NothingFound from "../NothingFound";
 import CardSection from "../CardSection";
 

@@ -31,14 +31,28 @@ export default function useConceptLattice() {
         const latticeRequest: LatticeComputationRequest = { type: "lattice" };
         const layoutRequest: LayoutComputationRequest = { type: "layout" };
 
-        workerQueue.enqueue<ContextParsingResponse>(contextRequest, (response: ContextParsingResponse) => setContext(response.context), setProgressMessage);
-        workerQueue.enqueue<ConceptComputationResponse>(conceptsRequest, (response: ConceptComputationResponse) => setConcepts(response.concepts), setProgressMessage);
-        workerQueue.enqueue<LatticeComputationResponse>(latticeRequest, (response: LatticeComputationResponse) => setLattice(response.lattice), setProgressMessage);
-        workerQueue.enqueue<LayoutComputationResponse>(layoutRequest, (response: LayoutComputationResponse) => {
-            setLayout(response.layout);
-            setDiagramOffsets(createDefaultDiagramOffsets(response.layout.length));
-            setDiagramOffsetMementos({ redos: [], undos: [] });
-        }, setProgressMessage);
+        workerQueue.enqueue<ContextParsingResponse>(
+            contextRequest,
+            (response: ContextParsingResponse) => setContext(response.context),
+            setProgressMessage);
+        workerQueue.enqueue<ConceptComputationResponse>(
+            conceptsRequest,
+            (response: ConceptComputationResponse) => setConcepts(response.concepts),
+            setProgressMessage,
+            (progress) => console.log(`c: ${Math.round(progress * 100)}`));
+        workerQueue.enqueue<LatticeComputationResponse>(
+            latticeRequest,
+            (response: LatticeComputationResponse) => setLattice(response.lattice),
+            setProgressMessage,
+            (progress) => console.log(`l: ${Math.round(progress * 100)}`));
+        workerQueue.enqueue<LayoutComputationResponse>(
+            layoutRequest,
+            (response: LayoutComputationResponse) => {
+                setLayout(response.layout);
+                setDiagramOffsets(createDefaultDiagramOffsets(response.layout.length));
+                setDiagramOffsetMementos({ redos: [], undos: [] });
+            },
+            setProgressMessage);
     }
 
     return {

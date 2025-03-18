@@ -1,7 +1,6 @@
 import { useRef, useState } from "react";
 import useProjectStore from "../../hooks/stores/useProjectStore";
 import { cn } from "../../utils/tailwind";
-import SearchInput from "../SearchInput";
 import useLazyListCount from "../../hooks/useLazyListCount";
 import Button from "../inputs/Button";
 import CardItemsLazyList from "../CardItemsLazyList";
@@ -16,6 +15,8 @@ import { RawFormalContext } from "../../types/RawFormalContext";
 import HighlightedSearchTerms from "../HighlightedSearchTerms";
 import { searchTermsToRegex } from "../../utils/search";
 import ExportButton from "../ExportButton";
+import useDebouncedValue from "../../hooks/useDebouncedValue";
+import SearchInput from "../inputs/SearchInput";
 
 export default function Concepts(props: {
     className?: string,
@@ -41,9 +42,10 @@ function ConceptsList(props: {
     setSelectedConceptIndex: (index: number | null) => void,
 }) {
     const [searchInput, setSearchInput] = useState<string>("");
+    const debouncedSearchInput = useDebouncedValue(searchInput, 400) || "";
     const concepts = useProjectStore((state) => state.concepts);
     const context = useProjectStore((state) => state.context);
-    const searchTerms = searchInput.trim().split(" ").filter((t) => t.length > 0);
+    const searchTerms = debouncedSearchInput.trim().split(" ").filter((t) => t.length > 0);
     const filteredConcepts = concepts && context ?
         concepts.filter((concept) => conceptsFilter(concept, searchTerms, context)) :
         [];

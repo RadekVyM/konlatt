@@ -5,6 +5,10 @@
 #include "TimedResult.h"
 #include <vector>
 
+#ifdef __EMSCRIPTEN__
+#include "OnProgressCallback.h"
+#endif
+
 template struct TimedResult<std::vector<FormalConcept>>;
 
 TimedResult<std::vector<FormalConcept>> inClose(
@@ -13,6 +17,9 @@ TimedResult<std::vector<FormalConcept>> inClose(
     int cellsPerObject,
     int contextObjectsCount,
     int contextAttributesCount
+#ifdef __EMSCRIPTEN__
+    , OnProgressCallback onProgress
+#endif
 );
 
 #endif

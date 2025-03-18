@@ -10,7 +10,7 @@ const context = module.parseBurmeister(mushroomep);
 let sum = 0;
 
 for (let i = 0; i < RUNS_COUNT; i++) {
-    const result = module.inClose(context.context, context.cellSize, context.cellsPerObject, context.objects.size(), context.attributes.size());
+    const result = module.inClose(context.context, context.cellSize, context.cellsPerObject, context.objects.size(), context.attributes.size(), undefined);
 
     result.value.delete();
 

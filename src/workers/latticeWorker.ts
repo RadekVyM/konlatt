@@ -1,6 +1,6 @@
 import { ConceptLattice } from "../types/ConceptLattice";
 import { CompleteWorkerRequest } from "../types/WorkerRequest";
-import { ConceptComputationResponse, ContextParsingResponse, FinishedResponse, LatticeComputationResponse, LayoutComputationResponse, StatusResponse } from "../types/WorkerResponse";
+import { ConceptComputationResponse, ContextParsingResponse, FinishedResponse, LatticeComputationResponse, LayoutComputationResponse, ProgressResponse, StatusResponse } from "../types/WorkerResponse";
 import { RawFormalContext } from "../types/RawFormalContext";
 import { FormalConcepts } from "../types/FormalConcepts";
 import { ConceptLatticeLayout } from "../types/ConceptLatticeLayout";
@@ -83,7 +83,7 @@ async function calculateConcepts(jobId: number, context: RawFormalContext) {
 
     const { computeConcepts } = await import("../services/conceptComputation");
 
-    formalConcepts = await computeConcepts(context);
+    formalConcepts = await computeConcepts(context, (progress) => postProgressMessage(jobId, progress));
     self.postMessage(createConceptComputationResponse(jobId, formalConcepts));
 }
 
@@ -92,7 +92,7 @@ async function calculateLattice(jobId: number, concepts: FormalConcepts, context
 
     const { conceptsToLattice } = await import("../services/latticeComputation");
 
-    conceptLattice = await conceptsToLattice(concepts, context);
+    conceptLattice = await conceptsToLattice(concepts, context, (progress) => postProgressMessage(jobId, progress));
     const latticeMessage: LatticeComputationResponse = {
         jobId,
         time: new Date().getTime(),
@@ -128,6 +128,17 @@ function postStatusMessage(jobId: number, message: string | null) {
     };
 
     self.postMessage(statusResponse);
+}
+
+function postProgressMessage(jobId: number, progress: number) {
+    const progressResponse: ProgressResponse = {
+        jobId,
+        time: new Date().getTime(),
+        type: "progress",
+        progress
+    };
+
+    self.postMessage(progressResponse);
 }
 
 function postFinished(jobId: number) {

@@ -1,5 +1,5 @@
 import { LuChevronLeft } from "react-icons/lu";
-import Button from "./inputs/Button";
+import Button from "./Button";
 
 export default function BackButton(props: {
     children?: React.ReactNode,

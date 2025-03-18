@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import useLazyListCount from "../../hooks/useLazyListCount";
 import { cn } from "../../utils/tailwind";
 import Button from "../inputs/Button";
-import SearchInput from "../SearchInput";
+import SearchInput from "../inputs/SearchInput";
 import CardItemsLazyList from "../CardItemsLazyList";
 import CardSectionTitle from "../CardSectionTitle";
 import NothingFound from "../NothingFound";

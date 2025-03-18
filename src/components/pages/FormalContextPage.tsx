@@ -8,6 +8,7 @@ import AttributesList from "../context/AttributesList";
 import NothingFound from "../NothingFound";
 import CardSectionTitle from "../CardSectionTitle";
 import ExportButton from "../ExportButton";
+import PageContainer from "../PageContainer";
 
 export default function FormalContextPage() {
     const context = useProjectStore((state) => state.context);
@@ -20,12 +21,11 @@ export default function FormalContextPage() {
     }, [context]);
 
     return (
-        <div className="
+        <PageContainer className="
             grid gap-2
             grid-rows-[4fr_3fr] grid-cols-[1fr_1fr]
             md:grid-rows-[1fr_1fr] md:grid-cols-[5fr_3fr]
-            lg:grid-rows-1 lg:grid-cols-[5fr_2fr_2fr]
-            flex-1 pb-4 max-h-full overflow-hidden">
+            lg:grid-rows-1 lg:grid-cols-[5fr_2fr_2fr]">
             <Context
                 className="col-start-1 col-end-3 md:col-end-2 md:row-start-1 md:row-end-3 lg:row-auto"
                 selectedObject={selectedObject}
@@ -41,7 +41,7 @@ export default function FormalContextPage() {
                 className="lg:col-start-3 lg:col-end-4 lg:min-w-48"
                 selectedAttributeIndex={selectedAttribute}
                 setSelectedAttributeIndex={setSelectedAttribute} />
-        </div>
+        </PageContainer>
     );
 }
 

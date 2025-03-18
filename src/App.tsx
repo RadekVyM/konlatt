@@ -3,8 +3,8 @@ import MainLayout from "./components/layouts/MainLayout";
 import ErrorPage from "./components/pages/ErrorPage";
 import InitialPage from "./components/pages/InitialPage";
 import FormalContextPage from "./components/pages/FormalContextPage";
-import FormalConceptsPage from "./components/pages/FormalConceptsPage";
-import ExportPage from "./components/pages/ExportPage";
+import LatticePage from "./components/pages/LatticePage";
+import ExplorerPage from "./components/pages/ExplorerPage";
 import FormatsPage from "./components/pages/FormatsPage";
 import RootLayout from "./components/layouts/RootLayout";
 
@@ -27,12 +27,12 @@ const router = createBrowserRouter([
                         element: <FormalContextPage />
                     },
                     {
-                        path: "/project/concepts",
-                        element: <FormalConceptsPage />,
+                        path: "/project/lattice",
+                        element: <LatticePage />,
                     },
                     {
-                        path: "/project/export",
-                        element: <ExportPage />,
+                        path: "/project/explorer",
+                        element: <ExplorerPage />,
                     },
                 ]
             },

@@ -1,6 +1,6 @@
 import { Outlet, useLocation } from "react-router-dom";
 import Button from "../inputs/Button";
-import { LuChartNetwork, LuDownload, LuTable2 } from "react-icons/lu";
+import { LuWaypoints, LuRoute, LuTable2 } from "react-icons/lu";
 import { cn } from "../../utils/tailwind";
 
 type NavLink = {
@@ -16,14 +16,14 @@ const NAV_LINKS: Array<NavLink> = [
         icon: <LuTable2 />
     },
     {
-        to: "/project/concepts",
-        title: "Concepts",
-        icon: <LuChartNetwork />
+        to: "/project/lattice",
+        title: "Lattice",
+        icon: <LuWaypoints />
     },
     {
-        to: "/project/export",
-        title: "Export",
-        icon: <LuDownload />
+        to: "/project/explorer",
+        title: "Explorer",
+        icon: <LuRoute />
     },
 ];
 
@@ -40,7 +40,7 @@ export default function MainLayout() {
 function Navigation() {
     return (
         <nav
-            className="flex gap-3 mb-3">
+            className="flex gap-3 mb-3 px-4">
             {NAV_LINKS.map((link) =>
                 <NavigationItem
                     key={link.to}

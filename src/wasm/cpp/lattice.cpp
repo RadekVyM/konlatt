@@ -97,6 +97,9 @@ TimedResult<std::vector<std::vector<int>>> conceptsCover(
     int cellsPerObject,
     int contextObjectsCount,
     int contextAttributesCount
+#ifdef __EMSCRIPTEN__
+    , OnProgressCallback onProgress
+#endif
 ) {
     //printFormalContext(contextMatrix, cellSize, cellsPerObject, contextObjectsCount, contextAttributesCount);
     long long startTime = nowMills();
@@ -113,14 +116,20 @@ TimedResult<std::vector<std::vector<int>>> conceptsCover(
     std::vector<int> counts;
     counts.resize(concepts.size(), 0);
 
+#ifdef __EMSCRIPTEN__
+    int progressStep = concepts.size() / 100;
+#endif
+
     for (int i = 0; i < concepts.size(); i++) {
         for (int j = 0; j < counts.size(); j++) {
             counts[j] = 0;
         }
 
-        if (i % 1000 == 0) {
-            std::cout << "l: " << i << "\n";
+#ifdef __EMSCRIPTEN__
+        if ((progressStep == 0 || i % progressStep == 0) && !onProgress.isUndefined()) {
+            onProgress((double)i / concepts.size());
         }
+#endif
 
         int conceptAttributesCount = concepts[i].getAttributes().size();
         int ignoredConceptAttributeIndex = 0;
@@ -162,6 +171,12 @@ TimedResult<std::vector<std::vector<int>>> conceptsCover(
     }
 
     long long endTime = nowMills();
+
+#ifdef __EMSCRIPTEN__
+    if (!onProgress.isUndefined()) {
+        onProgress(1);
+    }
+#endif
 
     return TimedResult<std::vector<std::vector<int>>>(*lattice, (int)endTime - startTime);
 }

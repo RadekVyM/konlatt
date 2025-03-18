@@ -1,6 +1,7 @@
 #include "FormalConcept.h"
 #include "FormalContext.h"
 #include "TimedResult.h"
+#include "OnProgressCallback.h"
 
 #include <emscripten/bind.h>
 #include <emscripten/emscripten.h>
@@ -61,4 +62,6 @@ EMSCRIPTEN_BINDINGS(my_module) {
     emscripten::function("inClose", &inClose);
     emscripten::function("conceptsToLattice", &conceptsToLattice);
     emscripten::function("conceptsCover", &conceptsCover);
+
+    emscripten::register_type<OnProgressCallback>("((progress: number) => void) | undefined");
 }
