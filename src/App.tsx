@@ -3,7 +3,7 @@ import MainLayout from "./components/layouts/MainLayout";
 import ErrorPage from "./components/pages/ErrorPage";
 import InitialPage from "./components/pages/InitialPage";
 import FormalContextPage from "./components/pages/FormalContextPage";
-import LatticePage from "./components/pages/LatticePage";
+import DiagramPage from "./components/pages/DiagramPage";
 import ExplorerPage from "./components/pages/ExplorerPage";
 import FormatsPage from "./components/pages/FormatsPage";
 import RootLayout from "./components/layouts/RootLayout";
@@ -27,8 +27,8 @@ const router = createBrowserRouter([
                         element: <FormalContextPage />
                     },
                     {
-                        path: "/project/lattice",
-                        element: <LatticePage />,
+                        path: "/project/diagram",
+                        element: <DiagramPage />,
                     },
                     {
                         path: "/project/explorer",

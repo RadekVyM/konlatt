@@ -6,7 +6,7 @@ import ConceptsList from "../concepts/ConceptsList";
 import ConceptsDiagram from "../concepts/ConceptsDiagram";
 import PageContainer from "../PageContainer";
 
-export default function LatticePage() {
+export default function DiagramPage() {
     const context = useProjectStore((state) => state.context);
     const [selectedConceptIndex, setSelectedConceptIndex] = useState<number | null>(null);
 

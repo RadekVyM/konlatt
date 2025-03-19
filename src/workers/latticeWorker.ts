@@ -83,8 +83,9 @@ async function calculateConcepts(jobId: number, context: RawFormalContext) {
 
     const { computeConcepts } = await import("../services/conceptComputation");
 
-    formalConcepts = await computeConcepts(context, (progress) => postProgressMessage(jobId, progress));
-    self.postMessage(createConceptComputationResponse(jobId, formalConcepts));
+    const { concepts, computationTime } = await computeConcepts(context, (progress) => postProgressMessage(jobId, progress));
+    formalConcepts = concepts;
+    self.postMessage(createConceptComputationResponse(jobId, formalConcepts, computationTime));
 }
 
 async function calculateLattice(jobId: number, concepts: FormalConcepts, context: RawFormalContext) {
@@ -92,12 +93,14 @@ async function calculateLattice(jobId: number, concepts: FormalConcepts, context
 
     const { conceptsToLattice } = await import("../services/latticeComputation");
 
-    conceptLattice = await conceptsToLattice(concepts, context, (progress) => postProgressMessage(jobId, progress));
+    const { lattice, computationTime } = await conceptsToLattice(concepts, context, (progress) => postProgressMessage(jobId, progress));
+    conceptLattice = lattice;
     const latticeMessage: LatticeComputationResponse = {
         jobId,
         time: new Date().getTime(),
         type: "lattice",
-        lattice: conceptLattice
+        lattice: conceptLattice,
+        computationTime,
     };
 
     self.postMessage(latticeMessage);
@@ -160,11 +163,12 @@ function createContextParsingResponse(jobId: number, context: RawFormalContext):
     };
 }
 
-function createConceptComputationResponse(jobId: number, concepts: FormalConcepts): ConceptComputationResponse {
+function createConceptComputationResponse(jobId: number, concepts: FormalConcepts, computationTime?: number): ConceptComputationResponse {
     return {
         jobId,
         time: new Date().getTime(),
         type: "concepts",
-        concepts
+        concepts,
+        computationTime,
     };
 }

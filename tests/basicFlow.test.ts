@@ -28,13 +28,13 @@ describe.each<TestValue>([
     }, 60000);
 
     test(`concepts: ${value.title}`, async () => {
-        concepts = await computeConcepts(context);
+        const { concepts } = await computeConcepts(context);
         expect(concepts.length).toBe(value.conceptsCount);
         //expect(concepts).toMatchSnapshot();
     }, 60000);
 
     test(`lattice: ${value.title}`, async () => {
-        lattice = await conceptsToLattice(concepts, context);
+        const { lattice } = await conceptsToLattice(concepts, context);
 
         expect(lattice.subconceptsMapping.reduce((prev, curr) => prev + curr.size, 0))
             .toBe(value.coverRelationSize);

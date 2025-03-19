@@ -16,7 +16,7 @@ export default function InitialPage() {
 
     return (
         <div
-            className="pt-2 pb-4 h-full">
+            className="pt-2 pb-4 px-4 h-full">
             <LargeFileSelection
                 className="w-full h-full"
                 accept={FILE_INPUT_ACCEPT}

@@ -11,7 +11,10 @@ import { assignNodesToLayersByLongestPath } from "./layers";
  * @param concepts 
  * @returns Array of indexes of children of each concept
  */
-export async function conceptsToLattice(concepts: FormalConcepts, context: RawFormalContext, onProgress?: (progress: number) => void): Promise<ConceptLattice> {
+export async function conceptsToLattice(concepts: FormalConcepts, context: RawFormalContext, onProgress?: (progress: number) => void): Promise<{
+    lattice: ConceptLattice,
+    computationTime: number,
+}> {
     const module = await Module();
     const cppConcepts = jsArrayToCppIndexedFormalConceptArray(module, concepts);
     const cppContext = jsArrayToCppUIntArray(module, context.context);
@@ -42,10 +45,13 @@ export async function conceptsToLattice(concepts: FormalConcepts, context: RawFo
     cppConcepts.delete();
 
     return {
-        subconceptsMapping,
-        superconceptsMapping,
-        objectsLabeling,
-        attributesLabeling,
+        lattice: {
+            subconceptsMapping,
+            superconceptsMapping,
+            objectsLabeling,
+            attributesLabeling,
+        },
+        computationTime: result.time,
     };
 }
 

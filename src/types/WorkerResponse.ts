@@ -26,17 +26,20 @@ export type ContextParsingResponse = {
 
 export type ConceptComputationResponse = {
     type: "concepts",
-    concepts: FormalConcepts
+    concepts: FormalConcepts,
+    computationTime?: number,
 } & BaseResponse
 
 export type LatticeComputationResponse = {
     type: "lattice",
-    lattice: ConceptLattice
+    lattice: ConceptLattice,
+    computationTime?: number,
 } & BaseResponse
 
 export type LayoutComputationResponse = {
     type: "layout",
-    layout: ConceptLatticeLayout
+    layout: ConceptLatticeLayout,
+    computationTime?: number,
 } & BaseResponse
 
 type BaseResponse = {

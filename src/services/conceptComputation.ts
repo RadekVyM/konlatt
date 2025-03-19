@@ -3,7 +3,10 @@ import Module from "../wasm/cpp";
 import { FormalConcept } from "../types/FormalConcepts";
 import { cppFormalConceptArrayToJs, jsArrayToCppUIntArray } from "../utils/cpp";
 
-export async function computeConcepts(context: RawFormalContext, onProgress?: (progress: number) => void): Promise<Array<FormalConcept>> {
+export async function computeConcepts(context: RawFormalContext, onProgress?: (progress: number) => void): Promise<{
+    concepts: Array<FormalConcept>,
+    computationTime: number,
+}> {
     const module = await Module();
     const uIntContext = jsArrayToCppUIntArray(module, context.context);
     const result = module.inClose(
@@ -18,5 +21,8 @@ export async function computeConcepts(context: RawFormalContext, onProgress?: (p
 
     uIntContext.delete();
 
-    return concepts;
+    return {
+        concepts,
+        computationTime: result.time,
+    };
 }

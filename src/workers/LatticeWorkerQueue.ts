@@ -16,7 +16,7 @@ export default class LatticeWorkerQueue {
         request: WorkerRequest,
         responseCallback: (response: T) => void,
         statusMessageCallback?: (message: string | null) => void,
-        progressCallback?: (progress: number) => void,
+        progressCallback?: (jobId: number, progress: number) => void,
         startCallback?: (jobId: number) => void,
         cancelCallback?: (jobId: number) => void,
     ): number {
@@ -111,7 +111,7 @@ export default class LatticeWorkerQueue {
                 break;
             case "progress":
                 if (this.currentJob?.progressCallback) {
-                    this.currentJob?.progressCallback(e.data.progress);
+                    this.currentJob?.progressCallback(this.currentJob.id, e.data.progress);
                 }
                 break;
             case "finished":
@@ -131,7 +131,7 @@ type Job = {
     readonly request: WorkerRequest,
     readonly responseCallback: (response: any) => void,
     readonly statusMessageCallback?: (message: string | null) => void,
-    readonly progressCallback?: (progress: number) => void,
+    readonly progressCallback?: (jobId: number, progress: number) => void,
     readonly startCallback?: (jobId: number) => void,
     readonly cancelCallback?: (jobId: number) => void,
 }

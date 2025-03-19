@@ -12,9 +12,13 @@ export default function useConceptLattice() {
     const setLayout = useProjectStore((state) => state.setLayout);
     const setDiagramOffsets = useProjectStore((state) => state.setDiagramOffsets);
     const setDiagramOffsetMementos = useProjectStore((state) => state.setDiagramOffsetMementos);
+    const addStatusItem = useProjectStore((state) => state.addStatusItem);
+    const updateStatusItem = useProjectStore((state) => state.updateStatusItem);
+    const clearStatusItems = useProjectStore((state) => state.clearStatusItems);
     const workerQueue = useProjectStore((state) => state.workerQueue);
 
     async function setupLattice(file: File) {
+        clearStatusItems();
         setFile(file);
         setContext(null);
         setConcepts(null);
@@ -33,26 +37,42 @@ export default function useConceptLattice() {
 
         workerQueue.enqueue<ContextParsingResponse>(
             contextRequest,
-            (response: ContextParsingResponse) => setContext(response.context),
-            setProgressMessage);
+            (response: ContextParsingResponse) => {
+                setContext(response.context);
+                updateStatusItem(response.jobId, { isDone: true, endTime: new Date().getTime() });
+            },
+            setProgressMessage,
+            undefined,
+            (jobId) => addStatusItem(jobId, "File parsing", false));
         workerQueue.enqueue<ConceptComputationResponse>(
             conceptsRequest,
-            (response: ConceptComputationResponse) => setConcepts(response.concepts),
+            (response: ConceptComputationResponse) => {
+                setConcepts(response.concepts);
+                updateStatusItem(response.jobId, { isDone: true, endTime: new Date().getTime(), time: response.computationTime });
+            },
             setProgressMessage,
-            (progress) => console.log(`c: ${Math.round(progress * 100)}`));
+            (jobId, progress) => updateStatusItem(jobId, { progress }),
+            (jobId) => addStatusItem(jobId, "Concepts computation"));
         workerQueue.enqueue<LatticeComputationResponse>(
             latticeRequest,
-            (response: LatticeComputationResponse) => setLattice(response.lattice),
+            (response: LatticeComputationResponse) => {
+                setLattice(response.lattice);
+                updateStatusItem(response.jobId, { isDone: true, endTime: new Date().getTime(), time: response.computationTime });
+            },
             setProgressMessage,
-            (progress) => console.log(`l: ${Math.round(progress * 100)}`));
+            (jobId, progress) => updateStatusItem(jobId, { progress }),
+            (jobId) => addStatusItem(jobId, "Lattice computation"));
         workerQueue.enqueue<LayoutComputationResponse>(
             layoutRequest,
             (response: LayoutComputationResponse) => {
                 setLayout(response.layout);
                 setDiagramOffsets(createDefaultDiagramOffsets(response.layout.length));
                 setDiagramOffsetMementos({ redos: [], undos: [] });
+                updateStatusItem(response.jobId, { isDone: true, endTime: new Date().getTime(), time: response.computationTime });
             },
-            setProgressMessage);
+            setProgressMessage,
+            undefined,
+            (jobId) => addStatusItem(jobId, "Diagram layout computation", false));
     }
 
     return {

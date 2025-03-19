@@ -1,6 +1,6 @@
 import { Outlet, useLocation } from "react-router-dom";
 import Button from "../inputs/Button";
-import { LuWaypoints, LuRoute, LuTable2 } from "react-icons/lu";
+import { LuRoute, LuTable2 } from "react-icons/lu";
 import { cn } from "../../utils/tailwind";
 
 type NavLink = {
@@ -16,9 +16,9 @@ const NAV_LINKS: Array<NavLink> = [
         icon: <LuTable2 />
     },
     {
-        to: "/project/lattice",
-        title: "Lattice",
-        icon: <LuWaypoints />
+        to: "/project/diagram",
+        title: "Diagram",
+        icon: <LatticeIcon />
     },
     {
         to: "/project/explorer",
@@ -68,5 +68,25 @@ function NavigationItem(props: {
             </div>
             {props.link.title}
         </Button>
+    );
+}
+
+function LatticeIcon(props: {
+    className?: string
+}) {
+    // based on LuWaypoints
+
+    return (
+        <svg width="1em" height="1em" viewBox="0 0 5.821 6.1" {...props}>
+            <g style={{ fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" }} transform="translate(-.265 -.264)scale(.26458)">
+                <path d="m10.2 6.3-3.9 3.9m7.5 7.5 3.9-3.9" style={{ fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" }} transform="matrix(-1 0 0 1 24 0)" />
+                <circle cx="12" cy="4.5" r="2.5" />
+                <path d="m10.2 6.3-3.9 3.9" />
+                <circle cx="4.5" cy="12" r="2.5" />
+                <circle cx="19.5" cy="12" r="2.5" />
+                <path d="m13.8 17.7 3.9-3.9" />
+                <circle cx="12" cy="19.5" r="2.5" />
+            </g>
+        </svg>
     );
 }
