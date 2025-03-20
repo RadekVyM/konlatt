@@ -27,7 +27,7 @@ export default function RootLayout() {
                 <StatusSection />
 
                 <Button
-                    className="justify-self-end"
+                    className="justify-self-end col-start-3"
                     onClick={() => dialogState.show()}
                     variant="container">
                     <LuFolderPlus />

@@ -15,27 +15,28 @@ describe.each<TestValue>([
     TEALADY,
     NOM5SHUTTLE,
 ])("the basic flow from file to lattice", (value) => {
-    let context: RawFormalContext = null!;
-    let concepts: FormalConcepts = null!;
-    let lattice: ConceptLattice = null!;
+    let savedContext: RawFormalContext = null!;
+    let savedConcepts: FormalConcepts = null!;
+    let savedLattice: ConceptLattice = null!;
 
     test(`parsing context: ${value.title}`, async () => {
-        context = await parseBurmeister(value.fileContent);
-        expect(context.cellsPerObject).toBe(value.contextCellsPerObject);
-        expect(context.objects.length).toBe(value.objectsCount);
-        expect(context.attributes.length).toBe(value.attributesCount);
+        savedContext = await parseBurmeister(value.fileContent);
+        expect(savedContext.cellsPerObject).toBe(value.contextCellsPerObject);
+        expect(savedContext.objects.length).toBe(value.objectsCount);
+        expect(savedContext.attributes.length).toBe(value.attributesCount);
         //expect(context).toMatchSnapshot();
     }, 60000);
 
     test(`concepts: ${value.title}`, async () => {
-        const { concepts } = await computeConcepts(context);
+        const { concepts } = await computeConcepts(savedContext);
+        savedConcepts = concepts;
         expect(concepts.length).toBe(value.conceptsCount);
         //expect(concepts).toMatchSnapshot();
     }, 60000);
 
     test(`lattice: ${value.title}`, async () => {
-        const { lattice } = await conceptsToLattice(concepts, context);
-
+        const { lattice } = await conceptsToLattice(savedConcepts, savedContext);
+        savedLattice = lattice;
         expect(lattice.subconceptsMapping.reduce((prev, curr) => prev + curr.size, 0))
             .toBe(value.coverRelationSize);
         expect(lattice.superconceptsMapping.reduce((prev, curr) => prev + curr.size, 0))
@@ -44,7 +45,7 @@ describe.each<TestValue>([
     }, 60000);
 
     test(`layers by the longest path: ${value.title}`, () => {
-        const { layers } = assignNodesToLayersByLongestPath(getSupremum(concepts), lattice.subconceptsMapping);
+        const { layers } = assignNodesToLayersByLongestPath(getSupremum(savedConcepts), savedLattice.subconceptsMapping);
 
         for (let i = 0; i < value.byLongestPathLayersCounts.length; i++) {
             expect(layers[i].size).toBe(value.byLongestPathLayersCounts[i]);

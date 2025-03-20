@@ -24,6 +24,10 @@ export default function StatusSection(props: {
         }
     }, [popoverShown]);
 
+    if (!file) {
+        return undefined;
+    }
+
     return (
         <div
             className={cn("flex flex-col items-center text-center max-w-80", props.className)}
@@ -34,11 +38,10 @@ export default function StatusSection(props: {
             tabIndex={0}>
             <div
                 aria-hidden={popoverShown}>
-                {file &&
-                    <small
-                        className="text-sm text-on-surface line-clamp-1">
-                        {file.name}
-                    </small>}
+                <small
+                    className="text-sm text-on-surface line-clamp-1">
+                    {file.name}
+                </small>
                 {debouncedProgressMessage &&
                     <small
                         className="text-xs text-on-surface-muted flex items-center gap-1.5">
@@ -51,11 +54,10 @@ export default function StatusSection(props: {
                 ref={popoverRef}
                 popover="auto"
                 className="in-focus-visible:outline-2 bg-surface-container drop-shadow-2xl shadow-shade border border-outline-variant left-[50%] -translate-x-1/2 -translate-y-[1px] py-2 mt-1.5 rounded-lg w-full max-w-80">
-                {file &&
-                    <span
-                        className="text-sm text-on-surface px-2">
-                        {file.name}
-                    </span>}
+                <span
+                    className="text-sm text-on-surface px-2">
+                    {file.name}
+                </span>
                 <ul
                     className="text-start flex flex-col gap-1.5 mt-3 px-2 overflow-auto thin-scrollbar max-h-64">
                     {statusItems.map((item) =>
@@ -84,8 +86,8 @@ function StatusListItem(props: {
         if (!props.item.isDone) {
             loopRef.current = new Loop(() => {
                 const newTime = new Date().getTime();
-                setCurrentTime((old) => newTime - old >= 150 ? newTime : old);
-            });
+                setCurrentTime(newTime);
+            }, 500);
             loopRef.current.start();
         }
     }, [props.item.isDone]);
@@ -128,15 +130,17 @@ function StatusListItem(props: {
 class Loop {
     action: (() => void) | null;
     isRunning: boolean;
+    delay?: number;
 
-    constructor(action: () => void) {
+    constructor(action: () => void, delay?: number) {
         this.action = action;
-        this.isRunning = false
+        this.isRunning = false;
+        this.delay = delay;
     }
 
     start() {
         this.isRunning = true;
-        this.loop();
+        this.loop().then();
     }
 
     stop() {
@@ -147,13 +151,18 @@ class Loop {
         this.action = null;
     }
 
-    loop() {
+    async loop() {
         if (!this.isRunning) {
             return;
         }
         if (this.action) {
             this.action();
         }
-        requestAnimationFrame(() => this.loop());
+
+        if (this.delay !== undefined) {
+            await new Promise((resolve) => setTimeout(resolve, this.delay));
+        }
+
+        requestAnimationFrame(async () => await this.loop());
     }
 }

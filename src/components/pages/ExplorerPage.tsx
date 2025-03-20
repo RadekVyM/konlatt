@@ -15,12 +15,12 @@ export default function ExplorerPage() {
 
     return (
         <PageContainer
-            className="grid grid-cols-1 grid-rows-[5fr_4fr] md:grid-rows-1 md:grid-cols-[minmax(18rem,2fr)_5fr] gap-2">
+            className="grid grid-cols-1 grid-rows-[5fr_4fr] md:grid-rows-1 md:grid-cols-[minmax(18rem,2fr)_5fr] xl:grid-cols-[1fr_2.5fr_1fr] gap-2">
             <ConceptsList
                 selectedConceptIndex={selectedConceptIndex}
                 setSelectedConceptIndex={setSelectedConceptIndex} />
             <Diagram
-                className="col-start-1 col-end-2 row-start-1 row-end-2 md:col-start-2 md:col-end-3 md:row-start-1 md:row-end-2"
+                className="col-start-1 col-end-2 row-start-1 row-end-2 md:col-start-2 md:col-end-3 xl:col-end-4 md:row-start-1 md:row-end-2"
                 selectedConceptIndex={selectedConceptIndex}
                 setSelectedConceptIndex={setSelectedConceptIndex} />
         </PageContainer>

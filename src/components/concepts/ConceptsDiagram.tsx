@@ -1,4 +1,4 @@
-import { LuDownload, LuHand, LuMaximize, LuMinus, LuPlus, LuRedo2, LuUndo2 } from "react-icons/lu";
+import { LuDownload, LuHand, LuMaximize, LuMinimize, LuMinus, LuPlus, LuRedo2, LuUndo2 } from "react-icons/lu";
 import useProjectStore from "../../hooks/stores/useProjectStore";
 import Button from "../inputs/Button";
 import DiagramCanvas from "./DiagramCanvas";
@@ -10,10 +10,12 @@ import useZoom from "../../hooks/useZoom";
 import { ZoomScaleExtent } from "../../types/d3/ZoomScaleExtent";
 import { useDiagramOffsets } from "../../hooks/useDiagramOffsets";
 import { isCtrlZ, isEditableElement } from "../../utils/html";
+import { FullscreenState } from "../../types/FullscreenState";
 
 const ZOOM_SCALE_EXTENT: ZoomScaleExtent = { min: 0.05, max: 4 };
 
 export default function ConceptsDiagram(props: {
+    fullscreenState: FullscreenState,
     selectedConceptIndex: number | null,
     setSelectedConceptIndex: React.Dispatch<React.SetStateAction<number | null>>,
 }) {
@@ -52,9 +54,6 @@ export default function ConceptsDiagram(props: {
             <ExportButton
                 className="absolute top-0 right-0 m-3" />
 
-            <FullscreenButton
-                className="absolute bottom-0 right-0 m-3" />
-
             <div
                 className="absolute bottom-0 left-0 m-3 flex gap-2">
                 <ZoomBar
@@ -73,18 +72,30 @@ export default function ConceptsDiagram(props: {
                         return !old;
                     })} />
             </div>
+
+            <FullscreenButton
+                className="absolute bottom-0 right-0 m-3"
+                fullscreenState={props.fullscreenState} />
         </>
     );
 }
 
 function FullscreenButton(props: {
     className?: string,
+    fullscreenState: FullscreenState,
 }) {
+    if (!props.fullscreenState.isFullscreenEnabled) {
+        return undefined;
+    }
+
     return (
         <Button
             className={props.className}
-            variant="icon-secondary">
-            <LuMaximize />
+            variant="icon-secondary"
+            onClick={props.fullscreenState.toggleFullscreen}>
+            {props.fullscreenState.isFullscreen ?
+                <LuMinimize /> :
+                <LuMaximize />}
         </Button>
     );
 }
