@@ -28,13 +28,14 @@ export default function ConceptsDiagram(props: {
     const [isEditable, setIsEditable] = useState(false);
     const { diagramOffsets, canUndo, canRedo, updateNodeOffset, undo, redo } = useDiagramOffsets();
 
-    const { zoomTransform, isDragZooming, updateExtent, zoomTo } = useZoom(canvasRef, !isEditable, ZOOM_SCALE_EXTENT);
+    const isDiagramRenderable = !!(context && lattice && layout && concepts && diagramOffsets);
+    const { zoomTransform, isDragZooming, updateExtent, zoomTo } = useZoom(canvasRef, isDiagramRenderable, !isEditable, ZOOM_SCALE_EXTENT);
 
     useKeyBoardEvents(isTemporarilyEditableRef, setIsEditable, undo, redo);
 
     return (
         <>
-            {context && lattice && layout && concepts && diagramOffsets &&
+            {isDiagramRenderable &&
                 <DiagramCanvas
                     ref={canvasRef}
                     className="w-full h-full"

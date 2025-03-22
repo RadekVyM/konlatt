@@ -18,6 +18,8 @@ import ExportButton from "../ExportButton";
 import useDebouncedValue from "../../hooks/useDebouncedValue";
 import SearchInput from "../inputs/SearchInput";
 
+const MAX_TEXT_LENGTH = 500;
+
 export default function Concepts(props: {
     className?: string,
     selectedConceptIndex: number | null,
@@ -120,28 +122,43 @@ function List(props: {
                     className={cn(
                         "px-1 py-0.5 concept-list-item",
                         index < props.filteredConcepts.length - 1 && "border-b border-outline-variant")}>
-                    <Button
-                        className="w-full text-start py-1.5"
-                        onClick={() => props.setSelectedConceptIndex(item.index)}>
-                        <div>
-                            <div className="mb-0.5 text-sm line-clamp-3">
-                                {item.objects.length > 0 ?
-                                    <HighlightedSearchTerms
-                                        text={item.objects.map((o) => context?.objects[o]).join(", ").substring(0, 800)}
-                                        regex={searchRegex} /> :
-                                    <span className="italic">No objects</span>}
-                            </div>
-                            <div className="text-on-surface-container-muted text-xs line-clamp-3">
-                                {item.attributes.length > 0 ?
-                                    <HighlightedSearchTerms
-                                        text={item.attributes.map((a) => context?.attributes[a]).join(", ").substring(0, 800)}
-                                        regex={searchRegex} /> :
-                                    <span className="italic">No attributes</span>}
-                            </div>
-                        </div>
-                    </Button>
+                    <ListItemButton
+                        item={item}
+                        context={context}
+                        searchRegex={searchRegex}
+                        onClick={() => props.setSelectedConceptIndex(item.index)} />
                 </li>)}
         </CardItemsLazyList>
+    );
+}
+
+function ListItemButton(props: {
+    item: FormalConcept,
+    context: RawFormalContext,
+    searchRegex: RegExp | undefined,
+    onClick: () => void,
+}) {
+    return (
+        <Button
+            className="w-full text-start py-1.5"
+            onClick={props.onClick}>
+            <div>
+                <div className="mb-0.5 text-sm line-clamp-3">
+                    {props.item.objects.length > 0 ?
+                        <HighlightedSearchTerms
+                            text={props.item.objects.map((o) => props.context.objects[o]).join(", ").substring(0, MAX_TEXT_LENGTH)}
+                            regex={props.searchRegex} /> :
+                        <span className="italic">No objects</span>}
+                </div>
+                <div className="text-on-surface-container-muted text-xs line-clamp-3">
+                    {props.item.attributes.length > 0 ?
+                        <HighlightedSearchTerms
+                            text={props.item.attributes.map((a) => props.context.attributes[a]).join(", ").substring(0, MAX_TEXT_LENGTH)}
+                            regex={props.searchRegex} /> :
+                        <span className="italic">No attributes</span>}
+                </div>
+            </div>
+        </Button>
     );
 }
 

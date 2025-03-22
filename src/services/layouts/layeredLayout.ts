@@ -4,7 +4,11 @@ import { FormalConcepts, getSupremum } from "../../types/FormalConcepts";
 import { createPoint, Point } from "../../types/Point";
 import { assignNodesToLayersByLongestPath } from "../layers";
 
-export function computeLayeredLayout(formalConcepts: FormalConcepts, lattice: ConceptLattice): ConceptLatticeLayout {
+export function computeLayeredLayout(formalConcepts: FormalConcepts, lattice: ConceptLattice): {
+    layout: ConceptLatticeLayout,
+    computationTime: number,
+} {
+    const startTime = new Date().getTime();
     const { layers, layersMapping } = assignNodesToLayersByLongestPath(getSupremum(formalConcepts), lattice.subconceptsMapping);
     const { layersWithDummies, horizontalCoords, dummySuperconceptsMapping, dummySubconceptsMapping } = addDummies(
         formalConcepts.length,
@@ -32,7 +36,10 @@ export function computeLayeredLayout(formalConcepts: FormalConcepts, lattice: Co
         [lattice.superconceptsMapping, lattice.subconceptsMapping],
         [dummySuperconceptsMapping, dummySubconceptsMapping]);
 
-    return createLayout(formalConcepts.length, orderedLayers);
+    return {
+        layout: createLayout(formalConcepts.length, orderedLayers),
+        computationTime: new Date().getTime() - startTime,
+    };
 }
 
 function createLayout(conceptsCount: number, layers: Array<Array<number>>) {

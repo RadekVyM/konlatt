@@ -72,7 +72,7 @@ export default function useConceptLattice() {
             },
             setProgressMessage,
             undefined,
-            (jobId) => addStatusItem(jobId, "Diagram layout computation", false));
+            (jobId) => addStatusItem(jobId, "Diagram layout computation"));
     }
 
     return {

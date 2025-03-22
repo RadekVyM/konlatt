@@ -14,6 +14,7 @@ import { ZoomScaleExtent } from "../types/d3/ZoomScaleExtent";
  */
 export default function useZoom(
     elementRef: RefObject<Element | null>,
+    isDiagramRenderable: boolean,
     canMove: boolean = true,
     scaleExtent?: ZoomScaleExtent,
 ) {
@@ -22,7 +23,7 @@ export default function useZoom(
     const [isDragZooming, setIsDragZooming] = useState<boolean>(false);
 
     useEffect(() => {
-        if (!elementRef.current) {
+        if (!elementRef.current || !isDiagramRenderable) {
             return;
         }
 
@@ -46,7 +47,7 @@ export default function useZoom(
                 .on("mousedown.zoom", null)
                 .on("touchstart.zoom", null);
         }
-    }, [elementRef, scaleExtent, canMove]);
+    }, [elementRef, scaleExtent, canMove, isDiagramRenderable]);
 
     function updateExtent(width: number, height: number) {
         zoomRef.current?.extent([[0, 0], [width, height]]);

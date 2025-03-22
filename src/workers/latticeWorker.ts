@@ -8,7 +8,7 @@ import { ConceptLatticeLayout } from "../types/ConceptLatticeLayout";
 let formalContext: RawFormalContext | null = null;
 let formalConcepts: FormalConcepts | null = null;
 let conceptLattice: ConceptLattice | null = null;
-let layout: ConceptLatticeLayout | null = null;
+let diagramLayout: ConceptLatticeLayout | null = null;
 
 self.onmessage = async (event: MessageEvent<CompleteWorkerRequest>) => {
     console.log(`[${event.data.type}] sending arguments: ${new Date().getTime() - event.data.time} ms`);
@@ -111,12 +111,14 @@ async function calculateLayout(jobId: number, concepts: FormalConcepts, lattice:
 
     const { computeLayeredLayout } = await import("../services/layouts/layeredLayout");
 
-    layout = computeLayeredLayout(concepts, lattice);
+    const { layout, computationTime } = computeLayeredLayout(concepts, lattice);
+    diagramLayout = layout;
     const layoutMessage: LayoutComputationResponse = {
         jobId,
         time: new Date().getTime(),
         type: "layout",
-        layout
+        layout: diagramLayout,
+        computationTime
     };
 
     self.postMessage(layoutMessage);

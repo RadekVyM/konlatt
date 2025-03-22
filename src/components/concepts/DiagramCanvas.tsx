@@ -89,8 +89,8 @@ export default function DiagramCanvas(props: {
 
         context.clearRect(0, 0, canvas.width, canvas.height);
 
-        const scale = props.zoomTransform.scale * window.devicePixelRatio;
         const computedStyle = getComputedStyle(canvas);
+        const scale = props.zoomTransform.scale * window.devicePixelRatio;
 
         context.save();
         context.translate(props.zoomTransform.x * window.devicePixelRatio, props.zoomTransform.y * window.devicePixelRatio);
@@ -314,7 +314,7 @@ function useDrawDiagram(
             const normalY = point[1] + offset[1] + (isDragged ? dragOffset[1] : 0);
             const x = (normalX * LAYOUT_SCALE) + centerX;
             const y = (normalY * LAYOUT_SCALE) + centerY;
-            return [x, y, normalX, normalY];
+            return [Math.round(x), Math.round(y), normalX, normalY];
         });
     }, [concepts, width, height, layout, diagramOffsets, draggedIndex, dragOffset]);
 
@@ -324,27 +324,41 @@ function useDrawDiagram(
         const outlineColor = computedStyle.getPropertyValue("--outline");
 
         context.strokeStyle = outlineColor;
+        context.globalAlpha = 0.6;
+
+        let linesCount = 0;
 
         for (const concept of concepts) {
             const subconcepts = lattice.subconceptsMapping[concept.index];
             const [startX, startY, normalStartX, normalStartY] = targetPoints[concept.index];
 
             for (const subconceptIndex of subconcepts) {
-                // TODO: endPoint is sometimes undefined when drawing nom10shuttle
                 const [endX, endY, normalEndX, normalEndY] = targetPoints[subconceptIndex];
 
+                //if (!isInRect(normalStartX, normalStartY, visibleRect) && !isInRect(normalEndX, normalEndY, visibleRect)) {
                 if (!crossesRect(normalStartX, normalStartY, normalEndX, normalEndY, visibleRect)) {
                     continue;
                 }
 
-                context.beginPath();
+                // It looks like a little batching is helpful
+                if (linesCount % 10 === 0) {
+                    context.stroke();
+                    context.beginPath();
+                }
+
                 context.moveTo(startX, startY);
                 context.lineTo(endX, endY);
-                context.stroke();
+
+                linesCount++;
             }
         }
 
+        context.stroke();
+
+        // TODO: try to use this for nodes: https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas#pre-render_similar_primitives_or_repeating_objects_on_an_offscreen_canvas
+
         context.fillStyle = onSurfaceColor;
+        context.globalAlpha = 1;
 
         for (const concept of concepts) {
             if (concept.index === selectedIndex || concept.index === hoveredIndex) {
