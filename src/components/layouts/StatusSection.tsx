@@ -37,6 +37,7 @@ export default function StatusSection(props: {
             onBlur={() => setPopoverShown(false)}
             tabIndex={0}>
             <div
+                className="flex flex-col items-center"
                 aria-hidden={popoverShown}>
                 <small
                     className="text-sm text-on-surface line-clamp-1">
@@ -92,9 +93,11 @@ function StatusListItem(props: {
         }
     }, [props.item.isDone]);
 
-    const time = props.item.isDone ?
-        props.item.endTime - props.item.startTime :
-        currentTime - props.item.startTime;
+    const time = Math.max(
+        0,
+        props.item.isDone ?
+            props.item.endTime - props.item.startTime :
+            currentTime - props.item.startTime);
 
     return (
         <li

@@ -1,6 +1,6 @@
 import { ConceptLattice } from "../types/ConceptLattice";
-import { CompleteWorkerRequest } from "../types/WorkerRequest";
-import { ConceptComputationResponse, ContextParsingResponse, FinishedResponse, LatticeComputationResponse, LayoutComputationResponse, ProgressResponse, StatusResponse } from "../types/WorkerResponse";
+import { CompleteWorkerRequest } from "../types/workers/LatticeWorkerRequest";
+import { ConceptComputationResponse, ContextParsingResponse, FinishedResponse, LatticeComputationResponse, LayoutComputationResponse, ProgressResponse, StatusResponse } from "../types/workers/LatticeWorkerResponse";
 import { RawFormalContext } from "../types/RawFormalContext";
 import { FormalConcepts } from "../types/FormalConcepts";
 import { ConceptLatticeLayout } from "../types/ConceptLatticeLayout";

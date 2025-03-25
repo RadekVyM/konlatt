@@ -1,9 +1,9 @@
-export type WorkerRequest = CancellationRequest | ContextParsingRequest | ConceptComputationRequest | LatticeComputationRequest | LayoutComputationRequest
+export type LatticeWorkerRequest = CancellationRequest | ContextParsingRequest | ConceptComputationRequest | LatticeComputationRequest | LayoutComputationRequest
 
 export type CompleteWorkerRequest = {
     jobId: number,
     time: number,
-} & WorkerRequest
+} & LatticeWorkerRequest
 
 export type ContextParsingRequest = {
     type: "parse-context",

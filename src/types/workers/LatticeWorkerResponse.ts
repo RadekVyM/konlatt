@@ -1,9 +1,9 @@
-import { RawFormalContext } from "./RawFormalContext";
-import { ConceptLattice } from "./ConceptLattice";
-import { FormalConcepts } from "./FormalConcepts";
-import { ConceptLatticeLayout } from "./ConceptLatticeLayout";
+import { RawFormalContext } from "../RawFormalContext";
+import { ConceptLattice } from "../ConceptLattice";
+import { FormalConcepts } from "../FormalConcepts";
+import { ConceptLatticeLayout } from "../ConceptLatticeLayout";
 
-export type WorkerResponse = FinishedResponse | StatusResponse | ProgressResponse | ContextParsingResponse | ConceptComputationResponse | LatticeComputationResponse | LayoutComputationResponse
+export type LatticeWorkerResponse = FinishedResponse | StatusResponse | ProgressResponse | ContextParsingResponse | ConceptComputationResponse | LatticeComputationResponse | LayoutComputationResponse
 
 export type FinishedResponse = {
     type: "finished",

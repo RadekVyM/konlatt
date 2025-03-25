@@ -12,6 +12,9 @@ import { QuadNode } from "../../types/QuadNode";
 import { Quadtree } from "d3-quadtree";
 import { Rect } from "../../types/Rect";
 import { crossesRect, isInRect } from "../../utils/rect";
+import DiagramCanvasWorker from "../../workers/diagramCanvasWorker?worker";
+import { DimensionsRequest, InitCanvasRequest, InitLayoutRequest, InitLinksRequest, InteractionRequest, TransformRequest } from "../../types/workers/DiagramCanvasWorkerRequest";
+import { create } from "zustand";
 
 const LAYOUT_SCALE = 60;
 const GRID_LINE_STEP = LAYOUT_SCALE;
@@ -21,6 +24,12 @@ const GRID_LINE_GAP_HALF = GRID_LINE_GAP / 2;
 const GRID_LINES_INVISIBLE_THRESHOLD = 20;
 const NODE_RADIUS = 5;
 const NODE_RADIUS_INTERACTION = NODE_RADIUS + 1;
+
+const useWorkerStore = create<{
+    worker: Worker,
+}>(() => ({
+    worker: new DiagramCanvasWorker(),
+}));
 
 export default function DiagramCanvas(props: {
     className?: string,
@@ -39,11 +48,12 @@ export default function DiagramCanvas(props: {
     updateNodeOffset: (node: number, offset: Point) => void,
 }) {
     const containerRef = useRef<HTMLDivElement>(null);
+    const worker = useWorkerStore((state) => state.worker);
     const dimensions = useDimensions(containerRef);
     const width = dimensions.width * window.devicePixelRatio;
     const height = dimensions.height * window.devicePixelRatio;
     const [hoveredIndex, setHoveredIndex] = useState<null | number>(null);
-    const visibleRect = useMemo(() => getVisibleRect(props.zoomTransform, dimensions.width, dimensions.height), [props.zoomTransform, dimensions.width, dimensions.height]);
+
     const {
         draggedIndex,
         dragOffset,
@@ -62,6 +72,8 @@ export default function DiagramCanvas(props: {
         setHoveredIndex,
         props.setSelectedConceptIndex,
         props.updateNodeOffset);
+    /*
+    const visibleRect = useMemo(() => getVisibleRect(props.zoomTransform, dimensions.width, dimensions.height), [props.zoomTransform, dimensions.width, dimensions.height]);
     const drawDiagram = useDrawDiagram(
         props.layout,
         props.diagramOffsets,
@@ -102,9 +114,99 @@ export default function DiagramCanvas(props: {
         context.restore();
     }, [props.zoomTransform.scale, props.zoomTransform.x, props.zoomTransform.y, props.isEditable, drawDiagram, drawGrid]);
 
+    */
+
+    useEffect(() => {
+        const canvas = props.ref.current;
+
+        if (!canvas || canvas.hasAttribute("transfered")) {
+            return;
+        }
+
+        canvas.setAttribute("transfered", "true");
+        const offscreenCanvas = canvas.transferControlToOffscreen();
+
+        const message: InitCanvasRequest = {
+            type: "init-canvas",
+            canvas: offscreenCanvas,
+        };
+        worker.postMessage(message, [offscreenCanvas]);
+    }, []);
+
+    useEffect(() => {
+        const message: InteractionRequest = {
+            type: "interaction",
+            selectedIndex: props.selectedConceptIndex,
+            hoveredIndex: hoveredIndex,
+            isEditable: props.isEditable,
+        };
+
+        worker.postMessage(message);
+    }, [props.selectedConceptIndex, props.isEditable, hoveredIndex]);
+
     useEffect(() => {
         props.updateExtent(dimensions.width, dimensions.height);
+
+        const message: DimensionsRequest = {
+            type: "dimensions",
+            width: dimensions.width,
+            height: dimensions.height,
+        };
+
+        worker.postMessage(message);
     }, [dimensions.width, dimensions.height]);
+
+    useEffect(() => {
+        const message: TransformRequest = {
+            type: "transform",
+            scale: props.zoomTransform.scale,
+            translateX: props.zoomTransform.x,
+            translateY: props.zoomTransform.y,
+            devicePixelRatio: window.devicePixelRatio,
+        };
+
+        worker.postMessage(message);
+    }, [props.zoomTransform.scale, props.zoomTransform.x, props.zoomTransform.y]);
+
+    useEffect(() => {
+        const floatArray = new Float64Array(props.layout.length * 3);
+
+        for (let i = 0; i < props.layout.length; i++) {
+            const point = props.layout[i];
+            floatArray[i * 3] = point[0];
+            floatArray[(i * 3) + 1] = point[1];
+            floatArray[(i * 3) + 2] = point[2];
+        }
+
+        const message: InitLayoutRequest = {
+            type: "init-layout",
+            nodesCount: props.layout.length,
+            layout: floatArray.buffer,
+        };
+
+        worker.postMessage(message);
+    }, [props.layout]);
+
+    useEffect(() => {
+        const linksCount = props.lattice.subconceptsMapping.reduce((prev, curr) => prev + curr.size, 0);
+        const floatArray = new Float64Array(linksCount * 2);
+        let index = 0;
+
+        for (let startIndex = 0; startIndex < props.lattice.subconceptsMapping.length; startIndex++) {
+            for (const endIndex of props.lattice.subconceptsMapping[startIndex]) {
+                floatArray[index] = startIndex;
+                floatArray[index + 1] = endIndex;
+                index += 2;
+            }
+        }
+
+        const message: InitLinksRequest = {
+            type: "init-links",
+            links: floatArray.buffer,
+        };
+
+        worker.postMessage(message);
+    }, [props.lattice]);
 
     return (
         <div
@@ -233,6 +335,8 @@ function useCanvasInteraction(
     };
 }
 
+/*
+
 function useDrawGrid(
     width: number,
     height: number,
@@ -324,9 +428,13 @@ function useDrawDiagram(
         const outlineColor = computedStyle.getPropertyValue("--outline");
 
         context.strokeStyle = outlineColor;
-        context.globalAlpha = 0.6;
 
+        // It looks like a little batching of the lines to a single path is helpful only when zoomed out
+        // However, it is much worse when zoomed in
+        // I have no clue why...
+        const linesCountInBatch = 10;
         let linesCount = 0;
+        context.beginPath();
 
         for (const concept of concepts) {
             const subconcepts = lattice.subconceptsMapping[concept.index];
@@ -340,8 +448,7 @@ function useDrawDiagram(
                     continue;
                 }
 
-                // It looks like a little batching is helpful
-                if (linesCount % 10 === 0) {
+                if (linesCount !== 0 && linesCount % linesCountInBatch === 0) {
                     context.stroke();
                     context.beginPath();
                 }
@@ -358,7 +465,6 @@ function useDrawDiagram(
         // TODO: try to use this for nodes: https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas#pre-render_similar_primitives_or_repeating_objects_on_an_offscreen_canvas
 
         context.fillStyle = onSurfaceColor;
-        context.globalAlpha = 1;
 
         for (const concept of concepts) {
             if (concept.index === selectedIndex || concept.index === hoveredIndex) {
@@ -429,10 +535,6 @@ function useDrawDiagram(
     return drawDiagram;
 }
 
-function toLayoutCoord(coord: number, size: number) {
-    return (coord - ((size / window.devicePixelRatio) / 2)) / LAYOUT_SCALE;
-}
-
 function getVisibleRect(zoomTransform: ZoomTransform, canvasWidth: number, canvasHeight: number): Rect {
     const nodeSizeAddition = (NODE_RADIUS) / LAYOUT_SCALE;
     const left = (zoomTransform.x / zoomTransform.scale) / LAYOUT_SCALE;
@@ -447,4 +549,9 @@ function getVisibleRect(zoomTransform: ZoomTransform, canvasWidth: number, canva
         width: width + (2 * nodeSizeAddition),
         height: height + (2 * nodeSizeAddition),
     };
+}
+*/
+
+function toLayoutCoord(coord: number, size: number) {
+    return (coord - ((size / window.devicePixelRatio) / 2)) / LAYOUT_SCALE;
 }

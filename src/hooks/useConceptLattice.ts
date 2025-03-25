@@ -1,5 +1,5 @@
 import useProjectStore from "./stores/useProjectStore";
-import { ConceptComputationRequest, ContextParsingRequest, LatticeComputationRequest, LayoutComputationRequest } from "../types/WorkerRequest";
+import { ConceptComputationRequest, ContextParsingRequest, LatticeComputationRequest, LayoutComputationRequest } from "../types/workers/LatticeWorkerRequest";
 import { ConceptComputationResponse, ContextParsingResponse, LatticeComputationResponse, LayoutComputationResponse } from "../types/WorkerResponse";
 import { createPoint, Point } from "../types/Point";
 

@@ -1,5 +1,5 @@
-import { CancellationRequest, CompleteWorkerRequest, WorkerRequest } from "../types/WorkerRequest";
-import { WorkerResponse } from "../types/WorkerResponse";
+import { CancellationRequest, CompleteWorkerRequest, LatticeWorkerRequest } from "../types/workers/LatticeWorkerRequest";
+import { LatticeWorkerResponse } from "../types/workers/LatticeWorkerResponse";
 import LatticeWorker from "../workers/latticeWorker?worker";
 
 // Single worker is reused for all formal context calculations
@@ -12,8 +12,8 @@ export default class LatticeWorkerQueue {
     private queue: Array<Job> = [];
     private currentJob: Job | null  = null;
 
-    public enqueue<T extends WorkerResponse>(
-        request: WorkerRequest,
+    public enqueue<T extends LatticeWorkerResponse>(
+        request: LatticeWorkerRequest,
         responseCallback: (response: T) => void,
         statusMessageCallback?: (message: string | null) => void,
         progressCallback?: (jobId: number, progress: number) => void,
@@ -95,7 +95,7 @@ export default class LatticeWorkerQueue {
         }
     }
 
-    private onResponse(e: MessageEvent<WorkerResponse>) {
+    private onResponse(e: MessageEvent<LatticeWorkerResponse>) {
         // ignore responses with jobId !== this.currentJob.id
         // or suppose that these responses do not exist?
 
@@ -128,7 +128,7 @@ export default class LatticeWorkerQueue {
 
 type Job = {
     readonly id: number,
-    readonly request: WorkerRequest,
+    readonly request: LatticeWorkerRequest,
     readonly responseCallback: (response: any) => void,
     readonly statusMessageCallback?: (message: string | null) => void,
     readonly progressCallback?: (jobId: number, progress: number) => void,
