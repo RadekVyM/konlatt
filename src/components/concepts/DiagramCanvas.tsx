@@ -12,6 +12,7 @@ import { QuadNode } from "../../types/QuadNode";
 import { Quadtree } from "d3-quadtree";
 import { Rect } from "../../types/Rect";
 import { crossesRect, isInRect } from "../../utils/rect";
+import { cn } from "../../utils/tailwind";
 
 const LAYOUT_SCALE = 60;
 const GRID_LINE_STEP = LAYOUT_SCALE;
@@ -24,7 +25,7 @@ const NODE_RADIUS_INTERACTION = NODE_RADIUS + 1;
 
 export default function DiagramCanvas(props: {
     className?: string,
-    ref: React.RefObject<HTMLCanvasElement | null>,
+    ref: React.RefObject<HTMLDivElement | null>,
     layout: ConceptLatticeLayout,
     lattice: ConceptLattice,
     concepts: FormalConcepts,
@@ -38,8 +39,10 @@ export default function DiagramCanvas(props: {
     updateExtent: (width: number, height: number) => void,
     updateNodeOffset: (node: number, offset: Point) => void,
 }) {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const dimensions = useDimensions(containerRef);
+    const gridCanvasRef = useRef<HTMLCanvasElement>(null);
+    const linksCanvasRef = useRef<HTMLCanvasElement>(null);
+    const nodesCanvasRef = useRef<HTMLCanvasElement>(null);
+    const dimensions = useDimensions(props.ref);
     const width = dimensions.width * window.devicePixelRatio;
     const height = dimensions.height * window.devicePixelRatio;
     const [hoveredIndex, setHoveredIndex] = useState<null | number>(null);
@@ -51,7 +54,7 @@ export default function DiagramCanvas(props: {
         onPointerMove,
         onClick,
     } = useCanvasInteraction(
-        containerRef,
+        props.ref,
         props.layout,
         props.zoomTransform,
         width,
@@ -62,7 +65,10 @@ export default function DiagramCanvas(props: {
         setHoveredIndex,
         props.setSelectedConceptIndex,
         props.updateNodeOffset);
-    const drawDiagram = useDrawDiagram(
+    const {
+        drawNodes,
+        drawLinks,
+    } = useDrawDiagram(
         props.layout,
         props.diagramOffsets,
         props.lattice,
@@ -74,33 +80,44 @@ export default function DiagramCanvas(props: {
         dragOffset,
         dimensions.width,
         dimensions.height,
-        visibleRect);
+        visibleRect,
+        props.zoomTransform.scale);
     const drawGrid = useDrawGrid(
         dimensions.width,
-        dimensions.height);
+        dimensions.height,
+        props.zoomTransform.x,
+        props.zoomTransform.y,
+        props.zoomTransform.scale);
 
     useEffect(() => {
-        const canvas = props.ref.current;
-        const context = canvas?.getContext("2d");
+        drawOnCanvas(
+            gridCanvasRef.current,
+            props.isEditable,
+            props.zoomTransform.x,
+            props.zoomTransform.y,
+            drawGrid
+        );
+    }, [props.zoomTransform.x, props.zoomTransform.y, props.isEditable, drawGrid]);
 
-        if (!canvas || !context) {
-            return;
-        }
+    useEffect(() => {
+        drawOnCanvas(
+            linksCanvasRef.current,
+            true,
+            props.zoomTransform.x,
+            props.zoomTransform.y,
+            drawLinks
+        );
+    }, [props.zoomTransform.x, props.zoomTransform.y, drawLinks]);
 
-        context.clearRect(0, 0, canvas.width, canvas.height);
-
-        const computedStyle = getComputedStyle(canvas);
-        const scale = props.zoomTransform.scale * window.devicePixelRatio;
-
-        context.save();
-        context.translate(props.zoomTransform.x * window.devicePixelRatio, props.zoomTransform.y * window.devicePixelRatio);
-        context.scale(scale, scale);
-        if (props.isEditable) {
-            drawGrid(context, props.zoomTransform.x, props.zoomTransform.y, props.zoomTransform.scale, computedStyle);
-        }
-        drawDiagram(context, computedStyle);
-        context.restore();
-    }, [props.zoomTransform.scale, props.zoomTransform.x, props.zoomTransform.y, props.isEditable, drawDiagram, drawGrid]);
+    useEffect(() => {
+        drawOnCanvas(
+            nodesCanvasRef.current,
+            true,
+            props.zoomTransform.x,
+            props.zoomTransform.y,
+            drawNodes
+        );
+    }, [props.zoomTransform.x, props.zoomTransform.y, props.isEditable, drawNodes]);
 
     useEffect(() => {
         props.updateExtent(dimensions.width, dimensions.height);
@@ -108,14 +125,24 @@ export default function DiagramCanvas(props: {
 
     return (
         <div
-            ref={containerRef}
-            className={props.className}
+            ref={props.ref}
+            className={cn("relative", props.className)}
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
             onClick={onClick}>
             <canvas
-                ref={props.ref}
-                className="w-full h-full"
+                ref={gridCanvasRef}
+                className="absolute inset-0 w-full h-full"
+                width={width}
+                height={height} />
+            <canvas
+                ref={linksCanvasRef}
+                className="absolute inset-0 w-full h-full"
+                width={width}
+                height={height} />
+            <canvas
+                ref={nodesCanvasRef}
+                className="absolute inset-0 w-full h-full"
                 width={width}
                 height={height} />
         </div>
@@ -236,33 +263,41 @@ function useCanvasInteraction(
 function useDrawGrid(
     width: number,
     height: number,
+    translateX: number,
+    translateY: number,
+    scale: number,
 ) {
     const drawGrid = useCallback((
         context: CanvasRenderingContext2D,
-        translateX: number,
-        translateY: number,
-        scale: number,
-        computedStyle: CSSStyleDeclaration
+        computedStyle: CSSStyleDeclaration,
     ) => {
         const outlineColor = computedStyle.getPropertyValue("--outline-variant");
-        const centerX = width / 2;
-        const centerY = height / 2;
+        const deviceWidth = width * window.devicePixelRatio;
+        const deviceHeight = height * window.devicePixelRatio;
+        const centerX = deviceWidth / 2;
+        const centerY = deviceHeight / 2;
+        const deviceScale = scale * window.devicePixelRatio;
+        const gridLineStep = GRID_LINE_STEP * deviceScale;
+        const gridLineStepHalf = GRID_LINE_STEP_HALF * deviceScale;
+        const gridLineGapHalf = GRID_LINE_GAP_HALF * deviceScale;
 
-        const left = -translateX / scale;
-        const top = -translateY / scale;
-        const right = left + (width / scale);
-        const bottom = top + (height / scale);
-        const startX = left + ((centerX - left) % GRID_LINE_STEP);
-        const startY = top + ((centerY - top) % GRID_LINE_STEP);
+        const left = -translateX * window.devicePixelRatio;
+        const top = -translateY * window.devicePixelRatio;
+        const right = left + (deviceWidth);
+        const bottom = top + (deviceHeight);
+        const startX = left + ((centerX * scale - left) % gridLineStep);
+        const startY = top + ((centerY * scale - top) % gridLineStep);
 
-        if (GRID_LINE_STEP_HALF * scale > GRID_LINES_INVISIBLE_THRESHOLD) {
+        context.lineWidth = 1 * window.devicePixelRatio;
+
+        if (gridLineStepHalf > GRID_LINES_INVISIBLE_THRESHOLD) {
             context.beginPath();
-            for (let x = startX - GRID_LINE_STEP_HALF; x < right; x += GRID_LINE_STEP) {
-                context.moveTo(x, startY - GRID_LINE_STEP + GRID_LINE_GAP_HALF);
+            for (let x = startX - gridLineStepHalf; x < right; x += gridLineStep) {
+                context.moveTo(x, startY - gridLineStep + gridLineGapHalf);
                 context.lineTo(x, bottom);
             }
-            for (let y = startY - GRID_LINE_STEP_HALF; y < bottom; y += GRID_LINE_STEP) {
-                context.moveTo(startX - GRID_LINE_STEP + GRID_LINE_GAP_HALF, y);
+            for (let y = startY - gridLineStepHalf; y < bottom; y += gridLineStep) {
+                context.moveTo(startX - gridLineStep + gridLineGapHalf, y);
                 context.lineTo(right, y);
             }
             context.strokeStyle = outlineColor;
@@ -271,18 +306,18 @@ function useDrawGrid(
         }
 
         context.beginPath();
-        for (let x = startX - GRID_LINE_STEP; x < right; x += GRID_LINE_STEP) {
+        for (let x = startX - gridLineStep; x < right; x += gridLineStep) {
             context.moveTo(x, top);
             context.lineTo(x, bottom);
         }
-        for (let y = startY - GRID_LINE_STEP; y < bottom; y += GRID_LINE_STEP) {
+        for (let y = startY - gridLineStep; y < bottom; y += gridLineStep) {
             context.moveTo(left, y);
             context.lineTo(right, y);
         }
         context.strokeStyle = outlineColor;
         context.setLineDash([]);
         context.stroke();
-    }, [width, height]);
+    }, [width, height, translateX, translateY, scale]);
 
     return drawGrid;
 }
@@ -300,10 +335,13 @@ function useDrawDiagram(
     width: number,
     height: number,
     visibleRect: Rect,
+    scale: number,
 ) {
+    const deviceScale = scale * window.devicePixelRatio;
+
     const targetPoints = useMemo(() => {
-        const centerX = width / 2;
-        const centerY = height / 2;
+        const centerX = (width / 2) * deviceScale;
+        const centerY = (height / 2) * deviceScale;
 
         return concepts.map((concept) => {
             const point = layout[concept.index];
@@ -312,53 +350,19 @@ function useDrawDiagram(
 
             const normalX = point[0] + offset[0] + (isDragged ? dragOffset[0] : 0);
             const normalY = point[1] + offset[1] + (isDragged ? dragOffset[1] : 0);
-            const x = (normalX * LAYOUT_SCALE) + centerX;
-            const y = (normalY * LAYOUT_SCALE) + centerY;
-            return [Math.round(x), Math.round(y), normalX, normalY];
+            const x = (normalX * LAYOUT_SCALE * deviceScale) + centerX;
+            const y = (normalY * LAYOUT_SCALE * deviceScale) + centerY;
+            return [x, y, normalX, normalY];
         });
-    }, [concepts, width, height, layout, diagramOffsets, draggedIndex, dragOffset]);
+    }, [concepts, width, height, layout, diagramOffsets, draggedIndex, dragOffset, deviceScale]);
 
-    const drawDiagram = useCallback((context: CanvasRenderingContext2D, computedStyle: CSSStyleDeclaration) => {
+    const drawNodes = useCallback((context: CanvasRenderingContext2D, computedStyle: CSSStyleDeclaration) => {
         const onSurfaceColor = computedStyle.getPropertyValue("--on-surface-container");
         const primaryColor = computedStyle.getPropertyValue("--primary");
-        const outlineColor = computedStyle.getPropertyValue("--outline");
-
-        context.strokeStyle = outlineColor;
-        context.globalAlpha = 0.6;
-
-        let linesCount = 0;
-
-        for (const concept of concepts) {
-            const subconcepts = lattice.subconceptsMapping[concept.index];
-            const [startX, startY, normalStartX, normalStartY] = targetPoints[concept.index];
-
-            for (const subconceptIndex of subconcepts) {
-                const [endX, endY, normalEndX, normalEndY] = targetPoints[subconceptIndex];
-
-                //if (!isInRect(normalStartX, normalStartY, visibleRect) && !isInRect(normalEndX, normalEndY, visibleRect)) {
-                if (!crossesRect(normalStartX, normalStartY, normalEndX, normalEndY, visibleRect)) {
-                    continue;
-                }
-
-                // It looks like a little batching is helpful
-                if (linesCount % 10 === 0) {
-                    context.stroke();
-                    context.beginPath();
-                }
-
-                context.moveTo(startX, startY);
-                context.lineTo(endX, endY);
-
-                linesCount++;
-            }
-        }
-
-        context.stroke();
 
         // TODO: try to use this for nodes: https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas#pre-render_similar_primitives_or_repeating_objects_on_an_offscreen_canvas
 
         context.fillStyle = onSurfaceColor;
-        context.globalAlpha = 1;
 
         for (const concept of concepts) {
             if (concept.index === selectedIndex || concept.index === hoveredIndex) {
@@ -373,7 +377,7 @@ function useDrawDiagram(
 
             context.beginPath();
             context.moveTo(x, y);
-            context.arc(x, y, NODE_RADIUS, 0, 2 * Math.PI);
+            context.arc(x, y, NODE_RADIUS * deviceScale, 0, 2 * Math.PI);
             context.fill();
         }
 
@@ -382,7 +386,7 @@ function useDrawDiagram(
 
             context.beginPath();
             context.fillStyle = primaryColor;
-            context.arc(x, y, NODE_RADIUS, 0, 2 * Math.PI);
+            context.arc(x, y, NODE_RADIUS * deviceScale, 0, 2 * Math.PI);
             context.fill();
         }
 
@@ -390,12 +394,18 @@ function useDrawDiagram(
             const [x, y] = targetPoints[selectedIndex];
 
             context.beginPath();
-            context.arc(x, y, NODE_RADIUS, 0, 2 * Math.PI);
+            context.arc(x, y, NODE_RADIUS * deviceScale, 0, 2 * Math.PI);
             context.fillStyle = primaryColor;
             context.fill();
         }
 
-        context.font = "6px Gabarito";
+        const fontSize = 6 * deviceScale;
+
+        if (fontSize < 1) {
+            return;
+        }
+
+        context.font = `${fontSize}px Gabarito`;
         context.fillStyle = onSurfaceColor;
 
         for (const concept of concepts) {
@@ -413,7 +423,7 @@ function useDrawDiagram(
                 context.textBaseline = "hanging";
                 const label = objectLabels.map((l) => formalContext.objects[l]).join(", ").substring(0, 50);
 
-                context.fillText(label, x, y + 7);
+                context.fillText(label, x, y + 7 * deviceScale);
             }
 
             if (attributeLabels) {
@@ -421,12 +431,56 @@ function useDrawDiagram(
                 context.textBaseline = "alphabetic";
                 const label = attributeLabels.map((l) => formalContext.attributes[l]).join(", ").substring(0, 50);
 
-                context.fillText(label, x, y - 7);
+                context.fillText(label, x, y - 7 * deviceScale);
             }
         }
-    }, [lattice, concepts, formalContext, hoveredIndex, selectedIndex, targetPoints, visibleRect]);
+    }, [lattice, concepts, formalContext, hoveredIndex, selectedIndex, targetPoints, visibleRect, deviceScale]);
 
-    return drawDiagram;
+    const drawLinks = useCallback((context: CanvasRenderingContext2D, computedStyle: CSSStyleDeclaration) => {
+        const outlineColor = computedStyle.getPropertyValue("--outline");
+
+        context.strokeStyle = outlineColor;
+        context.lineWidth = 1 * deviceScale;
+
+        // It looks like a little batching of the lines to a single path is helpful only when zoomed out
+        // However, it is much worse when zoomed in
+        // I have no clue why...
+        const linesCountInBatch = 1;
+        let linesCount = 0;
+        context.beginPath();
+
+        for (const concept of concepts) {
+            const subconcepts = lattice.subconceptsMapping[concept.index];
+            const [startX, startY, normalStartX, normalStartY] = targetPoints[concept.index];
+
+            for (const subconceptIndex of subconcepts) {
+                const [endX, endY, normalEndX, normalEndY] = targetPoints[subconceptIndex];
+
+                //if (!isInRect(normalStartX, normalStartY, visibleRect) && !isInRect(normalEndX, normalEndY, visibleRect)) {
+                if (!crossesRect(normalStartX, normalStartY, normalEndX, normalEndY, visibleRect)) {
+                    continue;
+                }
+
+                // It looks like a little batching is helpful
+                if (linesCount !== 0 && linesCount % linesCountInBatch === 0) {
+                    context.stroke();
+                    context.beginPath();
+                }
+
+                context.moveTo(startX, startY);
+                context.lineTo(endX, endY);
+
+                linesCount++;
+            }
+        }
+
+        context.stroke();
+    }, [lattice, concepts, targetPoints, visibleRect, deviceScale]);
+
+    return {
+        drawNodes,
+        drawLinks,
+    };
 }
 
 function toLayoutCoord(coord: number, size: number) {
@@ -447,4 +501,30 @@ function getVisibleRect(zoomTransform: ZoomTransform, canvasWidth: number, canva
         width: width + (2 * nodeSizeAddition),
         height: height + (2 * nodeSizeAddition),
     };
+}
+
+function drawOnCanvas(
+    canvas: HTMLCanvasElement | null,
+    canDraw: boolean,
+    translateX: number,
+    translateY: number,
+    draw: (
+        context: CanvasRenderingContext2D,
+        computedStyle: CSSStyleDeclaration) => void,
+) {
+    const context = canvas?.getContext("2d");
+
+    if (!canvas || !context) {
+        return;
+    }
+
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (canDraw) {
+        const computedStyle = getComputedStyle(canvas);
+        context.save();
+        context.translate(translateX * window.devicePixelRatio, translateY * window.devicePixelRatio);
+        draw(context, computedStyle);
+        context.restore();
+    }
 }

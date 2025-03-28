@@ -19,7 +19,7 @@ export default function ConceptsDiagram(props: {
     selectedConceptIndex: number | null,
     setSelectedConceptIndex: React.Dispatch<React.SetStateAction<number | null>>,
 }) {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const diagramRef = useRef<HTMLDivElement>(null);
     const isTemporarilyEditableRef = useRef<boolean>(true);
     const context = useProjectStore((state) => state.context);
     const lattice = useProjectStore((state) => state.lattice);
@@ -29,7 +29,7 @@ export default function ConceptsDiagram(props: {
     const { diagramOffsets, canUndo, canRedo, updateNodeOffset, undo, redo } = useDiagramOffsets();
 
     const isDiagramRenderable = !!(context && lattice && layout && concepts && diagramOffsets);
-    const { zoomTransform, isDragZooming, updateExtent, zoomTo } = useZoom(canvasRef, isDiagramRenderable, !isEditable, ZOOM_SCALE_EXTENT);
+    const { zoomTransform, isDragZooming, updateExtent, zoomTo } = useZoom(diagramRef, isDiagramRenderable, !isEditable, ZOOM_SCALE_EXTENT);
 
     useKeyBoardEvents(isTemporarilyEditableRef, setIsEditable, undo, redo);
 
@@ -37,7 +37,7 @@ export default function ConceptsDiagram(props: {
         <>
             {isDiagramRenderable &&
                 <DiagramCanvas
-                    ref={canvasRef}
+                    ref={diagramRef}
                     className="w-full h-full"
                     layout={layout}
                     concepts={concepts}
