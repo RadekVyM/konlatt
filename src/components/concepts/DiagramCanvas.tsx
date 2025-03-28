@@ -12,6 +12,7 @@ import { QuadNode } from "../../types/QuadNode";
 import { Quadtree } from "d3-quadtree";
 import { Rect } from "../../types/Rect";
 import { crossesRect, isInRect } from "../../utils/rect";
+import useLinesChunksCache from "./useLinesChunksCache";
 
 const LAYOUT_SCALE = 60;
 const GRID_LINE_STEP = LAYOUT_SCALE;
@@ -62,7 +63,10 @@ export default function DiagramCanvas(props: {
         setHoveredIndex,
         props.setSelectedConceptIndex,
         props.updateNodeOffset);
-    const drawDiagram = useDrawDiagram(
+    const {
+        drawNodes,
+        drawLinks,
+    } = useDrawDiagram(
         props.layout,
         props.diagramOffsets,
         props.lattice,
@@ -78,6 +82,16 @@ export default function DiagramCanvas(props: {
     const drawGrid = useDrawGrid(
         dimensions.width,
         dimensions.height);
+
+    const drawLinkChunks = useLinesChunksCache(
+        props.layout,
+        props.diagramOffsets,
+        props.lattice,
+        visibleRect,
+        dimensions.width,
+        dimensions.height,
+        props.zoomTransform.scale,
+        LAYOUT_SCALE);
 
     useEffect(() => {
         const canvas = props.ref.current;
@@ -98,9 +112,11 @@ export default function DiagramCanvas(props: {
         if (props.isEditable) {
             drawGrid(context, props.zoomTransform.x, props.zoomTransform.y, props.zoomTransform.scale, computedStyle);
         }
-        drawDiagram(context, computedStyle);
+        //drawLinks(context, computedStyle);
+        drawLinkChunks(context);
+        drawNodes(context, computedStyle);
         context.restore();
-    }, [props.zoomTransform.scale, props.zoomTransform.x, props.zoomTransform.y, props.isEditable, drawDiagram, drawGrid]);
+    }, [props.zoomTransform.scale, props.zoomTransform.x, props.zoomTransform.y, props.isEditable, drawNodes, drawLinks, drawGrid, drawLinkChunks]);
 
     useEffect(() => {
         props.updateExtent(dimensions.width, dimensions.height);
@@ -318,47 +334,13 @@ function useDrawDiagram(
         });
     }, [concepts, width, height, layout, diagramOffsets, draggedIndex, dragOffset]);
 
-    const drawDiagram = useCallback((context: CanvasRenderingContext2D, computedStyle: CSSStyleDeclaration) => {
+    const drawNodes = useCallback((context: CanvasRenderingContext2D, computedStyle: CSSStyleDeclaration) => {
         const onSurfaceColor = computedStyle.getPropertyValue("--on-surface-container");
         const primaryColor = computedStyle.getPropertyValue("--primary");
-        const outlineColor = computedStyle.getPropertyValue("--outline");
-
-        context.strokeStyle = outlineColor;
-        context.globalAlpha = 0.6;
-
-        let linesCount = 0;
-
-        for (const concept of concepts) {
-            const subconcepts = lattice.subconceptsMapping[concept.index];
-            const [startX, startY, normalStartX, normalStartY] = targetPoints[concept.index];
-
-            for (const subconceptIndex of subconcepts) {
-                const [endX, endY, normalEndX, normalEndY] = targetPoints[subconceptIndex];
-
-                //if (!isInRect(normalStartX, normalStartY, visibleRect) && !isInRect(normalEndX, normalEndY, visibleRect)) {
-                if (!crossesRect(normalStartX, normalStartY, normalEndX, normalEndY, visibleRect)) {
-                    continue;
-                }
-
-                // It looks like a little batching is helpful
-                if (linesCount % 10 === 0) {
-                    context.stroke();
-                    context.beginPath();
-                }
-
-                context.moveTo(startX, startY);
-                context.lineTo(endX, endY);
-
-                linesCount++;
-            }
-        }
-
-        context.stroke();
 
         // TODO: try to use this for nodes: https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas#pre-render_similar_primitives_or_repeating_objects_on_an_offscreen_canvas
 
         context.fillStyle = onSurfaceColor;
-        context.globalAlpha = 1;
 
         for (const concept of concepts) {
             if (concept.index === selectedIndex || concept.index === hoveredIndex) {
@@ -426,7 +408,50 @@ function useDrawDiagram(
         }
     }, [lattice, concepts, formalContext, hoveredIndex, selectedIndex, targetPoints, visibleRect]);
 
-    return drawDiagram;
+    const drawLinks = useCallback((context: CanvasRenderingContext2D, computedStyle: CSSStyleDeclaration) => {
+        const outlineColor = computedStyle.getPropertyValue("--outline");
+
+        context.strokeStyle = outlineColor;
+
+        // It looks like a little batching of the lines to a single path is helpful only when zoomed out
+        // However, it is much worse when zoomed in
+        // I have no clue why...
+        const linesCountInBatch = 1;
+        let linesCount = 0;
+        context.beginPath();
+
+        for (const concept of concepts) {
+            const subconcepts = lattice.subconceptsMapping[concept.index];
+            const [startX, startY, normalStartX, normalStartY] = targetPoints[concept.index];
+
+            for (const subconceptIndex of subconcepts) {
+                const [endX, endY, normalEndX, normalEndY] = targetPoints[subconceptIndex];
+
+                //if (!isInRect(normalStartX, normalStartY, visibleRect) && !isInRect(normalEndX, normalEndY, visibleRect)) {
+                if (!crossesRect(normalStartX, normalStartY, normalEndX, normalEndY, visibleRect)) {
+                    continue;
+                }
+
+                // It looks like a little batching is helpful
+                if (linesCount !== 0 && linesCount % linesCountInBatch === 0) {
+                    context.stroke();
+                    context.beginPath();
+                }
+
+                context.moveTo(startX, startY);
+                context.lineTo(endX, endY);
+
+                linesCount++;
+            }
+        }
+
+        context.stroke();
+    }, [lattice, concepts, targetPoints, visibleRect]);
+
+    return {
+        drawNodes,
+        drawLinks,
+    };
 }
 
 function toLayoutCoord(coord: number, size: number) {
