@@ -1,11 +1,11 @@
 import { ConceptLattice } from "../types/ConceptLattice";
 import { CompleteWorkerRequest } from "../types/WorkerRequest";
 import { ConceptComputationResponse, ContextParsingResponse, FinishedResponse, LatticeComputationResponse, LayoutComputationResponse, ProgressResponse, StatusResponse } from "../types/WorkerResponse";
-import { RawFormalContext } from "../types/RawFormalContext";
+import { FormalContext } from "../types/FormalContext";
 import { FormalConcepts } from "../types/FormalConcepts";
 import { ConceptLatticeLayout } from "../types/ConceptLatticeLayout";
 
-let formalContext: RawFormalContext | null = null;
+let formalContext: FormalContext | null = null;
 let formalConcepts: FormalConcepts | null = null;
 let conceptLattice: ConceptLattice | null = null;
 let diagramLayout: ConceptLatticeLayout | null = null;
@@ -73,7 +73,7 @@ async function parseFileContent(jobId: number, fileContent: string) {
     self.postMessage(createContextParsingResponse(jobId, formalContext));
 }
 
-async function calculateConcepts(jobId: number, context: RawFormalContext) {
+async function calculateConcepts(jobId: number, context: FormalContext) {
     postStatusMessage(jobId, "Computing concepts");
 
     if (formalConcepts) {
@@ -88,7 +88,7 @@ async function calculateConcepts(jobId: number, context: RawFormalContext) {
     self.postMessage(createConceptComputationResponse(jobId, formalConcepts, computationTime));
 }
 
-async function calculateLattice(jobId: number, concepts: FormalConcepts, context: RawFormalContext) {
+async function calculateLattice(jobId: number, concepts: FormalConcepts, context: FormalContext) {
     postStatusMessage(jobId, "Computing lattice");
 
     const { conceptsToLattice } = await import("../services/latticeComputation");
@@ -156,7 +156,7 @@ function postFinished(jobId: number) {
     self.postMessage(finishedResponse);
 }
 
-function createContextParsingResponse(jobId: number, context: RawFormalContext): ContextParsingResponse {
+function createContextParsingResponse(jobId: number, context: FormalContext): ContextParsingResponse {
     return {
         jobId,
         time: new Date().getTime(),

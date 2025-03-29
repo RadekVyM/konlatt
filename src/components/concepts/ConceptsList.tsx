@@ -11,7 +11,7 @@ import CardSection from "../CardSection";
 import FilterOrderBar from "../FilterOrderBar";
 import Found from "../Found";
 import { FormalConcept } from "../../types/FormalConcepts";
-import { RawFormalContext } from "../../types/RawFormalContext";
+import { FormalContext } from "../../types/FormalContext";
 import HighlightedSearchTerms from "../HighlightedSearchTerms";
 import { searchTermsToRegex } from "../../utils/search";
 import ExportButton from "../ExportButton";
@@ -134,7 +134,7 @@ function List(props: {
 
 function ListItemButton(props: {
     item: FormalConcept,
-    context: RawFormalContext,
+    context: FormalContext,
     searchRegex: RegExp | undefined,
     onClick: () => void,
 }) {
@@ -162,7 +162,7 @@ function ListItemButton(props: {
     );
 }
 
-function conceptsFilter(concept: FormalConcept, searchTerms: Array<string>, context: RawFormalContext): boolean {
+function conceptsFilter(concept: FormalConcept, searchTerms: Array<string>, context: FormalContext): boolean {
     return searchTerms
         .map((term) => term.toLowerCase())
         .every((term) => concept.objects.some((o) => context.objects[o].toLowerCase().includes(term)) ||

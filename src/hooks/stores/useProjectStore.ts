@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { RawFormalContext } from "../../types/RawFormalContext";
+import { FormalContext } from "../../types/FormalContext";
 import { ConceptLattice } from "../../types/ConceptLattice";
 import LatticeWorkerQueue from "../../workers/LatticeWorkerQueue";
 import { FormalConcepts } from "../../types/FormalConcepts";
@@ -13,7 +13,7 @@ type DiagramOffsetMementos = { undos: Array<NodeOffsetMemento>, redos: Array<Nod
 type ProjectStore = {
     progressMessage: string | null,
     file: File | null,
-    context: RawFormalContext | null,
+    context: FormalContext | null,
     concepts: FormalConcepts | null,
     lattice: ConceptLattice | null,
     layout: ConceptLatticeLayout | null,
@@ -23,7 +23,7 @@ type ProjectStore = {
     statusItems: Array<StatusItem>,
     setProgressMessage: (progressMessage: string | null) => void,
     setFile: (file: File | null) => void,
-    setContext: (context: RawFormalContext | null) => void,
+    setContext: (context: FormalContext | null) => void,
     setConcepts: (concepts: FormalConcepts | null) => void,
     setLattice: (lattice: ConceptLattice | null) => void,
     setLayout: (layout: ConceptLatticeLayout | null) => void,

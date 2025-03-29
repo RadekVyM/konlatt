@@ -1,10 +1,9 @@
 import useProjectStore from "../../hooks/stores/useProjectStore";
-import { formalContextHasAttribute, RawFormalContext } from "../../types/RawFormalContext";
+import { formalContextHasAttribute, FormalContext } from "../../types/FormalContext";
 import { CardContainer } from "../CardContainer";
 import ItemsCardContent from "./ItemsCardContent";
 import ItemCardContent from "./ItemCardContent";
 import { ContextCompleteItem, ContextItem } from "./types";
-import { searchFilter } from "./utils";
 import { cn } from "../../utils/tailwind";
 import HighlightedSearchTerms from "../HighlightedSearchTerms";
 
@@ -35,8 +34,7 @@ export default function AttributesList(props: {
                         text={item.title}
                         regex={regex} />}
                 itemKey={(item: ContextAttributeItem) => item.index}
-                setSelectedItem={(item: ContextAttributeItem) => props.setSelectedAttributeIndex(item.index)}
-                itemFilter={searchFilter} />
+                setSelectedItem={(item: ContextAttributeItem) => props.setSelectedAttributeIndex(item.index)} />
             {selectedAttribute &&
                 <ItemCardContent
                     item={selectedAttribute}
@@ -47,7 +45,7 @@ export default function AttributesList(props: {
     );
 }
 
-function getContextAttribute(context: RawFormalContext, attributeIndex: number): ContextCompleteItem {
+function getContextAttribute(context: FormalContext, attributeIndex: number): ContextCompleteItem {
     if (attributeIndex >= context.attributes.length) {
         throw new Error("Attribute index is out of range");
     }

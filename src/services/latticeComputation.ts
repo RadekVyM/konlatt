@@ -2,7 +2,7 @@ import Module from "../wasm/cpp";
 import { ConceptLattice } from "../types/ConceptLattice";
 import { ConceptLatticeLabeling } from "../types/ConceptLatticeLabeling";
 import { FormalConcept, FormalConcepts, getInfimum, getSupremum } from "../types/FormalConcepts";
-import { RawFormalContext } from "../types/RawFormalContext";
+import { FormalContext } from "../types/FormalContext";
 import { cppIntMultiArrayToJs, jsArrayToCppIndexedFormalConceptArray, jsArrayToCppUIntArray } from "../utils/cpp";
 import { assignNodesToLayersByLongestPath } from "./layers";
 
@@ -11,7 +11,7 @@ import { assignNodesToLayersByLongestPath } from "./layers";
  * @param concepts 
  * @returns Array of indexes of children of each concept
  */
-export async function conceptsToLattice(concepts: FormalConcepts, context: RawFormalContext, onProgress?: (progress: number) => void): Promise<{
+export async function conceptsToLattice(concepts: FormalConcepts, context: FormalContext, onProgress?: (progress: number) => void): Promise<{
     lattice: ConceptLattice,
     computationTime: number,
 }> {

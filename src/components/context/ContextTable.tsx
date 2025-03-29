@@ -1,5 +1,5 @@
 import { RefObject, useEffect, useRef, useState } from "react";
-import { formalContextHasAttribute, RawFormalContext } from "../../types/RawFormalContext";
+import { formalContextHasAttribute, FormalContext } from "../../types/FormalContext";
 import { cn } from "../../utils/tailwind";
 import useDimensions from "../../hooks/useDimensions";
 import "./ContextTable.css";
@@ -16,7 +16,7 @@ type ContextTableCellHeader = {
 }
 
 export default function ContextTable(props: {
-    context: RawFormalContext,
+    context: FormalContext,
     selectedObject: number | null,
     selectedAttribute: number | null,
     className?: string,
@@ -219,7 +219,7 @@ function TableCell(props: {
 
 
 function useRowHeaders(
-    context: RawFormalContext,
+    context: FormalContext,
     skippedRowsCount: number,
     visibleRowsCount: number,
 ) {
@@ -236,7 +236,7 @@ function useRowHeaders(
 }
 
 function useColumnHeaders(
-    context: RawFormalContext,
+    context: FormalContext,
     skippedColumnsCount: number,
     visibleColumnsCount: number,
 ) {
@@ -253,7 +253,7 @@ function useColumnHeaders(
 }
 
 function useCells(
-    context: RawFormalContext,
+    context: FormalContext,
     skippedRowsCount: number,
     skippedColumnsCount: number,
     visibleRowsCount: number,

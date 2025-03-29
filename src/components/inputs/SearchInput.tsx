@@ -19,7 +19,7 @@ export default function SearchInput(props: {
                 value={props.value}
                 onChange={(e) => props.onChange(e.target.value)}
                 placeholder={props.placeholder}
-                className={cn("text-sm bg-surface-light-dim-container hover:bg-surface-dim-container px-2 pr-7 py-1 rounded-md w-full h-full",  props.inputClassName)} />
+                className={cn("text-sm bg-surface-light-dim-container hover:bg-surface-dim-container px-2 pr-7 py-1.5 rounded-md w-full h-full",  props.inputClassName)} />
             
             {cancelButtonVisible &&
                 <button

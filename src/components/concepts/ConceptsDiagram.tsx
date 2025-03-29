@@ -12,7 +12,7 @@ import { useDiagramOffsets } from "../../hooks/useDiagramOffsets";
 import { isCtrlZ, isEditableElement } from "../../utils/html";
 import { FullscreenState } from "../../types/FullscreenState";
 
-const ZOOM_SCALE_EXTENT: ZoomScaleExtent = { min: 0.05, max: 4 };
+const ZOOM_SCALE_EXTENT: ZoomScaleExtent = { min: 0.05, max: 5 };
 
 export default function ConceptsDiagram(props: {
     fullscreenState: FullscreenState,

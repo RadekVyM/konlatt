@@ -1,9 +1,9 @@
-import { RawFormalContext } from "../types/RawFormalContext";
+import { FormalContext } from "../types/FormalContext";
 import Module from "../wasm/cpp";
 import { FormalConcept } from "../types/FormalConcepts";
 import { cppFormalConceptArrayToJs, jsArrayToCppUIntArray } from "../utils/cpp";
 
-export async function computeConcepts(context: RawFormalContext, onProgress?: (progress: number) => void): Promise<{
+export async function computeConcepts(context: FormalContext, onProgress?: (progress: number) => void): Promise<{
     concepts: Array<FormalConcept>,
     computationTime: number,
 }> {

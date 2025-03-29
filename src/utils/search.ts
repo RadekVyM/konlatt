@@ -1,3 +1,9 @@
+export function searchStringFilter(item: string, searchTerms: Array<string>): boolean {
+    return searchTerms
+        .map((term) => term.toLowerCase())
+        .every((term) => item.toLowerCase().includes(term));
+}
+
 export function searchTermsToRegex(searchTerms: Array<string>) {
     return searchTerms.length > 0 ?
         new RegExp(`(${searchTerms.map((t) => escapeRegex(t)).join("|")})`, "dig") :

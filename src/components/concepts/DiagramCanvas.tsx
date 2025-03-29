@@ -3,7 +3,7 @@ import useDimensions from "../../hooks/useDimensions";
 import { ConceptLatticeLayout } from "../../types/ConceptLatticeLayout";
 import { ConceptLattice } from "../../types/ConceptLattice";
 import { FormalConcepts } from "../../types/FormalConcepts";
-import { RawFormalContext } from "../../types/RawFormalContext";
+import { FormalContext } from "../../types/FormalContext";
 import { ZoomTransform } from "../../types/d3/ZoomTransform";
 import { createQuadTree, invertEventPoint } from "../../utils/d3";
 import { createPoint, Point } from "../../types/Point";
@@ -29,7 +29,7 @@ export default function DiagramCanvas(props: {
     layout: ConceptLatticeLayout,
     lattice: ConceptLattice,
     concepts: FormalConcepts,
-    formalContext: RawFormalContext,
+    formalContext: FormalContext,
     zoomTransform: ZoomTransform,
     isEditable: boolean,
     isDragZooming: boolean,
@@ -279,6 +279,7 @@ function useDrawGrid(
         const deviceScale = scale * window.devicePixelRatio;
         const gridLineStep = GRID_LINE_STEP * deviceScale;
         const gridLineStepHalf = GRID_LINE_STEP_HALF * deviceScale;
+        const gridLineGap = GRID_LINE_GAP * deviceScale;
         const gridLineGapHalf = GRID_LINE_GAP_HALF * deviceScale;
 
         const left = -translateX * window.devicePixelRatio;
@@ -288,7 +289,7 @@ function useDrawGrid(
         const startX = left + ((centerX * scale - left) % gridLineStep);
         const startY = top + ((centerY * scale - top) % gridLineStep);
 
-        context.lineWidth = 1 * window.devicePixelRatio;
+        context.lineWidth = 1.5 * window.devicePixelRatio;
 
         if (gridLineStepHalf > GRID_LINES_INVISIBLE_THRESHOLD) {
             context.beginPath();
@@ -301,7 +302,7 @@ function useDrawGrid(
                 context.lineTo(right, y);
             }
             context.strokeStyle = outlineColor;
-            context.setLineDash([GRID_LINE_GAP, GRID_LINE_GAP]);
+            context.setLineDash([gridLineGap, gridLineGap]);
             context.stroke();
         }
 
@@ -327,7 +328,7 @@ function useDrawDiagram(
     diagramOffsets: Array<Point>,
     lattice: ConceptLattice,
     concepts: FormalConcepts,
-    formalContext: RawFormalContext,
+    formalContext: FormalContext,
     hoveredIndex: number | null,
     selectedIndex: number | null,
     draggedIndex: number | null,
@@ -360,9 +361,17 @@ function useDrawDiagram(
         const onSurfaceColor = computedStyle.getPropertyValue("--on-surface-container");
         const primaryColor = computedStyle.getPropertyValue("--primary");
 
-        // TODO: try to use this for nodes: https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas#pre-render_similar_primitives_or_repeating_objects_on_an_offscreen_canvas
+        const baseNodeRadius = NODE_RADIUS * deviceScale;
+        const baseNodeSize = baseNodeRadius * 2.5;
+        const nodeCanvas = document.createElement("canvas");
+        nodeCanvas.width = nodeCanvas.height = Math.ceil(baseNodeSize);
+        const nodeCanvasContext = nodeCanvas.getContext("2d")!;
 
-        context.fillStyle = onSurfaceColor;
+        nodeCanvasContext.fillStyle = onSurfaceColor;
+        nodeCanvasContext.beginPath();
+        nodeCanvasContext.moveTo(nodeCanvas.width / 2, nodeCanvas.height / 2);
+        nodeCanvasContext.arc(nodeCanvas.width / 2, nodeCanvas.height / 2, baseNodeRadius, 0, 2 * Math.PI);
+        nodeCanvasContext.fill();
 
         for (const concept of concepts) {
             if (concept.index === selectedIndex || concept.index === hoveredIndex) {
@@ -375,10 +384,7 @@ function useDrawDiagram(
                 continue;
             }
 
-            context.beginPath();
-            context.moveTo(x, y);
-            context.arc(x, y, NODE_RADIUS * deviceScale, 0, 2 * Math.PI);
-            context.fill();
+            context.drawImage(nodeCanvas, x - (baseNodeSize / 2), y - (baseNodeSize / 2));
         }
 
         if (hoveredIndex !== null) {

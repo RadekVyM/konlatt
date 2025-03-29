@@ -1,10 +1,9 @@
 import useProjectStore from "../../hooks/stores/useProjectStore";
-import { formalContextHasAttribute, RawFormalContext } from "../../types/RawFormalContext";
+import { formalContextHasAttribute, FormalContext } from "../../types/FormalContext";
 import { CardContainer } from "../CardContainer";
 import ItemsCardContent from "./ItemsCardContent";
 import ItemCardContent from "./ItemCardContent";
 import { ContextCompleteItem, ContextItem } from "./types";
-import { searchFilter } from "./utils";
 import { cn } from "../../utils/tailwind";
 import HighlightedSearchTerms from "../HighlightedSearchTerms";
 
@@ -35,8 +34,7 @@ export default function ObjectsList(props: {
                         text={item.title}
                         regex={regex} />}
                 itemKey={(item: ContextObjectItem) => item.index}
-                setSelectedItem={(item: ContextObjectItem) => props.setSelectedObjectIndex(item.index)}
-                itemFilter={searchFilter} />
+                setSelectedItem={(item: ContextObjectItem) => props.setSelectedObjectIndex(item.index)} />
             {selectedObject &&
                 <ItemCardContent
                     item={selectedObject}
@@ -47,7 +45,7 @@ export default function ObjectsList(props: {
     );
 }
 
-function getContextObject(context: RawFormalContext, objectIndex: number): ContextCompleteItem {
+function getContextObject(context: FormalContext, objectIndex: number): ContextCompleteItem {
     if (objectIndex >= context.objects.length) {
         throw new Error("Object index is out of range");
     }

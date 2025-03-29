@@ -8,7 +8,7 @@ export default function BackButton(props: {
     return (
         <Button
             size="sm"
-            className="pl-1 ml-2 mb-1"
+            className="pl-1 ml-2 mb-1.5"
             onClick={props.onClick}>
             <LuChevronLeft />
             {props.children}

@@ -1,4 +1,4 @@
-import { RawFormalContext } from "./RawFormalContext";
+import { FormalContext } from "./FormalContext";
 import { ConceptLattice } from "./ConceptLattice";
 import { FormalConcepts } from "./FormalConcepts";
 import { ConceptLatticeLayout } from "./ConceptLatticeLayout";
@@ -21,7 +21,7 @@ export type ProgressResponse = {
 
 export type ContextParsingResponse = {
     type: "parse-context",
-    context: RawFormalContext
+    context: FormalContext
 } & BaseResponse
 
 export type ConceptComputationResponse = {

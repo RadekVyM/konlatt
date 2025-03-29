@@ -7,7 +7,7 @@ import CardItemsLazyList from "../CardItemsLazyList";
 import CardSectionTitle from "../CardSectionTitle";
 import NothingFound from "../NothingFound";
 import CardSection from "../CardSection";
-import { searchTermsToRegex } from "../../utils/search";
+import { searchStringFilter, searchTermsToRegex } from "../../utils/search";
 import FilterOrderBar from "../FilterOrderBar";
 import Found from "../Found";
 import ExportButton from "../ExportButton";
@@ -20,12 +20,11 @@ export default function ItemsCardContent(props: {
     className?: string,
     itemKey: (item: any) => string | number,
     itemContent: (item: any, searchRegex?: RegExp) => React.ReactNode,
-    itemFilter: (item: any, searchTerms: Array<string>) => boolean,
     setSelectedItem: (item: any) => void,
 }) {
     const [searchInput, setSearchInput] = useState<string>("");
     const searchTerms = searchInput.trim().split(" ").filter((t) => t.length > 0);
-    const filteredItems = props.items.filter((item) => props.itemFilter(item, searchTerms));
+    const filteredItems = props.items.filter((item) => searchStringFilter(item.title, searchTerms));
 
     return (
         <CardSection
@@ -60,7 +59,6 @@ export default function ItemsCardContent(props: {
                 items={filteredItems}
                 itemKey={props.itemKey}
                 itemContent={props.itemContent}
-                itemFilter={props.itemFilter}
                 setSelectedItem={props.setSelectedItem} />
         </CardSection>
     );
@@ -72,7 +70,6 @@ function List(props: {
     items: Array<any>,
     itemKey: (item: any) => string | number,
     itemContent: (item: any, searchRegex?: RegExp) => React.ReactNode,
-    itemFilter: (item: any, searchTerms: Array<string>) => boolean,
     setSelectedItem: (item: any) => void,
 }) {
     const observerTargetRef = useRef<HTMLDivElement>(null);

@@ -1,6 +1,6 @@
 import { expect, test, describe } from "vitest";
 import { __collect, addIntent, parseBurmeister } from "../../../../src/wasm/as";
-import { RawFormalContext } from "../../../../src/types/RawFormalContext";
+import { FormalContext } from "../../../../src/types/FormalContext";
 import { DIGITS, LATTICE, LIVEINWATER, TEALADY, TestValue } from "../../../constants/flowTestValues";
 
 describe.each<TestValue>([
@@ -12,7 +12,7 @@ describe.each<TestValue>([
     //NOM5SHUTTLE,
 ])("addIntent", (value) => {
     test(`addIntent on ${value.title}`, () => {
-        const context = parseBurmeister(value.fileContent) as RawFormalContext;
+        const context = parseBurmeister(value.fileContent) as FormalContext;
         const lattice = addIntent(context);
         __collect();
 

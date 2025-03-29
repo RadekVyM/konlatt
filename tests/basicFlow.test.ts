@@ -2,7 +2,7 @@ import { expect, test, describe } from "vitest";
 import { parseBurmeister } from "../src/services/contextParsing";
 import { computeConcepts } from "../src/services/conceptComputation";
 import { conceptsToLattice } from "../src/services/latticeComputation";
-import { RawFormalContext } from "../src/types/RawFormalContext";
+import { FormalContext } from "../src/types/FormalContext";
 import { FormalConcepts, getSupremum } from "../src/types/FormalConcepts";
 import { ConceptLattice } from "../src/types/ConceptLattice";
 import { DIGITS, LATTICE, LIVEINWATER, NOM5SHUTTLE, TEALADY, TestValue } from "./constants/flowTestValues";
@@ -15,7 +15,7 @@ describe.each<TestValue>([
     TEALADY,
     NOM5SHUTTLE,
 ])("the basic flow from file to lattice", (value) => {
-    let savedContext: RawFormalContext = null!;
+    let savedContext: FormalContext = null!;
     let savedConcepts: FormalConcepts = null!;
     let savedLattice: ConceptLattice = null!;
 
