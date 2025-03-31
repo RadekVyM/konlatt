@@ -1,0 +1,73 @@
+@reference "../../index.css";
+
+@layer components {
+    .switch {
+        @apply grid grid-cols-[1fr_auto] items-center gap-2 text-sm;
+    }
+
+    .switch:has(input[type="checkbox"]:enabled) {
+        @apply cursor-pointer;
+
+        & * {
+            @apply cursor-pointer;
+        }
+    }
+
+    .switch:has(input[type="checkbox"]:disabled) {
+        @apply text-on-surface-container-muted;
+    }
+
+    .switch > input[type="checkbox"] {
+        appearance: none;
+
+        @apply relative w-9 h-5 rounded-full bg-transparent;
+
+        &::before {
+            content: "";
+            @apply absolute inset-0 rounded-full border transition-colors;
+        }
+
+        &::after {
+            content: "";
+            @apply absolute top-0 rounded-full w-3 h-3 m-1 shadow transition-all;
+        }
+
+        &:not(:checked) {
+            &::before {
+                @apply bg-surface-light-dim-container border-outline;
+            }
+
+            &::after {
+                @apply left-0 bg-on-surface-container-muted;
+            }
+        }
+
+        &:checked {
+            &::before {
+                @apply bg-primary border-primary;
+            }
+    
+            &::after {
+                @apply left-4 bg-on-primary;
+            }
+        }
+
+        &:not(:checked):disabled::after {
+            @apply bg-surface-dim-container;
+        }
+
+        &:checked:disabled::before {
+            @apply bg-primary-lite;
+        }
+    }
+
+    .switch:hover > input[type="checkbox"]:not(:disabled) {
+        &:not(:checked)::before {
+            @apply bg-surface-dim-container;
+        }
+
+        &:checked::before {
+            @apply bg-primary-dim;
+        }
+    }
+}

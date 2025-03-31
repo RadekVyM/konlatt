@@ -16,6 +16,7 @@ const ZOOM_SCALE_EXTENT: ZoomScaleExtent = { min: 0.05, max: 5 };
 
 export default function ConceptsDiagram(props: {
     fullscreenState: FullscreenState,
+    visibleConceptIndexes: Set<number> | null,
     selectedConceptIndex: number | null,
     setSelectedConceptIndex: React.Dispatch<React.SetStateAction<number | null>>,
 }) {
@@ -50,7 +51,8 @@ export default function ConceptsDiagram(props: {
                     setSelectedConceptIndex={props.setSelectedConceptIndex}
                     updateExtent={updateExtent}
                     diagramOffsets={diagramOffsets}
-                    updateNodeOffset={updateNodeOffset} />}
+                    updateNodeOffset={updateNodeOffset}
+                    visibleConceptIndexes={props.visibleConceptIndexes} />}
 
             <ExportButton
                 className="absolute top-0 right-0 m-3" />

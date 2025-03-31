@@ -11,16 +11,18 @@ import CardSection from "../CardSection";
 import { isInfimum, isSupremum } from "../../types/FormalConcepts";
 import { searchStringFilter, searchTermsToRegex } from "../../utils/search";
 import HighlightedSearchTerms from "../HighlightedSearchTerms";
-import { LuShapes, LuTags, LuTriangle } from "react-icons/lu";
+import { LuShapes, LuTags } from "react-icons/lu";
 import Found from "../Found";
+import ToggleSwitch from "../inputs/ToggleSwitch";
+import { ConceptDetailWithControlsProps, ConceptDetailWithoutControlsProps } from "./types";
 
 type TabItem = "objects" | "attributes"
 
 export default function ConceptDetail(props: {
     className?: string,
     selectedConceptIndex: number,
-    setSelectedConceptIndex: (index: number | null) => void,
-}) {
+    onBackClick: () => void,
+} & (ConceptDetailWithControlsProps | ConceptDetailWithoutControlsProps)) {
     const [currentTab, setCurrentTab] = useState<TabItem>("objects");
     const concepts = useProjectStore((state) => state.concepts);
     const context = useProjectStore((state) => state.context);
@@ -30,16 +32,12 @@ export default function ConceptDetail(props: {
     const isThisInfimum = selectedConcept && context && isInfimum(selectedConcept, context);
     const isThisSupremum = selectedConcept && context && isSupremum(selectedConcept, context);
 
-    function onBackClick() {
-        props.setSelectedConceptIndex(null);
-    }
-
     return (
         <CardSection
             className={props.className}>
             <header>
                 <BackButton
-                    onClick={onBackClick}>
+                    onClick={props.onBackClick}>
                     All concepts
                 </BackButton>
                 <h2
@@ -54,36 +52,52 @@ export default function ConceptDetail(props: {
                         {isThisInfimum && isThisSupremum && " | "}
                         {isThisSupremum && "supremum"}
                     </small>}
-
-                {!isThisInfimum && !isThisSupremum &&
-                    <div
-                        className="mx-4 mt-2.5 flex gap-2 flex-wrap">
-                        <Button
-                            variant="secondary"
-                            size="sm">
-                            <LuTriangle className="-scale-y-100" /> Upper cone only
-                        </Button>
-                        <Button
-                            variant="secondary"
-                            size="sm">
-                            <LuTriangle /> Lower cone only
-                        </Button>
-                    </div>}
             </header>
+            
+            <div
+                className="flex flex-col flex-1 overflow-y-auto thin-scrollbar isolate">
+                {!isThisInfimum && !isThisSupremum && props.type === "with-controls" &&
+                    <Controls
+                        {...props} />}
 
-            <TabBar
-                className="mt-5 mb-3"
-                currentTab={currentTab}
-                setCurrentTab={setCurrentTab} />
+                <TabBar
+                    className="py-3 sticky top-0 z-10 bg-surface-container"
+                    currentTab={currentTab}
+                    setCurrentTab={setCurrentTab} />
 
-            {currentTab === "objects" ?
-                <ObjectsList
-                    objectIndexes={selectedConcept?.objects || []} /> :
-                currentTab === "attributes" ?
-                    <AttributesList
-                        attributeIndexes={selectedConcept?.attributes || []} /> :
-                    undefined}
+                {currentTab === "objects" ?
+                    <ObjectsList
+                        objectIndexes={selectedConcept?.objects || []} /> :
+                    currentTab === "attributes" ?
+                        <AttributesList
+                            attributeIndexes={selectedConcept?.attributes || []} /> :
+                        undefined}
+            </div>
         </CardSection>
+    );
+}
+
+function Controls(props: {
+    selectedConceptIndex: number,
+} & ConceptDetailWithControlsProps) {
+    const isVisible = !props.visibleConceptIndexes || props.visibleConceptIndexes.has(props.selectedConceptIndex);
+
+    return (
+        <section
+            className="mx-4 mt-2.5 mb-2 flex gap-2 flex-col">
+            <ToggleSwitch
+                disabled={!isVisible || props.lowerConeOnlyConceptIndex === props.selectedConceptIndex}
+                checked={props.upperConeOnlyConceptIndex === props.selectedConceptIndex}
+                onChange={(e) => props.setUpperConeOnlyConceptIndex(e.currentTarget.checked ? props.selectedConceptIndex : null)}>
+                More general concepts only
+            </ToggleSwitch>
+            <ToggleSwitch
+                disabled={!isVisible || props.upperConeOnlyConceptIndex === props.selectedConceptIndex}
+                checked={props.lowerConeOnlyConceptIndex === props.selectedConceptIndex}
+                onChange={(e) => props.setLowerConeOnlyConceptIndex(e.currentTarget.checked ? props.selectedConceptIndex : null)}>
+                More specific concepts only
+            </ToggleSwitch>
+        </section>
     );
 }
 
@@ -175,35 +189,36 @@ function ItemsList(props: {
 
     return (
         <>
-            <SearchInput
-                className="mx-4 mb-2"
-                placeholder={props.searchPlaceholder}
-                value={searchInput}
-                onChange={setSearchInput} />
+            <div
+                className="px-4 flex flex-col sticky top-13 z-10 bg-surface-container">
+                <SearchInput
+                    className="mb-2"
+                    placeholder={props.searchPlaceholder}
+                    value={searchInput}
+                    onChange={setSearchInput} />
+                <Found
+                    className="mb-1.5"
+                    found={filteredItemIndexes.length}
+                    total={props.itemIndexes.length} />
+            </div>
 
             {filteredItemIndexes.length === 0 ?
                 <NothingFound
                     className="flex-1" /> :
-                <>
-                    <Found
-                        className="mx-4 mb-1.5"
-                        found={filteredItemIndexes.length}
-                        total={props.itemIndexes.length} />
-                    <CardItemsLazyList
-                        className="flex-1"
-                        observerTargetRef={observerTargetRef}>
-                        {displayedObjectIndexes.map((index, i) =>
-                            <li
-                                key={index}
-                                className={cn(
-                                    "px-3 py-1.5 oa-list-item",
-                                    i < displayedObjectIndexes.length - 1 && "border-b border-outline-variant")}>
-                                <HighlightedSearchTerms
-                                    text={props.itemContent(index)}
-                                    regex={searchRegex} />
-                            </li>)}
-                    </CardItemsLazyList>
-                </>}
+                <CardItemsLazyList
+                    className="flex-1 overflow-y-visible"
+                    observerTargetRef={observerTargetRef}>
+                    {displayedObjectIndexes.map((index, i) =>
+                        <li
+                            key={index}
+                            className={cn(
+                                "px-3 py-1.5 oa-list-item",
+                                i < displayedObjectIndexes.length - 1 && "border-b border-outline-variant")}>
+                            <HighlightedSearchTerms
+                                text={props.itemContent(index)}
+                                regex={searchRegex} />
+                        </li>)}
+                </CardItemsLazyList>}
         </>
     );
 }

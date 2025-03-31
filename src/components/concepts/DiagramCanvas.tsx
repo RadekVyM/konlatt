@@ -35,6 +35,7 @@ export default function DiagramCanvas(props: {
     isDragZooming: boolean,
     selectedConceptIndex: number | null,
     diagramOffsets: Array<Point>,
+    visibleConceptIndexes: Set<number> | null,
     setSelectedConceptIndex: React.Dispatch<React.SetStateAction<number | null>>,
     updateExtent: (width: number, height: number) => void,
     updateNodeOffset: (node: number, offset: Point) => void,
@@ -74,6 +75,7 @@ export default function DiagramCanvas(props: {
         props.lattice,
         props.concepts,
         props.formalContext,
+        props.visibleConceptIndexes,
         hoveredIndex,
         props.selectedConceptIndex,
         draggedIndex,
@@ -329,6 +331,7 @@ function useDrawDiagram(
     lattice: ConceptLattice,
     concepts: FormalConcepts,
     formalContext: FormalContext,
+    visibleConceptIndexes: Set<number> | null,
     hoveredIndex: number | null,
     selectedIndex: number | null,
     draggedIndex: number | null,
@@ -362,16 +365,8 @@ function useDrawDiagram(
         const primaryColor = computedStyle.getPropertyValue("--primary");
 
         const baseNodeRadius = NODE_RADIUS * deviceScale;
-        const baseNodeSize = baseNodeRadius * 2.5;
-        const nodeCanvas = document.createElement("canvas");
-        nodeCanvas.width = nodeCanvas.height = Math.ceil(baseNodeSize);
-        const nodeCanvasContext = nodeCanvas.getContext("2d")!;
-
-        nodeCanvasContext.fillStyle = onSurfaceColor;
-        nodeCanvasContext.beginPath();
-        nodeCanvasContext.moveTo(nodeCanvas.width / 2, nodeCanvas.height / 2);
-        nodeCanvasContext.arc(nodeCanvas.width / 2, nodeCanvas.height / 2, baseNodeRadius, 0, 2 * Math.PI);
-        nodeCanvasContext.fill();
+        const nodeCanvas = createNodeCanvas(baseNodeRadius, onSurfaceColor);
+        const invisibleNodeCanvas = createNodeCanvas(baseNodeRadius / 2, onSurfaceColor);
 
         for (const concept of concepts) {
             if (concept.index === selectedIndex || concept.index === hoveredIndex) {
@@ -384,7 +379,12 @@ function useDrawDiagram(
                 continue;
             }
 
-            context.drawImage(nodeCanvas, x - (baseNodeSize / 2), y - (baseNodeSize / 2));
+            const canvas = !visibleConceptIndexes || visibleConceptIndexes.has(concept.index) ?
+                nodeCanvas :
+                invisibleNodeCanvas; 
+
+            // It should be faster if I round the coordinates here, but the nodes become choppy, which does not look good
+            context.drawImage(canvas, x - (canvas.width / 2), y - (canvas.height / 2));
         }
 
         if (hoveredIndex !== null) {
@@ -440,7 +440,7 @@ function useDrawDiagram(
                 context.fillText(label, x, y - 7 * deviceScale);
             }
         }
-    }, [lattice, concepts, formalContext, hoveredIndex, selectedIndex, targetPoints, visibleRect, deviceScale]);
+    }, [lattice, concepts, formalContext, hoveredIndex, selectedIndex, targetPoints, visibleRect, deviceScale, visibleConceptIndexes]);
 
     const drawLinks = useCallback((context: CanvasRenderingContext2D, computedStyle: CSSStyleDeclaration) => {
         const outlineColor = computedStyle.getPropertyValue("--outline");
@@ -524,13 +524,35 @@ function drawOnCanvas(
         return;
     }
 
-    context.clearRect(0, 0, canvas.width, canvas.height);
+    // Syncing the drawing with the browser refresh rate to reduce redraws
+    requestAnimationFrame(() => {
+        context.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (canDraw) {
-        const computedStyle = getComputedStyle(canvas);
-        context.save();
-        context.translate(translateX * window.devicePixelRatio, translateY * window.devicePixelRatio);
-        draw(context, computedStyle);
-        context.restore();
-    }
+        if (canDraw) {
+            const computedStyle = getComputedStyle(canvas);
+            context.save();
+            context.translate(translateX * window.devicePixelRatio, translateY * window.devicePixelRatio);
+            draw(context, computedStyle);
+            context.restore();
+        }
+    });
+}
+
+function createNodeCanvas(
+    radius: number,
+    fillStyle: string | CanvasGradient | CanvasPattern
+) {
+    const baseNodeRadius = radius;
+    const baseNodeSize = baseNodeRadius * 2.5;
+    const nodeCanvas = document.createElement("canvas");
+    nodeCanvas.width = nodeCanvas.height = Math.ceil(baseNodeSize);
+    const nodeCanvasContext = nodeCanvas.getContext("2d")!;
+
+    nodeCanvasContext.fillStyle = fillStyle;
+    nodeCanvasContext.beginPath();
+    nodeCanvasContext.moveTo(nodeCanvas.width / 2, nodeCanvas.height / 2);
+    nodeCanvasContext.arc(nodeCanvas.width / 2, nodeCanvas.height / 2, baseNodeRadius, 0, 2 * Math.PI);
+    nodeCanvasContext.fill();
+
+    return nodeCanvas;
 }

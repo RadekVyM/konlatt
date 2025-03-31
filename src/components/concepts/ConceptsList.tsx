@@ -17,6 +17,7 @@ import { searchTermsToRegex } from "../../utils/search";
 import ExportButton from "../ExportButton";
 import useDebouncedValue from "../../hooks/useDebouncedValue";
 import SearchInput from "../inputs/SearchInput";
+import { ConceptDetailWithControlsProps, ConceptDetailWithoutControlsProps } from "./types";
 
 const MAX_TEXT_LENGTH = 500;
 
@@ -24,7 +25,7 @@ export default function Concepts(props: {
     className?: string,
     selectedConceptIndex: number | null,
     setSelectedConceptIndex: React.Dispatch<React.SetStateAction<number | null>>,
-}) {
+} & (ConceptDetailWithControlsProps | ConceptDetailWithoutControlsProps)) {
     return (
         <CardContainer
             className={props.className}>
@@ -33,8 +34,10 @@ export default function Concepts(props: {
                 setSelectedConceptIndex={props.setSelectedConceptIndex} />
             {props.selectedConceptIndex !== null &&
                 <ConceptDetail
+                    key={props.selectedConceptIndex}
+                    {...props}
                     selectedConceptIndex={props.selectedConceptIndex}
-                    setSelectedConceptIndex={props.setSelectedConceptIndex} />}
+                    onBackClick={() => props.setSelectedConceptIndex(null)} />}
         </CardContainer>
     );
 }
