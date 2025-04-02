@@ -3,6 +3,9 @@
 // docker run --rm -it -v "${PWD}:/usr/src/myapp" -w /usr/src/myapp abeimler/simple-cppbuilder:ci-x64-mingw-w64 x86_64-w64-mingw32-g++ -O3 -o ./benchmarks/native/bench.exe -static ./benchmarks/native/main.cpp
 // cl /O2 /GL /fp:fast /favor:blend /Oi /EHsc ./main.cpp
 
+// docker build -t cpp-windows-clang .
+// docker run --rm -v "${PWD}:/app" cpp-windows-clang
+
 #include "../../src/wasm/cpp/FormalConcept.h"
 #include "../../src/wasm/cpp/FormalContext.h"
 

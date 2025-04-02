@@ -1,0 +1,11 @@
+FROM ubuntu:latest
+
+# Install required packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    llvm clang mingw-w64
+
+# Create a working directory
+WORKDIR /app
+
+# Compile the C++ code with clang for Windows target and static linking
+CMD ["clang++", "--target=x86_64-w64-windows-gnu", "-O3", "-o", "./benchmarks/native/main_clang.exe", "./benchmarks/native/main.cpp", "-static-libgcc", "-static-libstdc++", "-static"]
