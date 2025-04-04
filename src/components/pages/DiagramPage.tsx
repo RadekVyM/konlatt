@@ -32,6 +32,7 @@ export default function DiagramPage() {
                 fullscreenState.isFullscreen && "bg-surface pt-4")}>
             <ConceptsList
                 type="with-controls"
+                route="/project/diagram"
                 selectedConceptIndex={selectedConceptIndex}
                 setSelectedConceptIndex={setSelectedConceptIndex}
                 upperConeOnlyConceptIndex={upperConeOnlyConceptIndex}

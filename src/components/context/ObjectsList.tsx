@@ -11,6 +11,7 @@ type ContextObjectItem = ContextItem
 
 export default function ObjectsList(props: {
     className?: string,
+    route: string,
     selectedObjectIndex: number | null,
     setSelectedObjectIndex: (index: number | null) => void,
 }) {
@@ -27,6 +28,7 @@ export default function ObjectsList(props: {
                 className={cn(selectedObject && "hidden")}
                 items={objects}
                 title="Objects"
+                route={`${props.route}/objects`}
                 count={context?.objects.length || 0}
                 searchInputPlaceholder="Search objects..."
                 itemContent={(item: ContextObjectItem, regex) =>
@@ -38,6 +40,7 @@ export default function ObjectsList(props: {
             {selectedObject &&
                 <ItemCardContent
                     item={selectedObject}
+                    route={`${props.route}/object`}
                     backButtonContent="All objects"
                     itemsHeading={`${selectedObject.items.length} attribute${selectedObject.items.length === 1 ? "" : "s"}`}
                     onBackClick={() => props.setSelectedObjectIndex(null)} />}

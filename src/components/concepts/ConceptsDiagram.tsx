@@ -1,4 +1,4 @@
-import { LuDownload, LuHand, LuMaximize, LuMinimize, LuMinus, LuPlus, LuRedo2, LuUndo2 } from "react-icons/lu";
+import { LuHand, LuMaximize, LuMinimize, LuMinus, LuPlus, LuRedo2, LuUndo2 } from "react-icons/lu";
 import useProjectStore from "../../hooks/stores/useProjectStore";
 import Button from "../inputs/Button";
 import DiagramCanvas from "./DiagramCanvas";
@@ -11,6 +11,7 @@ import { ZoomScaleExtent } from "../../types/d3/ZoomScaleExtent";
 import { useDiagramOffsets } from "../../hooks/useDiagramOffsets";
 import { isCtrlZ, isEditableElement } from "../../utils/html";
 import { FullscreenState } from "../../types/FullscreenState";
+import ExportButton from "../ExportButton";
 
 const ZOOM_SCALE_EXTENT: ZoomScaleExtent = { min: 0.05, max: 5 };
 
@@ -55,7 +56,9 @@ export default function ConceptsDiagram(props: {
                     visibleConceptIndexes={props.visibleConceptIndexes} />}
 
             <ExportButton
-                className="absolute top-0 right-0 m-3" />
+                className="absolute top-0 right-0 m-3"
+                isHighlighted
+                route="/project/diagram/export" />
 
             <div
                 className="absolute bottom-0 left-0 m-3 flex gap-2">
@@ -99,18 +102,6 @@ function FullscreenButton(props: {
             {props.fullscreenState.isFullscreen ?
                 <LuMinimize /> :
                 <LuMaximize />}
-        </Button>
-    );
-}
-
-function ExportButton(props: {
-    className?: string,
-}) {
-    return (
-        <Button
-            className={props.className}
-            variant="icon-secondary">
-            <LuDownload />
         </Button>
     );
 }

@@ -15,12 +15,14 @@ import { LuShapes, LuTags } from "react-icons/lu";
 import Found from "../Found";
 import ToggleSwitch from "../inputs/ToggleSwitch";
 import { ConceptDetailWithControlsProps, ConceptDetailWithoutControlsProps } from "./types";
+import ExportButton from "../ExportButton";
 
 type TabItem = "objects" | "attributes"
 
 export default function ConceptDetail(props: {
     className?: string,
     selectedConceptIndex: number,
+    route: string,
     onBackClick: () => void,
 } & (ConceptDetailWithControlsProps | ConceptDetailWithoutControlsProps)) {
     const [currentTab, setCurrentTab] = useState<TabItem>("objects");
@@ -36,10 +38,17 @@ export default function ConceptDetail(props: {
         <CardSection
             className={props.className}>
             <header>
-                <BackButton
-                    onClick={props.onBackClick}>
-                    All concepts
-                </BackButton>
+                <div
+                    className="flex justify-between items-start w-full pr-4">
+                    <BackButton
+                        onClick={props.onBackClick}>
+                        All concepts
+                    </BackButton>
+
+                    <ExportButton
+                        route={`${props.route}/concept/${props.selectedConceptIndex}/export`} />
+                </div>
+
                 <h2
                     className="mx-4 text-lg font-semibold">
                     Concept {props.selectedConceptIndex}
@@ -82,19 +91,33 @@ function Controls(props: {
 } & ConceptDetailWithControlsProps) {
     const isVisible = !props.visibleConceptIndexes || props.visibleConceptIndexes.has(props.selectedConceptIndex);
 
+    function onUpperConeClick(e: React.ChangeEvent<HTMLInputElement>) {
+        props.setUpperConeOnlyConceptIndex(e.currentTarget.checked ? props.selectedConceptIndex : null);
+
+        if (!isVisible || props.lowerConeOnlyConceptIndex === props.selectedConceptIndex) {
+            props.setLowerConeOnlyConceptIndex(null);
+        }
+    }
+
+    function onLowerConeClick(e: React.ChangeEvent<HTMLInputElement>) {
+        props.setLowerConeOnlyConceptIndex(e.currentTarget.checked ? props.selectedConceptIndex : null);
+
+        if (!isVisible || props.upperConeOnlyConceptIndex === props.selectedConceptIndex) {
+            props.setUpperConeOnlyConceptIndex(null);
+        }
+    }
+
     return (
         <section
             className="mx-4 mt-2.5 mb-2 flex gap-2 flex-col">
             <ToggleSwitch
-                disabled={!isVisible || props.lowerConeOnlyConceptIndex === props.selectedConceptIndex}
                 checked={props.upperConeOnlyConceptIndex === props.selectedConceptIndex}
-                onChange={(e) => props.setUpperConeOnlyConceptIndex(e.currentTarget.checked ? props.selectedConceptIndex : null)}>
+                onChange={onUpperConeClick}>
                 More general concepts only
             </ToggleSwitch>
             <ToggleSwitch
-                disabled={!isVisible || props.upperConeOnlyConceptIndex === props.selectedConceptIndex}
                 checked={props.lowerConeOnlyConceptIndex === props.selectedConceptIndex}
-                onChange={(e) => props.setLowerConeOnlyConceptIndex(e.currentTarget.checked ? props.selectedConceptIndex : null)}>
+                onChange={onLowerConeClick}>
                 More specific concepts only
             </ToggleSwitch>
         </section>

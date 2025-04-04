@@ -1,0 +1,79 @@
+import { useEffect, useState } from "react";
+import useDialog from "../hooks/useDialog";
+import ContentDialog from "./ContentDialog";
+import { useLocation, useNavigate } from "react-router-dom";
+import Container from "./Container";
+import ComboBox from "./inputs/ComboBox";
+import Button from "./inputs/Button";
+import { LuCopy, LuDownload } from "react-icons/lu";
+
+const DEFAULT_FORMAT = "json";
+const FORMATS: Array<{ key: string, label: string }> = [
+    { key: "json", label: "JSON (.json)" },
+    { key: "xml", label: "XML (.xml)" },
+    { key: "csv", label: "CSV (.csv)" },
+];
+
+export default function ExportDialog(props: {
+    route: string,
+}) {
+    const [selectedFormat, setSelectedFormat] = useState<string>(DEFAULT_FORMAT);
+    const dialogState = useDialog();
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const isExport = location.pathname.endsWith(props.route);
+
+        if (!dialogState.isOpen && isExport) {
+            dialogState.show();
+        }
+        if (dialogState.isOpen && !isExport) {
+            dialogState.hide().then();
+        }
+    }, [location.pathname, dialogState.isOpen, props.route]);
+
+    return (
+        <ContentDialog
+            ref={dialogState.dialogRef}
+            state={dialogState}
+            heading="Export"
+            className="w-full h-full rounded-none bg-surface"
+            outerClassName="p-0"
+            notHideOnSubsequentLoads={true}
+            onCloseClick={() => navigate(-1)}>
+            <div
+                className="pt-4 flex-1 flex flex-col gap-3">
+                <div
+                    className="flex justify-between gap-3">
+                    <ComboBox
+                        id={`${props.route}-format`}
+                        className="w-full max-w-64"
+                        items={FORMATS}
+                        selectedKey={selectedFormat}
+                        onKeySelectionChange={setSelectedFormat} />
+                    
+                    <div
+                        className="flex gap-3">
+                        <Button
+                            variant="container">
+                            <LuCopy />
+                            Copy
+                        </Button>
+                        <Button
+                            variant="primary">
+                            <LuDownload />
+                            Download
+                        </Button>
+                    </div>
+                </div>
+
+                <Container
+                    as="section"
+                    className="flex-1">
+                    {props.route}
+                </Container>
+            </div>
+        </ContentDialog>
+    );
+}

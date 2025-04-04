@@ -35,10 +35,12 @@ export default function FormalContextPage() {
 
             <ObjectsList
                 className="lg:col-start-2 lg:col-end-3 lg:min-w-48"
+                route="/project/context"
                 selectedObjectIndex={selectedObject}
                 setSelectedObjectIndex={setSelectedObject} />
             <AttributesList
                 className="lg:col-start-3 lg:col-end-4 lg:min-w-48"
+                route="/project/context"
                 selectedAttributeIndex={selectedAttribute}
                 setSelectedAttributeIndex={setSelectedAttribute} />
         </PageContainer>
@@ -62,7 +64,8 @@ function Context(props: {
                 className="flex justify-between items-center pt-3 pb-2">
                 <CardSectionTitle className="mx-4">Context</CardSectionTitle>
                 <ExportButton
-                    className="mr-4" />
+                    className="mr-4"
+                    route="/project/context/export" />
             </header>
             {context ?
                 <ContextTable

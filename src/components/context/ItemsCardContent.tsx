@@ -17,6 +17,7 @@ export default function ItemsCardContent(props: {
     count: number,
     searchInputPlaceholder: string,
     items: Array<any>,
+    route: string,
     className?: string,
     itemKey: (item: any) => string | number,
     itemContent: (item: any, searchRegex?: RegExp) => React.ReactNode,
@@ -35,7 +36,8 @@ export default function ItemsCardContent(props: {
                     className="mb-2 flex justify-between">
                     <CardSectionTitle className="mx-4">{props.title}</CardSectionTitle>
                     <ExportButton
-                        className="mr-4" />
+                        className="mr-4"
+                        route={`${props.route}/export`} />
                 </div>
                 <div
                     className="self-stretch flex mx-4 mb-2 gap-2">

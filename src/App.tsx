@@ -23,15 +23,15 @@ const router = createBrowserRouter([
                 errorElement: <ErrorPage />,
                 children: [
                     {
-                        path: "/project/context",
-                        element: <FormalContextPage />
+                        path: "/project/context/*",
+                        element: <FormalContextPage />,
                     },
                     {
-                        path: "/project/diagram",
+                        path: "/project/diagram/*",
                         element: <DiagramPage />,
                     },
                     {
-                        path: "/project/explorer",
+                        path: "/project/explorer/*",
                         element: <ExplorerPage />,
                     },
                 ]

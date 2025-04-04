@@ -7,9 +7,11 @@ import { ContextCompleteItem, ContextItem } from "./types";
 import BackButton from "../inputs/BackButton";
 import NothingFound from "../NothingFound";
 import CardSection from "../CardSection";
+import ExportButton from "../ExportButton";
 
 export default function ItemCard(props: {
     className?: string,
+    route: string,
     item: ContextCompleteItem,
     backButtonContent: React.ReactNode,
     itemsHeading: React.ReactNode,
@@ -19,10 +21,16 @@ export default function ItemCard(props: {
         <CardSection
             className={props.className}>
             <header>
-                <BackButton
-                    onClick={props.onBackClick}>
-                    {props.backButtonContent}
-                </BackButton>
+                <div
+                    className="flex justify-between items-start w-full pr-4">
+                    <BackButton
+                        onClick={props.onBackClick}>
+                        {props.backButtonContent}
+                    </BackButton>
+
+                    <ExportButton
+                        route={`${props.route}/${props.item.index}/export`} />
+                </div>
 
                 <CardSectionTitle
                     className="mx-4 mb-2">

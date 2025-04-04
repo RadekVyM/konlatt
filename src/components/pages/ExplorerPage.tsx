@@ -18,6 +18,7 @@ export default function ExplorerPage() {
             className="grid grid-cols-1 grid-rows-[5fr_4fr] md:grid-rows-1 md:grid-cols-[minmax(18rem,2fr)_5fr] xl:grid-cols-[1fr_2.5fr_1fr] gap-2">
             <ConceptsList
                 type="without-controls"
+                route="/project/explorer"
                 selectedConceptIndex={selectedConceptIndex}
                 setSelectedConceptIndex={setSelectedConceptIndex} />
             <Diagram

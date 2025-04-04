@@ -11,6 +11,7 @@ export type ContextAttributeItem = ContextItem
 
 export default function AttributesList(props: {
     className?: string,
+    route: string,
     selectedAttributeIndex: number | null,
     setSelectedAttributeIndex: (index: number | null) => void,
 }) {
@@ -27,6 +28,7 @@ export default function AttributesList(props: {
                 className={cn(selectedAttribute && "hidden")}
                 items={attributes}
                 title="Attributes"
+                route={`${props.route}/attributes`}
                 count={context?.attributes.length || 0}
                 searchInputPlaceholder="Search attributes..."
                 itemContent={(item: ContextAttributeItem, regex) =>
@@ -38,6 +40,7 @@ export default function AttributesList(props: {
             {selectedAttribute &&
                 <ItemCardContent
                     item={selectedAttribute}
+                    route={`${props.route}/attribute`}
                     backButtonContent="All attributes"
                     itemsHeading={`${selectedAttribute.items.length} object${selectedAttribute.items.length === 1 ? "" : "s"}`}
                     onBackClick={() => props.setSelectedAttributeIndex(null)} />}

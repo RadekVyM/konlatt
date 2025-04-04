@@ -42,11 +42,13 @@ export default function DiagramCanvas(props: {
 }) {
     const gridCanvasRef = useRef<HTMLCanvasElement>(null);
     const linksCanvasRef = useRef<HTMLCanvasElement>(null);
+    const highlightedLinksCanvasRef = useRef<HTMLCanvasElement>(null);
     const nodesCanvasRef = useRef<HTMLCanvasElement>(null);
     const dimensions = useDimensions(props.ref);
     const width = dimensions.width * window.devicePixelRatio;
     const height = dimensions.height * window.devicePixelRatio;
     const [hoveredIndex, setHoveredIndex] = useState<null | number>(null);
+    const areThereInvisibleNodes = !!props.visibleConceptIndexes;
     const visibleRect = useMemo(() => getVisibleRect(props.zoomTransform, dimensions.width, dimensions.height), [props.zoomTransform, dimensions.width, dimensions.height]);
     const {
         draggedIndex,
@@ -69,6 +71,7 @@ export default function DiagramCanvas(props: {
     const {
         drawNodes,
         drawLinks,
+        drawHighlightedLinks,
     } = useDrawDiagram(
         props.layout,
         props.diagramOffsets,
@@ -113,6 +116,16 @@ export default function DiagramCanvas(props: {
 
     useEffect(() => {
         drawOnCanvas(
+            highlightedLinksCanvasRef.current,
+            true,
+            props.zoomTransform.x,
+            props.zoomTransform.y,
+            drawHighlightedLinks
+        );
+    }, [props.zoomTransform.x, props.zoomTransform.y, drawHighlightedLinks]);
+
+    useEffect(() => {
+        drawOnCanvas(
             nodesCanvasRef.current,
             true,
             props.zoomTransform.x,
@@ -139,9 +152,15 @@ export default function DiagramCanvas(props: {
                 height={height} />
             <canvas
                 ref={linksCanvasRef}
-                className="absolute inset-0 w-full h-full"
+                className={cn("absolute inset-0 w-full h-full", areThereInvisibleNodes && "opacity-35")}
                 width={width}
                 height={height} />
+            {areThereInvisibleNodes &&
+                <canvas
+                    ref={highlightedLinksCanvasRef}
+                    className="absolute inset-0 w-full h-full"
+                    width={width}
+                    height={height} />}
             <canvas
                 ref={nodesCanvasRef}
                 className="absolute inset-0 w-full h-full"
@@ -481,11 +500,61 @@ function useDrawDiagram(
         }
 
         context.stroke();
-    }, [lattice, concepts, targetPoints, visibleRect, deviceScale]);
+    }, [lattice.subconceptsMapping, concepts, targetPoints, visibleRect, deviceScale]);
+
+    const drawHighlightedLinks = useCallback((context: CanvasRenderingContext2D, computedStyle: CSSStyleDeclaration) => {
+        if (!visibleConceptIndexes) {
+            return;
+        }
+
+        const outlineColor = computedStyle.getPropertyValue("--on-surface-container");
+
+        context.strokeStyle = outlineColor;
+        context.lineWidth = 1 * deviceScale;
+
+        // It looks like a little batching of the lines to a single path is helpful only when zoomed out
+        // However, it is much worse when zoomed in
+        // I have no clue why...
+        const linesCountInBatch = 1;
+        let linesCount = 0;
+        context.beginPath();
+
+        for (const conceptIndex of visibleConceptIndexes) {
+            const subconcepts = lattice.subconceptsMapping[conceptIndex];
+            const [startX, startY, normalStartX, normalStartY] = targetPoints[conceptIndex];
+
+            for (const subconceptIndex of subconcepts) {
+                const [endX, endY, normalEndX, normalEndY] = targetPoints[subconceptIndex];
+
+                if (visibleConceptIndexes && !visibleConceptIndexes.has(subconceptIndex)) {
+                    continue;
+                }
+
+                //if (!isInRect(normalStartX, normalStartY, visibleRect) && !isInRect(normalEndX, normalEndY, visibleRect)) {
+                if (!crossesRect(normalStartX, normalStartY, normalEndX, normalEndY, visibleRect)) {
+                    continue;
+                }
+
+                // It looks like a little batching is helpful
+                if (linesCount !== 0 && linesCount % linesCountInBatch === 0) {
+                    context.stroke();
+                    context.beginPath();
+                }
+
+                context.moveTo(startX, startY);
+                context.lineTo(endX, endY);
+
+                linesCount++;
+            }
+        }
+
+        context.stroke();
+    }, [lattice.subconceptsMapping, targetPoints, visibleRect, deviceScale, visibleConceptIndexes]);
 
     return {
         drawNodes,
         drawLinks,
+        drawHighlightedLinks,
     };
 }
 

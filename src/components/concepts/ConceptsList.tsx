@@ -23,6 +23,7 @@ const MAX_TEXT_LENGTH = 500;
 
 export default function Concepts(props: {
     className?: string,
+    route: string,
     selectedConceptIndex: number | null,
     setSelectedConceptIndex: React.Dispatch<React.SetStateAction<number | null>>,
 } & (ConceptDetailWithControlsProps | ConceptDetailWithoutControlsProps)) {
@@ -31,11 +32,13 @@ export default function Concepts(props: {
             className={props.className}>
             <ConceptsList
                 className={cn(props.selectedConceptIndex !== null && "hidden")}
+                route={props.route}
                 setSelectedConceptIndex={props.setSelectedConceptIndex} />
             {props.selectedConceptIndex !== null &&
                 <ConceptDetail
                     key={props.selectedConceptIndex}
                     {...props}
+                    route={props.route}
                     selectedConceptIndex={props.selectedConceptIndex}
                     onBackClick={() => props.setSelectedConceptIndex(null)} />}
         </CardContainer>
@@ -44,6 +47,7 @@ export default function Concepts(props: {
 
 function ConceptsList(props: {
     className?: string,
+    route: string,
     setSelectedConceptIndex: (index: number | null) => void,
 }) {
     const [searchInput, setSearchInput] = useState<string>("");
@@ -68,7 +72,8 @@ function ConceptsList(props: {
                     </h2>
 
                     <ExportButton
-                        className="mr-4" />
+                        className="mr-4"
+                        route={`${props.route}/concepts/export`} />
                 </div>
                 <div
                     className="self-stretch flex mx-4 mb-2 gap-2">
