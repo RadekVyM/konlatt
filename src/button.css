@@ -6,7 +6,7 @@
   }
 
   .btn-icon {
-    @apply grid place-content-center;
+    @apply grid place-content-center aspect-square;
   }
 
   .btn-default {

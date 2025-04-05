@@ -31,6 +31,8 @@ export default function ObjectsList(props: {
                 route={`${props.route}/objects`}
                 count={context?.objects.length || 0}
                 searchInputPlaceholder="Search objects..."
+                filterTitle="Filter objects"
+                sortTitle="Sort objects"
                 itemContent={(item: ContextObjectItem, regex) =>
                     <HighlightedSearchTerms
                         text={item.title}

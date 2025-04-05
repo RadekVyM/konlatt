@@ -82,7 +82,9 @@ function ConceptsList(props: {
                         value={searchInput}
                         onChange={setSearchInput}
                         placeholder="Search concepts..." />
-                    <FilterOrderBar />
+                    <FilterOrderBar
+                        filterTitle="Filter concepts"
+                        sortTitle="Sort concepts" />
                 </div>
 
                 <Found

@@ -46,6 +46,7 @@ dist-ssr
 
 /benchmarks/native/*.exe
 /benchmarks/native/*.obj
+/benchmarks/native/mainapp
 
 
 /tests/__snapshots__

@@ -105,6 +105,8 @@ html {
   font-family: "Gabarito", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* This is needed because Safari is weird (and way too bold) */
+  font-synthesis: none;
 }
 
 body {

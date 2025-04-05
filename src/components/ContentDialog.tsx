@@ -1,57 +1,54 @@
-import { forwardRef, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { cn } from "../utils/tailwind";
 import { Dialog, DialogProps } from "./Dialog";
 import { MdClose } from "react-icons/md";
 import Button from "./inputs/Button";
 import { useLocation } from "react-router-dom";
 
-type ContentDialogProps = {
+export default function ContentDialog(props: {
+    ref: React.RefObject<HTMLDialogElement | null>,
     heading: React.ReactNode,
     notHideOnSubsequentLoads?: boolean,
     outerClassName?: string,
     onCloseClick?: () => void,
-} & DialogProps
-
-export const ContentDialog = forwardRef<HTMLDialogElement, ContentDialogProps>(({ heading, className, outerClassName, children, state, notHideOnSubsequentLoads, onCloseClick }, ref) => {
+} & DialogProps) {
     const initialLoadRef = useRef<boolean>(true);
     const location = useLocation();
 
+    // I forgot why exactly this is needed, but it is because of the new project dialog...
     useEffect(() => {
-        if (!notHideOnSubsequentLoads && !initialLoadRef.current) {
-            state.hide().then();
+        if (!props.notHideOnSubsequentLoads && !initialLoadRef.current) {
+            props.state.hide().then();
         }
 
         initialLoadRef.current = false;
-    }, [location, state.hide]);
+    }, [location, props.state.hide]);
 
     return (
         <Dialog
-            ref={ref}
-            state={state}
-            onEscape={onCloseClick}
-            outerClassName={outerClassName}
-            className={cn("px-5 pb-4 thin-scrollbar rounded-lg bg-surface-container isolate flex flex-col", className)}>
+            ref={props.ref}
+            state={props.state}
+            onEscape={props.onCloseClick}
+            outerClassName={props.outerClassName}
+            className={cn("px-5 pb-4 thin-scrollbar rounded-lg bg-surface-container isolate flex flex-col", props.className)}>
             <header
                 className="flex justify-between items-center sticky top-0 z-50 bg-inherit pt-4">
-                <h2 className="font-semibold text-xl">{heading}</h2>
+                <h2 className="font-semibold text-xl">{props.heading}</h2>
                 <Button
                     variant="icon-default"
                     onClick={async () => {
-                        if (onCloseClick) {
-                            onCloseClick();
+                        if (props.onCloseClick) {
+                            props.onCloseClick();
                         }
                         else {
-                            await state.hide();
+                            await props.state.hide();
                         }
                     }}>
                     <MdClose className="w-5 h-5" />
                 </Button>
             </header>
 
-            {children}
+            {props.children}
         </Dialog>
     );
-});
-
-ContentDialog.displayName = "ContentDialog";
-export default ContentDialog;
+}

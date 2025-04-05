@@ -16,6 +16,8 @@ export default function ItemsCardContent(props: {
     title: string,
     count: number,
     searchInputPlaceholder: string,
+    filterTitle: string,
+    sortTitle: string,
     items: Array<any>,
     route: string,
     className?: string,
@@ -45,8 +47,10 @@ export default function ItemsCardContent(props: {
                         className="flex-1"
                         value={searchInput}
                         onChange={setSearchInput}
-                        placeholder="Search concepts..." />
-                    <FilterOrderBar />
+                        placeholder={props.searchInputPlaceholder} />
+                    <FilterOrderBar
+                        filterTitle={props.filterTitle}
+                        sortTitle={props.sortTitle} />
                 </div>
 
                 <Found

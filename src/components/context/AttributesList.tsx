@@ -31,6 +31,8 @@ export default function AttributesList(props: {
                 route={`${props.route}/attributes`}
                 count={context?.attributes.length || 0}
                 searchInputPlaceholder="Search attributes..."
+                filterTitle="Filter attributes"
+                sortTitle="Sort attributes"
                 itemContent={(item: ContextAttributeItem, regex) =>
                     <HighlightedSearchTerms
                         text={item.title}

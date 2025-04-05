@@ -80,6 +80,10 @@ export default function ContextTable(props: {
         }
     }
 
+    // TODO: I have no idea why the column headers are not displayed sideways in Safari 🙃
+
+    // As little elements as possible is used to make it a bit more performant
+
     return (
         <div
             ref={containerRef}
@@ -96,6 +100,7 @@ export default function ContextTable(props: {
                     gridTemplateRows: `auto repeat(${props.context.objects.length}, ${cellHeight}px) 1fr`,
                     gridTemplateColumns: `auto repeat(${props.context.attributes.length}, ${cellWidth}px) 1fr`,
                 }}>
+                {/* Row highlight */}
                 {props.selectedObject !== null &&
                     <div
                         className="col-start-2 -col-end-2 bg-primary-lite rounded-r-md"
@@ -105,6 +110,7 @@ export default function ContextTable(props: {
                         }}>
                     </div>}
 
+                {/* Column highlight */}
                 {props.selectedAttribute !== null &&
                     <div
                         className="row-start-2 -row-end-2 bg-primary-lite rounded-b-md"
@@ -114,6 +120,7 @@ export default function ContextTable(props: {
                         }}>
                     </div>}
 
+                {/* All the cells */}
                 {cells.map((cell) =>
                     <TableCell
                         key={`${cell.column} ${cell.row}`}
@@ -122,47 +129,52 @@ export default function ContextTable(props: {
                         onHoverChange={onHoverChange}
                         onClick={onCellClick} />)}
 
+                {/* Background of the row headers */}
                 <div
                     className={cn(
                         "col-start-1 col-end-2 row-start-1 -row-end-1 bg-surface-container sticky left-0",
                         containerScroll[0] > 0 && "border-r border-outline-variant shadow")}>
                 </div>
 
+                {/* Row headers */}
                 {rowHeaders.map((header) =>
                     <span
-                        key={header.cell}
+                        key={`row-header-${header.cell}`}
                         role="rowheader"
                         className={cn(
-                            "rh",
+                            "rhead",
                             header.cell === props.selectedObject && "selected rounded-l-md",
                             header.cell === hoveredRow && "hovered")}
                         style={{
                             gridRowStart: header.cell + 2
                         }}
                         title={header.content}>
-                        <span className="rhc">{header.content}</span>
+                        <span>{header.content}</span>
                     </span>)}
-                
+
+                {/* Row dividers */}
                 {rowHeaders.map((header) =>
                     <div
-                        key={header.cell}
+                        key={`row-dividers-${header.cell}`}
                         className="row"
                         style={{
                             gridRowStart: header.cell + 2
                         }}>
                     </div>)}
 
+                {/* Background of the column headers */}
                 <div
                     className="row-start-1 row-end-2 col-start-1 -col-end-1 bg-surface-container border-b border-outline shadow sticky top-0">
                 </div>
 
+                {/* Column headers */}
                 {columnHeaders.map((header) =>
                     <div
-                        key={header.cell}
+                        key={`column-header-${header.cell}`}
                         role="columnheader"
                         className={cn(
-                            "ch",
-                            columnHeadersSideways && "s",
+                            "chead",
+                            columnHeadersSideways && "sideways",
                             header.cell === hoveredColumn && "hovered",
                             header.cell === props.selectedAttribute && "selected rounded-t-md")}
                         style={{
@@ -172,6 +184,7 @@ export default function ContextTable(props: {
                         {header.content}
                     </div>)}
 
+                {/* That rectangle in the top left corner that hides headers scrolled out of the view */}
                 <div
                     className="row-start-1 row-end-2 col-start-1 col-end-2 bg-surface-container border-b border-outline sticky top-0 left-0">
                 </div>

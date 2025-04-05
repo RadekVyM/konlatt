@@ -5,12 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "asbuild:debug": "asc src/wasm/as/main.ts --target debug --runtime minimal --exportRuntime",
-    "asbuild:release": "asc src/wasm/as/main.ts --target release --runtime minimal --exportRuntime",
-    "build:emscripten": "docker run --rm -it -v \"%cd%:/usr/src\" -w /usr/src emscripten/emsdk bash -c ./emscripten.build.sh",
+    "build": "tsc -b && vite build",
+    "build:as:debug": "asc src/wasm/as/main.ts --target debug --runtime minimal --exportRuntime",
+    "build:as:release": "asc src/wasm/as/main.ts --target release --runtime minimal --exportRuntime",
+    "build:emscripten": "docker run --rm -it -v \"./:/usr/src\" -w /usr/src emscripten/emsdk:4.0.6 bash -c \"chmod +x ./emscripten.build.sh && ./emscripten.build.sh\"",
+    "build:emscripten-arm": "docker run --rm -it -v \"./:/usr/src\" -w /usr/src emscripten/emsdk:4.0.6-arm64 bash -c \"chmod +x ./emscripten.build.sh && ./emscripten.build.sh\"",
     "test": "vitest run"
   },
   "dependencies": {
