@@ -4,7 +4,7 @@
 // cl /O2 /GL /fp:fast /favor:blend /Oi /EHsc ./main.cpp
 
 // docker build -f dockerfile.wins -t cpp-windows-clang .
-// docker run --rm -v "./:/app" cpp-windows-clang
+// docker run --rm -v "${PWD}:/app" cpp-windows-clang
 
 // clang++ -std=gnu++17 -O3 ./benchmarks/native/main.cpp -o ./benchmarks/native/mainapp
 

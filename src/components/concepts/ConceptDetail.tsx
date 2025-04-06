@@ -57,9 +57,9 @@ export default function ConceptDetail(props: {
                 {(isThisInfimum || isThisSupremum) &&
                     <small
                         className="mx-4 block text-sm text-on-surface-container-muted">
-                        {isThisInfimum && "infimum"}
+                        {isThisInfimum && "most specific"}
                         {isThisInfimum && isThisSupremum && " | "}
-                        {isThisSupremum && "supremum"}
+                        {isThisSupremum && "most general"}
                     </small>}
             </header>
             
