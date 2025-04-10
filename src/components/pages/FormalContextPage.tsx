@@ -7,8 +7,8 @@ import ObjectsList from "../context/ObjectsList";
 import AttributesList from "../context/AttributesList";
 import NothingFound from "../NothingFound";
 import CardSectionTitle from "../CardSectionTitle";
-import ExportButton from "../ExportButton";
 import PageContainer from "../PageContainer";
+import ExportButton from "../export/ExportButton";
 
 export default function FormalContextPage() {
     const context = useProjectStore((state) => state.context);

@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Button from "../inputs/Button";
 import { LuFolderPlus } from "react-icons/lu";
 import useNewProjectStore from "../../hooks/stores/useNewProjectStore";
@@ -6,14 +6,17 @@ import useDialog from "../../hooks/useDialog";
 import { useEffect } from "react";
 import NewProjectDialog from "../NewProjectDialog";
 import StatusSection from "./StatusSection";
+import FormatsButton from "../formats/FormatsButton";
 
 export default function RootLayout() {
-    const dialogState = useDialog();
+    const newProjectDialogState = useDialog();
     const setDialogState = useNewProjectStore((state) => state.setDialogState);
+    const location = useLocation();
+    const isRootPage = location.pathname === "/";
 
     useEffect(() => {
-        setDialogState(dialogState);
-    }, [dialogState]);
+        setDialogState(newProjectDialogState);
+    }, [newProjectDialogState]);
 
     return (
         <div
@@ -26,13 +29,17 @@ export default function RootLayout() {
 
                 <StatusSection />
 
-                <Button
-                    className="justify-self-end col-start-3"
-                    onClick={() => dialogState.show()}
-                    variant="container">
-                    <LuFolderPlus />
-                    <span className="text-sm leading-4">New project</span>
-                </Button>
+                {isRootPage ?
+                    <FormatsButton
+                        className="justify-self-end col-start-3"
+                        withText /> :
+                    <Button
+                        className="justify-self-end col-start-3"
+                        variant="container"
+                        onClick={newProjectDialogState.show}>
+                        <LuFolderPlus />
+                        <span className="text-sm leading-4">New project</span>
+                    </Button>}
             </header>
 
             <main
@@ -41,7 +48,7 @@ export default function RootLayout() {
             </main>
 
             <NewProjectDialog
-                state={dialogState} />
+                state={newProjectDialogState} />
         </div>
     );
 }

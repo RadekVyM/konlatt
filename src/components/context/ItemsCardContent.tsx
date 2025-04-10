@@ -10,7 +10,7 @@ import CardSection from "../CardSection";
 import { searchStringFilter, searchTermsToRegex } from "../../utils/search";
 import FilterOrderBar from "../FilterOrderBar";
 import Found from "../Found";
-import ExportButton from "../ExportButton";
+import ExportButton from "../export/ExportButton";
 
 export default function ItemsCardContent(props: {
     title: string,

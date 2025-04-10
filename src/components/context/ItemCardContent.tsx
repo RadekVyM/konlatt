@@ -7,7 +7,7 @@ import { ContextCompleteItem, ContextItem } from "./types";
 import BackButton from "../inputs/BackButton";
 import NothingFound from "../NothingFound";
 import CardSection from "../CardSection";
-import ExportButton from "../ExportButton";
+import ExportButton from "../export/ExportButton";
 
 export default function ItemCard(props: {
     className?: string,

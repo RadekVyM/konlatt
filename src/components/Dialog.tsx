@@ -23,6 +23,7 @@ export function Dialog(props: {
                 ref={props.ref}
                 onCancel={async (e) => {
                     e.preventDefault();
+
                     if (!e.bubbles) {
                         // I want to hide the dialog only when the ESC key is pressed on the dialog.
                         // When the event bubbles, for example, from a file dialog,
@@ -35,13 +36,13 @@ export function Dialog(props: {
                         }
                     }
                 }}
-                className={cn("w-full h-full max-w-full max-h-full p-5",
+                className={cn("w-full h-full max-w-full max-h-full p-5 overflow-clip",
                     "grid items-center",
                     "bg-transparent backdrop:bg-[rgba(27,30,39,0.5)] dark:backdrop:bg-[rgba(23,25,32,0.8)]",
                     props.outerClassName,
                     props.state.animationClass)}>
                 <article
-                    className={cn(props.className, "border border-outline-variant m-auto w-full")}>
+                    className={cn("border border-outline-variant m-auto w-full", props.className)}>
                     {props.children}
                 </article>
             </dialog>,

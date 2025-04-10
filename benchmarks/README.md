@@ -20,13 +20,13 @@ the highest levels of compiler optimizations
 | **Native Clang**   | 1133.62  |
 | Native VS 2022     | 1634.48  |
 | Native G++         | 1728.24  |
-| **Node C++**       | 1300.52  |
-| **Node AS**        | 4702.86  |
-| Chrome C++         | 1463.44  |
-| Chrome C++ Worker  | 1446.78  |
+| **Node C++**       | 1281.96  |
+| **Node AS**        | 4613.60  |
+| Chrome C++         | 1400.08  |
+| Chrome C++ Worker  | 1429.64  |
 | Chrome AS          | 4167.76  |
 | Chrome AS Worker   | 4085.82  |
-| Firefox C++        | 1772.5   |
+| Firefox C++        | 1772.50  |
 | Firefox C++ Worker | 1716.92  |
 | Firefox AS         | 4200.46  |
 | Firefox AS Worker  | 4318.34  |

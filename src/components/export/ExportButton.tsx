@@ -1,5 +1,5 @@
 import { LuDownload } from "react-icons/lu";
-import Button from "./inputs/Button";
+import Button from "../inputs/Button";
 import ExportDialog from "./ExportDialog";
 import { useNavigate } from "react-router-dom";
 

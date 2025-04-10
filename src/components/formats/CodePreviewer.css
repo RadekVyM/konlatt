@@ -1,0 +1,15 @@
+@reference "../../index.css";
+
+pre.code-line {
+    @apply col-start-1 col-end-3 grid grid-cols-subgrid items-center pr-3;
+
+    &::before {
+        content: attr(data-line);
+
+        @apply text-end text-on-surface-muted text-sm transition-colors sticky left-0 pr-4 pl-3 bg-surface;
+    }
+
+    &:hover::before {
+        @apply text-primary font-semibold;
+    }
+}

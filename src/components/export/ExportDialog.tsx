@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
-import useDialog from "../hooks/useDialog";
-import ContentDialog from "./ContentDialog";
+import useDialog from "../../hooks/useDialog";
+import ContentDialog from "../ContentDialog";
 import { useLocation, useNavigate } from "react-router-dom";
-import Container from "./Container";
-import ComboBox from "./inputs/ComboBox";
-import Button from "./inputs/Button";
+import Container from "../Container";
+import ComboBox from "../inputs/ComboBox";
+import Button from "../inputs/Button";
 import { LuCopy, LuDownload } from "react-icons/lu";
+import FormatsButton from "../formats/FormatsButton";
 
 const DEFAULT_FORMAT = "json";
 const FORMATS: Array<{ key: string, label: string }> = [
-    { key: "json", label: "JSON (.json)" },
-    { key: "xml", label: "XML (.xml)" },
-    { key: "csv", label: "CSV (.csv)" },
+    { key: "json", label: "JSON" },
+    { key: "xml", label: "XML" },
+    { key: "csv", label: "CSV" },
 ];
 
 export default function ExportDialog(props: {
@@ -43,15 +44,20 @@ export default function ExportDialog(props: {
             notHideOnSubsequentLoads={true}
             onCloseClick={() => navigate(-1)}>
             <div
-                className="pt-4 flex-1 flex flex-col gap-3">
+                className="pt-2 flex-1 flex flex-col gap-3">
                 <div
                     className="flex justify-between gap-3">
-                    <ComboBox
-                        id={`${props.route}-format`}
-                        className="w-full max-w-64"
-                        items={FORMATS}
-                        selectedKey={selectedFormat}
-                        onKeySelectionChange={setSelectedFormat} />
+                    <div
+                        className="w-full flex-1 flex gap-2">
+                        <ComboBox
+                            id={`${props.route}-format`}
+                            className="w-full max-w-72"
+                            items={FORMATS}
+                            selectedKey={selectedFormat}
+                            onKeySelectionChange={setSelectedFormat} />
+
+                        <FormatsButton />
+                    </div>
                     
                     <div
                         className="flex gap-3">

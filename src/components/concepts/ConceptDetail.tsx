@@ -15,7 +15,7 @@ import { LuShapes, LuTags } from "react-icons/lu";
 import Found from "../Found";
 import ToggleSwitch from "../inputs/ToggleSwitch";
 import { ConceptDetailWithControlsProps, ConceptDetailWithoutControlsProps } from "./types";
-import ExportButton from "../ExportButton";
+import ExportButton from "../export/ExportButton";
 
 type TabItem = "objects" | "attributes"
 

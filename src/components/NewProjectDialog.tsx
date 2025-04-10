@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import useConceptLattice from "../hooks/useConceptLattice";
 import useNewProjectStore from "../hooks/stores/useNewProjectStore";
 import { FILE_INPUT_ACCEPT } from "../constants/files";
+import FormatsButton from "./formats/FormatsButton";
 
 const DEFAULT_FILE_TYPE = "burmeister";
 const FILE_TYPES: Array<{ key: string, label: string }> = [
@@ -48,7 +49,7 @@ export default function NewProjectDialog(props: {
             heading="New project"
             className="w-full max-w-xl max-h-full rounded-md">
             <div
-                className="pt-4">
+                className="pt-2">
                 {!selectedFile ?
                     <LargeFileSelection
                         className="w-full"
@@ -66,12 +67,16 @@ export default function NewProjectDialog(props: {
 
                         <label className="text-sm mb-1 block">File format</label>
 
-                        <ComboBox
-                            id="file-type-selection"
-                            className="mb-4"
-                            onKeySelectionChange={setSelectedFileType}
-                            selectedKey={selectedFileType}
-                            items={FILE_TYPES} />
+                        <div
+                            className="mb-4 flex gap-2">
+                            <ComboBox
+                                id="file-type-selection"
+                                className="flex-1"
+                                onKeySelectionChange={setSelectedFileType}
+                                selectedKey={selectedFileType}
+                                items={FILE_TYPES} />
+                            <FormatsButton />
+                        </div>
 
                         <Button
                             variant="primary"

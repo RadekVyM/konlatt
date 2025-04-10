@@ -10,6 +10,7 @@ export default function ContentDialog(props: {
     heading: React.ReactNode,
     notHideOnSubsequentLoads?: boolean,
     outerClassName?: string,
+    headerClassName?: string,
     onCloseClick?: () => void,
 } & DialogProps) {
     const initialLoadRef = useRef<boolean>(true);
@@ -32,7 +33,7 @@ export default function ContentDialog(props: {
             outerClassName={props.outerClassName}
             className={cn("px-5 pb-4 thin-scrollbar rounded-lg bg-surface-container isolate flex flex-col", props.className)}>
             <header
-                className="flex justify-between items-center sticky top-0 z-50 bg-inherit pt-4">
+                className={cn("flex justify-between items-center z-50 bg-inherit pt-4 pb-2", props.headerClassName)}>
                 <h2 className="font-semibold text-xl">{props.heading}</h2>
                 <Button
                     variant="icon-default"

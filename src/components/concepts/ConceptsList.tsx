@@ -14,10 +14,10 @@ import { FormalConcept } from "../../types/FormalConcepts";
 import { FormalContext } from "../../types/FormalContext";
 import HighlightedSearchTerms from "../HighlightedSearchTerms";
 import { searchTermsToRegex } from "../../utils/search";
-import ExportButton from "../ExportButton";
 import useDebouncedValue from "../../hooks/useDebouncedValue";
 import SearchInput from "../inputs/SearchInput";
 import { ConceptDetailWithControlsProps, ConceptDetailWithoutControlsProps } from "./types";
+import ExportButton from "../export/ExportButton";
 
 const MAX_TEXT_LENGTH = 500;
 
