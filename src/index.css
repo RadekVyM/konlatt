@@ -146,6 +146,15 @@ body {
   @apply bg-transparent;
 }
 
+.hidden-scrollbar {
+  -ms-overflow-style: none; /* for Internet Explorer, Edge */
+  scrollbar-width: none; /* for Firefox */
+  overflow-y: scroll;
+}
+.hidden-scrollbar::-webkit-scrollbar {
+  display: none; /* for Chrome, Safari, and Opera */
+}
+
 .with-logo::before {
   content: "";
   background-image: url("/images/logo_light.svg");

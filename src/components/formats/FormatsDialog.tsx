@@ -8,6 +8,7 @@ import csvContextExample from "./examples/context.csv?raw";
 import xmlContextExample from "./examples/context.xml?raw";
 import Button from "../inputs/Button";
 import CodePreviewer from "./CodePreviewer";
+import HorizontalScroller from "../HorizontalScroller";
 
 type ExportedObjectId = "context" |
     "objects" |
@@ -170,25 +171,37 @@ export default function FormatsDialog(props: {
             ref={props.state.dialogRef}
             state={props.state}
             heading="Supported formats">
-            <div
-                className="px-5 grid grid-cols-[1fr_15rem] gap-5 max-h-full overflow-y-auto thin-scrollbar">
-                <div
-                    className="col-start-2 hidden md:block">
-                    <Contents />
-                </div>
-                <div
-                    className="col-start-1 col-end-3 md:col-end-2 row-start-1">
-                    {EXPORTED_OBJECTS.map((exportedObject) =>
-                        <ExportedObjectSection
-                            key={exportedObject.id}
-                            exportedObject={exportedObject} />)}
-                </div>
-            </div>
+            <DialogContent />
         </ContentDialog>
     );
 }
 
-function Contents() {
+function DialogContent() {
+    const { scrolledToExportedObjectId, onScroll } = useScrolledToExportedObject();
+
+    return (
+        <div
+            onScroll={onScroll}
+            className="px-5 grid grid-cols-1 md:grid-cols-[1fr_15rem] gap-5 max-h-full overflow-y-auto thin-scrollbar">
+            <div
+                className="col-start-2 hidden md:block">
+                <Contents
+                    scrolledToExportedObjectId={scrolledToExportedObjectId} />
+            </div>
+            <div
+                className="col-start-1 col-end-2 row-start-1">
+                {EXPORTED_OBJECTS.map((exportedObject) =>
+                    <ExportedObjectSection
+                        key={exportedObject.id}
+                        exportedObject={exportedObject} />)}
+            </div>
+        </div>
+    );
+}
+
+function Contents(props: {
+    scrolledToExportedObjectId: ExportedObjectId,
+}) {
     return (
         <div
             className="sticky top-4 border-l border-outline pl-5 mt-4">
@@ -199,7 +212,11 @@ function Contents() {
                 {EXPORTED_OBJECTS.map((exportedObject) =>
                     <li
                         key={exportedObject.id}>
-                        <ContentsLink formatId={exportedObject.id}>{exportedObject.title}</ContentsLink>
+                        <ContentsLink
+                            formatId={exportedObject.id}
+                            className={cn(props.scrolledToExportedObjectId === exportedObject.id && "text-on-surface-container")}>
+                            {exportedObject.title}
+                        </ContentsLink>
                     </li>)}
             </ul>
         </div>
@@ -209,10 +226,11 @@ function Contents() {
 function ContentsLink(props: {
     formatId: string,
     children: React.ReactNode,
+    className?: string,
 }) {
     return (
         <a
-            className="hover:text-on-surface-container transition-colors text-sm text-on-surface-container-muted"
+            className={cn("hover:text-on-surface-container transition-colors text-sm text-on-surface-container-muted", props.className)}
             href={`#${props.formatId}`}
             onClick={(e) => {
                 e.preventDefault();
@@ -251,17 +269,18 @@ function ExportedObjectSection(props: {
                     {props.exportedObject.description}
                 </p>}
 
-            <div
-                className="flex gap-2 mb-3">
+            <HorizontalScroller
+                className="mb-3">
                 {props.exportedObject.formats.map((format) =>
                     <Button
                         key={format.id}
                         size="sm"
+                        className="w-fit text-nowrap"
                         variant={selectedFormatId === format.id ? "primary" : "default"}
                         onClick={() => setSelectedFormatId(format.id)}>
                         {format.title}
                     </Button>)}
-            </div>
+            </HorizontalScroller>
 
             {selectedFormat &&
                 <>
@@ -326,4 +345,38 @@ function InputOutputList(props: {
                 </Pill>}
         </div>
     );
+}
+
+function useScrolledToExportedObject() {
+    const [scrolledToExportedObjectId, setScrolledToExportedObjectId] = useState<ExportedObjectId>("context");
+
+    function onScroll(e: React.UIEvent<HTMLDivElement, UIEvent>) {
+        const sections = [...e.currentTarget.querySelectorAll<HTMLElement>(":scope > * > section")];
+        const scrollTop = e.currentTarget.scrollTop;
+        const scrollHeight = e.currentTarget.scrollHeight;
+        const containerOffsetTop = e.currentTarget.offsetTop;
+
+        if (Math.abs(scrollTop - scrollHeight) < 0.8) {
+            const section = sections[sections.length - 1];
+            // Danger ahead...
+            setScrolledToExportedObjectId(section.id as ExportedObjectId);
+            return;
+        }
+
+        for (const section of sections) {
+            const detectEarlierOffset = 50;
+            const offsetTop = section.offsetTop - containerOffsetTop - detectEarlierOffset;
+
+            if (scrollTop >= offsetTop && scrollTop < offsetTop + section.offsetHeight) {
+                // Danger ahead...
+                setScrolledToExportedObjectId(section.id as ExportedObjectId);
+                return;
+            }
+        }
+    }
+
+    return {
+        scrolledToExportedObjectId,
+        onScroll,
+    };
 }
