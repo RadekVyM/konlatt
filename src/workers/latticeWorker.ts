@@ -67,9 +67,9 @@ async function parseFileContent(jobId: number, fileContent: string) {
     }
 
     // https://www.audjust.com/blog/wasm-and-workers
-    const { parseBurmeister } = await import("../services/contextParsing");
+    const { parseFileContent } = await import("../services/contextParsing");
 
-    formalContext = await parseBurmeister(fileContent);
+    formalContext = await parseFileContent(fileContent);
     self.postMessage(createContextParsingResponse(jobId, formalContext));
 }
 

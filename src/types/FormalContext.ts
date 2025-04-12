@@ -1,4 +1,4 @@
-const FORMAL_CONTEXT_CELL_SIZE: number = 64;
+export const FORMAL_CONTEXT_CELL_SIZE: number = 32;
 
 export type FormalContext = {
     readonly context: ReadonlyArray<number>,

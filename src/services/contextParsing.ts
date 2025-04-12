@@ -1,19 +1,8 @@
 import { FormalContext } from "../types/FormalContext";
-import Module from "../wasm/cpp";
-import { cppStringArrayToJs, cppUIntArrayToJs } from "../utils/cpp";
+import parseBurmeister from "./parsing/burmeister";
 
-export async function parseBurmeister(content: string): Promise<FormalContext> {
-    const module = await Module();
-    const context = module.parseBurmeister(content);
-    const result: FormalContext = {
-        context: [...cppUIntArrayToJs(context.context, true)],
-        attributes: [...cppStringArrayToJs(context.attributes, true)],
-        objects: [...cppStringArrayToJs(context.objects, true)],
-        cellSize: context.cellSize,
-        cellsPerObject: context.cellsPerObject,
-    };
-
-    context.delete();
-
-    return result;
+export async function parseFileContent(content: string): Promise<FormalContext> {
+    // TODO: Support more formats
+    const context = parseBurmeister(content);
+    return new Promise((resolve) => resolve(context));
 }
