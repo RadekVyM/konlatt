@@ -218,8 +218,9 @@ std::unique_ptr<std::vector<std::vector<int>>> reduceCrossingsUsingAverage(
         auto& reducedLayer = (*reducedLayers)[i] = vector<int>(layer.begin(), layer.end());
         int offset = horizontalCoords[layer[0]];
 
+        // Future self, be aware of the strict weak ordering! You are welcome!
         std::sort(reducedLayer.begin(), reducedLayer.end(), [&](int a, int b) {
-            return (*averages)[a] <= (*averages)[b];
+            return (*averages)[a] < (*averages)[b];
         });
 
         for (int j = 0; j < reducedLayer.size(); j++) {
