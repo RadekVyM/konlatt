@@ -108,7 +108,6 @@ void inCloseImpl(
                 lastObjectIndex,
                 j - 1
             )) {
-            
                 std::vector<int> newIntent = formalConcepts[parentConceptIndex].getAttributesCopy();
                 newIntent.push_back(j);
                 std::vector<int> newExtent(newExtentBuffer.begin(), newExtentBuffer.begin() + lastObjectIndex);

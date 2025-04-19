@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "FormalConcept.h"
 #include <stdio.h>
 #include <iostream>
 #include <chrono>
@@ -7,6 +8,7 @@
 #include <locale>
 #include <vector>
 #include <string>
+#include <unordered_set>
 
 using namespace std;
 
@@ -74,6 +76,15 @@ bool isSortedSubsetOf(std::vector<int>& subset, std::vector<int>& superset) {
     return j == subset.size();
 }
 
+template <typename T>
+void printCollection(const T& collection) {
+    std::cout << "[ ";
+    for (const auto& value : collection) {
+        std::cout << value << " ";
+    }
+    std::cout << "]\n";
+}
+
 void printFormalContext(
     std::vector<unsigned int>& contextMatrix,
     int cellSize,
@@ -106,6 +117,36 @@ void printIndexedFormalConcepts(std::vector<IndexedFormalConcept>& concepts) {
         }
         std::cout << "]\n";
     }
+}
+
+int maxSizeOfSets(std::vector<std::unordered_set<int>>& sets) {
+    int maximum = 0;
+
+    for (auto item : sets) {
+        maximum = max(maximum, (int)item.size());
+    }
+
+    return maximum;
+}
+
+int maxSizeOfVectors(std::vector<std::vector<int>>& vectors) {
+    int maximum = 0;
+
+    for (auto item : vectors) {
+        maximum = max(maximum, (int)item.size());
+    }
+
+    return maximum;
+}
+
+int sumOfVectorSizes(std::vector<std::vector<int>>& vectors) {
+    int sum = 0;
+
+    for (auto item : vectors) {
+        sum += item.size();
+    }
+
+    return sum;
 }
 
 inline void trimStart(std::string &s) {

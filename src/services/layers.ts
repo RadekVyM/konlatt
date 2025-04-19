@@ -3,27 +3,10 @@ import { FormalConcept } from "../types/FormalConcepts";
 export function assignNodesToLayersByLongestPath(startConcept: FormalConcept, coverRelation: ReadonlyArray<Set<number>>) {
     const layersMapping = new Array<number>(coverRelation.length);
     const layers = new Array<Set<number>>();
-    const visited = new Array<boolean>(coverRelation.length);
 
-    const topologicalOrder = Array<number>(coverRelation.length);
-    let sortedLastIndex = coverRelation.length - 1;
-
-    topologicalSort(startConcept.index);
-
-    // https://en.wikipedia.org/wiki/Longest_path_problem#Acyclic_graphs
-    function topologicalSort(currentIndex: number) {
-        const subconcepts = coverRelation[currentIndex];
-        visited[currentIndex] = true;
-
-        for (const subconceptIndex of subconcepts) {
-            if (!visited[subconceptIndex]) {
-                topologicalSort(subconceptIndex);
-            }
-        }
-
-        topologicalOrder[sortedLastIndex] = currentIndex;
-        sortedLastIndex--;
-    }
+    const topologicalOrder = topologicalSort(
+        startConcept.index,
+        coverRelation);
 
     layersMapping[startConcept.index] = 0;
     layers[0] = new Set<number>();
@@ -54,4 +37,45 @@ export function assignNodesToLayersByLongestPath(startConcept: FormalConcept, co
         layersMapping,
         layers,
     };
+}
+
+function topologicalSort(startConceptIndex: number, coverRelation: ReadonlyArray<Set<number>>) {
+    const visited = new Array<boolean>(coverRelation.length);
+    const topologicalOrder = Array<number>(coverRelation.length);
+
+    topologicalSortImpl(
+        startConceptIndex,
+        coverRelation,
+        visited,
+        topologicalOrder,
+        { value: coverRelation.length - 1 });
+
+    return topologicalOrder;
+}
+
+function topologicalSortImpl(
+    currentIndex: number,
+    coverRelation: ReadonlyArray<Set<number>>,
+    visited: Array<boolean>,
+    topologicalOrder: Array<number>,
+    sortedLastIndex: { value: number }
+) {
+    // https://en.wikipedia.org/wiki/Longest_path_problem#Acyclic_graphs
+
+    const subconcepts = coverRelation[currentIndex];
+    visited[currentIndex] = true;
+
+    for (const subconceptIndex of subconcepts) {
+        if (!visited[subconceptIndex]) {
+            topologicalSortImpl(
+                subconceptIndex,
+                coverRelation,
+                visited,
+                topologicalOrder,
+                sortedLastIndex);
+        }
+    }
+
+    topologicalOrder[sortedLastIndex.value] = currentIndex;
+    sortedLastIndex.value--;
 }

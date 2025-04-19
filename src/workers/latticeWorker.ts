@@ -111,7 +111,7 @@ async function calculateLayout(jobId: number, concepts: FormalConcepts, lattice:
 
     const { computeLayeredLayout } = await import("../services/layouts/layeredLayout");
 
-    const { layout, computationTime } = computeLayeredLayout(concepts, lattice);
+    const { layout, computationTime } = await computeLayeredLayout(concepts, lattice);
     diagramLayout = layout;
     const layoutMessage: LayoutComputationResponse = {
         jobId,

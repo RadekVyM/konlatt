@@ -10,8 +10,9 @@
     "build": "tsc -b && vite build",
     "build:as:debug": "asc src/wasm/as/main.ts --target debug --runtime minimal --exportRuntime",
     "build:as:release": "asc src/wasm/as/main.ts --target release --runtime minimal --exportRuntime",
-    "build:emscripten": "docker run --rm -it -v \"./:/usr/src\" -w /usr/src emscripten/emsdk:4.0.6 bash -c \"chmod +x ./emscripten.build.sh && ./emscripten.build.sh\"",
-    "build:emscripten-arm": "docker run --rm -it -v \"./:/usr/src\" -w /usr/src emscripten/emsdk:4.0.6-arm64 bash -c \"chmod +x ./emscripten.build.sh && ./emscripten.build.sh\"",
+    "build:emscripten-wins": "docker run --rm -it -v \"%cd%:/usr/src\" -w /usr/src emscripten/emsdk bash -c \"chmod +x ./emscripten.build.sh && ./emscripten.build.sh\"",
+    "build:emscripten-unix": "docker run --rm -it -v \"${PWD}:/usr/src\" -w /usr/src emscripten/emsdk:4.0.6 bash -c \"chmod +x ./emscripten.build.sh && ./emscripten.build.sh\"",
+    "build:emscripten-arm-unix": "docker run --rm -it -v \"${PWD}:/usr/src\" -w /usr/src emscripten/emsdk:4.0.6-arm64 bash -c \"chmod +x ./emscripten.build.sh && ./emscripten.build.sh\"",
     "test": "vitest run"
   },
   "dependencies": {

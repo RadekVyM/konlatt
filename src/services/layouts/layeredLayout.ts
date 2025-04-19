@@ -3,12 +3,34 @@ import { ConceptLatticeLayout } from "../../types/ConceptLatticeLayout";
 import { FormalConcepts, getSupremum } from "../../types/FormalConcepts";
 import { createPoint, Point } from "../../types/Point";
 import { assignNodesToLayersByLongestPath } from "../layers";
+import Module from "../../wasm/cpp";
+import { cppFloatArrayToLayout, jsArrayToCppIntArray } from "../../utils/cpp";
 
-export function computeLayeredLayout(formalConcepts: FormalConcepts, lattice: ConceptLattice): {
+export async function computeLayeredLayout(formalConcepts: FormalConcepts, lattice: ConceptLattice): Promise<{
+    layout: ConceptLatticeLayout,
+    computationTime: number,
+}> {
+    const module = await Module();
+    // TODO: use iterators when available: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Iterator/flatMap
+    //const subconceptsMappingArrayBuffer = new Int32Array(lattice.subconceptsMapping.flatMap((set) => [set.size, ...set]));
+
+    const input = jsArrayToCppIntArray(module, lattice.superconceptsMapping.flatMap((set) => [set.size, ...set]));
+    const result = module.computeLayeredLayout(getSupremum(formalConcepts).index, formalConcepts.length, input);
+
+    input.delete();
+
+    return {
+        layout: cppFloatArrayToLayout(result.value, formalConcepts.length, true),
+        computationTime: result.time,
+    };
+}
+
+export function computeLayeredLayoutJs(formalConcepts: FormalConcepts, lattice: ConceptLattice): {
     layout: ConceptLatticeLayout,
     computationTime: number,
 } {
     const startTime = new Date().getTime();
+
     const { layers, layersMapping } = assignNodesToLayersByLongestPath(getSupremum(formalConcepts), lattice.subconceptsMapping);
     const { layersWithDummies, horizontalCoords, dummySuperconceptsMapping, dummySubconceptsMapping } = addDummies(
         formalConcepts.length,
@@ -72,7 +94,7 @@ function reduceCrossingsUsingAverage(
     topToBottom: boolean = true,
 ) {
     const reducedLayers = new Array<Array<number>>(layers.length);
-    const averages = new Array<number>(layers.reduce((prev, curr) => Math.max(curr.length, prev), 0));
+    const averages = new Array<number>(horizontalCoords.length);
     const first = topToBottom ? 0 : layers.length - 1;
     const second = topToBottom ? 1 : layers.length - 2;
     const increase = topToBottom ? 1 : -1;

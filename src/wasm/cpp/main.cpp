@@ -15,6 +15,9 @@
 #include "burmeister.cpp"
 #include "inClose.cpp"
 #include "lattice.cpp"
+#include "layers.cpp"
+#include "layeredLayout.cpp"
+#include "layouts.cpp"
 
 using namespace emscripten;
 using namespace std;
@@ -23,6 +26,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
     emscripten::register_vector<std::string>("StringArray");
     emscripten::register_vector<unsigned int>("UIntArray");
     emscripten::register_vector<int>("IntArray");
+    emscripten::register_vector<float>("FloatArray");
     emscripten::register_vector<FormalConcept>("FormalConceptArray");
     emscripten::register_vector<IndexedFormalConcept>("IndexedFormalConceptArray");
     emscripten::register_vector<std::vector<int>>("IntMultiArray");
@@ -57,11 +61,20 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .field("value", &TimedResult<std::vector<std::vector<int>>>::value)
         .field("time", &TimedResult<std::vector<std::vector<int>>>::time);
 
+    emscripten::value_object<TimedResult<std::vector<int>>>("IntArrayTimedResult")
+        .field("value", &TimedResult<std::vector<int>>::value)
+        .field("time", &TimedResult<std::vector<int>>::time);
+
+    emscripten::value_object<TimedResult<std::vector<float>>>("FloatArrayTimedResult")
+        .field("value", &TimedResult<std::vector<float>>::value)
+        .field("time", &TimedResult<std::vector<float>>::time);
+
     emscripten::function("parseBurmeister", &parseBurmeister);
     emscripten::function("formalContextHasAttribute", &formalContextHasAttribute);
     emscripten::function("inClose", &inClose);
     emscripten::function("conceptsToLattice", &conceptsToLattice);
     emscripten::function("conceptsCover", &conceptsCover);
+    emscripten::function("computeLayeredLayout", &computeLayeredLayoutJs);
 
     emscripten::register_type<OnProgressCallback>("((progress: number) => void) | undefined");
 }
