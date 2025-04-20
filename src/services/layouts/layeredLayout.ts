@@ -4,23 +4,22 @@ import { FormalConcepts, getSupremum } from "../../types/FormalConcepts";
 import { createPoint, Point } from "../../types/Point";
 import { assignNodesToLayersByLongestPath } from "../layers";
 import Module from "../../wasm/cpp";
-import { cppFloatArrayToLayout, jsArrayToCppIntArray } from "../../utils/cpp";
+import { cppFloatArrayToLayout } from "../../utils/cpp";
 
-export async function computeLayeredLayout(formalConcepts: FormalConcepts, lattice: ConceptLattice): Promise<{
+export async function computeLayeredLayout(
+    conceptsCount: number,
+    supremum: number,
+    subconceptsMappingArrayBuffer: Int32Array,
+): Promise<{
     layout: ConceptLatticeLayout,
     computationTime: number,
 }> {
     const module = await Module();
     // TODO: use iterators when available: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Iterator/flatMap
-    //const subconceptsMappingArrayBuffer = new Int32Array(lattice.subconceptsMapping.flatMap((set) => [set.size, ...set]));
-
-    const input = jsArrayToCppIntArray(module, lattice.superconceptsMapping.flatMap((set) => [set.size, ...set]));
-    const result = module.computeLayeredLayout(getSupremum(formalConcepts).index, formalConcepts.length, input);
-
-    input.delete();
+    const result = module.computeLayeredLayout(supremum, conceptsCount, subconceptsMappingArrayBuffer);
 
     return {
-        layout: cppFloatArrayToLayout(result.value, formalConcepts.length, true),
+        layout: cppFloatArrayToLayout(result.value, conceptsCount, true),
         computationTime: result.time,
     };
 }

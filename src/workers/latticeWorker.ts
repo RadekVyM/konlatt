@@ -1,9 +1,10 @@
 import { ConceptLattice } from "../types/ConceptLattice";
-import { CompleteWorkerRequest } from "../types/WorkerRequest";
+import { CompleteLayoutComputationRequest, CompleteWorkerRequest } from "../types/WorkerRequest";
 import { ConceptComputationResponse, ContextParsingResponse, FinishedResponse, LatticeComputationResponse, LayoutComputationResponse, ProgressResponse, StatusResponse } from "../types/WorkerResponse";
 import { FormalContext } from "../types/FormalContext";
-import { FormalConcepts } from "../types/FormalConcepts";
+import { FormalConcepts, getSupremum } from "../types/FormalConcepts";
 import { ConceptLatticeLayout } from "../types/ConceptLatticeLayout";
+import DiagramLayoutWorker from "./diagramLayoutWorker?worker";
 
 let formalContext: FormalContext | null = null;
 let formalConcepts: FormalConcepts | null = null;
@@ -17,7 +18,7 @@ self.onmessage = async (event: MessageEvent<CompleteWorkerRequest>) => {
         case "cancel":
             // TODO: handle cancellation
             // TODO: I need to terminate the worker, create a new one and reinitialize it if I want to cancel a WASM computation
-            
+
             postStatusMessage(event.data.jobId, null);
             return;
         case "parse-context":
@@ -109,19 +110,32 @@ async function calculateLattice(jobId: number, concepts: FormalConcepts, context
 async function calculateLayout(jobId: number, concepts: FormalConcepts, lattice: ConceptLattice) {
     postStatusMessage(jobId, "Computing layout");
 
-    const { computeLayeredLayout } = await import("../services/layouts/layeredLayout");
-
-    const { layout, computationTime } = await computeLayeredLayout(concepts, lattice);
-    diagramLayout = layout;
-    const layoutMessage: LayoutComputationResponse = {
-        jobId,
-        time: new Date().getTime(),
+    const worker = new DiagramLayoutWorker();
+    const request: CompleteLayoutComputationRequest = {
         type: "layout",
-        layout: diagramLayout,
-        computationTime
+        conceptsCount: concepts.length,
+        supremum: getSupremum(concepts).index,
+        subconceptsMappingArrayBuffer: new Int32Array(lattice.superconceptsMapping.flatMap((set) => [set.size, ...set])),
     };
 
-    self.postMessage(layoutMessage);
+    worker.postMessage(request, [request.subconceptsMappingArrayBuffer.buffer]);
+
+    await new Promise((resolve) => {
+        worker.onmessage = (data) => {
+            diagramLayout = data.data.layout;
+
+            const layoutMessage: LayoutComputationResponse = {
+                jobId,
+                time: new Date().getTime(),
+                type: "layout",
+                layout: diagramLayout!,
+                computationTime: data.data.computationTime
+            };
+            self.postMessage(layoutMessage);
+
+            resolve(undefined);
+        };
+    });
 }
 
 function postStatusMessage(jobId: number, message: string | null) {

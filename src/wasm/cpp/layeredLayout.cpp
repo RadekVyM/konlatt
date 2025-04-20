@@ -15,7 +15,7 @@
 
 using namespace std;
 
-void addSubconceptToMapping(std::unordered_map<int, std::vector<int>>& subconceptsMapping, int superconcept, int subconcept) {
+void addSubconceptToMapping(std::unordered_map<int, std::vector<int>> & subconceptsMapping, int superconcept, int subconcept) {
     if (subconceptsMapping.count(superconcept) == 1) {
         std::vector<int>& subconcepts = subconceptsMapping[superconcept];
         subconcepts.push_back(subconcept);
@@ -27,8 +27,8 @@ void addSubconceptToMapping(std::unordered_map<int, std::vector<int>>& subconcep
 
 void addDummiesToLayers(
     int conceptsCount,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<int>& layersMapping,
+    const std::vector<std::unordered_set<int>>& subconceptsMapping,
+    const std::vector<int>& layersMapping,
     std::vector<int>& horizontalCoords,
     std::vector<std::vector<int>>& layersWithDummies,
     std::unordered_map<int, std::vector<int>>& dummySubconceptsMapping,
@@ -87,9 +87,9 @@ std::unique_ptr<std::tuple<
     std::unordered_map<int, std::vector<int>>
 >> addDummies(
     int conceptsCount,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
+    const std::vector<std::unordered_set<int>>& subconceptsMapping,
     std::vector<std::unordered_set<int>>& layers,
-    std::vector<int>& layersMapping
+    const std::vector<int>& layersMapping
 ) {
     auto result = make_unique<std::tuple<
         std::vector<std::vector<int>>,

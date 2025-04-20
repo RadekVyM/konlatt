@@ -26,3 +26,9 @@ export type CancellationRequest = {
     type: "cancel",
     jobId: number,
 }
+
+export type CompleteLayoutComputationRequest = {
+    supremum: number,
+    conceptsCount: number,
+    subconceptsMappingArrayBuffer: Int32Array,    
+} & LayoutComputationRequest
