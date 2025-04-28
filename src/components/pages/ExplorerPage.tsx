@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { cn } from "../../utils/tailwind";
 import ConceptsList from "../concepts/ConceptsList";
 import Container from "../Container";
-import useProjectStore from "../../hooks/stores/useProjectStore";
 import PageContainer from "../PageContainer";
+import useDataStructuresStore from "../../hooks/stores/useDataStructuresStore";
 
 export default function ExplorerPage() {
-    const context = useProjectStore((state) => state.context);
+    const context = useDataStructuresStore((state) => state.context);
     const [selectedConceptIndex, setSelectedConceptIndex] = useState<number | null>(null);
 
     useEffect(() => {

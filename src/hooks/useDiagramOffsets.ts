@@ -1,12 +1,12 @@
 import { createNodeOffsetMemento, NodeOffsetMemento } from "../types/NodeOffsetMemento";
 import { createPoint, Point } from "../types/Point";
-import useProjectStore from "./stores/useProjectStore";
+import useDiagramStore from "./stores/useDiagramStore";
 
 export function useDiagramOffsets() {
-    const diagramOffsets = useProjectStore((state) => state.diagramOffsets);
-    const setDiagramOffsets = useProjectStore((state) => state.setDiagramOffsets);
-    const { redos, undos } = useProjectStore((state) => state.diagramOffsetMementos);
-    const setDiagramOffsetMementos = useProjectStore((state) => state.setDiagramOffsetMementos);
+    const diagramOffsets = useDiagramStore((state) => state.diagramOffsets);
+    const setDiagramOffsets = useDiagramStore((state) => state.setDiagramOffsets);
+    const { redos, undos } = useDiagramStore((state) => state.diagramOffsetMementos);
+    const setDiagramOffsetMementos = useDiagramStore((state) => state.setDiagramOffsetMementos);
 
     function pushUndoMemento(memento: NodeOffsetMemento) {
         setDiagramOffsetMementos({ redos: [], undos: [...undos, memento] });

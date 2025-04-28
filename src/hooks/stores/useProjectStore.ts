@@ -1,34 +1,14 @@
 import { create } from "zustand";
-import { FormalContext } from "../../types/FormalContext";
-import { ConceptLattice } from "../../types/ConceptLattice";
 import LatticeWorkerQueue from "../../workers/LatticeWorkerQueue";
-import { FormalConcepts } from "../../types/FormalConcepts";
-import { ConceptLatticeLayout } from "../../types/ConceptLatticeLayout";
-import { Point } from "../../types/Point";
-import { NodeOffsetMemento } from "../../types/NodeOffsetMemento";
 import { StatusItem } from "../../types/StatusItem";
-
-type DiagramOffsetMementos = { undos: Array<NodeOffsetMemento>, redos: Array<NodeOffsetMemento> }
 
 type ProjectStore = {
     progressMessage: string | null,
     file: File | null,
-    context: FormalContext | null,
-    concepts: FormalConcepts | null,
-    lattice: ConceptLattice | null,
-    layout: ConceptLatticeLayout | null,
     workerQueue: LatticeWorkerQueue,
-    diagramOffsets: Array<Point> | null,
-    diagramOffsetMementos: DiagramOffsetMementos,
     statusItems: Array<StatusItem>,
     setProgressMessage: (progressMessage: string | null) => void,
     setFile: (file: File | null) => void,
-    setContext: (context: FormalContext | null) => void,
-    setConcepts: (concepts: FormalConcepts | null) => void,
-    setLattice: (lattice: ConceptLattice | null) => void,
-    setLayout: (layout: ConceptLatticeLayout | null) => void,
-    setDiagramOffsets: (diagramOffsets: Array<Point> | null) => void,
-    setDiagramOffsetMementos: (diagramOffsetMementos: DiagramOffsetMementos) => void,
     clearStatusItems: () => void,
     addStatusItem: (jobId: number, title: string, showProgress?: boolean) => void,
     updateStatusItem: (jobId: number, item: Partial<StatusItem>) => void,
@@ -37,22 +17,10 @@ type ProjectStore = {
 const useProjectStore = create<ProjectStore>((set) => ({
     progressMessage: null,
     file: null,
-    context: null,
-    concepts: null,
-    lattice: null,
-    layout: null,
     workerQueue: new LatticeWorkerQueue(),
-    diagramOffsets: null,
-    diagramOffsetMementos: { redos: [], undos: [] },
     statusItems: [],
     setProgressMessage: (progressMessage) => set(() => ({ progressMessage })),
     setFile: (file) => set(() => ({ file })),
-    setContext: (context) => set(() => ({ context })),
-    setConcepts: (concepts) => set(() => ({ concepts })),
-    setLattice: (lattice) => set(() => ({ lattice })),
-    setLayout: (layout) => set(() => ({ layout })),
-    setDiagramOffsets: (diagramOffsets) => set(() => ({ diagramOffsets })),
-    setDiagramOffsetMementos: (diagramOffsetMementos) => set(() => ({ diagramOffsetMementos })),
     clearStatusItems: () => set(() => ({ statusItems: [] })),
     addStatusItem: (jobId: number, title: string, showProgress: boolean = true) => set((state) => ({
         statusItems: [

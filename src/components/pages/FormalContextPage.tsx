@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import useProjectStore from "../../hooks/stores/useProjectStore";
 import { cn } from "../../utils/tailwind";
 import Container from "../Container";
 import ContextTable from "../context/ContextTable";
@@ -9,9 +8,10 @@ import NothingFound from "../NothingFound";
 import CardSectionTitle from "../CardSectionTitle";
 import PageContainer from "../PageContainer";
 import ExportButton from "../export/ExportButton";
+import useDataStructuresStore from "../../hooks/stores/useDataStructuresStore";
 
 export default function FormalContextPage() {
-    const context = useProjectStore((state) => state.context);
+    const context = useDataStructuresStore((state) => state.context);
     const [selectedObject, setSelectedObject] = useState<number | null>(null);
     const [selectedAttribute, setSelectedAttribute] = useState<number | null>(null);
 
@@ -54,7 +54,7 @@ function Context(props: {
     setSelectedObject: React.Dispatch<React.SetStateAction<number | null>>,
     setSelectedAttribute: React.Dispatch<React.SetStateAction<number | null>>,
 }) {
-    const context = useProjectStore((state) => state.context);
+    const context = useDataStructuresStore((state) => state.context);
 
     return (
         <Container

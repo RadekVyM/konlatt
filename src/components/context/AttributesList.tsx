@@ -1,4 +1,3 @@
-import useProjectStore from "../../hooks/stores/useProjectStore";
 import { formalContextHasAttribute, FormalContext } from "../../types/FormalContext";
 import { CardContainer } from "../CardContainer";
 import ItemsCardContent from "./ItemsCardContent";
@@ -6,6 +5,7 @@ import ItemCardContent from "./ItemCardContent";
 import { ContextCompleteItem, ContextItem } from "./types";
 import { cn } from "../../utils/tailwind";
 import HighlightedSearchTerms from "../HighlightedSearchTerms";
+import useDataStructuresStore from "../../hooks/stores/useDataStructuresStore";
 
 export type ContextAttributeItem = ContextItem
 
@@ -15,7 +15,7 @@ export default function AttributesList(props: {
     selectedAttributeIndex: number | null,
     setSelectedAttributeIndex: (index: number | null) => void,
 }) {
-    const context = useProjectStore((state) => state.context);
+    const context = useDataStructuresStore((state) => state.context);
     const attributes = (context?.attributes || []).map<ContextAttributeItem>((title, index) => ({ index, title }));
     const selectedAttribute = context && props.selectedAttributeIndex !== null ?
         getContextAttribute(context, props.selectedAttributeIndex) :

@@ -2,16 +2,20 @@ import useProjectStore from "./stores/useProjectStore";
 import { ConceptComputationRequest, ContextParsingRequest, LatticeComputationRequest, LayoutComputationRequest } from "../types/WorkerRequest";
 import { ConceptComputationResponse, ContextParsingResponse, LatticeComputationResponse, LayoutComputationResponse } from "../types/WorkerResponse";
 import { createPoint, Point } from "../types/Point";
+import useDiagramStore from "./stores/useDiagramStore";
+import useDataStructuresStore from "./stores/useDataStructuresStore";
 
 export default function useConceptLattice() {
     const setProgressMessage = useProjectStore((state) => state.setProgressMessage);
     const setFile = useProjectStore((state) => state.setFile);
-    const setContext = useProjectStore((state) => state.setContext);
-    const setConcepts = useProjectStore((state) => state.setConcepts);
-    const setLattice = useProjectStore((state) => state.setLattice);
-    const setLayout = useProjectStore((state) => state.setLayout);
-    const setDiagramOffsets = useProjectStore((state) => state.setDiagramOffsets);
-    const setDiagramOffsetMementos = useProjectStore((state) => state.setDiagramOffsetMementos);
+    const setContext = useDataStructuresStore((state) => state.setContext);
+    const setConcepts = useDataStructuresStore((state) => state.setConcepts);
+    const setLattice = useDataStructuresStore((state) => state.setLattice);
+    const resetDataStructuresStore = useDataStructuresStore((state) => state.reset);
+    const setLayout = useDiagramStore((state) => state.setLayout);
+    const setDiagramOffsets = useDiagramStore((state) => state.setDiagramOffsets);
+    const setDiagramOffsetMementos = useDiagramStore((state) => state.setDiagramOffsetMementos);
+    const resetDiagramStore = useDiagramStore((state) => state.reset);
     const addStatusItem = useProjectStore((state) => state.addStatusItem);
     const updateStatusItem = useProjectStore((state) => state.updateStatusItem);
     const clearStatusItems = useProjectStore((state) => state.clearStatusItems);
@@ -19,12 +23,9 @@ export default function useConceptLattice() {
 
     async function setupLattice(file: File) {
         clearStatusItems();
+        resetDataStructuresStore();
+        resetDiagramStore();
         setFile(file);
-        setContext(null);
-        setConcepts(null);
-        setLattice(null);
-        setDiagramOffsets(null);
-        setDiagramOffsetMementos({ redos: [], undos: [] });
 
         const fileContent = await file.text();
 

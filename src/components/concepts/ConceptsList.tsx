@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import useProjectStore from "../../hooks/stores/useProjectStore";
 import { cn } from "../../utils/tailwind";
 import useLazyListCount from "../../hooks/useLazyListCount";
 import Button from "../inputs/Button";
@@ -16,28 +15,31 @@ import HighlightedSearchTerms from "../HighlightedSearchTerms";
 import { searchTermsToRegex } from "../../utils/search";
 import useDebouncedValue from "../../hooks/useDebouncedValue";
 import SearchInput from "../inputs/SearchInput";
-import { ConceptDetailWithControlsProps, ConceptDetailWithoutControlsProps } from "./types";
 import ExportButton from "../export/ExportButton";
+import useDataStructuresStore from "../../hooks/stores/useDataStructuresStore";
 
 const MAX_TEXT_LENGTH = 500;
 
 export default function Concepts(props: {
     className?: string,
     route: string,
+    controls?: React.ReactNode,
     selectedConceptIndex: number | null,
+    visibleConceptIndexes: Set<number> | null,
     setSelectedConceptIndex: React.Dispatch<React.SetStateAction<number | null>>,
-} & (ConceptDetailWithControlsProps | ConceptDetailWithoutControlsProps)) {
+}) {
     return (
         <CardContainer
             className={props.className}>
             <ConceptsList
                 className={cn(props.selectedConceptIndex !== null && "hidden")}
                 route={props.route}
-                setSelectedConceptIndex={props.setSelectedConceptIndex} />
+                setSelectedConceptIndex={props.setSelectedConceptIndex}
+                visibleConceptIndexes={props.visibleConceptIndexes} />
             {props.selectedConceptIndex !== null &&
                 <ConceptDetail
                     key={props.selectedConceptIndex}
-                    {...props}
+                    controls={props.controls}
                     route={props.route}
                     selectedConceptIndex={props.selectedConceptIndex}
                     onBackClick={() => props.setSelectedConceptIndex(null)} />}
@@ -48,16 +50,18 @@ export default function Concepts(props: {
 function ConceptsList(props: {
     className?: string,
     route: string,
+    visibleConceptIndexes?: Set<number> | null,
     setSelectedConceptIndex: (index: number | null) => void,
 }) {
     const [searchInput, setSearchInput] = useState<string>("");
     const debouncedSearchInput = useDebouncedValue(searchInput, 400) || "";
-    const concepts = useProjectStore((state) => state.concepts);
-    const context = useProjectStore((state) => state.context);
+    const concepts = useDataStructuresStore((state) => state.concepts);
+    const context = useDataStructuresStore((state) => state.context);
     const searchTerms = debouncedSearchInput.trim().split(" ").filter((t) => t.length > 0);
     const filteredConcepts = concepts && context ?
         concepts.filter((concept) => conceptsFilter(concept, searchTerms, context)) :
         [];
+    const groupedFilteredConcepts = groupByVisibility(filteredConcepts, props.visibleConceptIndexes);
 
     return (
         <CardSection
@@ -89,14 +93,15 @@ function ConceptsList(props: {
 
                 <Found
                     className="mx-4"
-                    found={filteredConcepts.length}
+                    found={groupedFilteredConcepts.length}
                     total={concepts?.length || 0} />
             </header>
 
             <List
                 className="flex-1"
-                filteredConcepts={filteredConcepts}
+                filteredConcepts={groupedFilteredConcepts}
                 searchTerms={searchTerms}
+                visibleConceptIndexes={props.visibleConceptIndexes}
                 setSelectedConceptIndex={props.setSelectedConceptIndex} />
         </CardSection>
     );
@@ -106,11 +111,12 @@ function List(props: {
     className?: string,
     filteredConcepts: Array<FormalConcept>,
     searchTerms: Array<string>,
+    visibleConceptIndexes?: Set<number> | null,
     setSelectedConceptIndex: (index: number | null) => void,
 }) {
     const observerTargetRef = useRef<HTMLDivElement>(null);
-    const concepts = useProjectStore((state) => state.concepts);
-    const context = useProjectStore((state) => state.context);
+    const concepts = useDataStructuresStore((state) => state.concepts);
+    const context = useDataStructuresStore((state) => state.context);
     const [displayedItemsCount] = useLazyListCount(props.filteredConcepts.length, 20, observerTargetRef);
     const displayedItems = props.filteredConcepts.slice(0, displayedItemsCount);
     const searchRegex = searchTermsToRegex(props.searchTerms);
@@ -133,6 +139,7 @@ function List(props: {
                         "px-1 py-0.5 concept-list-item",
                         index < props.filteredConcepts.length - 1 && "border-b border-outline-variant")}>
                     <ListItemButton
+                        contentClassName={cn(props.visibleConceptIndexes && !props.visibleConceptIndexes?.has(item.index) && "opacity-40")}
                         item={item}
                         context={context}
                         searchRegex={searchRegex}
@@ -143,6 +150,7 @@ function List(props: {
 }
 
 function ListItemButton(props: {
+    contentClassName?: string,
     item: FormalConcept,
     context: FormalContext,
     searchRegex: RegExp | undefined,
@@ -152,7 +160,8 @@ function ListItemButton(props: {
         <Button
             className="w-full text-start py-1.5"
             onClick={props.onClick}>
-            <div>
+            <div
+                className={props.contentClassName}>
                 <div className="mb-0.5 text-sm line-clamp-3">
                     {props.item.objects.length > 0 ?
                         <HighlightedSearchTerms
@@ -177,4 +186,27 @@ function conceptsFilter(concept: FormalConcept, searchTerms: Array<string>, cont
         .map((term) => term.toLowerCase())
         .every((term) => concept.objects.some((o) => context.objects[o].toLowerCase().includes(term)) ||
             concept.attributes.some((a) => context.attributes[a].toLowerCase().includes(term)));
+}
+
+function groupByVisibility(
+    concepts: Array<FormalConcept>,
+    visibleConceptIndexes: Set<number> | null | undefined,
+) {
+    if (!visibleConceptIndexes) {
+        return concepts;
+    }
+
+    const start: Array<FormalConcept> = [];
+    const end: Array<FormalConcept> = [];
+
+    for (const concept of concepts) {
+        if (visibleConceptIndexes.has(concept.index)) {
+            start.push(concept);
+        }
+        else {
+            end.push(concept);
+        }
+    }
+
+    return [...start, ...end];
 }

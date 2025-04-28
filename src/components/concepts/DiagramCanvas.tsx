@@ -13,8 +13,10 @@ import { Quadtree } from "d3-quadtree";
 import { Rect } from "../../types/Rect";
 import { crossesRect, isInRect } from "../../utils/rect";
 import { cn } from "../../utils/tailwind";
+import { getConcept2DPoint } from "../../utils/layout";
+import { LAYOUT_SCALE } from "../../constants/diagram";
+import useDiagramStore from "../../hooks/stores/useDiagramStore";
 
-const LAYOUT_SCALE = 60;
 const GRID_LINE_STEP = LAYOUT_SCALE;
 const GRID_LINE_STEP_HALF = GRID_LINE_STEP / 2;
 const GRID_LINE_GAP = LAYOUT_SCALE / 16;
@@ -33,10 +35,8 @@ export default function DiagramCanvas(props: {
     zoomTransform: ZoomTransform,
     isEditable: boolean,
     isDragZooming: boolean,
-    selectedConceptIndex: number | null,
     diagramOffsets: Array<Point>,
     visibleConceptIndexes: Set<number> | null,
-    setSelectedConceptIndex: React.Dispatch<React.SetStateAction<number | null>>,
     updateExtent: (width: number, height: number) => void,
     updateNodeOffset: (node: number, offset: Point) => void,
 }) {
@@ -66,7 +66,6 @@ export default function DiagramCanvas(props: {
         props.isDragZooming,
         props.diagramOffsets,
         setHoveredIndex,
-        props.setSelectedConceptIndex,
         props.updateNodeOffset);
     const {
         drawNodes,
@@ -80,7 +79,6 @@ export default function DiagramCanvas(props: {
         props.formalContext,
         props.visibleConceptIndexes,
         hoveredIndex,
-        props.selectedConceptIndex,
         draggedIndex,
         dragOffset,
         dimensions.width,
@@ -195,9 +193,9 @@ function useCanvasInteraction(
     isDragZooming: boolean,
     diagramOffsets: Array<Point>,
     setHoveredIndex: React.Dispatch<React.SetStateAction<number | null>>,
-    setSelectedIndex: React.Dispatch<React.SetStateAction<number | null>>,
     updateNodeOffset: (node: number, offset: Point) => void,
 ) {
+    const setSelectedIndex = useDiagramStore((state) => state.setSelectedConceptIndex);
     const dragStartPointRef = useRef<[number, number]>([0, 0]);
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
     const [dragOffset, setDragOffset] = useState<[number, number]>([0, 0]);
@@ -352,7 +350,6 @@ function useDrawDiagram(
     formalContext: FormalContext,
     visibleConceptIndexes: Set<number> | null,
     hoveredIndex: number | null,
-    selectedIndex: number | null,
     draggedIndex: number | null,
     dragOffset: [number, number],
     width: number,
@@ -360,6 +357,7 @@ function useDrawDiagram(
     visibleRect: Rect,
     scale: number,
 ) {
+    const selectedIndex = useDiagramStore((state) => state.selectedConceptIndex);
     const deviceScale = scale * window.devicePixelRatio;
 
     const targetPoints = useMemo(() => {
@@ -367,15 +365,16 @@ function useDrawDiagram(
         const centerY = (height / 2) * deviceScale;
 
         return concepts.map((concept) => {
-            const point = layout[concept.index];
-            const offset = diagramOffsets[concept.index];
             const isDragged = draggedIndex === concept.index;
 
-            const normalX = point[0] + offset[0] + (isDragged ? dragOffset[0] : 0);
-            const normalY = point[1] + offset[1] + (isDragged ? dragOffset[1] : 0);
-            const x = (normalX * LAYOUT_SCALE * deviceScale) + centerX;
-            const y = (normalY * LAYOUT_SCALE * deviceScale) + centerY;
-            return [x, y, normalX, normalY];
+            return getConcept2DPoint(
+                layout[concept.index],
+                diagramOffsets[concept.index],
+                LAYOUT_SCALE * deviceScale,
+                centerX,
+                centerY,
+                isDragged ? dragOffset[0] : 0,
+                isDragged ? dragOffset[1] : 0);
         });
     }, [concepts, width, height, layout, diagramOffsets, draggedIndex, dragOffset, deviceScale]);
 

@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import useProjectStore from "../../hooks/stores/useProjectStore";
 import BackButton from "../inputs/BackButton";
 import Button from "../inputs/Button";
 import CardItemsLazyList from "../CardItemsLazyList";
@@ -13,9 +12,8 @@ import { searchStringFilter, searchTermsToRegex } from "../../utils/search";
 import HighlightedSearchTerms from "../HighlightedSearchTerms";
 import { LuShapes, LuTags } from "react-icons/lu";
 import Found from "../Found";
-import ToggleSwitch from "../inputs/ToggleSwitch";
-import { ConceptDetailWithControlsProps, ConceptDetailWithoutControlsProps } from "./types";
 import ExportButton from "../export/ExportButton";
+import useDataStructuresStore from "../../hooks/stores/useDataStructuresStore";
 
 type TabItem = "objects" | "attributes"
 
@@ -23,11 +21,12 @@ export default function ConceptDetail(props: {
     className?: string,
     selectedConceptIndex: number,
     route: string,
+    controls?: React.ReactNode,
     onBackClick: () => void,
-} & (ConceptDetailWithControlsProps | ConceptDetailWithoutControlsProps)) {
+}) {
     const [currentTab, setCurrentTab] = useState<TabItem>("objects");
-    const concepts = useProjectStore((state) => state.concepts);
-    const context = useProjectStore((state) => state.context);
+    const concepts = useDataStructuresStore((state) => state.concepts);
+    const context = useDataStructuresStore((state) => state.context);
     const selectedConcept = props.selectedConceptIndex !== null && concepts !== null && props.selectedConceptIndex < concepts.length ?
         concepts[props.selectedConceptIndex] :
         null;
@@ -65,9 +64,7 @@ export default function ConceptDetail(props: {
             
             <div
                 className="flex flex-col flex-1 overflow-y-auto thin-scrollbar isolate">
-                {!isThisInfimum && !isThisSupremum && props.type === "with-controls" &&
-                    <Controls
-                        {...props} />}
+                {props.controls}
 
                 <TabBar
                     className="py-3 sticky top-0 z-10 bg-surface-container"
@@ -83,44 +80,6 @@ export default function ConceptDetail(props: {
                         undefined}
             </div>
         </CardSection>
-    );
-}
-
-function Controls(props: {
-    selectedConceptIndex: number,
-} & ConceptDetailWithControlsProps) {
-    const isVisible = !props.visibleConceptIndexes || props.visibleConceptIndexes.has(props.selectedConceptIndex);
-
-    function onUpperConeClick(e: React.ChangeEvent<HTMLInputElement>) {
-        props.setUpperConeOnlyConceptIndex(e.currentTarget.checked ? props.selectedConceptIndex : null);
-
-        if (!isVisible || props.lowerConeOnlyConceptIndex === props.selectedConceptIndex) {
-            props.setLowerConeOnlyConceptIndex(null);
-        }
-    }
-
-    function onLowerConeClick(e: React.ChangeEvent<HTMLInputElement>) {
-        props.setLowerConeOnlyConceptIndex(e.currentTarget.checked ? props.selectedConceptIndex : null);
-
-        if (!isVisible || props.upperConeOnlyConceptIndex === props.selectedConceptIndex) {
-            props.setUpperConeOnlyConceptIndex(null);
-        }
-    }
-
-    return (
-        <section
-            className="mx-4 mt-2.5 mb-2 flex gap-2 flex-col">
-            <ToggleSwitch
-                checked={props.upperConeOnlyConceptIndex === props.selectedConceptIndex}
-                onChange={onUpperConeClick}>
-                More general concepts only
-            </ToggleSwitch>
-            <ToggleSwitch
-                checked={props.lowerConeOnlyConceptIndex === props.selectedConceptIndex}
-                onChange={onLowerConeClick}>
-                More specific concepts only
-            </ToggleSwitch>
-        </section>
     );
 }
 
@@ -167,7 +126,7 @@ function TabButton(props: {
 function ObjectsList(props: {
     objectIndexes: ReadonlyArray<number>,
 }) {
-    const context = useProjectStore((state) => state.context);
+    const context = useDataStructuresStore((state) => state.context);
 
     return (
         <ItemsList
@@ -180,7 +139,7 @@ function ObjectsList(props: {
 function AttributesList(props: {
     attributeIndexes: ReadonlyArray<number>,
 }) {
-    const context = useProjectStore((state) => state.context);
+    const context = useDataStructuresStore((state) => state.context);
 
     return (
         <ItemsList

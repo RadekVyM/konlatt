@@ -1,7 +1,7 @@
 import { RefObject, useEffect, useRef, useState } from "react";
 import * as d3Zoom from "d3-zoom";
 import * as d3Selection from "d3-selection";
-import { ZoomTransform } from "../types/d3/ZoomTransform";
+import { PartialZoomTransform, ZoomTransform } from "../types/d3/ZoomTransform";
 import { ZoomScaleExtent } from "../types/d3/ZoomScaleExtent";
 
 /**
@@ -53,7 +53,7 @@ export default function useZoom(
         zoomRef.current?.extent([[0, 0], [width, height]]);
     }
 
-    function zoomTo(newZoomTransform: ZoomTransform) {
+    function zoomTo(newZoomTransform: PartialZoomTransform) {
         if (!zoomRef.current || !elementRef.current) {
             return;
         }
@@ -70,7 +70,9 @@ export default function useZoom(
         element.transition().duration(400).call(
             zoomRef.current.transform,
             d3Zoom.zoomIdentity
-                .translate(newZoomTransform.x + horizontalOffset / 2, newZoomTransform.y + verticalOffset / 2)
+                .translate(
+                    newZoomTransform.x === undefined ? zoomTransform.x + horizontalOffset / 2 : newZoomTransform.x,
+                    newZoomTransform.y === undefined ? zoomTransform.y + verticalOffset / 2 : newZoomTransform.y)
                 .scale(newZoomTransform.scale)
         );
     }

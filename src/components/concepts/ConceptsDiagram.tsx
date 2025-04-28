@@ -1,37 +1,44 @@
 import { LuHand, LuMaximize, LuMinimize, LuMinus, LuPlus, LuRedo2, LuUndo2 } from "react-icons/lu";
-import useProjectStore from "../../hooks/stores/useProjectStore";
 import Button from "../inputs/Button";
 import DiagramCanvas from "./DiagramCanvas";
 import { cn } from "../../utils/tailwind";
-import { useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import useEventListener from "../../hooks/useEventListener";
-import { ZoomTransform } from "../../types/d3/ZoomTransform";
+import { PartialZoomTransform, ZoomTransform } from "../../types/d3/ZoomTransform";
 import useZoom from "../../hooks/useZoom";
 import { ZoomScaleExtent } from "../../types/d3/ZoomScaleExtent";
 import { useDiagramOffsets } from "../../hooks/useDiagramOffsets";
 import { isCtrlZ, isEditableElement } from "../../utils/html";
 import { FullscreenState } from "../../types/FullscreenState";
 import ExportButton from "../export/ExportButton";
+import useDiagramStore from "../../hooks/stores/useDiagramStore";
+import useDataStructuresStore from "../../hooks/stores/useDataStructuresStore";
+import { ZoomToContext } from "../../contexts/ZoomToContext";
 
 const ZOOM_SCALE_EXTENT: ZoomScaleExtent = { min: 0.05, max: 5 };
 
 export default function ConceptsDiagram(props: {
     fullscreenState: FullscreenState,
     visibleConceptIndexes: Set<number> | null,
-    selectedConceptIndex: number | null,
-    setSelectedConceptIndex: React.Dispatch<React.SetStateAction<number | null>>,
 }) {
     const diagramRef = useRef<HTMLDivElement>(null);
     const isTemporarilyEditableRef = useRef<boolean>(true);
-    const context = useProjectStore((state) => state.context);
-    const lattice = useProjectStore((state) => state.lattice);
-    const layout = useProjectStore((state) => state.layout);
-    const concepts = useProjectStore((state) => state.concepts);
+    const context = useDataStructuresStore((state) => state.context);
+    const lattice = useDataStructuresStore((state) => state.lattice);
+    const concepts = useDataStructuresStore((state) => state.concepts);
+    const layout = useDiagramStore((state) => state.layout);
     const [isEditable, setIsEditable] = useState(false);
     const { diagramOffsets, canUndo, canRedo, updateNodeOffset, undo, redo } = useDiagramOffsets();
 
     const isDiagramRenderable = !!(context && lattice && layout && concepts && diagramOffsets);
     const { zoomTransform, isDragZooming, updateExtent, zoomTo } = useZoom(diagramRef, isDiagramRenderable, !isEditable, ZOOM_SCALE_EXTENT);
+    const { zoomToRef } = useContext(ZoomToContext);
+
+    useEffect(() => {
+        if (zoomToRef) {
+            zoomToRef.current = zoomTo;
+        }
+    }, [zoomTo]);
 
     useKeyBoardEvents(isTemporarilyEditableRef, setIsEditable, undo, redo);
 
@@ -48,8 +55,6 @@ export default function ConceptsDiagram(props: {
                     isEditable={isEditable}
                     isDragZooming={isDragZooming}
                     zoomTransform={zoomTransform}
-                    selectedConceptIndex={props.selectedConceptIndex}
-                    setSelectedConceptIndex={props.setSelectedConceptIndex}
                     updateExtent={updateExtent}
                     diagramOffsets={diagramOffsets}
                     updateNodeOffset={updateNodeOffset}
@@ -109,20 +114,18 @@ function FullscreenButton(props: {
 function ZoomBar(props: {
     className?: string,
     zoomTransform: ZoomTransform,
-    zoomTo: (transform: ZoomTransform) => void,
+    zoomTo: (transform: PartialZoomTransform) => void,
 }) {
     const ZOOM_STEP = 0.1;
 
     function onIncrease() {
         props.zoomTo({
-            ...props.zoomTransform,
             scale: Math.min(ZOOM_SCALE_EXTENT.max || 1, (Math.ceil(props.zoomTransform.scale / ZOOM_STEP) * ZOOM_STEP) + ZOOM_STEP),
         });
     }
 
     function onDecrease() {
         props.zoomTo({
-            ...props.zoomTransform,
             scale: Math.max(ZOOM_SCALE_EXTENT.min || 0, (Math.floor(props.zoomTransform.scale / ZOOM_STEP) * ZOOM_STEP) - ZOOM_STEP),
         });
     }
