@@ -34,7 +34,7 @@ export default function DiagramPage() {
                     selectedConceptIndex={selectedConceptIndex}
                     setSelectedConceptIndex={setSelectedConceptIndex}
                     visibleConceptIndexes={visibleConceptIndexes}
-                    controls={selectedConceptIndex &&
+                    controls={selectedConceptIndex !== null &&
                         <ConceptDiagramControls
                             selectedConceptIndex={selectedConceptIndex}
                             visibleConceptIndexes={visibleConceptIndexes} />} />
