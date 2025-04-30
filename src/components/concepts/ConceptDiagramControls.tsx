@@ -1,4 +1,4 @@
-import { LuEye, LuEyeOff, LuFocus } from "react-icons/lu";
+import { LuEye, LuEyeOff, LuScanSearch } from "react-icons/lu";
 import Button from "../inputs/Button";
 import ToggleSwitch from "../inputs/ToggleSwitch";
 import { LAYOUT_SCALE } from "../../constants/diagram";
@@ -34,7 +34,6 @@ export default function ConceptDiagramControls(props: {
     );
 }
 
-
 function Buttons(props: {
     conceptIndex: number,
 }) {
@@ -69,7 +68,7 @@ function FocusButton(props: {
             return;
         }
 
-        const scale = 1;
+        const scale = 2;
         const point = getConcept2DPoint(
             layout[props.conceptIndex],
             diagramOffsets[props.conceptIndex],
@@ -86,7 +85,7 @@ function FocusButton(props: {
             variant="secondary"
             disabled={isDisabled}
             onClick={onClick}>
-            <LuFocus />
+            <LuScanSearch />
             Focus
         </Button>
     );
@@ -96,6 +95,7 @@ function Controls(props: {
     selectedConceptIndex: number,
     visibleConceptIndexes: Set<number> | null,
 }) {
+    const lattice = useDataStructuresStore((state) => state.lattice);
     const upperConeOnlyConceptIndex = useDiagramStore((state) => state.upperConeOnlyConceptIndex);
     const lowerConeOnlyConceptIndex = useDiagramStore((state) => state.lowerConeOnlyConceptIndex);
     const setUpperConeOnlyConceptIndex = useDiagramStore((state) => state.setUpperConeOnlyConceptIndex);
@@ -124,12 +124,14 @@ function Controls(props: {
             className="mx-4 mt-2.5 mb-2 flex gap-2 flex-col">
             <ToggleSwitch
                 checked={upperConeOnlyConceptIndex === props.selectedConceptIndex}
-                onChange={onUpperConeClick}>
+                onChange={onUpperConeClick}
+                disabled={lattice === null}>
                 More general concepts only
             </ToggleSwitch>
             <ToggleSwitch
                 checked={lowerConeOnlyConceptIndex === props.selectedConceptIndex}
-                onChange={onLowerConeClick}>
+                onChange={onLowerConeClick}
+                disabled={lattice === null}>
                 More specific concepts only
             </ToggleSwitch>
         </section>

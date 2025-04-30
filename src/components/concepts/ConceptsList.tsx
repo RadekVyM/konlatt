@@ -9,14 +9,14 @@ import NothingFound from "../NothingFound";
 import CardSection from "../CardSection";
 import FilterOrderBar from "../FilterOrderBar";
 import Found from "../Found";
-import { FormalConcept } from "../../types/FormalConcepts";
+import { FormalConcept, FormalConcepts } from "../../types/FormalConcepts";
 import { FormalContext } from "../../types/FormalContext";
 import HighlightedSearchTerms from "../HighlightedSearchTerms";
 import { searchTermsToRegex } from "../../utils/search";
-import useDebouncedValue from "../../hooks/useDebouncedValue";
 import SearchInput from "../inputs/SearchInput";
 import ExportButton from "../export/ExportButton";
 import useDataStructuresStore from "../../hooks/stores/useDataStructuresStore";
+import useDebouncedSetter from "../../hooks/useDebouncedSetter";
 
 const MAX_TEXT_LENGTH = 500;
 
@@ -26,7 +26,11 @@ export default function Concepts(props: {
     controls?: React.ReactNode,
     selectedConceptIndex: number | null,
     visibleConceptIndexes: Set<number> | null,
+    filteredConcepts: FormalConcepts | null,
+    searchTerms: Array<string>,
+    storedSearchInput: string,
     setSelectedConceptIndex: React.Dispatch<React.SetStateAction<number | null>>,
+    updateSearchInput: (debouncedSearchInput: string) => void,
 }) {
     return (
         <CardContainer
@@ -34,6 +38,10 @@ export default function Concepts(props: {
             <ConceptsList
                 className={cn(props.selectedConceptIndex !== null && "hidden")}
                 route={props.route}
+                filteredConcepts={props.filteredConcepts}
+                searchTerms={props.searchTerms}
+                storedSearchInput={props.storedSearchInput}
+                updateSearchInput={props.updateSearchInput}
                 setSelectedConceptIndex={props.setSelectedConceptIndex}
                 visibleConceptIndexes={props.visibleConceptIndexes} />
             {props.selectedConceptIndex !== null &&
@@ -51,17 +59,19 @@ function ConceptsList(props: {
     className?: string,
     route: string,
     visibleConceptIndexes?: Set<number> | null,
+    filteredConcepts: FormalConcepts | null,
+    searchTerms: Array<string>,
+    storedSearchInput: string,
     setSelectedConceptIndex: (index: number | null) => void,
+    updateSearchInput: (debouncedSearchInput: string) => void,
 }) {
-    const [searchInput, setSearchInput] = useState<string>("");
-    const debouncedSearchInput = useDebouncedValue(searchInput, 400) || "";
+    const [searchInput, setSearchInput] = useState<string>(props.storedSearchInput);
     const concepts = useDataStructuresStore((state) => state.concepts);
-    const context = useDataStructuresStore((state) => state.context);
-    const searchTerms = debouncedSearchInput.trim().split(" ").filter((t) => t.length > 0);
-    const filteredConcepts = concepts && context ?
-        concepts.filter((concept) => conceptsFilter(concept, searchTerms, context)) :
-        [];
-    const groupedFilteredConcepts = groupByVisibility(filteredConcepts, props.visibleConceptIndexes);
+    const disabled = concepts === null;
+
+    useDebouncedSetter(searchInput, props.updateSearchInput, 400);
+
+    const groupedFilteredConcepts = groupByVisibility(props.filteredConcepts || concepts || [], props.visibleConceptIndexes);
 
     return (
         <CardSection
@@ -83,12 +93,14 @@ function ConceptsList(props: {
                     className="self-stretch flex mx-4 mb-2 gap-2">
                     <SearchInput
                         className="flex-1"
+                        disabled={disabled}
                         value={searchInput}
                         onChange={setSearchInput}
                         placeholder="Search concepts..." />
                     <FilterOrderBar
                         filterTitle="Filter concepts"
-                        sortTitle="Sort concepts" />
+                        sortTitle="Sort concepts"
+                        disabled={disabled} />
                 </div>
 
                 <Found
@@ -100,7 +112,7 @@ function ConceptsList(props: {
             <List
                 className="flex-1"
                 filteredConcepts={groupedFilteredConcepts}
-                searchTerms={searchTerms}
+                searchTerms={props.searchTerms}
                 visibleConceptIndexes={props.visibleConceptIndexes}
                 setSelectedConceptIndex={props.setSelectedConceptIndex} />
         </CardSection>
@@ -109,7 +121,7 @@ function ConceptsList(props: {
 
 function List(props: {
     className?: string,
-    filteredConcepts: Array<FormalConcept>,
+    filteredConcepts: ReadonlyArray<FormalConcept>,
     searchTerms: Array<string>,
     visibleConceptIndexes?: Set<number> | null,
     setSelectedConceptIndex: (index: number | null) => void,
@@ -181,15 +193,8 @@ function ListItemButton(props: {
     );
 }
 
-function conceptsFilter(concept: FormalConcept, searchTerms: Array<string>, context: FormalContext): boolean {
-    return searchTerms
-        .map((term) => term.toLowerCase())
-        .every((term) => concept.objects.some((o) => context.objects[o].toLowerCase().includes(term)) ||
-            concept.attributes.some((a) => context.attributes[a].toLowerCase().includes(term)));
-}
-
 function groupByVisibility(
-    concepts: Array<FormalConcept>,
+    concepts: ReadonlyArray<FormalConcept>,
     visibleConceptIndexes: Set<number> | null | undefined,
 ) {
     if (!visibleConceptIndexes) {

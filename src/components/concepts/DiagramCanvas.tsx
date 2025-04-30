@@ -37,6 +37,7 @@ export default function DiagramCanvas(props: {
     isDragZooming: boolean,
     diagramOffsets: Array<Point>,
     visibleConceptIndexes: Set<number> | null,
+    filteredConceptIndexes: Set<number> | null,
     updateExtent: (width: number, height: number) => void,
     updateNodeOffset: (node: number, offset: Point) => void,
 }) {
@@ -78,6 +79,7 @@ export default function DiagramCanvas(props: {
         props.concepts,
         props.formalContext,
         props.visibleConceptIndexes,
+        props.filteredConceptIndexes,
         hoveredIndex,
         draggedIndex,
         dragOffset,
@@ -349,6 +351,7 @@ function useDrawDiagram(
     concepts: FormalConcepts,
     formalContext: FormalContext,
     visibleConceptIndexes: Set<number> | null,
+    filteredConceptIndexes: Set<number> | null,
     hoveredIndex: number | null,
     draggedIndex: number | null,
     dragOffset: [number, number],
@@ -381,10 +384,14 @@ function useDrawDiagram(
     const drawNodes = useCallback((context: CanvasRenderingContext2D, computedStyle: CSSStyleDeclaration) => {
         const onSurfaceColor = computedStyle.getPropertyValue("--on-surface-container");
         const primaryColor = computedStyle.getPropertyValue("--primary");
+        const mutedColor = computedStyle.getPropertyValue("--on-surface-container-muted");
 
         const baseNodeRadius = NODE_RADIUS * deviceScale;
+        const invisibleNodeRadius = baseNodeRadius / 2;
         const nodeCanvas = createNodeCanvas(baseNodeRadius, onSurfaceColor);
-        const invisibleNodeCanvas = createNodeCanvas(baseNodeRadius / 2, onSurfaceColor);
+        const invisibleNodeCanvas = createNodeCanvas(invisibleNodeRadius, onSurfaceColor);
+        const mutedNodeCanvas = createNodeCanvas(baseNodeRadius, mutedColor);
+        const mutedInvisibleNodeCanvas = createNodeCanvas(invisibleNodeRadius, mutedColor);
 
         for (const concept of concepts) {
             if (concept.index === selectedIndex || concept.index === hoveredIndex) {
@@ -397,9 +404,11 @@ function useDrawDiagram(
                 continue;
             }
 
-            const canvas = !visibleConceptIndexes || visibleConceptIndexes.has(concept.index) ?
-                nodeCanvas :
-                invisibleNodeCanvas; 
+            const isInvisible = !visibleConceptIndexes || visibleConceptIndexes.has(concept.index);
+            const isMuted = filteredConceptIndexes && !filteredConceptIndexes.has(concept.index);
+            const canvas = isInvisible ?
+                isMuted ? mutedNodeCanvas : nodeCanvas :
+                isMuted ? mutedInvisibleNodeCanvas : invisibleNodeCanvas; 
 
             // It should be faster if I round the coordinates here, but the nodes become choppy, which does not look good
             context.drawImage(canvas, x - (canvas.width / 2), y - (canvas.height / 2));
@@ -458,7 +467,7 @@ function useDrawDiagram(
                 context.fillText(label, x, y - 7 * deviceScale);
             }
         }
-    }, [lattice, concepts, formalContext, hoveredIndex, selectedIndex, targetPoints, visibleRect, deviceScale, visibleConceptIndexes]);
+    }, [lattice, concepts, formalContext, hoveredIndex, selectedIndex, targetPoints, visibleRect, deviceScale, visibleConceptIndexes, filteredConceptIndexes]);
 
     const drawLinks = useCallback((context: CanvasRenderingContext2D, computedStyle: CSSStyleDeclaration) => {
         const outlineColor = computedStyle.getPropertyValue("--outline");

@@ -67,12 +67,18 @@ export default function useZoom(
         const horizontalOffset = width - (width * scaleDiff);
         const verticalOffset = height - (height * scaleDiff);
 
+        const translateOffsetScale = newZoomTransform.scale - 1;
+
         element.transition().duration(400).call(
             zoomRef.current.transform,
             d3Zoom.zoomIdentity
                 .translate(
-                    newZoomTransform.x === undefined ? zoomTransform.x + horizontalOffset / 2 : newZoomTransform.x,
-                    newZoomTransform.y === undefined ? zoomTransform.y + verticalOffset / 2 : newZoomTransform.y)
+                    newZoomTransform.x === undefined ?
+                        zoomTransform.x + horizontalOffset / 2 :
+                        newZoomTransform.x - (width / 2) * translateOffsetScale,
+                    newZoomTransform.y === undefined ?
+                        zoomTransform.y + verticalOffset / 2 :
+                        newZoomTransform.y - (height / 2) * translateOffsetScale)
                 .scale(newZoomTransform.scale)
         );
     }

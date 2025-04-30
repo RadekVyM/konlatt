@@ -1,4 +1,4 @@
-import { LuHand, LuMaximize, LuMinimize, LuMinus, LuPlus, LuRedo2, LuUndo2 } from "react-icons/lu";
+import { LuFocus, LuHand, LuMaximize, LuMinimize, LuMinus, LuPlus, LuRedo2, LuUndo2 } from "react-icons/lu";
 import Button from "../inputs/Button";
 import DiagramCanvas from "./DiagramCanvas";
 import { cn } from "../../utils/tailwind";
@@ -19,7 +19,6 @@ const ZOOM_SCALE_EXTENT: ZoomScaleExtent = { min: 0.05, max: 5 };
 
 export default function ConceptsDiagram(props: {
     fullscreenState: FullscreenState,
-    visibleConceptIndexes: Set<number> | null,
 }) {
     const diagramRef = useRef<HTMLDivElement>(null);
     const isTemporarilyEditableRef = useRef<boolean>(true);
@@ -27,6 +26,8 @@ export default function ConceptsDiagram(props: {
     const lattice = useDataStructuresStore((state) => state.lattice);
     const concepts = useDataStructuresStore((state) => state.concepts);
     const layout = useDiagramStore((state) => state.layout);
+    const visibleConceptIndexes = useDiagramStore((state) => state.visibleConceptIndexes);
+    const filteredConceptIndexes = useDiagramStore((state) => state.filteredConceptIndexes);
     const [isEditable, setIsEditable] = useState(false);
     const { diagramOffsets, canUndo, canRedo, updateNodeOffset, undo, redo } = useDiagramOffsets();
 
@@ -58,7 +59,8 @@ export default function ConceptsDiagram(props: {
                     updateExtent={updateExtent}
                     diagramOffsets={diagramOffsets}
                     updateNodeOffset={updateNodeOffset}
-                    visibleConceptIndexes={props.visibleConceptIndexes} />}
+                    visibleConceptIndexes={visibleConceptIndexes}
+                    filteredConceptIndexes={filteredConceptIndexes} />}
 
             <ExportButton
                 className="absolute top-0 right-0 m-3"
@@ -69,13 +71,16 @@ export default function ConceptsDiagram(props: {
                 className="absolute bottom-0 left-0 m-3 flex gap-2">
                 <ZoomBar
                     zoomTransform={zoomTransform}
-                    zoomTo={zoomTo} />
+                    zoomTo={zoomTo} />    
                 <UndoRedoBar
                     canUndo={canUndo}
                     canRedo={canRedo}
                     redo={redo}
                     undo={undo} />
 
+                <ZoomToCenterButton
+                    zoomTransform={zoomTransform}
+                    zoomTo={zoomTo} />
                 <MoveToggle
                     selected={isEditable}
                     onToggle={() => setIsEditable((old) => {
@@ -107,6 +112,23 @@ function FullscreenButton(props: {
             {props.fullscreenState.isFullscreen ?
                 <LuMinimize /> :
                 <LuMaximize />}
+        </Button>
+    );
+}
+
+function ZoomToCenterButton(props: {
+    className?: string,
+    zoomTransform: ZoomTransform,
+    zoomTo: (transform: PartialZoomTransform) => void,
+}) {
+    return (
+        <Button
+            className={props.className}
+            title="Zoom to center"
+            variant="icon-secondary"
+            disabled={props.zoomTransform.scale === 1 && props.zoomTransform.x === 0 &&  props.zoomTransform.y === 0}
+            onClick={() => props.zoomTo({ scale: 1, x: 0, y: 0 })}>
+            <LuFocus />
         </Button>
     );
 }

@@ -6,6 +6,7 @@ export default function SearchInput(props: {
     inputClassName?: string,
     placeholder: string,
     value: string,
+    disabled?: boolean,
     onChange: (value: string) => void,
 }) {
     const cancelButtonVisible = props.value.length > 0;
@@ -16,15 +17,19 @@ export default function SearchInput(props: {
             <input
                 type="text"
                 size={1}
+                disabled={props.disabled}
                 value={props.value}
                 onChange={(e) => props.onChange(e.target.value)}
                 placeholder={props.placeholder}
-                className={cn("text-sm bg-surface-light-dim-container hover:bg-surface-dim-container border border-surface-light-dim-container hover:border-outline px-2 pr-7 py-1.5 rounded-md w-full h-full",  props.inputClassName)} />
+                className={cn(
+                    "disabled:opacity-50 text-sm bg-surface-light-dim-container hover:bg-surface-dim-container border border-surface-light-dim-container hover:border-outline px-2 pr-7 py-1.5 rounded-md w-full h-full",
+                    props.inputClassName)} />
             
             {cancelButtonVisible &&
                 <button
                     className="absolute right-0 mr-2 top-1/2 -translate-y-[50%] cursor-pointer"
                     title="Clear"
+                    disabled={props.disabled}
                     onClick={() => props.onChange("")}>
                     <LuCircleX className="w-4 h-4" />
                 </button>}

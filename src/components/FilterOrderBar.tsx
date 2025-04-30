@@ -4,6 +4,7 @@ import Button from "./inputs/Button";
 export default function FilterOrderBar(props: {
     filterTitle?: string,
     sortTitle?: string,
+    disabled?: boolean,
 }) {
     return (
         <div
@@ -11,13 +12,15 @@ export default function FilterOrderBar(props: {
             <Button
                 title={props.filterTitle || "Filter"}
                 variant="icon-secondary"
-                size="sm">
+                size="sm"
+                disabled={props.disabled}>
                 <LuFilter />
             </Button>
             <Button
                 title={props.sortTitle || "Sort"}
                 variant="icon-secondary"
-                size="sm">
+                size="sm"
+                disabled={props.disabled}>
                 <LuArrowDownUp />
             </Button>
         </div>

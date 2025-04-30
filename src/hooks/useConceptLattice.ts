@@ -4,6 +4,7 @@ import { ConceptComputationResponse, ContextParsingResponse, LatticeComputationR
 import { createPoint, Point } from "../types/Point";
 import useDiagramStore from "./stores/useDiagramStore";
 import useDataStructuresStore from "./stores/useDataStructuresStore";
+import useExplorerStore from "./stores/useExplorerStore";
 
 export default function useConceptLattice() {
     const setProgressMessage = useProjectStore((state) => state.setProgressMessage);
@@ -16,6 +17,7 @@ export default function useConceptLattice() {
     const setDiagramOffsets = useDiagramStore((state) => state.setDiagramOffsets);
     const setDiagramOffsetMementos = useDiagramStore((state) => state.setDiagramOffsetMementos);
     const resetDiagramStore = useDiagramStore((state) => state.reset);
+    const resetExplorerStore = useExplorerStore((state) => state.reset);
     const addStatusItem = useProjectStore((state) => state.addStatusItem);
     const updateStatusItem = useProjectStore((state) => state.updateStatusItem);
     const clearStatusItems = useProjectStore((state) => state.clearStatusItems);
@@ -25,6 +27,7 @@ export default function useConceptLattice() {
         clearStatusItems();
         resetDataStructuresStore();
         resetDiagramStore();
+        resetExplorerStore();
         setFile(file);
 
         const fileContent = await file.text();
