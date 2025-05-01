@@ -1,7 +1,7 @@
 import { create } from "zustand";
-import { FormalContext } from "../../types/FormalContext";
-import { ConceptLattice } from "../../types/ConceptLattice";
-import { FormalConcepts } from "../../types/FormalConcepts";
+import { FormalContext } from "../types/FormalContext";
+import { ConceptLattice } from "../types/ConceptLattice";
+import { FormalConcepts } from "../types/FormalConcepts";
 
 type DataStructuresStore = {
     context: FormalContext | null,

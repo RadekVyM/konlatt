@@ -1,7 +1,7 @@
 import { Outlet, useLocation } from "react-router-dom";
 import Button from "../inputs/Button";
 import { LuFolderPlus } from "react-icons/lu";
-import useNewProjectStore from "../../hooks/stores/useNewProjectStore";
+import useNewProjectStore from "../../stores/useNewProjectStore";
 import useDialog from "../../hooks/useDialog";
 import { useEffect } from "react";
 import NewProjectDialog from "../NewProjectDialog";

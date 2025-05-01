@@ -15,7 +15,7 @@ import { crossesRect, isInRect } from "../../utils/rect";
 import { cn } from "../../utils/tailwind";
 import { getConcept2DPoint } from "../../utils/layout";
 import { LAYOUT_SCALE } from "../../constants/diagram";
-import useDiagramStore from "../../hooks/stores/useDiagramStore";
+import useDiagramStore from "../../stores/useDiagramStore";
 
 const GRID_LINE_STEP = LAYOUT_SCALE;
 const GRID_LINE_STEP_HALF = GRID_LINE_STEP / 2;

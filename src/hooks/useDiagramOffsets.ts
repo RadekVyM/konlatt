@@ -1,6 +1,6 @@
 import { createNodeOffsetMemento, NodeOffsetMemento } from "../types/NodeOffsetMemento";
 import { createPoint, Point } from "../types/Point";
-import useDiagramStore from "./stores/useDiagramStore";
+import useDiagramStore from "../stores/useDiagramStore";
 
 export function useDiagramOffsets() {
     const diagramOffsets = useDiagramStore((state) => state.diagramOffsets);

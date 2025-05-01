@@ -15,7 +15,7 @@ import HighlightedSearchTerms from "../HighlightedSearchTerms";
 import { searchTermsToRegex } from "../../utils/search";
 import SearchInput from "../inputs/SearchInput";
 import ExportButton from "../export/ExportButton";
-import useDataStructuresStore from "../../hooks/stores/useDataStructuresStore";
+import useDataStructuresStore from "../../stores/useDataStructuresStore";
 import useDebouncedSetter from "../../hooks/useDebouncedSetter";
 
 const MAX_TEXT_LENGTH = 500;

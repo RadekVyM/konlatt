@@ -1,5 +1,5 @@
 import { LuCircleCheck, LuLoaderCircle } from "react-icons/lu";
-import useProjectStore from "../../hooks/stores/useProjectStore";
+import useProjectStore from "../../stores/useProjectStore";
 import { cn } from "../../utils/tailwind";
 import { useEffect, useRef, useState } from "react";
 import { StatusItem } from "../../types/StatusItem";

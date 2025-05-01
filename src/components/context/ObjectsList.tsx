@@ -5,7 +5,7 @@ import ItemCardContent from "./ItemCardContent";
 import { ContextCompleteItem, ContextItem } from "./types";
 import { cn } from "../../utils/tailwind";
 import HighlightedSearchTerms from "../HighlightedSearchTerms";
-import useDataStructuresStore from "../../hooks/stores/useDataStructuresStore";
+import useDataStructuresStore from "../../stores/useDataStructuresStore";
 
 type ContextObjectItem = ContextItem
 

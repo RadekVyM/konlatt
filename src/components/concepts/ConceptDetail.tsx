@@ -13,7 +13,7 @@ import HighlightedSearchTerms from "../HighlightedSearchTerms";
 import { LuShapes, LuTags } from "react-icons/lu";
 import Found from "../Found";
 import ExportButton from "../export/ExportButton";
-import useDataStructuresStore from "../../hooks/stores/useDataStructuresStore";
+import useDataStructuresStore from "../../stores/useDataStructuresStore";
 
 type TabItem = "objects" | "attributes"
 

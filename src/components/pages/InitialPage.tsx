@@ -1,5 +1,5 @@
 import { FILE_INPUT_ACCEPT } from "../../constants/files";
-import useNewProjectStore from "../../hooks/stores/useNewProjectStore";
+import useNewProjectStore from "../../stores/useNewProjectStore";
 import { LargeFileSelection } from "../inputs/FileSelection";
 
 export default function InitialPage() {

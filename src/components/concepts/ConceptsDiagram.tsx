@@ -11,8 +11,8 @@ import { useDiagramOffsets } from "../../hooks/useDiagramOffsets";
 import { isCtrlZ, isEditableElement } from "../../utils/html";
 import { FullscreenState } from "../../types/FullscreenState";
 import ExportButton from "../export/ExportButton";
-import useDiagramStore from "../../hooks/stores/useDiagramStore";
-import useDataStructuresStore from "../../hooks/stores/useDataStructuresStore";
+import useDiagramStore from "../../stores/useDiagramStore";
+import useDataStructuresStore from "../../stores/useDataStructuresStore";
 import { ZoomToContext } from "../../contexts/ZoomToContext";
 
 const ZOOM_SCALE_EXTENT: ZoomScaleExtent = { min: 0.05, max: 5 };

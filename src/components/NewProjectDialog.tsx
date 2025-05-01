@@ -5,10 +5,10 @@ import { FileSelection, LargeFileSelection } from "./inputs/FileSelection";
 import Button from "./inputs/Button";
 import ComboBox from "./inputs/ComboBox";
 import { useNavigate } from "react-router-dom";
-import useConceptLattice from "../hooks/useConceptLattice";
-import useNewProjectStore from "../hooks/stores/useNewProjectStore";
+import useNewProjectStore from "../stores/useNewProjectStore";
 import { FILE_INPUT_ACCEPT } from "../constants/files";
 import FormatsButton from "./formats/FormatsButton";
+import { triggerInitialization } from "../services/triggers";
 
 const DEFAULT_FILE_TYPE = "burmeister";
 const FILE_TYPES: Array<{ key: string, label: string }> = [
@@ -21,7 +21,6 @@ export default function NewProjectDialog(props: {
     state: DialogState,
 }) {
     const navigate = useNavigate();
-    const { setupLattice } = useConceptLattice();
     const { selectedFile, setSelectedFile } = useNewProjectStore();
     const [selectedFileType, setSelectedFileType] = useState<string>(DEFAULT_FILE_TYPE);
 
@@ -38,7 +37,7 @@ export default function NewProjectDialog(props: {
         }
 
         navigate("/project/context", { replace: true });
-        setupLattice(selectedFile);
+        triggerInitialization(selectedFile);
         await props.state.hide();
     }
 

@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import LatticeWorkerQueue from "../../workers/LatticeWorkerQueue";
-import { StatusItem } from "../../types/StatusItem";
+import LatticeWorkerQueue from "../workers/LatticeWorkerQueue";
+import { StatusItem } from "../types/StatusItem";
 
 type ProjectStore = {
     progressMessage: string | null,

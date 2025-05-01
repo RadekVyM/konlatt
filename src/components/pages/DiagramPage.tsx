@@ -8,7 +8,7 @@ import useFullscreen from "../../hooks/useFullscreen";
 import { FullscreenState } from "../../types/FullscreenState";
 import DiagramConfig from "../concepts/DiagramConfig";
 import { ZoomToContextProvider } from "../../contexts/ZoomToContext";
-import useDiagramStore from "../../hooks/stores/useDiagramStore";
+import useDiagramStore from "../../stores/useDiagramStore";
 import ConceptDiagramControls from "../concepts/ConceptDiagramControls";
 
 export default function DiagramPage() {

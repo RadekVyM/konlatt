@@ -2,11 +2,14 @@ import { useState } from "react";
 import ComboBox from "../inputs/ComboBox";
 import ToggleSwitch from "../inputs/ToggleSwitch";
 import NumberInput from "../inputs/NumberInput";
+import useDiagramStore from "../../stores/useDiagramStore";
 
 export default function DiagramConfig() {
     const [selectedLayoutMethod, setSelectedLayoutMethod] = useState<string>("layered");
     const [horizontalNodesDistance, setHorizontalNodesDistance] = useState<number>(1);
     const [verticalNodesDistance, setVerticalNodesDistance] = useState<number>(1);
+    const displayHighlightedSublatticeOnly = useDiagramStore((state) => state.displayHighlightedSublatticeOnly);
+    const setDisplayHighlightedSublatticeOnly = useDiagramStore((state) => state.setDisplayHighlightedSublatticeOnly);
 
     return (
         <>
@@ -19,9 +22,11 @@ export default function DiagramConfig() {
             </header>
 
             <div
-                className="flex-1 overflow-y-auto px-4">
+                className="flex-1 overflow-y-auto px-4 pb-4 thin-scrollbar">
                 <ToggleSwitch
-                    className="mb-4">
+                    className="mb-4"
+                    checked={displayHighlightedSublatticeOnly}
+                    onChange={(e) => setDisplayHighlightedSublatticeOnly(e.currentTarget.checked)}>
                     Display highlighted sublattice only
                 </ToggleSwitch>
 

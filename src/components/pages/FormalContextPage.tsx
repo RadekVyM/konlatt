@@ -8,7 +8,7 @@ import NothingFound from "../NothingFound";
 import CardSectionTitle from "../CardSectionTitle";
 import PageContainer from "../PageContainer";
 import ExportButton from "../export/ExportButton";
-import useDataStructuresStore from "../../hooks/stores/useDataStructuresStore";
+import useDataStructuresStore from "../../stores/useDataStructuresStore";
 
 export default function FormalContextPage() {
     const context = useDataStructuresStore((state) => state.context);

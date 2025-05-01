@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { DialogState } from "../../types/DialogState";
+import { DialogState } from "../types/DialogState";
 
 type NewProjectStore = {
     selectedFile: File | null | undefined,

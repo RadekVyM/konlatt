@@ -4,9 +4,9 @@ import ToggleSwitch from "../inputs/ToggleSwitch";
 import { LAYOUT_SCALE } from "../../constants/diagram";
 import { getConcept2DPoint } from "../../utils/layout";
 import { useContext, useState } from "react";
-import useDiagramStore from "../../hooks/stores/useDiagramStore";
+import useDiagramStore from "../../stores/useDiagramStore";
 import { ZoomToContext } from "../../contexts/ZoomToContext";
-import useDataStructuresStore from "../../hooks/stores/useDataStructuresStore";
+import useDataStructuresStore from "../../stores/useDataStructuresStore";
 import { isInfimum, isSupremum } from "../../types/FormalConcepts";
 
 export default function ConceptDiagramControls(props: {

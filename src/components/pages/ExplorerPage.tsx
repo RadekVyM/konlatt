@@ -2,7 +2,7 @@ import { cn } from "../../utils/tailwind";
 import ConceptsList from "../concepts/ConceptsList";
 import Container from "../Container";
 import PageContainer from "../PageContainer";
-import useExplorerStore from "../../hooks/stores/useExplorerStore";
+import useExplorerStore from "../../stores/useExplorerStore";
 
 export default function ExplorerPage() {
     return (

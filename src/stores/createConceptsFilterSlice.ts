@@ -1,21 +1,30 @@
-import { FormalConcept, FormalConcepts } from "../../types/FormalConcepts";
-import { FormalContext } from "../../types/FormalContext";
+import { FormalConcept, FormalConcepts } from "../types/FormalConcepts";
+import { FormalContext } from "../types/FormalContext";
 import useDataStructuresStore from "./useDataStructuresStore";
 
-export type ConceptsFilterSlice = {
+type ConceptsFilterSliceState = {
     debouncedSearchInput: string,
     searchTerms: Array<string>,
     filteredConceptIndexes: Set<number> | null,
     filteredConcepts: FormalConcepts | null,
+}
+
+type ConceptsFilterSliceActions = {
     setDebouncedSearchInput: (debouncedSearchInput: string) => void,
+}
+
+export type ConceptsFilterSlice = ConceptsFilterSliceState & ConceptsFilterSliceActions
+
+export const initialState: ConceptsFilterSliceState = {
+    debouncedSearchInput: "",
+    searchTerms: [],
+    filteredConceptIndexes: null,
+    filteredConcepts: null,
 }
 
 export default function createConceptsFilterSlice(set: (partial: ConceptsFilterSlice | Partial<ConceptsFilterSlice> | ((state: ConceptsFilterSlice) => ConceptsFilterSlice | Partial<ConceptsFilterSlice>), replace?: false) => void): ConceptsFilterSlice {
     return {
-        debouncedSearchInput: "",
-        searchTerms: [],
-        filteredConceptIndexes: null,
-        filteredConcepts: null,
+        ...initialState,
         setDebouncedSearchInput: (debouncedSearchInput) => set(() => {
             const searchTerms = debouncedSearchInput.trim().split(" ").filter((t) => t.length > 0);
     
