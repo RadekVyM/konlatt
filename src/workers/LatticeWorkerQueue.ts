@@ -50,6 +50,9 @@ export default class LatticeWorkerQueue {
             if (this.currentJob.cancelCallback) {
                 this.currentJob.cancelCallback(this.currentJob.id);
             }
+            if (this.currentJob.statusMessageCallback) {
+                this.currentJob.statusMessageCallback(null);
+            }
             this.currentJob = null;
             this.next();
         }

@@ -3,13 +3,11 @@ import { CompleteLayoutComputationRequest, CompleteWorkerRequest } from "../type
 import { ConceptComputationResponse, ContextParsingResponse, FinishedResponse, LatticeComputationResponse, LayoutComputationResponse, ProgressResponse, StatusResponse } from "../types/WorkerResponse";
 import { FormalContext } from "../types/FormalContext";
 import { FormalConcepts, getSupremum } from "../types/FormalConcepts";
-import { ConceptLatticeLayout } from "../types/ConceptLatticeLayout";
 import DiagramLayoutWorker from "./diagramLayoutWorker?worker";
 
 let formalContext: FormalContext | null = null;
 let formalConcepts: FormalConcepts | null = null;
 let conceptLattice: ConceptLattice | null = null;
-let diagramLayout: ConceptLatticeLayout | null = null;
 
 self.onmessage = async (event: MessageEvent<CompleteWorkerRequest>) => {
     console.log(`[${event.data.type}] sending arguments: ${new Date().getTime() - event.data.time} ms`);
@@ -49,7 +47,12 @@ self.onmessage = async (event: MessageEvent<CompleteWorkerRequest>) => {
                 throw new Error("Concept lattice has not been calculated yet");
             }
 
-            await calculateLayout(event.data.jobId, formalConcepts, conceptLattice);
+            await calculateLayout(
+                event.data.jobId,
+                formalConcepts,
+                conceptLattice,
+                event.data.upperConeOnlyConceptIndex,
+                event.data.lowerConeOnlyConceptIndex);
             break;
     }
 
@@ -107,7 +110,13 @@ async function calculateLattice(jobId: number, concepts: FormalConcepts, context
     self.postMessage(latticeMessage);
 }
 
-async function calculateLayout(jobId: number, concepts: FormalConcepts, lattice: ConceptLattice) {
+async function calculateLayout(
+    jobId: number,
+    concepts: FormalConcepts,
+    lattice: ConceptLattice,
+    upperConeOnlyConceptIndex: number | null,
+    lowerConeOnlyConceptIndex: number | null,
+) {
     postStatusMessage(jobId, "Computing layout");
 
     const worker = new DiagramLayoutWorker();
@@ -116,19 +125,19 @@ async function calculateLayout(jobId: number, concepts: FormalConcepts, lattice:
         conceptsCount: concepts.length,
         supremum: getSupremum(concepts).index,
         subconceptsMappingArrayBuffer: new Int32Array(lattice.superconceptsMapping.flatMap((set) => [set.size, ...set])),
+        upperConeOnlyConceptIndex,
+        lowerConeOnlyConceptIndex,
     };
 
     worker.postMessage(request, [request.subconceptsMappingArrayBuffer.buffer]);
 
     await new Promise((resolve) => {
         worker.onmessage = (data) => {
-            diagramLayout = data.data.layout;
-
             const layoutMessage: LayoutComputationResponse = {
                 jobId,
                 time: new Date().getTime(),
                 type: "layout",
-                layout: diagramLayout!,
+                layout: data.data.layout,
                 computationTime: data.data.computationTime
             };
             self.postMessage(layoutMessage);

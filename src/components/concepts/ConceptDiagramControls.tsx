@@ -104,19 +104,15 @@ function Controls(props: {
     const isVisible = !props.visibleConceptIndexes || props.visibleConceptIndexes.has(props.selectedConceptIndex);
 
     function onUpperConeClick(e: React.ChangeEvent<HTMLInputElement>) {
-        setUpperConeOnlyConceptIndex(e.currentTarget.checked ? props.selectedConceptIndex : null);
-
-        if (!isVisible || lowerConeOnlyConceptIndex === props.selectedConceptIndex) {
-            setLowerConeOnlyConceptIndex(null);
-        }
+        setUpperConeOnlyConceptIndex(
+            e.currentTarget.checked ? props.selectedConceptIndex : null,
+            !isVisible || lowerConeOnlyConceptIndex === props.selectedConceptIndex);
     }
 
     function onLowerConeClick(e: React.ChangeEvent<HTMLInputElement>) {
-        setLowerConeOnlyConceptIndex(e.currentTarget.checked ? props.selectedConceptIndex : null);
-
-        if (!isVisible || upperConeOnlyConceptIndex === props.selectedConceptIndex) {
-            setUpperConeOnlyConceptIndex(null);
-        }
+        setLowerConeOnlyConceptIndex(
+            e.currentTarget.checked ? props.selectedConceptIndex : null,
+            !isVisible || upperConeOnlyConceptIndex === props.selectedConceptIndex);
     }
 
     return (

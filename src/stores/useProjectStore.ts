@@ -12,6 +12,7 @@ type ProjectStore = {
     clearStatusItems: () => void,
     addStatusItem: (jobId: number, title: string, showProgress?: boolean) => void,
     updateStatusItem: (jobId: number, item: Partial<StatusItem>) => void,
+    removeStatusItem: (jobId: number) => void,
 }
 
 const useProjectStore = create<ProjectStore>((set) => ({
@@ -49,6 +50,7 @@ const useProjectStore = create<ProjectStore>((set) => ({
 
         return { statusItems: [...state.statusItems] };
     }),
+    removeStatusItem: (jobId: number) => set((old) => ({ statusItems: old.statusItems.filter((item) => item.jobId !== jobId) })),
 }));
 
 export default useProjectStore;

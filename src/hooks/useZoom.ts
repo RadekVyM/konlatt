@@ -53,7 +53,7 @@ export default function useZoom(
         zoomRef.current?.extent([[0, 0], [width, height]]);
     }
 
-    function zoomTo(newZoomTransform: PartialZoomTransform) {
+    function zoomTo(newZoomTransform: PartialZoomTransform, withoutTransition?: boolean) {
         if (!zoomRef.current || !elementRef.current) {
             return;
         }
@@ -69,18 +69,26 @@ export default function useZoom(
 
         const translateOffsetScale = newZoomTransform.scale - 1;
 
-        element.transition().duration(400).call(
-            zoomRef.current.transform,
-            d3Zoom.zoomIdentity
-                .translate(
-                    newZoomTransform.x === undefined ?
-                        zoomTransform.x + horizontalOffset / 2 :
-                        newZoomTransform.x - (width / 2) * translateOffsetScale,
-                    newZoomTransform.y === undefined ?
-                        zoomTransform.y + verticalOffset / 2 :
-                        newZoomTransform.y - (height / 2) * translateOffsetScale)
-                .scale(newZoomTransform.scale)
-        );
+        const transform = d3Zoom.zoomIdentity
+            .translate(
+                newZoomTransform.x === undefined ?
+                    zoomTransform.x + horizontalOffset / 2 :
+                    newZoomTransform.x - (width / 2) * translateOffsetScale,
+                newZoomTransform.y === undefined ?
+                    zoomTransform.y + verticalOffset / 2 :
+                    newZoomTransform.y - (height / 2) * translateOffsetScale)
+            .scale(newZoomTransform.scale);
+
+        if (withoutTransition) {
+            element.call(
+                zoomRef.current.transform,
+                transform);
+        }
+        else {
+            element.transition().duration(400).call(
+                zoomRef.current.transform,
+                transform);
+        }
     }
 
     return {

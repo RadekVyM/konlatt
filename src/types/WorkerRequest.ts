@@ -20,6 +20,8 @@ export type LatticeComputationRequest = {
 
 export type LayoutComputationRequest = {
     type: "layout",
+    upperConeOnlyConceptIndex: number | null,
+    lowerConeOnlyConceptIndex: number | null,
 }
 
 export type CancellationRequest = {

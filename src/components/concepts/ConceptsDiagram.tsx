@@ -1,4 +1,4 @@
-import { LuFocus, LuHand, LuMaximize, LuMinimize, LuMinus, LuPlus, LuRedo2, LuUndo2 } from "react-icons/lu";
+import { LuFocus, LuHand, LuLoaderCircle, LuMaximize, LuMinimize, LuMinus, LuPlus, LuRedo2, LuUndo2 } from "react-icons/lu";
 import Button from "../inputs/Button";
 import DiagramCanvas from "./DiagramCanvas";
 import { cn } from "../../utils/tailwind";
@@ -41,11 +41,17 @@ export default function ConceptsDiagram(props: {
         }
     }, [zoomTo]);
 
+    useEffect(() => {
+        if (layout) {
+            zoomTo({ scale: 1, x: 0, y: 0 }, true);
+        }
+    }, [layout]);
+
     useKeyBoardEvents(isTemporarilyEditableRef, setIsEditable, undo, redo);
 
     return (
         <>
-            {isDiagramRenderable &&
+            {isDiagramRenderable ?
                 <DiagramCanvas
                     ref={diagramRef}
                     className="w-full h-full"
@@ -60,7 +66,12 @@ export default function ConceptsDiagram(props: {
                     diagramOffsets={diagramOffsets}
                     updateNodeOffset={updateNodeOffset}
                     visibleConceptIndexes={visibleConceptIndexes}
-                    filteredConceptIndexes={filteredConceptIndexes} />}
+                    filteredConceptIndexes={filteredConceptIndexes} /> :
+                    <div
+                        className="w-full h-full grid place-content-center">
+                        <LuLoaderCircle
+                            className="animate-spin w-8 h-8 text-on-surface-muted" />
+                    </div>}
 
             <ExportButton
                 className="absolute top-0 right-0 m-3"

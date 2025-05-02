@@ -390,7 +390,7 @@ function useDrawDiagram(
         const invisibleNodeRadius = baseNodeRadius / 2;
         const nodeCanvas = createNodeCanvas(baseNodeRadius, onSurfaceColor);
         const invisibleNodeCanvas = createNodeCanvas(invisibleNodeRadius, onSurfaceColor);
-        const mutedNodeCanvas = createNodeCanvas(baseNodeRadius, mutedColor);
+        const mutedNodeCanvas = createNodeCanvas(baseNodeRadius * 0.8, mutedColor);
         const mutedInvisibleNodeCanvas = createNodeCanvas(invisibleNodeRadius, mutedColor);
 
         for (const concept of concepts) {
