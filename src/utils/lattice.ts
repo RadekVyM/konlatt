@@ -38,6 +38,7 @@ export function calculateVisibleConceptIndexes(upperConeOnlyConceptIndex: number
 
 export function calculateSublattice(visibleConceptIndexes: Set<number>, lattice: ConceptLattice, supremumIndex: number) {
     const indexMapping = new Map<number, number>();
+    const reverseIndexMapping = new Map<number, number>();
     const subconceptsMapping = new Array<Set<number>>();
     const { layers } = assignNodesToLayersByLongestPath(supremumIndex, lattice.subconceptsMapping);
 
@@ -50,7 +51,7 @@ export function calculateSublattice(visibleConceptIndexes: Set<number>, lattice:
             }
 
             let index;
-            ({ index, nextUsableIndex } = getMappedIndex(indexMapping, conceptIndex, nextUsableIndex));
+            ({ index, nextUsableIndex } = getMappedIndex(indexMapping, reverseIndexMapping, conceptIndex, nextUsableIndex));
 
             const subconcepts = new Array<number>();
 
@@ -60,7 +61,7 @@ export function calculateSublattice(visibleConceptIndexes: Set<number>, lattice:
                 }
 
                 let index;
-                ({ index, nextUsableIndex } = getMappedIndex(indexMapping, subconceptIndex, nextUsableIndex));
+                ({ index, nextUsableIndex } = getMappedIndex(indexMapping, reverseIndexMapping, subconceptIndex, nextUsableIndex));
 
                 subconcepts.push(index);
             }
@@ -70,7 +71,7 @@ export function calculateSublattice(visibleConceptIndexes: Set<number>, lattice:
     }
 
     return {
-        indexMapping,
+        reverseIndexMapping,
         subconceptsMapping,
         supremum: 0,
     };
@@ -84,12 +85,13 @@ function collectIndexes(startIndex: number, relation: ReadonlyArray<Set<number>>
     return set;
 }
 
-function getMappedIndex(mapping: Map<number, number>, conceptIndex: number, nextUsableIndex: number) {
+function getMappedIndex(mapping: Map<number, number>, reverseIndexMapping: Map<number, number>, conceptIndex: number, nextUsableIndex: number) {
     let index = mapping.get(conceptIndex);
 
     if (index === undefined) {
         index = nextUsableIndex;
         mapping.set(conceptIndex, index);
+        reverseIndexMapping.set(index, conceptIndex);
         nextUsableIndex++;
     }
 

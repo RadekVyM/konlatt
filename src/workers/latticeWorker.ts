@@ -5,8 +5,8 @@ import { FormalContext } from "../types/FormalContext";
 import { FormalConcepts, getSupremum } from "../types/FormalConcepts";
 import DiagramLayoutWorker from "./diagramLayoutWorker?worker";
 import { calculateSublattice, calculateVisibleConceptIndexes } from "../utils/lattice";
-import { ConceptLatticeLayout } from "../types/ConceptLatticeLayout";
-import { createPoint, Point } from "../types/Point";
+import { createConceptPoint } from "../types/ConceptPoint";
+import { Point } from "../types/Point";
 
 let formalContext: FormalContext | null = null;
 let formalConcepts: FormalConcepts | null = null;
@@ -123,7 +123,7 @@ async function calculateLayout(
     postStatusMessage(jobId, "Computing layout");
 
     const worker = new DiagramLayoutWorker();
-    const { request, indexMapping } = createCompleteLayoutComputationRequest(concepts, lattice, upperConeOnlyConceptIndex, lowerConeOnlyConceptIndex);
+    const { request, reverseIndexMapping } = createCompleteLayoutComputationRequest(concepts, lattice, upperConeOnlyConceptIndex, lowerConeOnlyConceptIndex);
 
     worker.postMessage(request, [request.subconceptsMappingArrayBuffer.buffer]);
 
@@ -133,7 +133,7 @@ async function calculateLayout(
                 jobId,
                 time: new Date().getTime(),
                 type: "layout",
-                layout: getValidLayout(data.data.layout, indexMapping, concepts.length),
+                layout: getValidLayout(data.data.layout, reverseIndexMapping),
                 computationTime: data.data.computationTime,
             };
             self.postMessage(layoutMessage);
@@ -201,7 +201,7 @@ function createCompleteLayoutComputationRequest(
     lowerConeOnlyConceptIndex: number | null,
 ): {
     request: CompleteLayoutComputationRequest,
-    indexMapping: Map<number, number> | null,
+    reverseIndexMapping: Map<number, number> | null,
 } {
     const visibleConceptIndexes = calculateVisibleConceptIndexes(upperConeOnlyConceptIndex, lowerConeOnlyConceptIndex, lattice);
 
@@ -214,11 +214,11 @@ function createCompleteLayoutComputationRequest(
                 supremum: getSupremum(concepts).index,
                 subconceptsMappingArrayBuffer: new Int32Array(lattice.subconceptsMapping.flatMap((set) => [set.size, ...set])),
             },
-            indexMapping: null,
+            reverseIndexMapping: null,
         };
     }
 
-    const { indexMapping, subconceptsMapping, supremum } = calculateSublattice(visibleConceptIndexes, lattice, getSupremum(concepts).index);
+    const { reverseIndexMapping, subconceptsMapping, supremum } = calculateSublattice(visibleConceptIndexes, lattice, getSupremum(concepts).index);
 
     return {
         request: {
@@ -227,21 +227,14 @@ function createCompleteLayoutComputationRequest(
             supremum,
             subconceptsMappingArrayBuffer: new Int32Array(subconceptsMapping.flatMap((set) => [set.size, ...set])),
         },
-        indexMapping,
+        reverseIndexMapping,
     };
 }
 
-function getValidLayout(layout: ConceptLatticeLayout, indexMapping: Map<number, number> | null, validLength: number) {
-    if (indexMapping === null) {
-        return layout;
+function getValidLayout(layout: Array<Point>, reverseIndexMapping: Map<number, number> | null) {
+    if (reverseIndexMapping === null) {
+        return layout.map((point, index) => createConceptPoint(point[0], point[1], point[2], index));
     }
 
-    const validLayout = new Array<Point>();
-
-    for (let i = 0; i < validLength; i++) {
-        const index = indexMapping.get(i);
-        validLayout[i] = index === undefined ? createPoint(0, 0, 0) : layout[index];
-    }
-
-    return validLayout;
+    return layout.map((point, index) => createConceptPoint(point[0], point[1], point[2], reverseIndexMapping.get(index)!));
 }

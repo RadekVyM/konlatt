@@ -4,8 +4,9 @@ import useDiagramStore from "../stores/useDiagramStore";
 
 export function useDiagramOffsets() {
     const diagramOffsets = useDiagramStore((state) => state.diagramOffsets);
-    const setDiagramOffsets = useDiagramStore((state) => state.setDiagramOffsets);
+    const conceptToLayoutIndexesMapping = useDiagramStore((state) => state.conceptToLayoutIndexesMapping);
     const { redos, undos } = useDiagramStore((state) => state.diagramOffsetMementos);
+    const setDiagramOffsets = useDiagramStore((state) => state.setDiagramOffsets);
     const setDiagramOffsetMementos = useDiagramStore((state) => state.setDiagramOffsetMementos);
 
     function pushUndoMemento(memento: NodeOffsetMemento) {
@@ -52,15 +53,15 @@ export function useDiagramOffsets() {
         setDiagramOffsets(newOffsets);
     }
 
-    function updateNodeOffset(node: number, offset: Point) {
-        if (!diagramOffsets) {
+    function updateNodeOffset(conceptIndex: number, offset: Point) {
+        if (!diagramOffsets || !conceptToLayoutIndexesMapping) {
             return;
         }
 
         const newOffsets = [...diagramOffsets];
-        applyOffset(newOffsets, node, offset);
+        applyOffset(newOffsets, conceptToLayoutIndexesMapping.get(conceptIndex)!, offset);
         setDiagramOffsets(newOffsets);
-        pushUndoMemento(createNodeOffsetMemento(node, offset));
+        pushUndoMemento(createNodeOffsetMemento(conceptIndex, offset));
     }
 
     return {

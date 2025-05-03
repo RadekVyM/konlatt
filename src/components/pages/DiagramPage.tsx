@@ -2,14 +2,14 @@ import { useRef } from "react";
 import { cn } from "../../utils/tailwind";
 import Container from "../Container";
 import ConceptsList from "../concepts/ConceptsList";
-import ConceptsDiagram from "../concepts/ConceptsDiagram";
+import ConceptsDiagram from "../concepts/diagram/ConceptsDiagram";
 import PageContainer from "../PageContainer";
 import useFullscreen from "../../hooks/useFullscreen";
 import { FullscreenState } from "../../types/FullscreenState";
-import DiagramConfig from "../concepts/DiagramConfig";
+import DiagramConfig from "../concepts/diagram/DiagramConfig";
 import { ZoomToContextProvider } from "../../contexts/ZoomToContext";
 import useDiagramStore from "../../stores/useDiagramStore";
-import ConceptDiagramControls from "../concepts/ConceptDiagramControls";
+import ConceptDiagramControls from "../concepts/diagram/ConceptDiagramControls";
 
 export default function DiagramPage() {
     const containerRef = useRef<HTMLDivElement>(null);

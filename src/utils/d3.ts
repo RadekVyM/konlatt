@@ -20,17 +20,11 @@ export function invertPoint(point: [number, number], zoomTransform: ZoomTransfor
 export function createQuadTree(
     layout: ConceptLatticeLayout,
     diagramOffsets: Array<Point>,
-    visibleConceptIndexes: Set<number> | null,
 ) {
-    const nodes = new Array<QuadNode>();
-
-    for (let i = 0; i < layout.length; i++) {
-        if (!visibleConceptIndexes || visibleConceptIndexes.has(i)) {
-            const point = layout[i];
-            const offset = diagramOffsets[i];
-            nodes.push({ x: point[0] + offset[0], y: point[1] + offset[1], index: i });
-        }
-    }
+    const nodes: Array<QuadNode> = layout.map((point, index) => {
+        const offset = diagramOffsets[index];
+        return { x: point.x + offset[0], y: point.y + offset[1], conceptIndex: point.conceptIndex };
+    });
 
     return d3Quadtree
         .quadtree<QuadNode>()

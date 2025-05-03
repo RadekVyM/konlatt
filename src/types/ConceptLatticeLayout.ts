@@ -1,3 +1,3 @@
-import { Point } from "./Point";
+import { ConceptPoint } from "./ConceptPoint";
 
-export type ConceptLatticeLayout = Array<Point>
+export type ConceptLatticeLayout = Array<ConceptPoint>

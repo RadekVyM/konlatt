@@ -1,8 +1,8 @@
 import { useState } from "react";
-import ComboBox from "../inputs/ComboBox";
-import ToggleSwitch from "../inputs/ToggleSwitch";
-import NumberInput from "../inputs/NumberInput";
-import useDiagramStore from "../../stores/useDiagramStore";
+import ComboBox from "../../inputs/ComboBox";
+import ToggleSwitch from "../../inputs/ToggleSwitch";
+import NumberInput from "../../inputs/NumberInput";
+import useDiagramStore from "../../../stores/useDiagramStore";
 
 export default function DiagramConfig() {
     const [selectedLayoutMethod, setSelectedLayoutMethod] = useState<string>("layered");

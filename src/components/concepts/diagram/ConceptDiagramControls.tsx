@@ -1,13 +1,13 @@
 import { LuEye, LuEyeOff, LuScanSearch } from "react-icons/lu";
-import Button from "../inputs/Button";
-import ToggleSwitch from "../inputs/ToggleSwitch";
-import { LAYOUT_SCALE } from "../../constants/diagram";
-import { getConcept2DPoint } from "../../utils/layout";
+import Button from "../../inputs/Button";
+import ToggleSwitch from "../../inputs/ToggleSwitch";
+import { LAYOUT_SCALE } from "../../../constants/diagram";
+import { getConcept2DPoint } from "../../../utils/layout";
 import { useContext, useState } from "react";
-import useDiagramStore from "../../stores/useDiagramStore";
-import { ZoomToContext } from "../../contexts/ZoomToContext";
-import useDataStructuresStore from "../../stores/useDataStructuresStore";
-import { isInfimum, isSupremum } from "../../types/FormalConcepts";
+import useDiagramStore from "../../../stores/useDiagramStore";
+import { ZoomToContext } from "../../../contexts/ZoomToContext";
+import useDataStructuresStore from "../../../stores/useDataStructuresStore";
+import { isInfimum, isSupremum } from "../../../types/FormalConcepts";
 
 export default function ConceptDiagramControls(props: {
     selectedConceptIndex: number,
@@ -61,6 +61,7 @@ function FocusButton(props: {
     const { zoomToRef } = useContext(ZoomToContext);
     const layout = useDiagramStore((store) => store.layout);
     const diagramOffsets = useDiagramStore((store) => store.diagramOffsets);
+    const conceptToLayoutIndexesMapping = useDiagramStore((store) => store.conceptToLayoutIndexesMapping);
     const visibleConceptIndexes = useDiagramStore((store) => store.visibleConceptIndexes);
     const displayHighlightedSublatticeOnly = useDiagramStore((store) => store.displayHighlightedSublatticeOnly);
     const isDisabled = !layout || !diagramOffsets || (displayHighlightedSublatticeOnly && !!visibleConceptIndexes && !visibleConceptIndexes.has(props.conceptIndex));
@@ -70,10 +71,16 @@ function FocusButton(props: {
             return;
         }
 
+        const index = conceptToLayoutIndexesMapping.get(props.conceptIndex);
+
+        if (index === undefined) {
+            return;
+        }
+
         const scale = 2;
         const point = getConcept2DPoint(
-            layout[props.conceptIndex],
-            diagramOffsets[props.conceptIndex],
+            layout[index],
+            diagramOffsets[index],
             LAYOUT_SCALE * scale,
             0,
             0);

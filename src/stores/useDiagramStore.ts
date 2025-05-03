@@ -18,6 +18,7 @@ type ConceptLatticeLayoutCacheItem = {
 
 type DiagramStoreState = {
     layout: ConceptLatticeLayout | null,
+    conceptToLayoutIndexesMapping: Map<number, number>,
     layoutCache: Array<ConceptLatticeLayoutCacheItem>,
     currentLayoutJobId: number | null,
     diagramOffsets: Array<Point> | null,
@@ -45,6 +46,7 @@ type DiagramStore = DiagramStoreState & DiagramStoreActions & ConceptsFilterSlic
 const initialState: DiagramStoreState = {
     layout: null,
     layoutCache: [],
+    conceptToLayoutIndexesMapping: new Map(),
     currentLayoutJobId: null,
     diagramOffsets: null,
     diagramOffsetMementos: createEmptyDiagramOffsetMementos(),
@@ -60,6 +62,7 @@ const useDiagramStore = create<DiagramStore>((set) => ({
     ...initialState,
     setLayout: (layout) => set((old) => ({
         layout,
+        conceptToLayoutIndexesMapping: layout ? createConceptToLayoutIndexesMapping(layout) : new Map(),
         layoutCache: layout ?
             updateLayoutCache(old.layoutCache, layout, old.upperConeOnlyConceptIndex, old.lowerConeOnlyConceptIndex) :
             [],
@@ -141,6 +144,7 @@ function withLayout(
 
         return {
             layout: cachedLayout,
+            conceptToLayoutIndexesMapping: createConceptToLayoutIndexesMapping(cachedLayout),
             diagramOffsets: createDefaultDiagramOffsets(cachedLayout.length),
             diagramOffsetMementos: createEmptyDiagramOffsetMementos(),
             ...newState,
@@ -151,6 +155,7 @@ function withLayout(
 
     return {
         layout: null,
+        conceptToLayoutIndexesMapping: new Map(),
         diagramOffsets: null,
         diagramOffsetMementos: createEmptyDiagramOffsetMementos(),
         ...newState,
@@ -192,4 +197,15 @@ function createDefaultDiagramOffsets(length: number) {
 
 function createEmptyDiagramOffsetMementos() {
     return { redos: [], undos: [] };
+}
+
+function createConceptToLayoutIndexesMapping(layout: ConceptLatticeLayout) {
+    const mapping = new Map<number, number>();
+
+    for (let i = 0; i < layout.length; i++) {
+        const point = layout[i];
+        mapping.set(point.conceptIndex, i);
+    }
+
+    return mapping;
 }

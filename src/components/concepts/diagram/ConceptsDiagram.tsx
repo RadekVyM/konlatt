@@ -1,19 +1,19 @@
 import { LuFocus, LuHand, LuLoaderCircle, LuMaximize, LuMinimize, LuMinus, LuPlus, LuRedo2, LuUndo2 } from "react-icons/lu";
-import Button from "../inputs/Button";
+import Button from "../../inputs/Button";
 import DiagramCanvas from "./DiagramCanvas";
-import { cn } from "../../utils/tailwind";
+import { cn } from "../../../utils/tailwind";
 import { useContext, useEffect, useRef, useState } from "react";
-import useEventListener from "../../hooks/useEventListener";
-import { PartialZoomTransform, ZoomTransform } from "../../types/d3/ZoomTransform";
-import useZoom from "../../hooks/useZoom";
-import { ZoomScaleExtent } from "../../types/d3/ZoomScaleExtent";
-import { useDiagramOffsets } from "../../hooks/useDiagramOffsets";
-import { isCtrlZ, isEditableElement } from "../../utils/html";
-import { FullscreenState } from "../../types/FullscreenState";
-import ExportButton from "../export/ExportButton";
-import useDiagramStore from "../../stores/useDiagramStore";
-import useDataStructuresStore from "../../stores/useDataStructuresStore";
-import { ZoomToContext } from "../../contexts/ZoomToContext";
+import useEventListener from "../../../hooks/useEventListener";
+import { PartialZoomTransform, ZoomTransform } from "../../../types/d3/ZoomTransform";
+import useZoom from "../../../hooks/useZoom";
+import { ZoomScaleExtent } from "../../../types/d3/ZoomScaleExtent";
+import { useDiagramOffsets } from "../../../hooks/useDiagramOffsets";
+import { isCtrlZ, isEditableElement } from "../../../utils/html";
+import { FullscreenState } from "../../../types/FullscreenState";
+import ExportButton from "../../export/ExportButton";
+import useDiagramStore from "../../../stores/useDiagramStore";
+import useDataStructuresStore from "../../../stores/useDataStructuresStore";
+import { ZoomToContext } from "../../../contexts/ZoomToContext";
 
 const ZOOM_SCALE_EXTENT: ZoomScaleExtent = { min: 0.05, max: 5 };
 
@@ -26,13 +26,10 @@ export default function ConceptsDiagram(props: {
     const lattice = useDataStructuresStore((state) => state.lattice);
     const concepts = useDataStructuresStore((state) => state.concepts);
     const layout = useDiagramStore((state) => state.layout);
-    const visibleConceptIndexes = useDiagramStore((state) => state.visibleConceptIndexes);
-    const filteredConceptIndexes = useDiagramStore((state) => state.filteredConceptIndexes);
-    const displayHighlightedSublatticeOnly = useDiagramStore((state) => state.displayHighlightedSublatticeOnly);
     const [isEditable, setIsEditable] = useState(false);
     const { diagramOffsets, canUndo, canRedo, updateNodeOffset, undo, redo } = useDiagramOffsets();
 
-    const isDiagramRenderable = !!(context && lattice && layout && concepts && diagramOffsets);
+    const isDiagramRenderable = !!(context && lattice && concepts && layout && diagramOffsets);
     const { zoomTransform, isDragZooming, updateExtent, zoomTo } = useZoom(diagramRef, isDiagramRenderable, !isEditable, ZOOM_SCALE_EXTENT);
     const { zoomToRef } = useContext(ZoomToContext);
 
@@ -56,19 +53,11 @@ export default function ConceptsDiagram(props: {
                 <DiagramCanvas
                     ref={diagramRef}
                     className="w-full h-full"
-                    layout={layout}
-                    concepts={concepts}
-                    lattice={lattice}
-                    formalContext={context}
                     isEditable={isEditable}
                     isDragZooming={isDragZooming}
                     zoomTransform={zoomTransform}
                     updateExtent={updateExtent}
-                    diagramOffsets={diagramOffsets}
-                    updateNodeOffset={updateNodeOffset}
-                    visibleConceptIndexes={visibleConceptIndexes}
-                    filteredConceptIndexes={filteredConceptIndexes}
-                    displayHighlightedSublatticeOnly={displayHighlightedSublatticeOnly} /> :
+                    updateNodeOffset={updateNodeOffset} /> :
                     <div
                         className="w-full h-full grid place-content-center">
                         <LuLoaderCircle

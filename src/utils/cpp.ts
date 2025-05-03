@@ -1,6 +1,5 @@
 import { FloatArray, FormalConceptArray, IndexedFormalConceptArray, IntArray, IntMultiArray, MainModule, StringArray, UIntArray } from "../wasm/cpp";
 import { FormalConcept, FormalConcepts } from "../types/FormalConcepts";
-import { ConceptLatticeLayout } from "../types/ConceptLatticeLayout";
 import { createPoint, Point } from "../types/Point";
 
 export function* cppStringArrayToJs(cppArray: StringArray, shouldDelete: boolean = false): Generator<string> {
@@ -67,8 +66,8 @@ export function* cppFormalConceptArrayToJs(cppArray: FormalConceptArray, shouldD
     }
 }
 
-export function cppFloatArrayToLayout(cppArray: FloatArray, conceptsCount: number, shouldDelete: boolean = false): ConceptLatticeLayout {
-    const result: ConceptLatticeLayout = new Array<Point>();
+export function cppFloatArrayToPoints(cppArray: FloatArray, conceptsCount: number, shouldDelete: boolean = false): Array<Point> {
+    const result = new Array<Point>();
 
     for (let i = 0; i < conceptsCount; i++) {
         const start = i * 3;
@@ -76,7 +75,7 @@ export function cppFloatArrayToLayout(cppArray: FloatArray, conceptsCount: numbe
         const y = cppArray.get(start + 1)!;
         const z = cppArray.get(start + 2)!;
 
-        result.push(createPoint(x, y, z))
+        result.push(createPoint(x, y, z));
     }
 
     if (shouldDelete) {

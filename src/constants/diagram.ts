@@ -1,1 +1,8 @@
 export const LAYOUT_SCALE = 60;
+export const GRID_LINE_STEP = LAYOUT_SCALE;
+export const GRID_LINE_STEP_HALF = GRID_LINE_STEP / 2;
+export const GRID_LINE_GAP = LAYOUT_SCALE / 16;
+export const GRID_LINE_GAP_HALF = GRID_LINE_GAP / 2;
+export const GRID_LINES_INVISIBLE_THRESHOLD = 20;
+export const NODE_RADIUS = 5;
+export const NODE_RADIUS_INTERACTION = NODE_RADIUS + 1;
