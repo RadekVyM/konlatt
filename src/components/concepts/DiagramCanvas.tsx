@@ -38,6 +38,7 @@ export default function DiagramCanvas(props: {
     diagramOffsets: Array<Point>,
     visibleConceptIndexes: Set<number> | null,
     filteredConceptIndexes: Set<number> | null,
+    displayHighlightedSublatticeOnly: boolean,
     updateExtent: (width: number, height: number) => void,
     updateNodeOffset: (node: number, offset: Point) => void,
 }) {
@@ -60,6 +61,7 @@ export default function DiagramCanvas(props: {
     } = useCanvasInteraction(
         props.ref,
         props.layout,
+        props.displayHighlightedSublatticeOnly ? props.visibleConceptIndexes : null,
         props.zoomTransform,
         width,
         height,
@@ -80,6 +82,7 @@ export default function DiagramCanvas(props: {
         props.formalContext,
         props.visibleConceptIndexes,
         props.filteredConceptIndexes,
+        props.displayHighlightedSublatticeOnly,
         hoveredIndex,
         draggedIndex,
         dragOffset,
@@ -173,12 +176,13 @@ export default function DiagramCanvas(props: {
 function useQuadTree(
     layout: ConceptLatticeLayout,
     diagramOffsets: Array<Point>,
+    visibleConceptIndexes: Set<number> | null,
 ) {
     const quadTreeRef = useRef<Quadtree<QuadNode>>(null);
 
     useEffect(() => {
-            quadTreeRef.current = createQuadTree(layout, diagramOffsets);
-    }, [layout, diagramOffsets]);
+        quadTreeRef.current = createQuadTree(layout, diagramOffsets, visibleConceptIndexes);
+    }, [layout, diagramOffsets, visibleConceptIndexes]);
 
     return {
         quadTreeRef
@@ -188,6 +192,7 @@ function useQuadTree(
 function useCanvasInteraction(
     containerRef: React.RefObject<HTMLDivElement | null>,
     layout: ConceptLatticeLayout,
+    visibleConceptIndexes: Set<number> | null,
     zoomTransform: ZoomTransform,
     width: number,
     height: number,
@@ -201,7 +206,7 @@ function useCanvasInteraction(
     const dragStartPointRef = useRef<[number, number]>([0, 0]);
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
     const [dragOffset, setDragOffset] = useState<[number, number]>([0, 0]);
-    const { quadTreeRef } = useQuadTree(layout, diagramOffsets);
+    const { quadTreeRef } = useQuadTree(layout, diagramOffsets, visibleConceptIndexes);
     const isDragging = draggedIndex !== null;
 
     // This is super important to make node dragging work on touch screens
@@ -352,6 +357,7 @@ function useDrawDiagram(
     formalContext: FormalContext,
     visibleConceptIndexes: Set<number> | null,
     filteredConceptIndexes: Set<number> | null,
+    displayHighlightedSublatticeOnly: boolean,
     hoveredIndex: number | null,
     draggedIndex: number | null,
     dragOffset: [number, number],
@@ -362,6 +368,7 @@ function useDrawDiagram(
 ) {
     const selectedIndex = useDiagramStore((state) => state.selectedConceptIndex);
     const deviceScale = scale * window.devicePixelRatio;
+    const drawAllLinks = !displayHighlightedSublatticeOnly || !visibleConceptIndexes;
 
     const targetPoints = useMemo(() => {
         const centerX = (width / 2) * deviceScale;
@@ -394,6 +401,10 @@ function useDrawDiagram(
         const mutedInvisibleNodeCanvas = createNodeCanvas(invisibleNodeRadius, mutedColor);
 
         for (const concept of concepts) {
+            if (isNotDisplayed(displayHighlightedSublatticeOnly, visibleConceptIndexes, concept.index)) {
+                continue;
+            }
+
             if (concept.index === selectedIndex || concept.index === hoveredIndex) {
                 continue;
             }
@@ -423,7 +434,7 @@ function useDrawDiagram(
             context.fill();
         }
 
-        if (selectedIndex !== null && selectedIndex !== hoveredIndex) {
+        if (selectedIndex !== null && selectedIndex !== hoveredIndex && !isNotDisplayed(displayHighlightedSublatticeOnly, visibleConceptIndexes, selectedIndex)) {
             const [x, y] = targetPoints[selectedIndex];
 
             context.beginPath();
@@ -442,6 +453,10 @@ function useDrawDiagram(
         context.fillStyle = onSurfaceColor;
 
         for (const concept of concepts) {
+            if (isNotDisplayed(displayHighlightedSublatticeOnly, visibleConceptIndexes, concept.index)) {
+                continue;
+            }
+
             const [x, y, normalX, normalY] = targetPoints[concept.index];
 
             if (!isInRect(normalX, normalY, visibleRect)) {
@@ -467,9 +482,13 @@ function useDrawDiagram(
                 context.fillText(label, x, y - 7 * deviceScale);
             }
         }
-    }, [lattice, concepts, formalContext, hoveredIndex, selectedIndex, targetPoints, visibleRect, deviceScale, visibleConceptIndexes, filteredConceptIndexes]);
+    }, [lattice, concepts, formalContext, hoveredIndex, selectedIndex, targetPoints, visibleRect, deviceScale, visibleConceptIndexes, filteredConceptIndexes, displayHighlightedSublatticeOnly]);
 
     const drawLinks = useCallback((context: CanvasRenderingContext2D, computedStyle: CSSStyleDeclaration) => {
+        if (!drawAllLinks) {
+            return;
+        }
+
         const outlineColor = computedStyle.getPropertyValue("--outline");
 
         context.strokeStyle = outlineColor;
@@ -508,7 +527,7 @@ function useDrawDiagram(
         }
 
         context.stroke();
-    }, [lattice.subconceptsMapping, concepts, targetPoints, visibleRect, deviceScale]);
+    }, [lattice.subconceptsMapping, concepts, targetPoints, visibleRect, deviceScale, drawAllLinks]);
 
     const drawHighlightedLinks = useCallback((context: CanvasRenderingContext2D, computedStyle: CSSStyleDeclaration) => {
         if (!visibleConceptIndexes) {
@@ -528,10 +547,18 @@ function useDrawDiagram(
         context.beginPath();
 
         for (const conceptIndex of visibleConceptIndexes) {
+            if (isNotDisplayed(displayHighlightedSublatticeOnly, visibleConceptIndexes, conceptIndex)) {
+                continue;
+            }
+
             const subconcepts = lattice.subconceptsMapping[conceptIndex];
             const [startX, startY, normalStartX, normalStartY] = targetPoints[conceptIndex];
 
             for (const subconceptIndex of subconcepts) {
+                if (isNotDisplayed(displayHighlightedSublatticeOnly, visibleConceptIndexes, subconceptIndex)) {
+                    continue;
+                }
+
                 const [endX, endY, normalEndX, normalEndY] = targetPoints[subconceptIndex];
 
                 if (visibleConceptIndexes && !visibleConceptIndexes.has(subconceptIndex)) {
@@ -557,13 +584,17 @@ function useDrawDiagram(
         }
 
         context.stroke();
-    }, [lattice.subconceptsMapping, targetPoints, visibleRect, deviceScale, visibleConceptIndexes]);
+    }, [lattice.subconceptsMapping, targetPoints, visibleRect, deviceScale, visibleConceptIndexes, displayHighlightedSublatticeOnly]);
 
     return {
         drawNodes,
         drawLinks,
         drawHighlightedLinks,
     };
+}
+
+function isNotDisplayed(displayHighlightedSublatticeOnly: boolean, visibleConceptIndexes: Set<number> | null, conceptIndex: number) {
+    return displayHighlightedSublatticeOnly && visibleConceptIndexes && !visibleConceptIndexes.has(conceptIndex);
 }
 
 function toLayoutCoord(coord: number, size: number) {

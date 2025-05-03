@@ -99,7 +99,7 @@ function getLabeling(
 ): ConceptLatticeLabeling {
     const labeling = new Map<number, ReadonlyArray<number>>();
     const alreadyAppeared = new Set<number>();
-    const { layers } = assignNodesToLayersByLongestPath(startConcept, coverRelation);
+    const { layers } = assignNodesToLayersByLongestPath(startConcept.index, coverRelation);
 
     for (const layer of layers) {
         for (const conceptIndex of layer) {

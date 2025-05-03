@@ -20,7 +20,7 @@ export const initialState: ConceptsFilterSliceState = {
     searchTerms: [],
     filteredConceptIndexes: null,
     filteredConcepts: null,
-}
+};
 
 export default function createConceptsFilterSlice(set: (partial: ConceptsFilterSlice | Partial<ConceptsFilterSlice> | ((state: ConceptsFilterSlice) => ConceptsFilterSlice | Partial<ConceptsFilterSlice>), replace?: false) => void): ConceptsFilterSlice {
     return {

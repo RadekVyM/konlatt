@@ -61,7 +61,9 @@ function FocusButton(props: {
     const { zoomToRef } = useContext(ZoomToContext);
     const layout = useDiagramStore((store) => store.layout);
     const diagramOffsets = useDiagramStore((store) => store.diagramOffsets);
-    const isDisabled = !layout || !diagramOffsets;
+    const visibleConceptIndexes = useDiagramStore((store) => store.visibleConceptIndexes);
+    const displayHighlightedSublatticeOnly = useDiagramStore((store) => store.displayHighlightedSublatticeOnly);
+    const isDisabled = !layout || !diagramOffsets || (displayHighlightedSublatticeOnly && !!visibleConceptIndexes && !visibleConceptIndexes.has(props.conceptIndex));
 
     function onClick() {
         if (isDisabled) {

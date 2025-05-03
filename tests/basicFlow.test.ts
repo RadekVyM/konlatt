@@ -45,7 +45,7 @@ describe.each<TestValue>([
     }, 60000);
 
     test(`layers by the longest path: ${value.title}`, () => {
-        const { layers } = assignNodesToLayersByLongestPath(getSupremum(savedConcepts), savedLattice.subconceptsMapping);
+        const { layers } = assignNodesToLayersByLongestPath(getSupremum(savedConcepts).index, savedLattice.subconceptsMapping);
 
         for (let i = 0; i < value.byLongestPathLayersCounts.length; i++) {
             expect(layers[i].size).toBe(value.byLongestPathLayersCounts[i]);

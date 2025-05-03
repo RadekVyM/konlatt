@@ -1,16 +1,14 @@
-import { FormalConcept } from "../types/FormalConcepts";
-
-export function assignNodesToLayersByLongestPath(startConcept: FormalConcept, coverRelation: ReadonlyArray<Set<number>>) {
+export function assignNodesToLayersByLongestPath(startConceptIndex: number, coverRelation: ReadonlyArray<Set<number>>) {
     const layersMapping = new Array<number>(coverRelation.length);
     const layers = new Array<Set<number>>();
 
     const topologicalOrder = topologicalSort(
-        startConcept.index,
+        startConceptIndex,
         coverRelation);
 
-    layersMapping[startConcept.index] = 0;
+    layersMapping[startConceptIndex] = 0;
     layers[0] = new Set<number>();
-    layers[0].add(startConcept.index);
+    layers[0].add(startConceptIndex);
 
     for (const orderedIndex of topologicalOrder) {
         const subconcepts = coverRelation[orderedIndex];

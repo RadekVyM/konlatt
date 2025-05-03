@@ -28,6 +28,7 @@ export default function ConceptsDiagram(props: {
     const layout = useDiagramStore((state) => state.layout);
     const visibleConceptIndexes = useDiagramStore((state) => state.visibleConceptIndexes);
     const filteredConceptIndexes = useDiagramStore((state) => state.filteredConceptIndexes);
+    const displayHighlightedSublatticeOnly = useDiagramStore((state) => state.displayHighlightedSublatticeOnly);
     const [isEditable, setIsEditable] = useState(false);
     const { diagramOffsets, canUndo, canRedo, updateNodeOffset, undo, redo } = useDiagramOffsets();
 
@@ -66,7 +67,8 @@ export default function ConceptsDiagram(props: {
                     diagramOffsets={diagramOffsets}
                     updateNodeOffset={updateNodeOffset}
                     visibleConceptIndexes={visibleConceptIndexes}
-                    filteredConceptIndexes={filteredConceptIndexes} /> :
+                    filteredConceptIndexes={filteredConceptIndexes}
+                    displayHighlightedSublatticeOnly={displayHighlightedSublatticeOnly} /> :
                     <div
                         className="w-full h-full grid place-content-center">
                         <LuLoaderCircle

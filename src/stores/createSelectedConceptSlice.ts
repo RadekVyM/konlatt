@@ -10,7 +10,7 @@ export type SelectedConceptSlice = SelectedConceptSliceState & SelectedConceptSl
 
 export const initialState: SelectedConceptSliceState = {
     selectedConceptIndex: null,
-}
+};
 
 export default function createSelectedConceptSlice(set: (partial: SelectedConceptSlice | Partial<SelectedConceptSlice> | ((state: SelectedConceptSlice) => SelectedConceptSlice | Partial<SelectedConceptSlice>), replace?: false) => void): SelectedConceptSlice {
     return {

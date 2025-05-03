@@ -2,12 +2,11 @@ import { create } from "zustand";
 import { ConceptLatticeLayout } from "../types/ConceptLatticeLayout";
 import { createPoint, Point } from "../types/Point";
 import { NodeOffsetMemento } from "../types/NodeOffsetMemento";
-import { breadthFirstSearch } from "../utils/graphs";
-import { ConceptLattice } from "../types/ConceptLattice";
 import useDataStructuresStore from "./useDataStructuresStore";
 import createConceptsFilterSlice, { initialState as initialConceptsFilterState, ConceptsFilterSlice } from "./createConceptsFilterSlice";
 import createSelectedConceptSlice, { initialState as initialSelectedConceptState, SelectedConceptSlice } from "./createSelectedConceptSlice";
 import { triggerCancellation, triggerLayoutComputation } from "../services/triggers";
+import { calculateVisibleConceptIndexes } from "../utils/lattice";
 
 type DiagramOffsetMementos = { undos: Array<NodeOffsetMemento>, redos: Array<NodeOffsetMemento> }
 
@@ -53,7 +52,7 @@ const initialState: DiagramStoreState = {
     upperConeOnlyConceptIndex: null,
     lowerConeOnlyConceptIndex: null,
     visibleConceptIndexes: null,
-}
+};
 
 const useDiagramStore = create<DiagramStore>((set) => ({
     ...createConceptsFilterSlice(set),
@@ -119,48 +118,6 @@ const useDiagramStore = create<DiagramStore>((set) => ({
 
 export default useDiagramStore;
 
-
-function calculateVisibleConceptIndexes(upperConeOnlyConceptIndex: number | null, lowerConeOnlyConceptIndex: number | null, lattice: ConceptLattice | null) {
-    if (upperConeOnlyConceptIndex === null && lowerConeOnlyConceptIndex === null) {
-        return null;
-    }
-
-    const upperCone = upperConeOnlyConceptIndex !== null && lattice?.superconceptsMapping ?
-        collectIndexes(upperConeOnlyConceptIndex, lattice.superconceptsMapping) :
-        null;
-    
-    const lowerCone = lowerConeOnlyConceptIndex !== null && lattice?.subconceptsMapping ?
-        collectIndexes(lowerConeOnlyConceptIndex, lattice.subconceptsMapping) :
-        null;
-
-    if (upperCone === null) {
-        return lowerCone;
-    }
-    if (lowerCone === null) {
-        return upperCone;
-    }
-
-    const smaller = upperCone.size > lowerCone.size ? lowerCone : upperCone;
-    const larger = upperCone.size > lowerCone.size ? upperCone : lowerCone;
-
-    const intersection = new Array<number>();
-
-    for (const conceptIndex of larger) {
-        if (smaller.has(conceptIndex)) {
-            intersection.push(conceptIndex);
-        }
-    }
-
-    return new Set(intersection);
-}
-
-function collectIndexes(startIndex: number, relation: ReadonlyArray<Set<number>>) {
-    const set = new Set<number>();
-
-    breadthFirstSearch(startIndex, relation, (index) => set.add(index));
-
-    return set;
-}
 
 function withLayout(
     old: DiagramStore,

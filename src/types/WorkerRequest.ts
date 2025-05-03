@@ -30,7 +30,8 @@ export type CancellationRequest = {
 }
 
 export type CompleteLayoutComputationRequest = {
+    type: "layout",
     supremum: number,
     conceptsCount: number,
     subconceptsMappingArrayBuffer: Int32Array,    
-} & LayoutComputationRequest
+}

@@ -30,9 +30,9 @@ std::unique_ptr<std::tuple<
     std::vector<std::unordered_set<int>>
 >> convertToCppMappings(
     int conceptsCount,
-    const emscripten::val& superconceptsMappingTypedArray
+    const emscripten::val& subconceptsMappingTypedArray
 ) {
-    auto flatSuperconceptsMapping = jsTypedArrayToVector(superconceptsMappingTypedArray);
+    auto flatSubconceptsMapping = jsTypedArrayToVector(subconceptsMappingTypedArray);
 
     auto result = make_unique<std::tuple<
         std::vector<std::unordered_set<int>>,
@@ -45,14 +45,14 @@ std::unique_ptr<std::tuple<
     int i = 0;
     int currentConcept = 0;
 
-    while (i < flatSuperconceptsMapping->size()) {
-        int count = (*flatSuperconceptsMapping)[i];
+    while (i < flatSubconceptsMapping->size()) {
+        int count = (*flatSubconceptsMapping)[i];
         i++;
 
         for (int j = 0; j < count; j++) {
-            int value = (*flatSuperconceptsMapping)[i];
-            superconceptsMapping[currentConcept].insert(value);
-            subconceptsMapping[value].insert(currentConcept);
+            int value = (*flatSubconceptsMapping)[i];
+            subconceptsMapping[currentConcept].insert(value);
+            superconceptsMapping[value].insert(currentConcept);
 
             i++;
         }
@@ -66,9 +66,9 @@ std::unique_ptr<std::tuple<
 TimedResult<std::vector<float>> computeLayeredLayoutJs(
     int supremum,
     int conceptsCount,
-    const emscripten::val& superconceptsMappingTypedArray
+    const emscripten::val& subconceptsMappingTypedArray
 ) {
-    auto result = convertToCppMappings(conceptsCount, superconceptsMappingTypedArray);
+    auto result = convertToCppMappings(conceptsCount, subconceptsMappingTypedArray);
     auto& [subconceptsMapping, superconceptsMapping] = *result;
 
     return computeLayeredLayout(

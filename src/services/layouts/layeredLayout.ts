@@ -15,11 +15,12 @@ export async function computeLayeredLayout(
     computationTime: number,
 }> {
     const module = await Module();
-    // TODO: use iterators when available: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Iterator/flatMap
+
     const result = module.computeLayeredLayout(supremum, conceptsCount, subconceptsMappingArrayBuffer);
+    const layout = cppFloatArrayToLayout(result.value, conceptsCount, true);
 
     return {
-        layout: cppFloatArrayToLayout(result.value, conceptsCount, true),
+        layout,
         computationTime: result.time,
     };
 }
@@ -30,7 +31,7 @@ export function computeLayeredLayoutJs(formalConcepts: FormalConcepts, lattice: 
 } {
     const startTime = new Date().getTime();
 
-    const { layers, layersMapping } = assignNodesToLayersByLongestPath(getSupremum(formalConcepts), lattice.subconceptsMapping);
+    const { layers, layersMapping } = assignNodesToLayersByLongestPath(getSupremum(formalConcepts).index, lattice.subconceptsMapping);
     const { layersWithDummies, horizontalCoords, dummySuperconceptsMapping, dummySubconceptsMapping } = addDummies(
         formalConcepts.length,
         lattice.subconceptsMapping,
