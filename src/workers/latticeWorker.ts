@@ -11,52 +11,70 @@ import { Point } from "../types/Point";
 let formalContext: FormalContext | null = null;
 let formalConcepts: FormalConcepts | null = null;
 let conceptLattice: ConceptLattice | null = null;
+const workerInstances = new Map<number, { worker: Worker, reject?: (reason?: any) => void }>();
 
 self.onmessage = async (event: MessageEvent<CompleteWorkerRequest>) => {
     console.log(`[${event.data.type}] sending arguments: ${new Date().getTime() - event.data.time} ms`);
 
-    switch (event.data.type) {
-        case "cancel":
-            // TODO: handle cancellation
-            // TODO: I need to terminate the worker, create a new one and reinitialize it if I want to cancel a WASM computation
+    try {
+        switch (event.data.type) {
+            case "cancel":
+                const workerInstance = workerInstances.get(event.data.jobId);
 
-            postStatusMessage(event.data.jobId, null);
+                if (workerInstance) {
+                    workerInstance.worker.terminate();
+                    workerInstances.delete(event.data.jobId);
+                    if (workerInstance.reject) {
+                        workerInstance.reject();
+                    }
+                }
+                return;
+            case "parse-context":
+                await parseFileContent(event.data.jobId, event.data.content);
+                break;
+            case "concepts":
+                if (!formalContext) {
+                    throw new Error("Formal context has not been calculated yet");
+                }
+    
+                await calculateConcepts(event.data.jobId, formalContext);
+                break;
+            case "lattice":
+                if (!formalConcepts) {
+                    throw new Error("Formal concepts have not been calculated yet");
+                }
+                if (!formalContext) {
+                    throw new Error("Formal context has not been calculated yet");
+                }
+    
+                await calculateLattice(event.data.jobId, formalConcepts, formalContext);
+                break;
+            case "layout":
+                if (!formalConcepts) {
+                    throw new Error("Formal concepts have not been calculated yet");
+                }
+                if (!conceptLattice) {
+                    throw new Error("Concept lattice has not been calculated yet");
+                }
+    
+                await calculateLayout(
+                    event.data.jobId,
+                    formalConcepts,
+                    conceptLattice,
+                    event.data.upperConeOnlyConceptIndex,
+                    event.data.lowerConeOnlyConceptIndex);
+                break;
+        }
+    }
+    catch (error) {
+        if (!error) {
             return;
-        case "parse-context":
-            await parseFileContent(event.data.jobId, event.data.content);
-            break;
-        case "concepts":
-            if (!formalContext) {
-                throw new Error("Formal context has not been calculated yet");
-            }
+        }
 
-            await calculateConcepts(event.data.jobId, formalContext);
-            break;
-        case "lattice":
-            if (!formalConcepts) {
-                throw new Error("Formal concepts have not been calculated yet");
-            }
-            if (!formalContext) {
-                throw new Error("Formal context has not been calculated yet");
-            }
+        // TODO: Handle errors
+        console.warn(error);
 
-            await calculateLattice(event.data.jobId, formalConcepts, formalContext);
-            break;
-        case "layout":
-            if (!formalConcepts) {
-                throw new Error("Formal concepts have not been calculated yet");
-            }
-            if (!conceptLattice) {
-                throw new Error("Concept lattice has not been calculated yet");
-            }
-
-            await calculateLayout(
-                event.data.jobId,
-                formalConcepts,
-                conceptLattice,
-                event.data.upperConeOnlyConceptIndex,
-                event.data.lowerConeOnlyConceptIndex);
-            break;
+        return;
     }
 
     postStatusMessage(event.data.jobId, null);
@@ -127,18 +145,25 @@ async function calculateLayout(
 
     worker.postMessage(request, [request.subconceptsMappingArrayBuffer.buffer]);
 
-    await new Promise((resolve) => {
-        worker.onmessage = (data) => {
+    await new Promise((resolve, reject) => {
+        workerInstances.set(jobId, { worker, reject });
+
+        worker.onmessage = (event) => {
             const layoutMessage: LayoutComputationResponse = {
                 jobId,
                 time: new Date().getTime(),
                 type: "layout",
-                layout: getValidLayout(data.data.layout, reverseIndexMapping),
-                computationTime: data.data.computationTime,
+                layout: getValidLayout(event.data.layout, reverseIndexMapping),
+                computationTime: event.data.computationTime,
             };
             self.postMessage(layoutMessage);
 
+            workerInstances.delete(jobId);
             resolve(undefined);
+        };
+        worker.onerror = (event) => {
+            workerInstances.delete(jobId);
+            reject(event.error);
         };
     });
 }

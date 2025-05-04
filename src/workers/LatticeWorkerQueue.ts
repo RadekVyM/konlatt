@@ -40,7 +40,7 @@ export default class LatticeWorkerQueue {
     }
 
     public cancelJob(jobId: number) {
-        if (this.currentJob && this.currentJob.id === jobId) {
+        if (this.currentJob !== null && this.currentJob.id === jobId) {
             const request: CancellationRequest = {
                 jobId,
                 type: "cancel",

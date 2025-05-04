@@ -64,7 +64,11 @@ const useDiagramStore = create<DiagramStore>((set) => ({
         layout,
         conceptToLayoutIndexesMapping: layout ? createConceptToLayoutIndexesMapping(layout) : new Map(),
         layoutCache: layout ?
-            updateLayoutCache(old.layoutCache, layout, old.upperConeOnlyConceptIndex, old.lowerConeOnlyConceptIndex) :
+            updateLayoutCache(
+                old.layoutCache,
+                layout,
+                old.displayHighlightedSublatticeOnly ? old.upperConeOnlyConceptIndex : null,
+                old.displayHighlightedSublatticeOnly ? old.lowerConeOnlyConceptIndex : null) :
             [],
     })),
     setCurrentLayoutJobId: (currentLayoutJobId) => set(() => ({ currentLayoutJobId })),
@@ -129,11 +133,17 @@ function withLayout(
     lowerConeOnlyConceptIndex: number | null,
     newState: Partial<DiagramStore>,
 ): Partial<DiagramStore> {
+    if (!displayHighlightedSublatticeOnly && old.layoutCache.length === 0) {
+        // Do not react to upperConeOnlyConceptIndex and lowerConeOnlyConceptIndex changes
+        // when nothing is rendered yet
+        return newState;
+    }
+
     const cachedLayout = displayHighlightedSublatticeOnly ?
         tryGetLayoutFromCache(old.layoutCache, upperConeOnlyConceptIndex, lowerConeOnlyConceptIndex) :
         tryGetLayoutFromCache(old.layoutCache, null, null);
 
-    if (cachedLayout === old.layout) {
+    if (cachedLayout !== null && cachedLayout === old.layout) {
         return newState;
     }
 

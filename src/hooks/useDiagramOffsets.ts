@@ -61,7 +61,7 @@ export function useDiagramOffsets() {
         const newOffsets = [...diagramOffsets];
         applyOffset(newOffsets, conceptToLayoutIndexesMapping.get(conceptIndex)!, offset);
         setDiagramOffsets(newOffsets);
-        pushUndoMemento(createNodeOffsetMemento(conceptIndex, offset));
+        pushUndoMemento(createNodeOffsetMemento(conceptToLayoutIndexesMapping.get(conceptIndex)!, offset));
     }
 
     return {
