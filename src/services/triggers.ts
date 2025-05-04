@@ -4,6 +4,7 @@ import { ConceptComputationResponse, ContextParsingResponse, LatticeComputationR
 import useDiagramStore from "../stores/useDiagramStore";
 import useDataStructuresStore from "../stores/useDataStructuresStore";
 import useExplorerStore from "../stores/useExplorerStore";
+import { DiagramLayoutState } from "../types/DiagramLayoutState";
 
 export async function triggerInitialization(file: File) {
     useProjectStore.getState().clearStatusItems();
@@ -19,7 +20,7 @@ export async function triggerInitialization(file: File) {
     triggerFileParsing(fileContent);
     triggerConceptComputation();
     triggerLatticeComputation();
-    triggerLayoutComputation(false, null, null);
+    triggerLayoutComputation({ ...useDiagramStore.getState() });
 }
 
 function triggerFileParsing(fileContent: string) {
@@ -69,11 +70,7 @@ function triggerLatticeComputation() {
         (jobId) => useProjectStore.getState().addStatusItem(jobId, "Lattice computation"));
 }
 
-export function triggerLayoutComputation(
-    displayHighlightedSublatticeOnly: boolean,
-    upperConeOnlyConceptIndex: number | null,
-    lowerConeOnlyConceptIndex: number | null,
-) {
+export function triggerLayoutComputation(state: DiagramLayoutState) {
     const workerQueue = useProjectStore.getState().workerQueue;
     const currentJobId = useDiagramStore.getState().currentLayoutJobId;
 
@@ -83,8 +80,8 @@ export function triggerLayoutComputation(
 
     const layoutRequest: LayoutComputationRequest = {
         type: "layout",
-        upperConeOnlyConceptIndex: displayHighlightedSublatticeOnly ? upperConeOnlyConceptIndex : null,
-        lowerConeOnlyConceptIndex: displayHighlightedSublatticeOnly ? lowerConeOnlyConceptIndex : null,
+        upperConeOnlyConceptIndex: state.displayHighlightedSublatticeOnly ? state.upperConeOnlyConceptIndex : null,
+        lowerConeOnlyConceptIndex: state.displayHighlightedSublatticeOnly ? state.lowerConeOnlyConceptIndex : null,
     };
 
     const jobId = workerQueue.enqueue<LayoutComputationResponse>(
@@ -92,12 +89,11 @@ export function triggerLayoutComputation(
         (response: LayoutComputationResponse) => {
             if (useDiagramStore.getState().currentLayoutJobId !== response.jobId) {
                 // Job was cancelled during the data transfer
-                useProjectStore.getState().removeStatusItem(response.jobId);
                 return;
             }
 
             useDiagramStore.getState().setLayout(response.layout);
-            useDiagramStore.getState().setCurrentLayoutJobId(null);
+            useDiagramStore.getState().setCurrentLayoutJobId(null, null);
             useDiagramStore.getState().clearDiagramOffsets(response.layout.length);
             useProjectStore.getState().updateStatusItem(
                 response.jobId,
@@ -108,10 +104,10 @@ export function triggerLayoutComputation(
         (jobId) => useProjectStore.getState().addStatusItem(jobId, "Diagram layout computation"),
         (jobId) => useProjectStore.getState().removeStatusItem(jobId));
 
-    useDiagramStore.getState().setCurrentLayoutJobId(jobId);
+    useDiagramStore.getState().setCurrentLayoutJobId(jobId, state);
 }
 
 export function triggerCancellation(jobId: number) {
     useProjectStore.getState().workerQueue.cancelJob(jobId);
-    useDiagramStore.getState().setCurrentLayoutJobId(null);
+    useDiagramStore.getState().setCurrentLayoutJobId(null, null);
 }

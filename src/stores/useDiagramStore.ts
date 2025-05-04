@@ -7,12 +7,12 @@ import createConceptsFilterSlice, { initialState as initialConceptsFilterState, 
 import createSelectedConceptSlice, { initialState as initialSelectedConceptState, SelectedConceptSlice } from "./createSelectedConceptSlice";
 import { triggerCancellation, triggerLayoutComputation } from "../services/triggers";
 import { calculateVisibleConceptIndexes } from "../utils/lattice";
+import { DiagramLayoutState } from "../types/DiagramLayoutState";
 
 type DiagramOffsetMementos = { undos: Array<NodeOffsetMemento>, redos: Array<NodeOffsetMemento> }
 
 type ConceptLatticeLayoutCacheItem = {
-    upperConeOnlyConceptIndex: number | null,
-    lowerConeOnlyConceptIndex: number | null,
+    stateId: string,
     layout: ConceptLatticeLayout,
 }
 
@@ -21,17 +21,15 @@ type DiagramStoreState = {
     conceptToLayoutIndexesMapping: Map<number, number>,
     layoutCache: Array<ConceptLatticeLayoutCacheItem>,
     currentLayoutJobId: number | null,
+    currentLayoutJobStateId: string | null,
     diagramOffsets: Array<Point> | null,
     diagramOffsetMementos: DiagramOffsetMementos,
-    displayHighlightedSublatticeOnly: boolean,
-    upperConeOnlyConceptIndex: number | null,
-    lowerConeOnlyConceptIndex: number | null,
     visibleConceptIndexes: Set<number> | null,
-}
+} & DiagramLayoutState
 
 type DiagramStoreActions = {
     setLayout: (layout: ConceptLatticeLayout | null) => void,
-    setCurrentLayoutJobId: (currentLayoutJobId: number | null) => void,
+    setCurrentLayoutJobId: (currentLayoutJobId: number | null, layoutState: DiagramLayoutState | null) => void,
     clearDiagramOffsets: (layoutSize: number) => void,
     setDiagramOffsets: (diagramOffsets: Array<Point> | null) => void,
     setDiagramOffsetMementos: (diagramOffsetMementos: DiagramOffsetMementos) => void,
@@ -48,6 +46,7 @@ const initialState: DiagramStoreState = {
     layoutCache: [],
     conceptToLayoutIndexesMapping: new Map(),
     currentLayoutJobId: null,
+    currentLayoutJobStateId: null,
     diagramOffsets: null,
     diagramOffsetMementos: createEmptyDiagramOffsetMementos(),
     displayHighlightedSublatticeOnly: false,
@@ -67,11 +66,13 @@ const useDiagramStore = create<DiagramStore>((set) => ({
             updateLayoutCache(
                 old.layoutCache,
                 layout,
-                old.displayHighlightedSublatticeOnly ? old.upperConeOnlyConceptIndex : null,
-                old.displayHighlightedSublatticeOnly ? old.lowerConeOnlyConceptIndex : null) :
+                old) :
             [],
     })),
-    setCurrentLayoutJobId: (currentLayoutJobId) => set(() => ({ currentLayoutJobId })),
+    setCurrentLayoutJobId: (currentLayoutJobId, layoutState) => set(() => ({
+        currentLayoutJobId,
+        currentLayoutJobStateId: layoutState === null ? null : createDiagramLayoutStateId(layoutState),
+    })),
     clearDiagramOffsets: (layoutSize) => set(() => ({
         diagramOffsets: createDefaultDiagramOffsets(layoutSize),
         diagramOffsetMementos: createEmptyDiagramOffsetMementos(),
@@ -85,16 +86,10 @@ const useDiagramStore = create<DiagramStore>((set) => ({
 
         return withLayout(
             old,
-            value,
-            old.upperConeOnlyConceptIndex,
-            old.lowerConeOnlyConceptIndex,
             { displayHighlightedSublatticeOnly: value });
     }),
     setUpperConeOnlyConceptIndex: (upperConeOnlyConceptIndex, withOtherReset) => set((old) => withLayout(
         old,
-        old.displayHighlightedSublatticeOnly,
-        upperConeOnlyConceptIndex,
-        withOtherReset ? null : old.lowerConeOnlyConceptIndex,
         {
             upperConeOnlyConceptIndex,
             lowerConeOnlyConceptIndex: withOtherReset ? null : old.lowerConeOnlyConceptIndex,
@@ -105,9 +100,6 @@ const useDiagramStore = create<DiagramStore>((set) => ({
         })),
     setLowerConeOnlyConceptIndex: (lowerConeOnlyConceptIndex, withOtherReset) => set((old) => withLayout(
         old,
-        old.displayHighlightedSublatticeOnly,
-        withOtherReset ? null : old.upperConeOnlyConceptIndex,
-        lowerConeOnlyConceptIndex,
         {
             lowerConeOnlyConceptIndex,
             upperConeOnlyConceptIndex: withOtherReset ? null : old.upperConeOnlyConceptIndex,
@@ -128,27 +120,25 @@ export default useDiagramStore;
 
 function withLayout(
     old: DiagramStore,
-    displayHighlightedSublatticeOnly: boolean,
-    upperConeOnlyConceptIndex: number | null,
-    lowerConeOnlyConceptIndex: number | null,
     newState: Partial<DiagramStore>,
 ): Partial<DiagramStore> {
-    if (!displayHighlightedSublatticeOnly && old.layoutCache.length === 0) {
+    const layoutState: DiagramLayoutState = { ...old, ...newState };
+    const stateId = createDiagramLayoutStateId(layoutState);
+
+    if (old.currentLayoutJobStateId === stateId) {
         // Do not react to upperConeOnlyConceptIndex and lowerConeOnlyConceptIndex changes
         // when nothing is rendered yet
         return newState;
     }
 
-    const cachedLayout = displayHighlightedSublatticeOnly ?
-        tryGetLayoutFromCache(old.layoutCache, upperConeOnlyConceptIndex, lowerConeOnlyConceptIndex) :
-        tryGetLayoutFromCache(old.layoutCache, null, null);
+    const cachedLayout = tryGetLayoutFromCache(old.layoutCache, stateId);
 
     if (cachedLayout !== null && cachedLayout === old.layout) {
         return newState;
     }
 
     if (cachedLayout) {
-        if (old.currentLayoutJobId) {
+        if (old.currentLayoutJobId !== null) {
             triggerCancellation(old.currentLayoutJobId);
         }
 
@@ -161,7 +151,7 @@ function withLayout(
         };
     }
 
-    triggerLayoutComputation(displayHighlightedSublatticeOnly, upperConeOnlyConceptIndex, lowerConeOnlyConceptIndex);
+    triggerLayoutComputation(layoutState);
 
     return {
         layout: null,
@@ -174,24 +164,22 @@ function withLayout(
 
 function tryGetLayoutFromCache(
     layoutCache: Array<ConceptLatticeLayoutCacheItem>,
-    upperConeOnlyConceptIndex: number | null,
-    lowerConeOnlyConceptIndex: number | null
+    stateId: string,
 ): ConceptLatticeLayout | null {
-    const item = layoutCache.find((item) => item.lowerConeOnlyConceptIndex === lowerConeOnlyConceptIndex && item.upperConeOnlyConceptIndex === upperConeOnlyConceptIndex);
+    const item = layoutCache.find((item) => item.stateId === stateId);
     return item ? item.layout : null;
 }
 
 function updateLayoutCache(
     layoutCache: Array<ConceptLatticeLayoutCacheItem>,
     newLayout: ConceptLatticeLayout,
-    upperConeOnlyConceptIndex: number | null,
-    lowerConeOnlyConceptIndex: number | null
+    layoutState: DiagramLayoutState,
 ): Array<ConceptLatticeLayoutCacheItem> {
+    const stateId = createDiagramLayoutStateId(layoutState);
+
     return [
-        { layout: newLayout, upperConeOnlyConceptIndex, lowerConeOnlyConceptIndex },
-        ...layoutCache.filter((item) =>
-            item.lowerConeOnlyConceptIndex !== lowerConeOnlyConceptIndex ||
-            item.upperConeOnlyConceptIndex !== upperConeOnlyConceptIndex)   
+        { layout: newLayout, stateId },
+        ...layoutCache.filter((item) => item.stateId !== stateId)   
     ];
 }
 
@@ -218,4 +206,12 @@ function createConceptToLayoutIndexesMapping(layout: ConceptLatticeLayout) {
     }
 
     return mapping;
+}
+
+function createDiagramLayoutStateId(state: DiagramLayoutState) {
+    const start = state.displayHighlightedSublatticeOnly ?
+        `${state.lowerConeOnlyConceptIndex};${state.upperConeOnlyConceptIndex}` :
+        "null;null";
+
+    return `${start}`;
 }
