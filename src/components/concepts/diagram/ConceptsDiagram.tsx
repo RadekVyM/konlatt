@@ -27,7 +27,7 @@ export default function ConceptsDiagram(props: {
     const concepts = useDataStructuresStore((state) => state.concepts);
     const layout = useDiagramStore((state) => state.layout);
     const [isEditable, setIsEditable] = useState(false);
-    const { diagramOffsets, canUndo, canRedo, updateNodeOffset, undo, redo } = useDiagramOffsets();
+    const { diagramOffsets, canUndo, canRedo, updateNodeOffsets, undo, redo } = useDiagramOffsets();
 
     const isDiagramRenderable = !!(context && lattice && concepts && layout && diagramOffsets);
     const { zoomTransform, isDragZooming, updateExtent, zoomTo } = useZoom(diagramRef, isDiagramRenderable, !isEditable, ZOOM_SCALE_EXTENT);
@@ -57,7 +57,7 @@ export default function ConceptsDiagram(props: {
                     isDragZooming={isDragZooming}
                     zoomTransform={zoomTransform}
                     updateExtent={updateExtent}
-                    updateNodeOffset={updateNodeOffset} /> :
+                    updateNodeOffsets={updateNodeOffsets} /> :
                     <div
                         className="w-full h-full grid place-content-center">
                         <LuLoaderCircle

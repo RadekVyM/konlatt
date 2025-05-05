@@ -14,12 +14,14 @@ type DiagramOffsetMementos = { undos: Array<NodeOffsetMemento>, redos: Array<Nod
 type ConceptLatticeLayoutCacheItem = {
     stateId: string,
     layout: ConceptLatticeLayout,
+    diagramOffsets: Array<Point>,
+    diagramOffsetMementos: DiagramOffsetMementos,
 }
 
 type DiagramStoreState = {
     layout: ConceptLatticeLayout | null,
     conceptToLayoutIndexesMapping: Map<number, number>,
-    layoutCache: Array<ConceptLatticeLayoutCacheItem>,
+    layoutCache: Map<string, ConceptLatticeLayoutCacheItem>,
     currentLayoutJobId: number | null,
     currentLayoutJobStateId: string | null,
     diagramOffsets: Array<Point> | null,
@@ -30,7 +32,6 @@ type DiagramStoreState = {
 type DiagramStoreActions = {
     setLayout: (layout: ConceptLatticeLayout | null) => void,
     setCurrentLayoutJobId: (currentLayoutJobId: number | null, layoutState: DiagramLayoutState | null) => void,
-    clearDiagramOffsets: (layoutSize: number) => void,
     setDiagramOffsets: (diagramOffsets: Array<Point> | null) => void,
     setDiagramOffsetMementos: (diagramOffsetMementos: DiagramOffsetMementos) => void,
     setDisplayHighlightedSublatticeOnly: React.Dispatch<React.SetStateAction<boolean>>,
@@ -43,7 +44,7 @@ type DiagramStore = DiagramStoreState & DiagramStoreActions & ConceptsFilterSlic
 
 const initialState: DiagramStoreState = {
     layout: null,
-    layoutCache: [],
+    layoutCache: new Map(),
     conceptToLayoutIndexesMapping: new Map(),
     currentLayoutJobId: null,
     currentLayoutJobStateId: null,
@@ -59,26 +60,51 @@ const useDiagramStore = create<DiagramStore>((set) => ({
     ...createConceptsFilterSlice(set),
     ...createSelectedConceptSlice(set),
     ...initialState,
-    setLayout: (layout) => set((old) => ({
-        layout,
-        conceptToLayoutIndexesMapping: layout ? createConceptToLayoutIndexesMapping(layout) : new Map(),
-        layoutCache: layout ?
-            updateLayoutCache(
-                old.layoutCache,
-                layout,
-                old) :
-            [],
-    })),
+    setLayout: (layout) => set((old) => {
+        const diagramOffsets = layout ? createDefaultDiagramOffsets(layout.length) : null;
+        const diagramOffsetMementos = createEmptyDiagramOffsetMementos();
+
+        return {
+            layout,
+            conceptToLayoutIndexesMapping: layout ?
+                createConceptToLayoutIndexesMapping(layout) :
+                new Map(),
+            diagramOffsets,
+            diagramOffsetMementos,
+            layoutCache: layout && diagramOffsets ?
+                updateLayoutCache(
+                    old.layoutCache,
+                    layout,
+                    diagramOffsets,
+                    diagramOffsetMementos,
+                    old) :
+                new Map(),
+        };
+    }),
     setCurrentLayoutJobId: (currentLayoutJobId, layoutState) => set(() => ({
         currentLayoutJobId,
         currentLayoutJobStateId: layoutState === null ? null : createDiagramLayoutStateId(layoutState),
     })),
-    clearDiagramOffsets: (layoutSize) => set(() => ({
-        diagramOffsets: createDefaultDiagramOffsets(layoutSize),
-        diagramOffsetMementos: createEmptyDiagramOffsetMementos(),
-    })),
-    setDiagramOffsets: (diagramOffsets) => set(() => ({ diagramOffsets })),
-    setDiagramOffsetMementos: (diagramOffsetMementos) => set(() => ({ diagramOffsetMementos })),
+    setDiagramOffsets: (diagramOffsets) => set((old) => {
+        const stateId = createDiagramLayoutStateId(old);
+        const cacheItem = old.layoutCache.get(stateId);
+
+        if (cacheItem && diagramOffsets) {
+            cacheItem.diagramOffsets = diagramOffsets;
+        }
+
+        return { diagramOffsets };
+    }),
+    setDiagramOffsetMementos: (diagramOffsetMementos) => set((old) => {
+        const stateId = createDiagramLayoutStateId(old);
+        const cacheItem = old.layoutCache.get(stateId);
+
+        if (cacheItem && diagramOffsetMementos) {
+            cacheItem.diagramOffsetMementos = diagramOffsetMementos;
+        }
+
+        return { diagramOffsetMementos };
+    }),
     setDisplayHighlightedSublatticeOnly: (displayHighlightedSublatticeOnly) => set((old) => {
         const value = typeof displayHighlightedSublatticeOnly === "function" ?
             displayHighlightedSublatticeOnly(old.displayHighlightedSublatticeOnly) :
@@ -131,22 +157,22 @@ function withLayout(
         return newState;
     }
 
-    const cachedLayout = tryGetLayoutFromCache(old.layoutCache, stateId);
+    const cachedLayoutItem = tryGetLayoutFromCache(old.layoutCache, stateId);
 
-    if (cachedLayout !== null && cachedLayout === old.layout) {
+    if (cachedLayoutItem !== null && cachedLayoutItem.layout === old.layout) {
         return newState;
     }
 
-    if (cachedLayout) {
+    if (cachedLayoutItem) {
         if (old.currentLayoutJobId !== null) {
             triggerCancellation(old.currentLayoutJobId);
         }
 
         return {
-            layout: cachedLayout,
-            conceptToLayoutIndexesMapping: createConceptToLayoutIndexesMapping(cachedLayout),
-            diagramOffsets: createDefaultDiagramOffsets(cachedLayout.length),
-            diagramOffsetMementos: createEmptyDiagramOffsetMementos(),
+            layout: cachedLayoutItem.layout,
+            conceptToLayoutIndexesMapping: createConceptToLayoutIndexesMapping(cachedLayoutItem.layout),
+            diagramOffsets: cachedLayoutItem.diagramOffsets,
+            diagramOffsetMementos: cachedLayoutItem.diagramOffsetMementos,
             ...newState,
         };
     }
@@ -163,24 +189,24 @@ function withLayout(
 }
 
 function tryGetLayoutFromCache(
-    layoutCache: Array<ConceptLatticeLayoutCacheItem>,
+    layoutCache: Map<string, ConceptLatticeLayoutCacheItem>,
     stateId: string,
-): ConceptLatticeLayout | null {
-    const item = layoutCache.find((item) => item.stateId === stateId);
-    return item ? item.layout : null;
+): ConceptLatticeLayoutCacheItem | null {
+    return layoutCache.get(stateId) || null;
 }
 
 function updateLayoutCache(
-    layoutCache: Array<ConceptLatticeLayoutCacheItem>,
+    layoutCache: Map<string, ConceptLatticeLayoutCacheItem>,
     newLayout: ConceptLatticeLayout,
+    diagramOffsets: Array<Point>,
+    diagramOffsetMementos: DiagramOffsetMementos,
     layoutState: DiagramLayoutState,
-): Array<ConceptLatticeLayoutCacheItem> {
+): Map<string, ConceptLatticeLayoutCacheItem> {
     const stateId = createDiagramLayoutStateId(layoutState);
+    const newCache = new Map<string, ConceptLatticeLayoutCacheItem>(layoutCache);
+    newCache.set(stateId, { layout: newLayout, stateId, diagramOffsetMementos, diagramOffsets });
 
-    return [
-        { layout: newLayout, stateId },
-        ...layoutCache.filter((item) => item.stateId !== stateId)   
-    ];
+    return newCache;
 }
 
 function createDefaultDiagramOffsets(length: number) {

@@ -27,7 +27,7 @@ export function useDiagramOffsets() {
         const newOffsets = [...diagramOffsets];
 
         for (const m of memento) {
-            applyOffset(newOffsets, m.node, m.offset, -1);
+            applyOffset(newOffsets, m.nodes, m.offset, -1);
         }
 
         setDiagramOffsets(newOffsets);
@@ -47,26 +47,31 @@ export function useDiagramOffsets() {
         const newOffsets = [...diagramOffsets];
 
         for (const m of memento) {
-            applyOffset(newOffsets, m.node, m.offset);
+            applyOffset(newOffsets, m.nodes, m.offset);
         }
 
         setDiagramOffsets(newOffsets);
     }
 
-    function updateNodeOffset(conceptIndex: number, offset: Point) {
+    function updateNodeOffsets(conceptIndexes: Iterable<number>, offset: Point) {
         if (!diagramOffsets || !conceptToLayoutIndexesMapping) {
             return;
         }
 
+        const layoutIndexes = new Array<number>();
+        for (const conceptIndex of conceptIndexes) {
+            layoutIndexes.push(conceptToLayoutIndexesMapping.get(conceptIndex)!);   
+        }
+
         const newOffsets = [...diagramOffsets];
-        applyOffset(newOffsets, conceptToLayoutIndexesMapping.get(conceptIndex)!, offset);
+        applyOffset(newOffsets, layoutIndexes, offset);
         setDiagramOffsets(newOffsets);
-        pushUndoMemento(createNodeOffsetMemento(conceptToLayoutIndexesMapping.get(conceptIndex)!, offset));
+        pushUndoMemento(createNodeOffsetMemento(layoutIndexes, offset));
     }
 
     return {
         diagramOffsets,
-        updateNodeOffset,
+        updateNodeOffsets,
         undo,
         redo,
         canUndo: undos.length > 0,
@@ -74,11 +79,13 @@ export function useDiagramOffsets() {
     };
 }
 
-function applyOffset(offsets: Array<Point>, node: number, offset: Point, factor: number = 1) {
-    const currentValue = offsets[node];
-    offsets[node] = createPoint(
-        currentValue[0] + (offset[0] * factor),
-        currentValue[1] + (offset[1] * factor),
-        currentValue[2] + (offset[2] * factor),
-    );
+function applyOffset(offsets: Array<Point>, nodes: Array<number>, offset: Point, factor: number = 1) {
+    for (const node of nodes) {
+        const currentValue = offsets[node];
+        offsets[node] = createPoint(
+            currentValue[0] + (offset[0] * factor),
+            currentValue[1] + (offset[1] * factor),
+            currentValue[2] + (offset[2] * factor),
+        );
+    }
 }

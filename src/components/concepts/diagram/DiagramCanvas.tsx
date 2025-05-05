@@ -9,6 +9,7 @@ import useDiagramStore from "../../../stores/useDiagramStore";
 import useCanvasInteraction from "./hooks/useCanvasInteraction";
 import useDrawGrid from "./hooks/useDrawGrid";
 import useDrawDiagram from "./hooks/useDrawDiagram";
+import useDrawEditInteraction from "./hooks/useDrawEditInteraction";
 
 export default function DiagramCanvas(props: {
     className?: string,
@@ -17,12 +18,13 @@ export default function DiagramCanvas(props: {
     isEditable: boolean,
     isDragZooming: boolean,
     updateExtent: (width: number, height: number) => void,
-    updateNodeOffset: (node: number, offset: Point) => void,
+    updateNodeOffsets: (nodes: Iterable<number>, offset: Point) => void,
 }) {
     const gridCanvasRef = useRef<HTMLCanvasElement>(null);
     const linksCanvasRef = useRef<HTMLCanvasElement>(null);
     const highlightedLinksCanvasRef = useRef<HTMLCanvasElement>(null);
     const nodesCanvasRef = useRef<HTMLCanvasElement>(null);
+    const editCanvasRef = useRef<HTMLCanvasElement>(null);
     const dimensions = useDimensions(props.ref);
     const width = dimensions.width * window.devicePixelRatio;
     const height = dimensions.height * window.devicePixelRatio;
@@ -30,8 +32,9 @@ export default function DiagramCanvas(props: {
     const areThereInvisibleNodes = !!useDiagramStore((state) => state.visibleConceptIndexes);
     const visibleRect = useMemo(() => getVisibleRect(props.zoomTransform, dimensions.width, dimensions.height), [props.zoomTransform, dimensions.width, dimensions.height]);
     const {
-        draggedIndex,
         dragOffset,
+        dragSelectionRect,
+        dragSelectedConceptIndexes,
         onPointerDown,
         onPointerMove,
         onClick,
@@ -43,20 +46,29 @@ export default function DiagramCanvas(props: {
         props.isEditable,
         props.isDragZooming,
         setHoveredIndex,
-        props.updateNodeOffset);
+        props.updateNodeOffsets);
     const {
         drawNodes,
         drawLinks,
         drawHighlightedLinks,
     } = useDrawDiagram(
         hoveredIndex,
-        draggedIndex,
+        dragSelectedConceptIndexes,
         dragOffset,
         dimensions.width,
         dimensions.height,
         visibleRect,
         props.zoomTransform.scale);
     const drawGrid = useDrawGrid(
+        dimensions.width,
+        dimensions.height,
+        props.zoomTransform.x,
+        props.zoomTransform.y,
+        props.zoomTransform.scale);
+    const drawEditInteraction = useDrawEditInteraction(
+        dragSelectionRect,
+        dragSelectedConceptIndexes,
+        dragOffset,
         dimensions.width,
         dimensions.height,
         props.zoomTransform.x,
@@ -72,6 +84,16 @@ export default function DiagramCanvas(props: {
             drawGrid
         );
     }, [props.zoomTransform.x, props.zoomTransform.y, props.isEditable, drawGrid]);
+
+    useEffect(() => {
+        drawOnCanvas(
+            editCanvasRef.current,
+            props.isEditable,
+            props.zoomTransform.x,
+            props.zoomTransform.y,
+            drawEditInteraction
+        );
+    }, [props.zoomTransform.x, props.zoomTransform.y, props.isEditable, drawEditInteraction]);
 
     useEffect(() => {
         drawOnCanvas(
@@ -101,7 +123,7 @@ export default function DiagramCanvas(props: {
             props.zoomTransform.y,
             drawNodes
         );
-    }, [props.zoomTransform.x, props.zoomTransform.y, props.isEditable, drawNodes]);
+    }, [props.zoomTransform.x, props.zoomTransform.y, drawNodes]);
 
     useEffect(() => {
         props.updateExtent(dimensions.width, dimensions.height);
@@ -114,11 +136,12 @@ export default function DiagramCanvas(props: {
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
             onClick={onClick}>
-            <canvas
-                ref={gridCanvasRef}
-                className="absolute inset-0 w-full h-full"
-                width={width}
-                height={height} />
+            {props.isEditable &&
+                <canvas
+                    ref={gridCanvasRef}
+                    className="absolute inset-0 w-full h-full"
+                    width={width}
+                    height={height} />}
             <canvas
                 ref={linksCanvasRef}
                 className={cn("absolute inset-0 w-full h-full", areThereInvisibleNodes && "opacity-35")}
@@ -135,6 +158,12 @@ export default function DiagramCanvas(props: {
                 className="absolute inset-0 w-full h-full"
                 width={width}
                 height={height} />
+            {props.isEditable &&
+                <canvas
+                    ref={editCanvasRef}
+                    className="absolute inset-0 w-full h-full"
+                    width={width}
+                    height={height} />}
         </div>
     );
 }

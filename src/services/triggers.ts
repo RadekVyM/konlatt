@@ -94,7 +94,6 @@ export function triggerLayoutComputation(state: DiagramLayoutState) {
 
             useDiagramStore.getState().setLayout(response.layout);
             useDiagramStore.getState().setCurrentLayoutJobId(null, null);
-            useDiagramStore.getState().clearDiagramOffsets(response.layout.length);
             useProjectStore.getState().updateStatusItem(
                 response.jobId,
                 { isDone: true, endTime: new Date().getTime(), time: response.computationTime });
