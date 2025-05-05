@@ -3,6 +3,7 @@ import { formalContextHasAttribute, FormalContext } from "../../types/FormalCont
 import { cn } from "../../utils/tailwind";
 import useDimensions from "../../hooks/useDimensions";
 import "./ContextTable.css";
+import useContextStore from "../../stores/useContextStore";
 
 type ContextTableCell = {
     column: number,
@@ -17,11 +18,7 @@ type ContextTableCellHeader = {
 
 export default function ContextTable(props: {
     context: FormalContext,
-    selectedObject: number | null,
-    selectedAttribute: number | null,
     className?: string,
-    setSelectedObject: React.Dispatch<React.SetStateAction<number | null>>,
-    setSelectedAttribute: React.Dispatch<React.SetStateAction<number | null>>,
 }) {
     const cellHeight = 28;
     const cellWidth = 30;
@@ -29,6 +26,9 @@ export default function ContextTable(props: {
     const tableRef = useRef<HTMLDivElement>(null);
     const containerDimensions = useDimensions(containerRef);
     const tableDimensions = useDimensions(tableRef);
+    const selectedObject = useContextStore((state) => state.selectedObject);
+    const selectedAttribute = useContextStore((state) => state.selectedAttribute);
+    const setSelection = useContextStore((state) => state.setSelection);
     const [containerScroll, setContainerScroll] = useState<[number, number]>([0, 0]);
     const [hoveredColumn, setHoveredColumn] = useState<number | null>(null);
     const [hoveredRow, setHoveredRow] = useState<number | null>(null);
@@ -49,8 +49,8 @@ export default function ContextTable(props: {
     const columnHeaders = useColumnHeaders(props.context, skippedColumnsCount, visibleColumnsCount);
 
     useScrollOnSelection(
-        props.selectedObject,
-        props.selectedAttribute,
+        selectedObject,
+        selectedAttribute,
         containerRef,
         cellWidth,
         cellHeight,
@@ -70,13 +70,11 @@ export default function ContextTable(props: {
     }
 
     function onCellClick(cell: ContextTableCell) {
-        if (cell.column === props.selectedAttribute && cell.row === props.selectedObject) {
-            props.setSelectedAttribute(null);
-            props.setSelectedObject(null);
+        if (cell.column === selectedAttribute && cell.row === selectedObject) {
+            setSelection(null, null);
         }
         else {
-            props.setSelectedAttribute(cell.column);
-            props.setSelectedObject(cell.row);
+            setSelection(cell.row, cell.column);
         }
     }
 
@@ -101,22 +99,22 @@ export default function ContextTable(props: {
                     gridTemplateColumns: `auto repeat(${props.context.attributes.length}, ${cellWidth}px) 1fr`,
                 }}>
                 {/* Row highlight */}
-                {props.selectedObject !== null &&
+                {selectedObject !== null &&
                     <div
                         className="col-start-2 -col-end-2 bg-primary-lite rounded-r-md"
                         style={{
-                            gridRowStart: props.selectedObject + 2,
-                            gridRowEnd: props.selectedObject + 3,
+                            gridRowStart: selectedObject + 2,
+                            gridRowEnd: selectedObject + 3,
                         }}>
                     </div>}
 
                 {/* Column highlight */}
-                {props.selectedAttribute !== null &&
+                {selectedAttribute !== null &&
                     <div
                         className="row-start-2 -row-end-2 bg-primary-lite rounded-b-md"
                         style={{
-                            gridColumnStart: props.selectedAttribute + 2,
-                            gridColumnEnd: props.selectedAttribute + 3,
+                            gridColumnStart: selectedAttribute + 2,
+                            gridColumnEnd: selectedAttribute + 3,
                         }}>
                     </div>}
 
@@ -125,7 +123,7 @@ export default function ContextTable(props: {
                     <TableCell
                         key={`${cell.column} ${cell.row}`}
                         cell={cell}
-                        selected={cell.row === props.selectedObject || cell.column === props.selectedAttribute}
+                        selected={cell.row === selectedObject || cell.column === selectedAttribute}
                         onHoverChange={onHoverChange}
                         onClick={onCellClick} />)}
 
@@ -143,7 +141,7 @@ export default function ContextTable(props: {
                         role="rowheader"
                         className={cn(
                             "rhead",
-                            header.cell === props.selectedObject && "selected rounded-l-md",
+                            header.cell === selectedObject && "selected rounded-l-md",
                             header.cell === hoveredRow && "hovered")}
                         style={{
                             gridRowStart: header.cell + 2
@@ -176,7 +174,7 @@ export default function ContextTable(props: {
                             "chead",
                             columnHeadersSideways && "sideways",
                             header.cell === hoveredColumn && "hovered",
-                            header.cell === props.selectedAttribute && "selected rounded-t-md")}
+                            header.cell === selectedAttribute && "selected rounded-t-md")}
                         style={{
                             gridColumnStart: header.cell + 2
                         }}

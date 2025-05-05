@@ -188,7 +188,8 @@ export default function useCanvasInteraction(
     return {
         dragOffset,
         dragSelectionRect,
-        dragSelectedConceptIndexes: draggedConceptIndexes,
+        draggedConceptIndexes,
+        draggedConceptsRect,
         onPointerDown,
         onPointerMove,
         onClick,

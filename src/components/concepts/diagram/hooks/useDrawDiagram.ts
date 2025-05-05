@@ -11,7 +11,7 @@ type TargetPoint = [number, number, number, number, number];
 
 export default function useDrawDiagram(
     hoveredIndex: number | null,
-    dragSelectedConceptIndexes: Set<number>,
+    draggedConceptIndexes: Set<number>,
     dragOffset: [number, number],
     width: number,
     height: number,
@@ -39,7 +39,7 @@ export default function useDrawDiagram(
         const centerY = (height / 2) * deviceScale;
 
         return layout.map((point, index) => {
-            const isDragged = dragSelectedConceptIndexes.has(point.conceptIndex);
+            const isDragged = draggedConceptIndexes.has(point.conceptIndex);
 
             return getConcept2DPoint(
                 point,
@@ -50,7 +50,7 @@ export default function useDrawDiagram(
                 isDragged ? dragOffset[0] : 0,
                 isDragged ? dragOffset[1] : 0);
         });
-    }, [width, height, layout, diagramOffsets, dragSelectedConceptIndexes, dragOffset, deviceScale]);
+    }, [width, height, layout, diagramOffsets, draggedConceptIndexes, dragOffset, deviceScale]);
     
     // TODO: Figure out if this can be done more readable and still as optimized
     const drawNodes = useCallback((context: CanvasRenderingContext2D, computedStyle: CSSStyleDeclaration) => {

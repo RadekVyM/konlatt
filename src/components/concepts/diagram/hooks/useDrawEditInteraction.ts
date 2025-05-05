@@ -6,7 +6,8 @@ import { getConcept2DPoint } from "../../../../utils/layout";
 
 export default function useDrawEditInteraction(
     dragSelectionRect: Rect | null,
-    dragSelectedConceptIndexes: Set<number>,
+    draggedConceptIndexes: Set<number>,
+    draggedConceptsRect: Rect | null,
     dragOffset: [number, number],
     width: number,
     height: number,
@@ -29,7 +30,7 @@ export default function useDrawEditInteraction(
 
         const points = new Array<[number, number, number, number, number]>();
 
-        for (const conceptIndex of dragSelectedConceptIndexes) {
+        for (const conceptIndex of draggedConceptIndexes) {
             const index = conceptToLayoutIndexesMapping.get(conceptIndex)!;
             const finalPoint = getConcept2DPoint(
                 layout[index],
@@ -44,7 +45,7 @@ export default function useDrawEditInteraction(
         }
 
         return points;
-    }, [width, height, layout, conceptToLayoutIndexesMapping, diagramOffsets, dragSelectedConceptIndexes, dragOffset, deviceScale]);
+    }, [width, height, layout, conceptToLayoutIndexesMapping, diagramOffsets, draggedConceptIndexes, dragOffset, deviceScale]);
     
     const drawEditInteraction = useCallback((
         context: CanvasRenderingContext2D,
@@ -57,6 +58,35 @@ export default function useDrawEditInteraction(
         const primaryColor = computedStyle.getPropertyValue("--primary");
 
         context.strokeStyle = primaryColor;
+        context.lineWidth = 1.5;
+        context.lineCap = "round";
+
+        if (draggedConceptsRect) {
+            const x = ((draggedConceptsRect.x + dragOffset[0]) * layoutScale) + centerX;
+            const y = ((draggedConceptsRect.y + dragOffset[1]) * layoutScale) + centerY;
+            const width = draggedConceptsRect.width * layoutScale;
+            const height = draggedConceptsRect.height * layoutScale;
+
+            context.beginPath();
+            context.roundRect(x, y, width, height, baseNodeRadius);
+
+            context.save();
+            context.fillStyle = primaryColor;
+            context.globalAlpha = 0.03;
+            context.fill();
+            context.restore();
+
+            context.save();
+            context.setLineDash([8 * deviceScale, 8 * deviceScale]);
+            context.stroke();
+            context.restore();
+        }
+
+        for (const [x, y] of targetPoints) {
+            context.beginPath();
+            context.arc(x, y, baseNodeRadius, 0, 2 * Math.PI);
+            context.stroke();
+        }
 
         if (dragSelectionRect) {
             const x = (dragSelectionRect.x * layoutScale) + centerX;
@@ -76,14 +106,7 @@ export default function useDrawEditInteraction(
 
             context.stroke();
         }
-
-        // TODO: Draw rect around the selected nodes
-        for (const [x, y] of targetPoints) {
-            context.beginPath();
-            context.arc(x, y, baseNodeRadius, 0, 2 * Math.PI);
-            context.stroke();
-        }
-    }, [width, height, translateX, translateY, scale, dragSelectionRect, dragSelectedConceptIndexes, targetPoints]);
+    }, [width, height, translateX, translateY, scale, dragSelectionRect, draggedConceptIndexes, draggedConceptsRect, dragOffset, targetPoints]);
 
     return drawEditInteraction;
 }

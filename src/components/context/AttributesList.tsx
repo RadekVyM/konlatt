@@ -6,19 +6,20 @@ import { ContextCompleteItem, ContextItem } from "./types";
 import { cn } from "../../utils/tailwind";
 import HighlightedSearchTerms from "../HighlightedSearchTerms";
 import useDataStructuresStore from "../../stores/useDataStructuresStore";
+import useContextStore from "../../stores/useContextStore";
 
 export type ContextAttributeItem = ContextItem
 
 export default function AttributesList(props: {
     className?: string,
     route: string,
-    selectedAttributeIndex: number | null,
-    setSelectedAttributeIndex: (index: number | null) => void,
 }) {
     const context = useDataStructuresStore((state) => state.context);
+    const selectedAttributeIndex = useContextStore((state) => state.selectedAttribute);
+    const setSelectedAttributeIndex = useContextStore((state) => state.setSelectedAttribute);
     const attributes = (context?.attributes || []).map<ContextAttributeItem>((title, index) => ({ index, title }));
-    const selectedAttribute = context && props.selectedAttributeIndex !== null ?
-        getContextAttribute(context, props.selectedAttributeIndex) :
+    const selectedAttribute = context && selectedAttributeIndex !== null ?
+        getContextAttribute(context, selectedAttributeIndex) :
         null;
 
     return (
@@ -38,14 +39,14 @@ export default function AttributesList(props: {
                         text={item.title}
                         regex={regex} />}
                 itemKey={(item: ContextAttributeItem) => item.index}
-                setSelectedItem={(item: ContextAttributeItem) => props.setSelectedAttributeIndex(item.index)} />
+                setSelectedItem={(item: ContextAttributeItem) => setSelectedAttributeIndex(item.index)} />
             {selectedAttribute &&
                 <ItemCardContent
                     item={selectedAttribute}
                     route={`${props.route}/attribute`}
                     backButtonContent="All attributes"
                     itemsHeading={`${selectedAttribute.items.length} object${selectedAttribute.items.length === 1 ? "" : "s"}`}
-                    onBackClick={() => props.setSelectedAttributeIndex(null)} />}
+                    onBackClick={() => setSelectedAttributeIndex(null)} />}
         </CardContainer>
     );
 }

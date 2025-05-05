@@ -5,10 +5,12 @@ import useDiagramStore from "../stores/useDiagramStore";
 import useDataStructuresStore from "../stores/useDataStructuresStore";
 import useExplorerStore from "../stores/useExplorerStore";
 import { DiagramLayoutState } from "../types/DiagramLayoutState";
+import useContextStore from "../stores/useContextStore";
 
 export async function triggerInitialization(file: File) {
     useProjectStore.getState().clearStatusItems();
     useDataStructuresStore.getState().reset();
+    useContextStore.getState().reset();
     useDiagramStore.getState().reset();
     useExplorerStore.getState().reset();
     useProjectStore.getState().setFile(file);

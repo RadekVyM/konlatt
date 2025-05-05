@@ -6,19 +6,20 @@ import { ContextCompleteItem, ContextItem } from "./types";
 import { cn } from "../../utils/tailwind";
 import HighlightedSearchTerms from "../HighlightedSearchTerms";
 import useDataStructuresStore from "../../stores/useDataStructuresStore";
+import useContextStore from "../../stores/useContextStore";
 
 type ContextObjectItem = ContextItem
 
 export default function ObjectsList(props: {
     className?: string,
     route: string,
-    selectedObjectIndex: number | null,
-    setSelectedObjectIndex: (index: number | null) => void,
 }) {
     const context = useDataStructuresStore((state) => state.context);
+    const selectedObjectIndex = useContextStore((state) => state.selectedObject);
+    const setSelectedObjectIndex = useContextStore((state) => state.setSelectedObject);
     const objects = (context?.objects || []).map<ContextObjectItem>((title, index) => ({ index, title }));
-    const selectedObject = context && props.selectedObjectIndex !== null ?
-        getContextObject(context, props.selectedObjectIndex) :
+    const selectedObject = context && selectedObjectIndex !== null ?
+        getContextObject(context, selectedObjectIndex) :
         null;
 
     return (
@@ -38,14 +39,14 @@ export default function ObjectsList(props: {
                         text={item.title}
                         regex={regex} />}
                 itemKey={(item: ContextObjectItem) => item.index}
-                setSelectedItem={(item: ContextObjectItem) => props.setSelectedObjectIndex(item.index)} />
+                setSelectedItem={(item: ContextObjectItem) => setSelectedObjectIndex(item.index)} />
             {selectedObject &&
                 <ItemCardContent
                     item={selectedObject}
                     route={`${props.route}/object`}
                     backButtonContent="All objects"
                     itemsHeading={`${selectedObject.items.length} attribute${selectedObject.items.length === 1 ? "" : "s"}`}
-                    onBackClick={() => props.setSelectedObjectIndex(null)} />}
+                    onBackClick={() => setSelectedObjectIndex(null)} />}
         </CardContainer>
     );
 }

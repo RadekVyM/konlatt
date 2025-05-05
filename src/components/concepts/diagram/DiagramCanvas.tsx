@@ -34,7 +34,8 @@ export default function DiagramCanvas(props: {
     const {
         dragOffset,
         dragSelectionRect,
-        dragSelectedConceptIndexes,
+        draggedConceptIndexes,
+        draggedConceptsRect,
         onPointerDown,
         onPointerMove,
         onClick,
@@ -53,7 +54,7 @@ export default function DiagramCanvas(props: {
         drawHighlightedLinks,
     } = useDrawDiagram(
         hoveredIndex,
-        dragSelectedConceptIndexes,
+        draggedConceptIndexes,
         dragOffset,
         dimensions.width,
         dimensions.height,
@@ -67,7 +68,8 @@ export default function DiagramCanvas(props: {
         props.zoomTransform.scale);
     const drawEditInteraction = useDrawEditInteraction(
         dragSelectionRect,
-        dragSelectedConceptIndexes,
+        draggedConceptIndexes,
+        draggedConceptsRect,
         dragOffset,
         dimensions.width,
         dimensions.height,

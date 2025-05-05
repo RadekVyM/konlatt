@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { cn } from "../../utils/tailwind";
 import Container from "../Container";
 import ContextTable from "../context/ContextTable";
@@ -11,15 +10,6 @@ import ExportButton from "../export/ExportButton";
 import useDataStructuresStore from "../../stores/useDataStructuresStore";
 
 export default function FormalContextPage() {
-    const context = useDataStructuresStore((state) => state.context);
-    const [selectedObject, setSelectedObject] = useState<number | null>(null);
-    const [selectedAttribute, setSelectedAttribute] = useState<number | null>(null);
-
-    useEffect(() => {
-        setSelectedObject(null);
-        setSelectedAttribute(null);
-    }, [context]);
-
     return (
         <PageContainer className="
             grid gap-2
@@ -27,32 +17,20 @@ export default function FormalContextPage() {
             md:grid-rows-[1fr_1fr] md:grid-cols-[5fr_3fr]
             lg:grid-rows-1 lg:grid-cols-[5fr_2fr_2fr]">
             <Context
-                className="col-start-1 col-end-3 md:col-end-2 md:row-start-1 md:row-end-3 lg:row-auto"
-                selectedObject={selectedObject}
-                selectedAttribute={selectedAttribute}
-                setSelectedObject={setSelectedObject}
-                setSelectedAttribute={setSelectedAttribute} />
+                className="col-start-1 col-end-3 md:col-end-2 md:row-start-1 md:row-end-3 lg:row-auto" />
 
             <ObjectsList
                 className="lg:col-start-2 lg:col-end-3 lg:min-w-48"
-                route="/project/context"
-                selectedObjectIndex={selectedObject}
-                setSelectedObjectIndex={setSelectedObject} />
+                route="/project/context" />
             <AttributesList
                 className="lg:col-start-3 lg:col-end-4 lg:min-w-48"
-                route="/project/context"
-                selectedAttributeIndex={selectedAttribute}
-                setSelectedAttributeIndex={setSelectedAttribute} />
+                route="/project/context" />
         </PageContainer>
     );
 }
 
 function Context(props: {
-    selectedObject: number | null,
-    selectedAttribute: number | null,
     className?: string,
-    setSelectedObject: React.Dispatch<React.SetStateAction<number | null>>,
-    setSelectedAttribute: React.Dispatch<React.SetStateAction<number | null>>,
 }) {
     const context = useDataStructuresStore((state) => state.context);
 
@@ -70,10 +48,6 @@ function Context(props: {
             {context ?
                 <ContextTable
                     className="flex-1 animate-fadeIn border-t border-outline-variant"
-                    selectedObject={props.selectedObject}
-                    selectedAttribute={props.selectedAttribute}
-                    setSelectedObject={props.setSelectedObject}
-                    setSelectedAttribute={props.setSelectedAttribute}
                     context={context} /> :
                 <NothingFound
                     className="flex-1" />}
