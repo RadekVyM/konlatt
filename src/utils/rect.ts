@@ -43,4 +43,3 @@ function lineSegmentIntersection(
 
     return ua >= 0 && ua <= 1 && ub >= 0 && ub <= 1;
 }
-  

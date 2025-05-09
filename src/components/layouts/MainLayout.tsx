@@ -2,6 +2,8 @@ import { Outlet, useLocation } from "react-router-dom";
 import Button from "../inputs/Button";
 import { LuRoute, LuTable2 } from "react-icons/lu";
 import { cn } from "../../utils/tailwind";
+import useHasWindowControlsOverlay from "../../hooks/useHasWindowControlsOverlay";
+import NewProjectButton from "./NewProjectButton";
 
 type NavLink = {
     to: string,
@@ -28,10 +30,18 @@ const NAV_LINKS: Array<NavLink> = [
 ];
 
 export default function MainLayout() {
+    const hasWindowsControlOverlay = useHasWindowControlsOverlay();
+
     return (
         <div
             className="flex flex-col h-full max-h-full max-w-full">
-            <Navigation />
+            <div
+                className="flex justify-between items-center mb-2.5 px-3">
+                <Navigation />
+
+                {hasWindowsControlOverlay &&
+                    <NewProjectButton />}
+            </div>
             <Outlet />
         </div>
     );
@@ -40,7 +50,7 @@ export default function MainLayout() {
 function Navigation() {
     return (
         <nav
-            className="flex gap-3 mb-3 px-4">
+            className="flex-1 flex gap-2.5">
             {NAV_LINKS.map((link) =>
                 <NavigationItem
                     key={link.to}

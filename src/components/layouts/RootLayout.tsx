@@ -1,18 +1,16 @@
 import { Outlet, useLocation } from "react-router-dom";
-import Button from "../inputs/Button";
-import { LuFolderPlus } from "react-icons/lu";
 import useNewProjectStore from "../../stores/useNewProjectStore";
 import useDialog from "../../hooks/useDialog";
 import { useEffect } from "react";
 import NewProjectDialog from "../NewProjectDialog";
 import StatusSection from "./StatusSection";
 import FormatsButton from "../formats/FormatsButton";
+import useHasWindowControlsOverlay from "../../hooks/useHasWindowControlsOverlay";
+import NewProjectButton from "./NewProjectButton";
 
 export default function RootLayout() {
     const newProjectDialogState = useDialog();
     const setDialogState = useNewProjectStore((state) => state.setDialogState);
-    const location = useLocation();
-    const isRootPage = location.pathname === "/";
 
     useEffect(() => {
         setDialogState(newProjectDialogState);
@@ -21,26 +19,7 @@ export default function RootLayout() {
     return (
         <div
             className="h-full max-h-full flex flex-col">
-            <header
-                className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 py-2 px-4 min-h-13">
-                <h1 className="with-logo flex gap-2.5 items-center font-semibold text-xl">
-                    konlatt
-                </h1>
-
-                <StatusSection />
-
-                {isRootPage ?
-                    <FormatsButton
-                        className="justify-self-end col-start-3"
-                        withText /> :
-                    <Button
-                        className="justify-self-end col-start-3"
-                        variant="container"
-                        onClick={newProjectDialogState.show}>
-                        <LuFolderPlus />
-                        <span className="text-sm leading-4">New project</span>
-                    </Button>}
-            </header>
+            <Header />
 
             <main
                 className="flex-1 overflow-hidden">
@@ -51,4 +30,40 @@ export default function RootLayout() {
                 state={newProjectDialogState} />
         </div>
     );
+}
+
+function Header() {
+    const hasWindowControlsOverlay = useHasWindowControlsOverlay();
+    const isRootPage = useIsRootPage();
+
+    return (
+        <>
+            <header
+                className="grid items-center gap-2 py-2 px-3 site-header-layout draggable-region">
+                <h1 aria-label="konlatt" className="with-logo flex gap-2.5 items-center font-semibold text-xl ml-0.5">
+                    {(!hasWindowControlsOverlay || (hasWindowControlsOverlay && isRootPage)) && "konlatt"}
+                </h1>
+
+                <StatusSection
+                    className="justify-self-center" />
+
+                {!hasWindowControlsOverlay && (isRootPage ? 
+                    <FormatsButton
+                        className="justify-self-end col-start-3"
+                        withText /> :
+                    <NewProjectButton />
+                )}
+            </header>
+
+            {isRootPage && hasWindowControlsOverlay &&
+                <FormatsButton
+                    className="self-end mx-3 mb-2"
+                    withText />}
+        </>
+    );
+}
+
+function useIsRootPage() {
+    const location = useLocation();
+    return location.pathname === "/";
 }

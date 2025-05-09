@@ -179,3 +179,40 @@ body {
   content-visibility: auto;
   contain-intrinsic-size: auto calc(var(--spacing) * 20);
 }
+
+.site-header-layout {
+  grid-template-columns: 1fr auto 1fr;
+  @apply min-h-13;
+}
+
+@media (display-mode: window-controls-overlay) {
+  .title-bar {
+    left: env(titlebar-area-x, 0);
+    top: env(titlebar-area-y, 0);
+    width: env(titlebar-area-width, 100%);
+    min-height: env(titlebar-area-height, 33px);
+  }
+
+  .site-header-layout {
+    margin-left: env(titlebar-area-x, 0);
+    margin-top: env(titlebar-area-y, 0);
+    width: env(titlebar-area-width, 100%);
+    min-height: max(calc(var(--spacing) * 13), env(titlebar-area-height, 33px));
+
+    grid-template-columns: auto 1fr;
+  }
+
+  .draggable-region {
+    -webkit-app-region: drag;
+    app-region: drag;
+  }
+
+  .not-draggable-region {
+    -webkit-app-region: no-drag;
+    app-region: no-drag;
+  }
+
+  .safe-area {
+    padding-top: env(titlebar-area-height, 33px);
+  }
+}

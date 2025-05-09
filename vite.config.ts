@@ -25,6 +25,7 @@ export default defineConfig({
         name: "konlatt",
         short_name: "konlatt",
         description: "Visualize and analyze concept lattices online. Import data in multiple formats, explore relationships, and export lattice diagrams easily.",
+        display_override: ["window-controls-overlay", "minimal-ui"],
         background_color: "#f8fafc",
         theme_color: "#f8fafc",
         icons: [

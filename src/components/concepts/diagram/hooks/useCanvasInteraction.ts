@@ -43,7 +43,12 @@ export default function useCanvasInteraction(
 
         if (diagramOffsets && layout) {
             for (const conceptIndex of draggedNodes) {
-                const index = conceptToLayoutIndexesMapping.get(conceptIndex)!;
+                const index = conceptToLayoutIndexesMapping.get(conceptIndex);
+
+                if (index === undefined) {
+                    continue;
+                }
+
                 const point = layout[index];
                 const offset = diagramOffsets[index];
                 const x = point.x + offset[0];
@@ -76,6 +81,12 @@ export default function useCanvasInteraction(
             setDraggedNodes([]);
         }
     }, [isEditable]);
+
+    useEffect(() => {
+        if (isEditable) {
+            setDraggedNodes([]);
+        }
+    }, [isEditable, layout]);
 
     // This is super important to make node dragging work on touch screens
     useEventListener("touchmove", (e) => {

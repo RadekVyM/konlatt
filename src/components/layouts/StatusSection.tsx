@@ -8,8 +8,11 @@ import useDebouncedValue from "../../hooks/useDebouncedValue";
 export default function StatusSection(props: {
     className?: string,
 }) {
+    const textRef = useRef<HTMLDivElement>(null);
     const popoverRef = useRef<HTMLDivElement>(null);
+    const timeoutRef = useRef<number | null>(null);
     const [popoverShown, setPopoverShown] = useState<boolean>(false);
+    const [position, setPosition] = useState<[number, number]>([0, 0]);
     const progressMessage = useProjectStore((state) => state.progressMessage);
     const file = useProjectStore((state) => state.file);
     const statusItems = useProjectStore((state) => state.statusItems);
@@ -24,19 +27,47 @@ export default function StatusSection(props: {
         }
     }, [popoverShown]);
 
+    function showPopover() {
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+            timeoutRef.current = null;
+        }
+
+        setPopoverShown(true);
+
+        if (!textRef.current) {
+            return;
+        }
+
+        const rect = textRef.current.getBoundingClientRect();
+        setPosition([rect.x + (rect.width / 2), rect.y + rect.height]);
+    }
+
+    function hidePopover() {
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+            timeoutRef.current = null;
+        }
+
+        timeoutRef.current = setTimeout(() => {
+            setPopoverShown(false);
+        }, 150);
+    }
+
     if (!file) {
         return undefined;
     }
 
     return (
         <div
-            className={cn("flex flex-col items-center text-center max-w-80", props.className)}
-            onPointerEnter={() => setPopoverShown(true)}
-            onPointerLeave={(e) => window.document.activeElement !== e.currentTarget && setPopoverShown(false)}
-            onFocus={() => setPopoverShown(true)}
-            onBlur={() => setPopoverShown(false)}
+            className={cn("flex flex-col items-center text-center max-w-80 not-draggable-region", props.className)}
+            onPointerEnter={showPopover}
+            onPointerLeave={(e) => window.document.activeElement !== e.currentTarget && hidePopover()}
+            onFocus={showPopover}
+            onBlur={hidePopover}
             tabIndex={0}>
             <div
+                ref={textRef}
                 className="flex flex-col items-center"
                 aria-hidden={popoverShown}>
                 <small
@@ -54,13 +85,13 @@ export default function StatusSection(props: {
             <section
                 ref={popoverRef}
                 popover="auto"
-                className="in-focus-visible:outline-2 bg-surface-container drop-shadow-2xl shadow-shade border border-outline-variant left-[50%] -translate-x-1/2 -translate-y-[1px] py-2 mt-1.5 rounded-lg w-full max-w-80">
-                <span
-                    className="text-sm text-on-surface px-2">
-                    {file.name}
-                </span>
+                style={{
+                    left: `${position[0]}px`,
+                    top: `calc(${position[1]}px + (var(--spacing) * 1.5))`,
+                }}
+                className="not-draggable-region in-focus-visible:outline-2 bg-surface-container drop-shadow-2xl shadow-shade border border-outline-variant -translate-x-1/2 -translate-y-[1px] py-2 rounded-lg w-full max-w-80">
                 <ul
-                    className="text-start flex flex-col gap-1.5 mt-3 px-2 overflow-auto thin-scrollbar max-h-64">
+                    className="text-start flex flex-col gap-1.5 px-2 overflow-auto thin-scrollbar max-h-64">
                     {statusItems.map((item) =>
                         <StatusListItem
                             key={item.jobId}

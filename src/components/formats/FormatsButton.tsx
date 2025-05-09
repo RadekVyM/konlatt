@@ -13,6 +13,7 @@ export default function FormatsButton(props: {
         <>
             <Button
                 className={props.className}
+                title={!props.withText ? "Supported formats" : undefined}
                 variant={props.withText ? "container" : "icon-container"}
                 onClick={dialogState.show}>
                 <LuInfo />

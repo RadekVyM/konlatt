@@ -109,6 +109,7 @@ function FullscreenButton(props: {
     return (
         <Button
             className={props.className}
+            title={props.fullscreenState.isFullscreen ? "Exit full screen" : "Full screen"}
             variant="icon-secondary"
             onClick={props.fullscreenState.toggleFullscreen}>
             {props.fullscreenState.isFullscreen ?
@@ -219,7 +220,7 @@ function MoveToggle(props: {
             type="button"
             role="switch"
             aria-checked={props.selected}
-            title="Enable node movements">
+            title={props.selected ? "Disable node movement" : "Enable node movement"}>
             <LuHand />
         </Button>
     );

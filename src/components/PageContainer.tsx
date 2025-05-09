@@ -9,7 +9,7 @@ export default function PageContainer(props: {
     return (
         <div
             ref={props.ref}
-            className={cn("flex-1 max-h-full overflow-hidden pb-4 px-4", props.className)}>
+            className={cn("flex-1 max-h-full overflow-hidden pb-3 px-3", props.className)}>
             {props.children}
         </div>
     );
