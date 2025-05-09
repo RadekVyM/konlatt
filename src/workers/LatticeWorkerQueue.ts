@@ -1,5 +1,6 @@
+import useDataStructuresStore from "../stores/useDataStructuresStore";
 import { CancellationRequest, CompleteWorkerRequest, WorkerRequest } from "../types/WorkerRequest";
-import { WorkerResponse } from "../types/WorkerResponse";
+import { WorkerDataRequestResponse, WorkerResponse } from "../types/WorkerResponse";
 import LatticeWorker from "../workers/latticeWorker?worker";
 
 // Single worker is reused for all formal context calculations
@@ -121,6 +122,10 @@ export default class LatticeWorkerQueue {
                 this.currentJob = null;
                 this.next();
                 break;
+            case "data-request":
+                const request = createRequest(e.data);
+                this.worker?.postMessage(request);
+                break;
             default:
                 console.log(`[${e.data.type}] receiving response: ${new Date().getTime() - e.data.time} ms`);
                 this.currentJob?.responseCallback(e.data);
@@ -137,4 +142,39 @@ type Job = {
     readonly progressCallback?: (jobId: number, progress: number) => void,
     readonly startCallback?: (jobId: number) => void,
     readonly cancelCallback?: (jobId: number) => void,
+}
+
+function createRequest(response: WorkerDataRequestResponse) {
+    const newRequest: CompleteWorkerRequest = response.request;
+
+    for (const requestedObject of response.requestedObjects) {
+        switch (requestedObject) {
+            case "context":
+                const context = useDataStructuresStore.getState().context;
+                if (!context) {
+                    throw new Error("Formal context has not been calculated yet");
+                }
+
+                newRequest.context = context;
+                break;
+            case "concepts":
+                const concepts = useDataStructuresStore.getState().concepts;
+                if (!concepts) {
+                    throw new Error("Formal context has not been calculated yet");
+                }
+
+                newRequest.concepts = concepts;
+                break;
+            case "lattice":
+                const lattice = useDataStructuresStore.getState().lattice;
+                if (!lattice) {
+                    throw new Error("Formal context has not been calculated yet");
+                }
+
+                newRequest.lattice = lattice;
+                break;
+        }
+    }
+
+    return newRequest;
 }

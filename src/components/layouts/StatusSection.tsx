@@ -89,9 +89,9 @@ export default function StatusSection(props: {
                     left: `${position[0]}px`,
                     top: `calc(${position[1]}px + (var(--spacing) * 1.5))`,
                 }}
-                className="not-draggable-region in-focus-visible:outline-2 bg-surface-container drop-shadow-2xl shadow-shade border border-outline-variant -translate-x-1/2 -translate-y-[1px] py-2 rounded-lg w-full max-w-80">
+                className="not-draggable-region in-focus-visible:outline-2 bg-surface-container drop-shadow-2xl shadow-shade border border-outline-variant -translate-x-1/2 -translate-y-[1px] rounded-lg w-full max-w-80">
                 <ul
-                    className="text-start flex flex-col gap-1.5 px-2 overflow-auto thin-scrollbar max-h-64">
+                    className="text-start flex flex-col gap-1.5 p-2 overflow-auto thin-scrollbar max-h-64">
                     {statusItems.map((item) =>
                         <StatusListItem
                             key={item.jobId}

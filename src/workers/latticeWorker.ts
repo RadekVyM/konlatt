@@ -1,6 +1,6 @@
 import { ConceptLattice } from "../types/ConceptLattice";
 import { CompleteLayoutComputationRequest, CompleteWorkerRequest } from "../types/WorkerRequest";
-import { ConceptComputationResponse, ContextParsingResponse, FinishedResponse, LatticeComputationResponse, LayoutComputationResponse, ProgressResponse, StatusResponse } from "../types/WorkerResponse";
+import { ConceptComputationResponse, ContextParsingResponse, FinishedResponse, LatticeComputationResponse, LayoutComputationResponse, ProgressResponse, StatusResponse, WorkerDataRequestObject, WorkerDataRequestResponse } from "../types/WorkerResponse";
 import { FormalContext } from "../types/FormalContext";
 import { FormalConcepts, getSupremum } from "../types/FormalConcepts";
 import DiagramLayoutWorker from "./diagramLayoutWorker?worker";
@@ -15,6 +15,8 @@ const workerInstances = new Map<number, { worker: Worker, reject?: (reason?: any
 
 self.onmessage = async (event: MessageEvent<CompleteWorkerRequest>) => {
     console.log(`[${event.data.type}] sending arguments: ${new Date().getTime() - event.data.time} ms`);
+
+    tryGetIncomingData(event);
 
     try {
         switch (event.data.type) {
@@ -34,29 +36,26 @@ self.onmessage = async (event: MessageEvent<CompleteWorkerRequest>) => {
                 break;
             case "concepts":
                 if (!formalContext) {
-                    throw new Error("Formal context has not been calculated yet");
+                    tryRequestDataFromMainThread(event.data, ["context"]);
+                    return;
                 }
-    
+
                 await calculateConcepts(event.data.jobId, formalContext);
                 break;
             case "lattice":
-                if (!formalConcepts) {
-                    throw new Error("Formal concepts have not been calculated yet");
+                if (!formalConcepts || !formalContext) {
+                    tryRequestDataFromMainThread(event.data, ["concepts", "context"]);
+                    return;
                 }
-                if (!formalContext) {
-                    throw new Error("Formal context has not been calculated yet");
-                }
-    
+
                 await calculateLattice(event.data.jobId, formalConcepts, formalContext);
                 break;
             case "layout":
-                if (!formalConcepts) {
-                    throw new Error("Formal concepts have not been calculated yet");
+                if (!formalConcepts || !conceptLattice) {
+                    tryRequestDataFromMainThread(event.data, ["concepts", "lattice"]);
+                    return;
                 }
-                if (!conceptLattice) {
-                    throw new Error("Concept lattice has not been calculated yet");
-                }
-    
+
                 await calculateLayout(
                     event.data.jobId,
                     formalConcepts,
@@ -262,4 +261,40 @@ function getValidLayout(layout: Array<Point>, reverseIndexMapping: Map<number, n
     }
 
     return layout.map((point, index) => createConceptPoint(point[0], point[1], point[2], reverseIndexMapping.get(index)!));
+}
+
+function tryRequestDataFromMainThread(request: CompleteWorkerRequest, requestedObjects: Array<WorkerDataRequestObject>) {
+    // This is needed mainly because of Safari... 🤦‍♂️
+    // Safari is too efficient (or grasping) and clears data from web workers
+    // when it thinks that the workers do not deserve to have the data.
+    // This is probably it: https://stackoverflow.com/a/38976243
+
+    // When this happens, I simply request the data from the main thread
+    // where the data should be stored in a store, otherwise something really bad has happened.
+    // The main thread then resends the previous request (the request that triggered the data request)
+    // with the requested data.
+
+    console.log("requesting data...");
+
+    const response: WorkerDataRequestResponse = {
+        type: "data-request",
+        jobId: request.jobId,
+        time: 0,
+        request,
+        requestedObjects,
+    };
+
+    self.postMessage(response);
+}
+
+function tryGetIncomingData(event: MessageEvent<CompleteWorkerRequest>) {
+    if (event.data.context) {
+        formalContext = event.data.context;
+    }
+    if (event.data.concepts) {
+        formalConcepts = event.data.concepts;
+    }
+    if (event.data.lattice) {
+        conceptLattice = event.data.lattice;
+    }
 }
