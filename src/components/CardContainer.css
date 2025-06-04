@@ -1,4 +1,5 @@
-@reference "../index.css";
+@reference "../css/index.css";
+@reference "../css/animations.css";
 
 .card-container > * {
     @apply animate-fadeIn;

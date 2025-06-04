@@ -1,4 +1,6 @@
-@reference "../../index.css";
+@reference "../../css/index.css";
+@reference "../../css/colors.css";
+@reference "../../css/animations.css";
 
 pre.code-line {
     @apply col-start-1 col-end-3 grid grid-cols-subgrid items-center pr-3;

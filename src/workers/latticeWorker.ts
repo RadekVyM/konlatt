@@ -26,9 +26,7 @@ self.onmessage = async (event: MessageEvent<CompleteWorkerRequest>) => {
                 if (workerInstance) {
                     workerInstance.worker.terminate();
                     workerInstances.delete(event.data.jobId);
-                    if (workerInstance.reject) {
-                        workerInstance.reject();
-                    }
+                    workerInstance.reject?.();
                 }
                 return;
             case "parse-context":

@@ -1,1 +1,1 @@
-export const FILE_INPUT_ACCEPT = "text/*, .cxt, application/json, application/xml";
+export const FILE_INPUT_ACCEPT = ".csv, .cxt, application/json, application/xml";

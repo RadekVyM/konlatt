@@ -123,7 +123,7 @@ export default class LatticeWorkerQueue {
                 this.next();
                 break;
             case "data-request":
-                const request = createRequest(e.data);
+                const request = createRequestWithData(e.data);
                 this.worker?.postMessage(request);
                 break;
             default:
@@ -144,7 +144,7 @@ type Job = {
     readonly cancelCallback?: (jobId: number) => void,
 }
 
-function createRequest(response: WorkerDataRequestResponse) {
+function createRequestWithData(response: WorkerDataRequestResponse) {
     const newRequest: CompleteWorkerRequest = response.request;
 
     for (const requestedObject of response.requestedObjects) {
@@ -160,7 +160,7 @@ function createRequest(response: WorkerDataRequestResponse) {
             case "concepts":
                 const concepts = useDataStructuresStore.getState().concepts;
                 if (!concepts) {
-                    throw new Error("Formal context has not been calculated yet");
+                    throw new Error("Formal concepts have not been calculated yet");
                 }
 
                 newRequest.concepts = concepts;
@@ -168,7 +168,7 @@ function createRequest(response: WorkerDataRequestResponse) {
             case "lattice":
                 const lattice = useDataStructuresStore.getState().lattice;
                 if (!lattice) {
-                    throw new Error("Formal context has not been calculated yet");
+                    throw new Error("Concept lattice has not been calculated yet");
                 }
 
                 newRequest.lattice = lattice;

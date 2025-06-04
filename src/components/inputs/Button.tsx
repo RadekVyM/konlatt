@@ -6,14 +6,19 @@ import { useRef, useState } from "react";
 import useEventListener from "../../hooks/useEventListener";
 import { createPortal } from "react-dom";
 
-const TOOLTIP_TIMEOUT = 1000;
+const TOOLTIP_TIMEOUT = 750;
 
-export default function Button({ className, to, variant, size, disabled, title, ...rest }: {
+export default function Button({ className, to, variant, size, disabled, title, ref, ...rest }: {
     children: React.ReactNode,
     className?: string,
     to?: string,
+    ref?: React.RefObject<HTMLElement | null>,
 } & React.ButtonHTMLAttributes<HTMLButtonElement> & VariantProps<typeof buttonVariants>) {
     const elementRef = useRef<HTMLElement>(null);
+
+    if (ref) {
+        ref.current = elementRef.current;
+    }
 
     return (
         <>
@@ -95,7 +100,7 @@ function Tooltip(props: {
 
     const dialogs = document.querySelectorAll("dialog");
     const container = dialogs.length === 0 ?
-        document.body :
+        (document.fullscreenElement || document.body) :
         dialogs[dialogs.length - 1];
 
     return createPortal(

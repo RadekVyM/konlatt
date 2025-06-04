@@ -1,26 +1,26 @@
 import { useEffect, useRef } from "react";
 
-export default function useDebouncedSetter<T>(value: T, setter: (value: T) => void, delay: number) {
-    const initialRunRef = useRef<boolean>(false);
+export default function useDebouncedSetter<T>(value: T, setter: (value: T) => void, delay: number, setFirstValueInstantly: boolean = false) {
+    const lastValueAlreadySetRef = useRef<boolean>(false);
     const timeoutRef = useRef<number | null>(null);
 
     useEffect(() => {
-        if (initialRunRef.current) {
+        if (setFirstValueInstantly && timeoutRef.current === null) {
             setter(value);
-
-            return;
+            lastValueAlreadySetRef.current = true;
         }
-
-        if (timeoutRef.current !== null) {
+        else if (timeoutRef.current !== null) {
+            lastValueAlreadySetRef.current = false;
             clearTimeout(timeoutRef.current);
             timeoutRef.current = null;
         }
 
         timeoutRef.current = setTimeout(() => {
-            setter(value);
+            if (!setFirstValueInstantly || !lastValueAlreadySetRef.current) {
+                setter(value);
+                lastValueAlreadySetRef.current = true;
+            }
             timeoutRef.current = null;
         }, delay);
     }, [value, setter, delay]);
-
-    initialRunRef.current = false;
 }

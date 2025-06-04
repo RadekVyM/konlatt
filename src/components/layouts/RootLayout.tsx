@@ -8,6 +8,7 @@ import FormatsButton from "../formats/FormatsButton";
 import useHasWindowControlsOverlay from "../../hooks/useHasWindowControlsOverlay";
 import NewProjectButton from "./NewProjectButton";
 import useWindowControlsOverlayRect from "../../hooks/useWindowControlsOverlayRect";
+import { cn } from "../../utils/tailwind";
 
 export default function RootLayout() {
     const newProjectDialogState = useDialog();
@@ -41,10 +42,11 @@ function Header() {
     return (
         <>
             <header
-                className="grid items-center gap-2 py-2 px-3 site-header-layout draggable-region">
+                className="grid items-center gap-2 px-3 site-header-layout draggable-region">
                 {rect.x === 0 &&
-                    <h1 aria-label="konlatt" className="with-logo flex gap-2.5 items-center font-semibold text-xl ml-0.5">
-                        {(!hasWindowControlsOverlay || (hasWindowControlsOverlay && isRootPage)) && "konlatt"}
+                    <h1
+                        className="with-logo flex gap-2.5 items-center font-semibold text-xl ml-0.5">
+                        <span className={cn(hasWindowControlsOverlay && !isRootPage && "sr-only")}>konlatt</span>
                     </h1>}
 
                 <StatusSection

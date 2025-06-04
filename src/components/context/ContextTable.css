@@ -1,4 +1,6 @@
-@reference "../../index.css";
+@reference "../../css/index.css";
+@reference "../../css/colors.css";
+@reference "../../css/animations.css";
 
 .context-table {
     .x {

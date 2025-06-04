@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+@theme {
+  --animate-slidePopoverDownIn: slidePopoverDownIn 150ms ease-in-out forwards;
+  --animate-slidePopoverDownOut: slidePopoverDownIn 150ms ease-in-out backwards;
+  --animate-slideUpIn: slideUpIn 200ms ease-in-out forwards;
+  --animate-slideDownOut: slideDownOut 200ms ease-in-out forwards;
+  --animate-fadeIn: fadeIn 200ms ease-in-out forwards;
+  --animate-fadeOut: fadeOut 200ms ease-in-out forwards;
+
+  @keyframes slidePopoverDownIn {
+    0% {
+      transform: translateY(-0.25rem);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  @keyframes slideUpIn {
+    0% {
+      transform: translateY(50%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  @keyframes slideDownOut {
+    0% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(50%);
+      opacity: 0;
+    }
+  }
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  @keyframes fadeOut {
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+}
+
+.slide-down-popover-transition {
+  --startY: -0.25rem;
+  opacity: 0;
+  transform: translateY(var(--startY));
+  transition-property: opacity display overlay transform;
+  transition-duration: 150ms;
+  transition-behavior: allow-discrete;
+}
+
+.slide-down-popover-transition.open,
+.slide-down-popover-transition[popover]:popover-open {
+  opacity: 1;
+  transform: translateY(0);
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(var(--startY));
+  }
+}

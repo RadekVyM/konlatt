@@ -26,9 +26,7 @@ export function useDiagramOffsets() {
 
         const newOffsets = [...diagramOffsets];
 
-        for (const m of memento) {
-            applyOffset(newOffsets, m.nodes, m.offset, -1);
-        }
+        applyOffset(newOffsets, memento.nodes, memento.offset, -1);
 
         setDiagramOffsets(newOffsets);
     }
@@ -46,9 +44,7 @@ export function useDiagramOffsets() {
 
         const newOffsets = [...diagramOffsets];
 
-        for (const m of memento) {
-            applyOffset(newOffsets, m.nodes, m.offset);
-        }
+        applyOffset(newOffsets, memento.nodes, memento.offset);
 
         setDiagramOffsets(newOffsets);
     }

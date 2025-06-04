@@ -89,24 +89,32 @@ export default function useDrawDiagram(
         }
 
         if (hoveredIndex !== null) {
-            const [x, y] = targetPoints[conceptToLayoutIndexesMapping.get(hoveredIndex)!];
+            const hoveredPointIndex = conceptToLayoutIndexesMapping.get(hoveredIndex);
 
-            context.beginPath();
-            context.fillStyle = primaryColor;
-            context.arc(x, y, NODE_RADIUS * deviceScale, 0, 2 * Math.PI);
-            context.fill();
+            if (hoveredPointIndex !== undefined) {
+                const [x, y] = targetPoints[hoveredPointIndex];
+
+                context.beginPath();
+                context.fillStyle = primaryColor;
+                context.arc(x, y, NODE_RADIUS * deviceScale, 0, 2 * Math.PI);
+                context.fill();
+            }
         }
 
         if (selectedIndex !== null &&
             selectedIndex !== hoveredIndex &&
             !isNotDisplayed(displayHighlightedSublatticeOnly, visibleConceptIndexes, selectedIndex)
         ) {
-            const [x, y] = targetPoints[conceptToLayoutIndexesMapping.get(selectedIndex)!];
+            const selectedPointIndex = conceptToLayoutIndexesMapping.get(selectedIndex);
 
-            context.beginPath();
-            context.arc(x, y, NODE_RADIUS * deviceScale, 0, 2 * Math.PI);
-            context.fillStyle = primaryColor;
-            context.fill();
+            if (selectedPointIndex !== undefined) {
+                const [x, y] = targetPoints[selectedPointIndex];
+
+                context.beginPath();
+                context.arc(x, y, NODE_RADIUS * deviceScale, 0, 2 * Math.PI);
+                context.fillStyle = primaryColor;
+                context.fill();
+            }
         }
 
         const fontSize = 6 * deviceScale;
@@ -144,7 +152,7 @@ export default function useDrawDiagram(
                 context.fillText(label, x, y - 7 * deviceScale);
             }
         }
-    }, [lattice, formalContext, hoveredIndex, selectedIndex, targetPoints, visibleRect, deviceScale, visibleConceptIndexes, filteredConceptIndexes, displayHighlightedSublatticeOnly]);
+    }, [lattice, formalContext, hoveredIndex, selectedIndex, targetPoints, visibleRect, deviceScale, visibleConceptIndexes, filteredConceptIndexes, displayHighlightedSublatticeOnly, conceptToLayoutIndexesMapping]);
 
     const drawLinks = useCallback((context: CanvasRenderingContext2D, computedStyle: CSSStyleDeclaration) => {
         if (!lattice || !drawAllLinks) {

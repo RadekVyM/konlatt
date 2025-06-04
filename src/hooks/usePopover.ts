@@ -2,16 +2,12 @@ import { useCallback, useState } from "react";
 import useEventListener from "./useEventListener";
 
 export function usePopover(containerRef: React.RefObject<HTMLElement | null>):
-    [boolean, () => void, () => void] {
+    [boolean, () => void, () => void, () => void] {
     const [isOpen, setIsOpen] = useState(false);
 
-    const togglePopover = useCallback(() => {
-        setIsOpen((old) => !old);
-    }, []);
-
-    const closePopover = useCallback(() => {
-        setIsOpen(false);
-    }, []);
+    const togglePopover = useCallback(() => setIsOpen((old) => !old), []);
+    const closePopover = useCallback(() => setIsOpen(false), []);
+    const showPopover = useCallback(() => setIsOpen(true), []);
 
     useEventListener("keydown", (e) => e.code === "Escape" && closePopover(), containerRef);
     // Why setTimeout() is needed: https://stackoverflow.com/a/26304568
@@ -26,6 +22,7 @@ export function usePopover(containerRef: React.RefObject<HTMLElement | null>):
     return [
         isOpen,
         togglePopover,
-        closePopover
+        closePopover,
+        showPopover,
     ];
 }
