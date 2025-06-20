@@ -49,7 +49,7 @@ export function LargeFileSelection(props: {
                 <LuFileUp
                     className="w-8 h-8"/>
                 <span className="font-semibold">
-                    {props.file?.name || <>Click to upload <span className="font-normal">or drag and drop</span></>}
+                    Click to upload <span className="font-normal">or drag and drop</span>
                 </span>
             </div>
         </FileSelectionBase>

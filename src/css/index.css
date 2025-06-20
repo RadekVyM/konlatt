@@ -1,5 +1,47 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary: var(--primary);
+  --color-primary-dim: var(--primary-dim);
+  --color-primary-lite: var(--primary-lite);
+  --color-on-primary: var(--on-primary);
+  --color-on-primary-dim: var(--on-primary-dim);
+  --color-secondary: var(--secondary);
+  --color-on-secondary: var(--on-secondary);
+  --color-secondary-dim: var(--secondary-dim);
+  --color-on-secondary-dim: var(--on-secondary-dim);
+
+  --color-surface: var(--surface);
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-muted: var(--on-surface-muted);
+
+  --color-surface-dim: var(--surface-dim);
+  --color-on-surface-dim: var(--on-surface-dim);
+  --color-on-surface-dim-muted: var(--on-surface-dim-muted);
+
+  --color-surface-container: var(--surface-container);
+  --color-on-surface-container: var(--on-surface-container);
+  --color-on-surface-container-muted: var(--on-surface-container-muted);
+  
+  --color-surface-dim-container: var(--surface-dim-container);
+  --color-on-surface-dim-container: var(--on-surface-dim-container);
+  --color-on-surface-dim-container-muted: var(--on-surface-dim-container-muted);
+
+  --color-surface-light-dim-container: var(--surface-light-dim-container);
+
+  --color-outline: var(--outline);
+  --color-outline-variant: var(--outline-variant);
+
+  --color-danger: var(--danger);
+  --color-on-danger: var(--on-danger);
+
+  --color-danger-dim: var(--danger-dim);
+  --color-on-danger-dim: var(--on-danger-dim);
+
+  --color-shade: var(--shade);
+  --color-backdrop: var(--backdrop);
+}
+
 @font-face{
   font-family: "Gabarito";
   src: local("Gabarito"), url('../assets/fonts/Gabarito-VariableFont_wght.ttf');

@@ -9,7 +9,6 @@ import { LuCopy, LuDownload } from "react-icons/lu";
 import FormatsButton from "../formats/FormatsButton";
 import useDiagramStore from "../../stores/useDiagramStore";
 import useDataStructuresStore from "../../stores/useDataStructuresStore";
-import { LAYOUT_SCALE } from "../../constants/diagram";
 
 const DEFAULT_FORMAT = "json";
 const FORMATS: Array<{ key: string, label: string }> = [
@@ -97,18 +96,14 @@ function serializeLayoutJson() {
     }
 
     const nodes = new Array<[number, number]>();
-    const links = new Array<[[number, number], [number, number]]>();
+    const links = new Array<[number, number]>();
 
     for (let conceptIndex = 0; conceptIndex < lattice.subconceptsMapping.length; conceptIndex++) {
         const point = layout[conceptIndex];
-        nodes.push([point.x * LAYOUT_SCALE, point.y * LAYOUT_SCALE]);
+        nodes.push([point.x, point.y]);
 
         for (const subconceptIndex of lattice.subconceptsMapping[conceptIndex]) {
-            const endPoint = layout[subconceptIndex];
-            links.push([
-                [point.x * LAYOUT_SCALE, point.y * LAYOUT_SCALE],
-                [endPoint.x * LAYOUT_SCALE, endPoint.y * LAYOUT_SCALE],
-            ]);
+            links.push([conceptIndex, subconceptIndex]);
         }
     }
 

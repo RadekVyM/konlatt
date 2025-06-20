@@ -10,10 +10,11 @@ import CardSection from "../CardSection";
 import { isInfimum, isSupremum } from "../../types/FormalConcepts";
 import { searchStringFilter, searchTermsToRegex } from "../../utils/search";
 import HighlightedSearchTerms from "../HighlightedSearchTerms";
-import { LuShapes, LuTags } from "react-icons/lu";
+import { LuShapes, LuTag, LuTags } from "react-icons/lu";
 import Found from "../Found";
 import ExportButton from "../export/ExportButton";
 import useDataStructuresStore from "../../stores/useDataStructuresStore";
+import Tooltip from "../Tooltip";
 
 type TabItem = "objects" | "attributes"
 
@@ -73,10 +74,12 @@ export default function ConceptDetail(props: {
 
                 {currentTab === "objects" ?
                     <ObjectsList
-                        objectIndexes={selectedConcept?.objects || []} /> :
+                        objectIndexes={selectedConcept?.objects || []}
+                        conceptIndex={props.selectedConceptIndex} /> :
                     currentTab === "attributes" ?
                         <AttributesList
-                            attributeIndexes={selectedConcept?.attributes || []} /> :
+                            attributeIndexes={selectedConcept?.attributes || []}
+                            conceptIndex={props.selectedConceptIndex} /> :
                         undefined}
             </div>
         </CardSection>
@@ -125,27 +128,59 @@ function TabButton(props: {
 
 function ObjectsList(props: {
     objectIndexes: ReadonlyArray<number>,
+    conceptIndex: number,
 }) {
     const context = useDataStructuresStore((state) => state.context);
+    const objectsLabeling = useDataStructuresStore((state) => state.lattice?.objectsLabeling);
+    const labels = objectsLabeling?.get(props.conceptIndex);
+    const labelsSet = labels && new Set(labels);
 
     return (
         <ItemsList
             searchPlaceholder="Search objects..."
             itemIndexes={props.objectIndexes}
-            itemContent={(index) => context?.objects[index] || ""} />
+            itemContent={(index) => context?.objects[index] || ""}
+            itemTailContent={labelsSet ? (index) =>
+                labelsSet.has(index) && <Label /> :
+                undefined} />
     );
 }
 
 function AttributesList(props: {
     attributeIndexes: ReadonlyArray<number>,
+    conceptIndex: number,
 }) {
     const context = useDataStructuresStore((state) => state.context);
+    const attributesLabeling = useDataStructuresStore((state) => state.lattice?.attributesLabeling);
+    const labels = attributesLabeling?.get(props.conceptIndex);
+    const labelsSet = labels && new Set(labels);
 
     return (
         <ItemsList
             searchPlaceholder="Search attributes..."
             itemIndexes={props.attributeIndexes}
-            itemContent={(index) => context?.attributes[index] || ""} />
+            itemContent={(index) => context?.attributes[index] || ""}
+            itemTailContent={labelsSet ? (index) =>
+                labelsSet.has(index) && <Label /> :
+                undefined} />
+    );
+}
+
+function Label() {
+    const elementRef = useRef<HTMLElement>(null);
+
+    return (
+        <>
+            <div
+                ref={elementRef as any}
+                className="inline-block ml-2.5 translate-y-0.5">
+                <LuTag
+                    className="h-3 w-3 text-primary" />
+            </div>
+            <Tooltip
+                elementRef={elementRef}
+                tooltip="Concept label" />
+        </>
     );
 }
 
@@ -153,6 +188,7 @@ function ItemsList(props: {
     searchPlaceholder: string,
     itemIndexes: ReadonlyArray<number>,
     itemContent: (index: number) => string,
+    itemTailContent?: (index: number) => React.ReactNode,
 }) {
     const observerTargetRef = useRef<HTMLDivElement>(null);
     const [searchInput, setSearchInput] = useState("");
@@ -199,6 +235,7 @@ function ItemsList(props: {
                             <HighlightedSearchTerms
                                 text={props.itemContent(index)}
                                 regex={searchRegex} />
+                            {props.itemTailContent && props.itemTailContent(index)}
                         </li>)}
                 </CardItemsLazyList>}
         </>

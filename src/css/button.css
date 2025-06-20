@@ -1,6 +1,5 @@
 @reference "./index.css";
 @reference "./animations.css";
-@reference "./colors.css";
 
 @layer components {
   .btn {
