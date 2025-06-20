@@ -1,4 +1,4 @@
-import Module from "../../wasm/cpp";
+import Module from "../../cpp";
 import { cppFloatArrayToPoints } from "../../utils/cpp";
 import { Point } from "../../types/Point";
 

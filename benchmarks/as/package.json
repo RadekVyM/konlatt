@@ -1,0 +1,17 @@
+{
+  "name": "as",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest run",
+    "build": "asc assembly/main.ts --target release --runtime minimal --exportRuntime"
+  },
+  "devDependencies": {
+    "assemblyscript": "^0.28.2",
+    "vitest": "^3.2.4"
+  }
+}

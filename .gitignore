@@ -33,19 +33,19 @@ dist-ssr
 .env.production.local
 
 # Compiled AssemblyScript
-/src/wasm/as/index.d.ts
-/src/wasm/as/index.js
-/src/wasm/as/index.wasm
-/src/wasm/as/index.wasm.map
-/src/wasm/as/index.wat
+/benchmarks/as/index.d.ts
+/benchmarks/as/index.js
+/benchmarks/as/index.wasm
+/benchmarks/as/index.wasm.map
+/benchmarks/as/index.wat
 
 # Compiled C++
-/src/wasm/cpp/index.d.ts
-/src/wasm/cpp/index.js
-/src/wasm/cpp/index.wasm
+/src/cpp/index.d.ts
+/src/cpp/index.js
+/src/cpp/index.wasm
 
-/benchmarks/native/*.exe
-/benchmarks/native/*.obj
+*.exe
+*.obj
 /benchmarks/native/mainapp
 
 

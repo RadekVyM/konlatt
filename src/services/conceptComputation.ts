@@ -1,5 +1,5 @@
 import { FormalContext } from "../types/FormalContext";
-import Module from "../wasm/cpp";
+import Module from "../cpp";
 import { FormalConcept } from "../types/FormalConcepts";
 import { cppFormalConceptArrayToJs, jsArrayToCppUIntArray } from "../utils/cpp";
 

@@ -1,7 +1,7 @@
 // npx vite-node ./benchmarks/node/as.ts
 
 import mushroomep from "../../datasets/mushroomep.cxt?raw";
-import { __collect, inClose, parseBurmeister } from "../../src/wasm/as";
+import { __collect, inClose, parseBurmeister } from "../as";
 
 const RUNS_COUNT = 50;
 

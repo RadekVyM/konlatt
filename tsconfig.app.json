@@ -23,5 +23,5 @@
     "noUncheckedSideEffectImports": true
   },
   "include": ["src", "tests", "benchmarks"],
-  "exclude": ["src/wasm/as"]
+  "exclude": ["benchmarks/**/*"]
 }

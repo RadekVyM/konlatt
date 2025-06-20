@@ -1,4 +1,4 @@
-import { FloatArray, FormalConceptArray, IndexedFormalConceptArray, IntArray, IntMultiArray, MainModule, StringArray, UIntArray } from "../wasm/cpp";
+import { FloatArray, FormalConceptArray, IndexedFormalConceptArray, IntArray, IntMultiArray, MainModule, StringArray, UIntArray } from "../cpp";
 import { FormalConcept, FormalConcepts } from "../types/FormalConcepts";
 import { createPoint, Point } from "../types/Point";
 

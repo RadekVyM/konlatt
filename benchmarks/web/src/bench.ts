@@ -1,5 +1,5 @@
 import mushroomep from "../../../datasets/mushroomep.cxt?raw";
-import { __collect, inClose, parseBurmeister } from "../../../src/wasm/as";
+import { __collect, inClose, parseBurmeister } from "../../as";
 import Module from "../../../src/wasm/cpp";
 
 export async function benchCpp(runsCount: number, postMessage: (message: string) => void) {
