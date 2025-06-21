@@ -5,6 +5,8 @@ import { NodeOffsetMemento } from "../types/NodeOffsetMemento";
 import useDataStructuresStore from "./useDataStructuresStore";
 import createConceptsFilterSlice, { initialState as initialConceptsFilterState, ConceptsFilterSlice } from "./createConceptsFilterSlice";
 import createSelectedConceptSlice, { initialState as initialSelectedConceptState, SelectedConceptSlice } from "./createSelectedConceptSlice";
+import createR3FCanvasSlice, { initialState as initialR3FCanvasState, R3FCanvasSlice } from "./createR3FCanvasSlice";
+import createDiagramOptionsSlice, { initialState as initialDiagramOptionsState, DiagramOptionsSlice } from "./createDiagramOptionsSlice";
 import { triggerCancellation, triggerLayoutComputation } from "../services/triggers";
 import { calculateVisibleConceptIndexes } from "../utils/lattice";
 import { DiagramLayoutState } from "../types/DiagramLayoutState";
@@ -20,7 +22,9 @@ type ConceptLatticeLayoutCacheItem = {
 
 type DiagramStoreState = {
     layout: ConceptLatticeLayout | null,
+    layoutId: string,
     conceptToLayoutIndexesMapping: Map<number, number>,
+    layoutToConceptIndexesMapping: Map<number, number>,
     layoutCache: Map<string, ConceptLatticeLayoutCacheItem>,
     currentLayoutJobId: number | null,
     currentLayoutJobStateId: string | null,
@@ -40,12 +44,14 @@ type DiagramStoreActions = {
     reset: () => void,
 }
 
-type DiagramStore = DiagramStoreState & DiagramStoreActions & ConceptsFilterSlice & SelectedConceptSlice
+export type DiagramStore = DiagramStoreState & DiagramStoreActions & ConceptsFilterSlice & SelectedConceptSlice & R3FCanvasSlice & DiagramOptionsSlice
 
 const initialState: DiagramStoreState = {
     layout: null,
+    layoutId: "",
     layoutCache: new Map(),
     conceptToLayoutIndexesMapping: new Map(),
+    layoutToConceptIndexesMapping: new Map(),
     currentLayoutJobId: null,
     currentLayoutJobStateId: null,
     diagramOffsets: null,
@@ -59,6 +65,8 @@ const initialState: DiagramStoreState = {
 const useDiagramStore = create<DiagramStore>((set) => ({
     ...createConceptsFilterSlice(set),
     ...createSelectedConceptSlice(set),
+    ...createR3FCanvasSlice(set),
+    ...createDiagramOptionsSlice(set),
     ...initialState,
     setLayout: (layout) => set((old) => {
         const diagramOffsets = layout ? createDefaultDiagramOffsets(layout.length) : null;
@@ -66,9 +74,8 @@ const useDiagramStore = create<DiagramStore>((set) => ({
 
         return {
             layout,
-            conceptToLayoutIndexesMapping: layout ?
-                createConceptToLayoutIndexesMapping(layout) :
-                new Map(),
+            layoutId: `${layout?.length}-${Math.random()}`,
+            ...createConceptLayoutIndexesMappings(layout),
             diagramOffsets,
             diagramOffsetMementos,
             layoutCache: layout && diagramOffsets ?
@@ -79,6 +86,7 @@ const useDiagramStore = create<DiagramStore>((set) => ({
                     diagramOffsetMementos,
                     old) :
                 new Map(),
+            conceptsToMoveIndexes: new Set(),
         };
     }),
     setCurrentLayoutJobId: (currentLayoutJobId, layoutState) => set(() => ({
@@ -138,6 +146,8 @@ const useDiagramStore = create<DiagramStore>((set) => ({
         ...initialState,
         ...initialConceptsFilterState,
         ...initialSelectedConceptState,
+        ...initialR3FCanvasState,
+        ...initialDiagramOptionsState,
     })),
 }));
 
@@ -170,7 +180,8 @@ function withLayout(
 
         return {
             layout: cachedLayoutItem.layout,
-            conceptToLayoutIndexesMapping: createConceptToLayoutIndexesMapping(cachedLayoutItem.layout),
+            layoutId: `${cachedLayoutItem.layout?.length}-${Math.random()}`,
+            ...createConceptLayoutIndexesMappings(cachedLayoutItem.layout),
             diagramOffsets: cachedLayoutItem.diagramOffsets,
             diagramOffsetMementos: cachedLayoutItem.diagramOffsetMementos,
             ...newState,
@@ -181,6 +192,7 @@ function withLayout(
 
     return {
         layout: null,
+        layoutId: `null-${Math.random()}`,
         conceptToLayoutIndexesMapping: new Map(),
         diagramOffsets: null,
         diagramOffsetMementos: createEmptyDiagramOffsetMementos(),
@@ -223,15 +235,22 @@ function createEmptyDiagramOffsetMementos() {
     return { redos: [], undos: [] };
 }
 
-function createConceptToLayoutIndexesMapping(layout: ConceptLatticeLayout) {
-    const mapping = new Map<number, number>();
+function createConceptLayoutIndexesMappings(layout: ConceptLatticeLayout | null) {
+    const conceptToLayoutIndexesMapping = new Map<number, number>();
+    const layoutToConceptIndexesMapping = new Map<number, number>();
 
-    for (let i = 0; i < layout.length; i++) {
-        const point = layout[i];
-        mapping.set(point.conceptIndex, i);
+    if (layout !== null) {
+        for (let i = 0; i < layout.length; i++) {
+            const point = layout[i];
+            conceptToLayoutIndexesMapping.set(point.conceptIndex, i);
+            layoutToConceptIndexesMapping.set(i, point.conceptIndex);
+        }
     }
 
-    return mapping;
+    return {
+        conceptToLayoutIndexesMapping,
+        layoutToConceptIndexesMapping,
+    };
 }
 
 function createDiagramLayoutStateId(state: DiagramLayoutState) {

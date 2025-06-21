@@ -66,7 +66,6 @@ export function useDiagramOffsets() {
     }
 
     return {
-        diagramOffsets,
         updateNodeOffsets,
         undo,
         redo,

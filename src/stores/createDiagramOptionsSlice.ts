@@ -1,0 +1,44 @@
+import { CameraType } from "../types/CameraType";
+import { DiagramStore } from "./useDiagramStore";
+
+type DiagramOptionsSliceState = {
+    cameraType: CameraType,
+    movementRegressionEnabled: boolean,
+    linksVisibleEnabled: boolean,
+    semitransparentLinksEnabled: boolean,
+    editingEnabled: boolean,
+}
+
+type DiagramOptionsSliceActions = {
+    setCameraType: (cameraType: CameraType) => void,
+    setMovementRegressionEnabled: (movementRegressionEnabled: boolean) => void,
+    setLinksVisibleEnabled: (linksVisibleEnabled: boolean) => void,
+    setSemitransparentLinksEnabled: (semitransparentLinksEnabled: boolean) => void,
+    setEditingEnabled: React.Dispatch<React.SetStateAction<boolean>>,
+}
+
+export type DiagramOptionsSlice = DiagramOptionsSliceState & DiagramOptionsSliceActions
+
+export const initialState: DiagramOptionsSliceState = {
+    cameraType: "2d",
+    movementRegressionEnabled: false,
+    linksVisibleEnabled: true,
+    semitransparentLinksEnabled: true,
+    editingEnabled: false,
+};
+
+export default function createDiagramOptionsSlice(set: (partial: DiagramStore | Partial<DiagramStore> | ((state: DiagramStore) => DiagramStore | Partial<DiagramStore>), replace?: false) => void): DiagramOptionsSlice {
+    return {
+        ...initialState,
+        setCameraType: (cameraType: CameraType) => set({ cameraType }),
+        setMovementRegressionEnabled: (movementRegressionEnabled: boolean) => set({ movementRegressionEnabled }),
+        setLinksVisibleEnabled: (linksVisibleEnabled: boolean) => set({ linksVisibleEnabled }),
+        setSemitransparentLinksEnabled: (semitransparentLinksEnabled: boolean) => set({ semitransparentLinksEnabled }),
+        setEditingEnabled: (editingEnabled) => set((old) => ({
+            editingEnabled: typeof editingEnabled === "function" ?
+                editingEnabled(old.editingEnabled) :
+                editingEnabled,
+            conceptsToMoveIndexes: new Set(),
+        })),
+    };
+}

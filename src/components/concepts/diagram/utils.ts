@@ -1,0 +1,79 @@
+import { InstancedMesh, Object3D } from "three";
+import { CameraType } from "../../../types/CameraType";
+import { X_SCALE, Y_SCALE, Z_SCALE } from "./constants";
+import { createPoint, Point } from "../../../types/Point";
+import { ConceptLatticeLayout } from "../../../types/ConceptLatticeLayout";
+
+export function setNodesTransformMatrices(
+    instancedMesh: InstancedMesh,
+    layoutIndexes: Iterable<number>,
+    layout: ConceptLatticeLayout,
+    diagramOffsets: Array<Point>,
+    dragOffset: Point,
+    cameraType: CameraType,
+    tempObject?: Object3D,
+) {
+    const temp = tempObject || new Object3D();
+
+    for (const layoutIndex of layoutIndexes) {
+        if (layoutIndex >= layout.length) {
+            continue;
+        }
+
+        const node = layout[layoutIndex];
+        const offset = getPoint(diagramOffsets, layoutIndex);
+
+        setupTransform(temp, createPoint(node.x, node.y, node.z), offset, dragOffset, 1, cameraType);
+
+        instancedMesh.setMatrixAt(layoutIndex, temp.matrix);
+    }
+
+    instancedMesh.instanceMatrix.needsUpdate = true;
+
+    // This is super important for raycasting to work
+    // after moving some instances
+    // See https://github.com/mrdoob/three.js/issues/29349
+    // or https://discourse.threejs.org/t/raycast-fails-after-modifying-the-instance-matrices/53791
+    instancedMesh.computeBoundingSphere();
+    instancedMesh.computeBoundingBox();
+}
+
+export function setupTransform(
+    temp: Object3D,
+    point: Point,
+    offset: Point,
+    dragOffset: Point,
+    scale: number,
+    cameraType: CameraType,
+) {
+    temp.position.set(...transformedPoint(point, offset, dragOffset, cameraType));
+    temp.scale.set(scale, scale, scale);
+    temp.updateMatrix();
+}
+
+export function transformedPoint(
+    point: Point,
+    offset: Point,
+    dragOffset: Point,
+    cameraType: CameraType,
+): Point {
+    return [
+        (point[0] + offset[0] + dragOffset[0]) * X_SCALE,
+        (point[1] + offset[1] + dragOffset[1]) * Y_SCALE,
+        cameraType === "2d" ? 0 : (point[2] + offset[2] + dragOffset[2]) * Z_SCALE,
+    ];
+}
+
+export function getPoint(points: Array<Point>, index: number): Point {
+    return points[index] || [0, 0, 0];
+}
+
+export function createRange(length: number) {
+    const numbers = new Array<number>(length);
+
+    for (let i = 0; i < length; i++) {
+        numbers[i] = i;
+    }
+
+    return numbers;
+}

@@ -244,7 +244,7 @@ std::unique_ptr<std::vector<float>> createLayout(int conceptsCount, std::vector<
             if (node < conceptsCount) {
                 int startNode = node * CoordsCount;
                 (*layout)[startNode] = left;
-                (*layout)[startNode + 1] = top;
+                (*layout)[startNode + 1] = -top;
                 (*layout)[startNode + 2] = 0;
             }
             left += 1;

@@ -9,7 +9,13 @@ export default function DiagramConfig() {
     const [horizontalNodesDistance, setHorizontalNodesDistance] = useState<number>(1);
     const [verticalNodesDistance, setVerticalNodesDistance] = useState<number>(1);
     const displayHighlightedSublatticeOnly = useDiagramStore((state) => state.displayHighlightedSublatticeOnly);
+    const cameraType = useDiagramStore((state) => state.cameraType);
+    const linksVisibleEnabled = useDiagramStore((state) => state.linksVisibleEnabled);
+    const semitransparentLinksEnabled = useDiagramStore((state) => state.semitransparentLinksEnabled);
     const setDisplayHighlightedSublatticeOnly = useDiagramStore((state) => state.setDisplayHighlightedSublatticeOnly);
+    const setCameraType = useDiagramStore((state) => state.setCameraType);
+    const setLinksVisibleEnabled = useDiagramStore((state) => state.setLinksVisibleEnabled);
+    const setSemitransparentLinksEnabled = useDiagramStore((state) => state.setSemitransparentLinksEnabled);
 
     return (
         <>
@@ -23,12 +29,29 @@ export default function DiagramConfig() {
 
             <div
                 className="flex-1 overflow-y-auto px-4 pb-4 thin-scrollbar">
-                <ToggleSwitch
-                    className="mb-4"
-                    checked={displayHighlightedSublatticeOnly}
-                    onChange={(e) => setDisplayHighlightedSublatticeOnly(e.currentTarget.checked)}>
-                    Display highlighted sublattice only
-                </ToggleSwitch>
+                <section
+                    className="mb-4 flex flex-col gap-2">
+                    <ToggleSwitch
+                        checked={displayHighlightedSublatticeOnly}
+                        onChange={(e) => setDisplayHighlightedSublatticeOnly(e.currentTarget.checked)}>
+                        Display highlighted sublattice only
+                    </ToggleSwitch>
+                    <ToggleSwitch
+                        checked={cameraType === "3d"}
+                        onChange={(e) => setCameraType(e.currentTarget.checked ? "3d" : "2d")}>
+                        3D mode
+                    </ToggleSwitch>
+                    <ToggleSwitch
+                        checked={linksVisibleEnabled}
+                        onChange={(e) => setLinksVisibleEnabled(e.currentTarget.checked)}>
+                        Links visible
+                    </ToggleSwitch>
+                    <ToggleSwitch
+                        checked={semitransparentLinksEnabled}
+                        onChange={(e) => setSemitransparentLinksEnabled(e.currentTarget.checked)}>
+                        Semitransparent links
+                    </ToggleSwitch>
+                </section>
 
                 <label className="text-sm mb-1 block">Layout method</label>
 

@@ -1,0 +1,1 @@
+export type CameraType = "2d" | "3d"
