@@ -7,6 +7,7 @@ type R3FCanvasSliceState = {
     isDraggingNodes: boolean,
     dragOffset: Point,
     conceptsToMoveIndexes: Set<number>,
+    currentZoomLevel: number,
 }
 
 type R3FCanvasSliceActions = {
@@ -14,6 +15,7 @@ type R3FCanvasSliceActions = {
     setIsCameraMoving: (isCameraMoving: boolean) => void,
     setDragOffset: (dragOffset: Point) => void,
     setConceptsToMoveIndexes: React.Dispatch<React.SetStateAction<Set<number>>>,
+    setCurrentZoomLevel: (currentZoomLevel: number) => void,
 }
 
 export type R3FCanvasSlice = R3FCanvasSliceState & R3FCanvasSliceActions
@@ -25,6 +27,7 @@ export const initialState: R3FCanvasSliceState = {
     isDraggingNodes: false,
     dragOffset: [0, 0, 0],
     conceptsToMoveIndexes: new Set<number>(),
+    currentZoomLevel: 1,
 };
 
 export default function createR3FCanvasSlice(set: (partial: R3FCanvasSlice | Partial<R3FCanvasSlice> | ((state: R3FCanvasSlice) => R3FCanvasSlice | Partial<R3FCanvasSlice>), replace?: false) => void): R3FCanvasSlice {
@@ -45,5 +48,6 @@ export default function createR3FCanvasSlice(set: (partial: R3FCanvasSlice | Par
                 conceptsToMoveIndexes(old.conceptsToMoveIndexes) :
                 conceptsToMoveIndexes
         })),
+        setCurrentZoomLevel: (currentZoomLevel: number) => set({ currentZoomLevel }),
     };
 }

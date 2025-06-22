@@ -30,7 +30,7 @@ export const initialState: DiagramOptionsSliceState = {
 export default function createDiagramOptionsSlice(set: (partial: DiagramStore | Partial<DiagramStore> | ((state: DiagramStore) => DiagramStore | Partial<DiagramStore>), replace?: false) => void): DiagramOptionsSlice {
     return {
         ...initialState,
-        setCameraType: (cameraType: CameraType) => set({ cameraType }),
+        setCameraType: (cameraType: CameraType) => set({ cameraType, currentZoomLevel: 1 }),
         setMovementRegressionEnabled: (movementRegressionEnabled: boolean) => set({ movementRegressionEnabled }),
         setLinksVisibleEnabled: (linksVisibleEnabled: boolean) => set({ linksVisibleEnabled }),
         setSemitransparentLinksEnabled: (semitransparentLinksEnabled: boolean) => set({ semitransparentLinksEnabled }),

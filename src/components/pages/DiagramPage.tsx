@@ -7,7 +7,7 @@ import PageContainer from "../PageContainer";
 import useFullscreen from "../../hooks/useFullscreen";
 import { FullscreenState } from "../../types/FullscreenState";
 import DiagramConfig from "../concepts/diagram/DiagramConfig";
-import { ZoomToContextProvider } from "../../contexts/ZoomToContext";
+import { ZoomActionsContextProvider } from "../../contexts/ZoomActionsContext";
 import useDiagramStore from "../../stores/useDiagramStore";
 import ConceptDiagramControls from "../concepts/diagram/ConceptDiagramControls";
 
@@ -16,7 +16,7 @@ export default function DiagramPage() {
     const fullscreenState = useFullscreen(containerRef);
 
     return (
-        <ZoomToContextProvider>
+        <ZoomActionsContextProvider>
             <PageContainer
                 ref={containerRef}
                 className={cn(
@@ -28,7 +28,7 @@ export default function DiagramPage() {
                     fullscreenState={fullscreenState} />
                 <Config />
             </PageContainer>
-        </ZoomToContextProvider>
+        </ZoomActionsContextProvider>
     );
 }
 
