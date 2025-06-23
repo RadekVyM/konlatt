@@ -1,8 +1,7 @@
-import { LuFocus, LuHand, LuLoaderCircle, LuMaximize, LuMinimize, LuMinus, LuPlus, LuRedo2, LuUndo2 } from "react-icons/lu";
+import { LuFocus, LuHand, LuLoaderCircle, LuMaximize, LuMinimize, LuMinus, LuPanelBottomClose, LuPanelBottomOpen, LuPanelLeftClose, LuPanelLeftOpen, LuPanelRightClose, LuPanelRightOpen, LuPlus, LuRedo2, LuUndo2 } from "react-icons/lu";
 import Button from "../../inputs/Button";
-import DiagramCanvas from "./R3FDiagramCanvas";
 import { cn } from "../../../utils/tailwind";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useRef } from "react";
 import useEventListener from "../../../hooks/useEventListener";
 import { useDiagramOffsets } from "../../../hooks/useDiagramOffsets";
 import { isCtrlZ, isEditableElement } from "../../../utils/html";
@@ -14,8 +13,15 @@ import { ZoomActionsContext } from "../../../contexts/ZoomActionsContext";
 
 const ZOOM_STEP = 0.1;
 
-export default function ConceptsDiagram(props: {
+export default function DiagramActions(props: {
+    className?: string,
+    showSpinner?: boolean,
     fullscreenState: FullscreenState,
+    conceptsPanelEnabled: boolean,
+    configPanelEnabled: boolean,
+    toggleConceptsPanel: () => void,
+    toggleConfigPanel: () => void,
+    toggleBothPanels: () => void,
 }) {
     const isTemporarilyEditableRef = useRef<boolean>(true);
     const context = useDataStructuresStore((state) => state.context);
@@ -23,49 +29,132 @@ export default function ConceptsDiagram(props: {
     const concepts = useDataStructuresStore((state) => state.concepts);
     const layout = useDiagramStore((state) => state.layout);
     const diagramOffsets = useDiagramStore((state) => state.diagramOffsets);
-    const [canRenderCanvas, setCanRenderCanvas] = useState<boolean>(false);
 
     const isDiagramRenderable = !!(context && lattice && concepts && layout && diagramOffsets);
-
-    useEffect(() => {
-        const timeoutId = setTimeout(() => setCanRenderCanvas(true), 500);
-        return () => clearTimeout(timeoutId);
-    }, []);
 
     useKeyBoardEvents(isTemporarilyEditableRef);
 
     return (
-        <>
-            {canRenderCanvas &&
-                <DiagramCanvas />}
-            {(!canRenderCanvas || !isDiagramRenderable) &&
+        <div
+            className={props.className}>
+            {(props.showSpinner || !isDiagramRenderable) &&
                 <div
-                    className="w-full h-full grid place-content-center">
+                    className="absolute inset-0 grid place-content-center">
                     <LuLoaderCircle
                         className="animate-spin w-8 h-8 text-on-surface-muted" />
                 </div>}
 
-            <ExportButton
-                className="absolute top-0 right-0 m-3"
-                isHighlighted
-                route="/project/diagram/export" />
+            {props.fullscreenState.isFullscreen && 
+                <LeftPanelToggle
+                    className="hidden xl:grid pointer-events-auto my-4 mx-4 md:mx-3"
+                    title={props.conceptsPanelEnabled ? "Hide concepts panel" : "Show concepts panel"}
+                    panelEnabled={props.conceptsPanelEnabled}
+                    onClick={props.toggleConceptsPanel} />}
+
+            {props.fullscreenState.isFullscreen && 
+                <LeftPanelToggle
+                    className="hidden md:grid xl:hidden pointer-events-auto my-4 mx-4 md:mx-3"
+                    title={props.conceptsPanelEnabled ? "Hide panels" : "Show panels"}
+                    panelEnabled={props.conceptsPanelEnabled && props.configPanelEnabled}
+                    onClick={props.toggleBothPanels} />}
 
             <div
-                className="absolute bottom-0 left-0 m-3 flex gap-2">
+                className={cn(
+                    "absolute top-0 right-0 flex gap-2 pointer-events-auto",
+                    props.fullscreenState.isFullscreen ? "my-4 mx-4 md:mx-3" : "m-3")}>
+                <ExportButton
+                    isHighlighted
+                    route="/project/diagram/export" />
+                
+                {props.fullscreenState.isFullscreen &&
+                    <RightPanelToggle
+                        className="hidden xl:grid"
+                        title={props.configPanelEnabled ? "Hide configuration panel" : "Show configuration panel"}
+                        panelEnabled={props.configPanelEnabled}
+                        onClick={props.toggleConfigPanel} />}
+            </div>
+
+            <div
+                className={cn(
+                    "absolute bottom-0 left-0 flex gap-2 pointer-events-auto",
+                    props.fullscreenState.isFullscreen ? "my-4 mx-4 md:mx-3" : "m-3")}>
                 <UndoRedoBar />
                 <MoveToggle
                     isTemporarilyEditableRef={isTemporarilyEditableRef} />
             </div>
 
             <div
-                className="absolute bottom-0 right-0 m-3 flex gap-2">
+                className={cn(
+                    "absolute bottom-0 right-0 flex gap-2 pointer-events-auto",
+                    props.fullscreenState.isFullscreen ? "my-4 mx-4 md:mx-3" : "m-3")}>
+                {props.fullscreenState.isFullscreen &&
+                    <BottomPanelToggle
+                        className="md:hidden"
+                        title={props.configPanelEnabled ? "Hide panels" : "Show panels"}
+                        panelEnabled={props.conceptsPanelEnabled && props.configPanelEnabled}
+                        onClick={props.toggleBothPanels} />}
+
                 <ZoomBar />    
                 <ZoomToCenterButton />
 
                 <FullscreenButton
                     fullscreenState={props.fullscreenState} />
             </div>
-        </>
+        </div>
+    );
+}
+
+type PanelToggleButtonProps = {
+    className?: string,
+    title: string,
+    panelEnabled: boolean,
+    onClick: () => void,
+}
+
+function PanelToggleButton(props: {
+    children: React.ReactNode,
+} & PanelToggleButtonProps) {
+    return (
+        <Button
+            className={props.className}
+            title={props.title}
+            variant="icon-secondary"
+            onClick={props.onClick}>
+            {props.children}
+        </Button>
+    );
+}
+
+function BottomPanelToggle(props: PanelToggleButtonProps) {
+    return (
+        <PanelToggleButton
+            {...props}>
+            {props.panelEnabled ?
+                <LuPanelBottomClose /> :
+                <LuPanelBottomOpen />}
+        </PanelToggleButton>
+    );
+}
+
+function LeftPanelToggle(props: PanelToggleButtonProps) {
+    return (
+        <PanelToggleButton
+            {...props}>
+            {props.panelEnabled ?
+                <LuPanelLeftClose /> :
+                <LuPanelLeftOpen />}
+        </PanelToggleButton>
+    );
+}
+
+function RightPanelToggle(props: PanelToggleButtonProps) {
+    return (
+        <PanelToggleButton
+            {...props}>
+            {props.panelEnabled ?
+                <LuPanelRightClose /> :
+                <LuPanelRightOpen />}
+        </PanelToggleButton>
     );
 }
 

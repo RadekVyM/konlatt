@@ -1,8 +1,9 @@
-import { InstancedMesh, Object3D } from "three";
+import { Color, InstancedMesh, Object3D } from "three";
 import { CameraType } from "../../../types/CameraType";
 import { X_SCALE, Y_SCALE, Z_SCALE } from "./constants";
 import { createPoint, Point } from "../../../types/Point";
 import { ConceptLatticeLayout } from "../../../types/ConceptLatticeLayout";
+import { Theme } from "../../../types/Theme";
 
 export function setNodesTransformMatrices(
     instancedMesh: InstancedMesh,
@@ -11,6 +12,7 @@ export function setNodesTransformMatrices(
     diagramOffsets: Array<Point>,
     dragOffset: Point,
     cameraType: CameraType,
+    scale: number = 1,
     tempObject?: Object3D,
 ) {
     const temp = tempObject || new Object3D();
@@ -23,7 +25,7 @@ export function setNodesTransformMatrices(
         const node = layout[layoutIndex];
         const offset = getPoint(diagramOffsets, layoutIndex);
 
-        setupTransform(temp, createPoint(node.x, node.y, node.z), offset, dragOffset, 1, cameraType);
+        setupTransform(temp, createPoint(node.x, node.y, node.z), offset, dragOffset, scale, cameraType);
 
         instancedMesh.setMatrixAt(layoutIndex, temp.matrix);
     }
@@ -76,4 +78,11 @@ export function createRange(length: number) {
     }
 
     return numbers;
+}
+
+export function themedColor(light: Color, dark: Color, theme: Theme) {
+    if (theme === "dark") {
+        return dark;
+    }
+    return light;
 }

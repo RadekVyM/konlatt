@@ -38,9 +38,12 @@ const TOUCHES_3D = {
     three: ACTION.TOUCH_DOLLY,
 } as const;
 
-export default function DiagramCanvas() {
+export default function DiagramCanvas(props: {
+    className?: string,
+}) {
     return (
         <Canvas
+            className={props.className}
             frameloop="demand"
             dpr={[Math.min(0.25, window.devicePixelRatio), window.devicePixelRatio]}
             performance={{
@@ -99,6 +102,8 @@ function CameraController() {
                 dollyToCursor={cameraType === "2d"}
                 draggingSmoothTime={0}
                 truckSpeed={1}
+                maxZoom={9999 / (100 / defaultZoom)}
+                minDistance={1}
                 {...cameraControlsEvents} />
         </>
     )

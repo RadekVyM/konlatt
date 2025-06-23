@@ -1,15 +1,17 @@
 import { PivotControls } from "@react-three/drei";
 import { useLayoutEffect, useMemo, useRef } from "react";
 import { Group, InstancedMesh, Matrix4, Object3D } from "three";
-import { getPoint, transformedPoint } from "./utils";
+import { getPoint, themedColor, transformedPoint } from "./utils";
 import useDiagramStore from "../../../stores/useDiagramStore";
 import { createPoint, Point } from "../../../types/Point";
-import { PRIMARY_COLOR_LIGHT } from "./constants";
+import { PRIMARY_NODE_COLOR_DARK, PRIMARY_NODE_COLOR_LIGHT } from "./constants";
 import { useDiagramOffsets } from "../../../hooks/useDiagramOffsets";
+import useGlobalsStore from "../../../stores/useGlobalsStore";
 
 export default function NodesToMove() {
     const instancedMeshRef = useRef<InstancedMesh>(null);
     const pivotControlsRef = useRef<Group>(null);
+    const currentTheme = useGlobalsStore((state) => state.currentTheme);
     const layout = useDiagramStore((state) => state.layout);
     const diagramOffsets = useDiagramStore((state) => state.diagramOffsets);
     const dragOffset = useDiagramStore((state) => state.dragOffset);
@@ -41,7 +43,7 @@ export default function NodesToMove() {
 
             newPoints.push(transformedPoint(
                 createPoint(layoutPoint.x, layoutPoint.y, layoutPoint.z),
-                getPoint(diagramOffsets, conceptIndex),
+                getPoint(diagramOffsets, layoutIndex),
                 dragOffset,
                 cameraType));
         }
@@ -75,6 +77,8 @@ export default function NodesToMove() {
             (maxY + minY) / 2,
             (maxZ + minZ) / 2);
         pivotControlsRef.current.updateMatrix();
+        // This dependency array needs to be like this
+        // This effect cannot be run on dragOffset changes
     }, [conceptsToMoveIndexes, layout, cameraType, diagramOffsets]);
 
     useLayoutEffect(() => {
@@ -136,7 +140,7 @@ export default function NodesToMove() {
                 <meshBasicMaterial
                     opacity={0.3}
                     transparent
-                    color={PRIMARY_COLOR_LIGHT} />
+                    color={themedColor(PRIMARY_NODE_COLOR_LIGHT, PRIMARY_NODE_COLOR_DARK, currentTheme)} />
             </instancedMesh>
         </>
     );

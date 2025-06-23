@@ -1,12 +1,14 @@
 import { DoubleSide, InstancedMesh, Object3D, Shape, Vector3 } from "three";
 import { useLayoutEffect, useMemo, useRef } from "react";
-import { getPoint, transformedPoint } from "./utils";
+import { getPoint, themedColor, transformedPoint } from "./utils";
 import useDiagramStore from "../../../stores/useDiagramStore";
 import useDataStructuresStore from "../../../stores/useDataStructuresStore";
 import { createPoint, Point } from "../../../types/Point";
 import { CameraType } from "../../../types/CameraType";
-import { LINE_WIDTH } from "./constants";
+import { LINE_WIDTH, OPAQUE_DIM_LINK_COLOR_DARK, OPAQUE_DIM_LINK_COLOR_LIGHT, OPAQUE_HIGHLIGHTED_LINK_COLOR_DARK, OPAQUE_HIGHLIGHTED_LINK_COLOR_LIGHT, OPAQUE_LINK_COLOR_DARK, OPAQUE_LINK_COLOR_LIGHT, SEMITRANSPARENT_DIM_LINK_COLOR_DARK, SEMITRANSPARENT_DIM_LINK_COLOR_LIGHT, SEMITRANSPARENT_HIGHLIGHTED_LINK_COLOR_DARK, SEMITRANSPARENT_HIGHLIGHTED_LINK_COLOR_LIGHT, SEMITRANSPARENT_LINK_COLOR_DARK, SEMITRANSPARENT_LINK_COLOR_LIGHT } from "./constants";
 import { ConceptLatticeLayout } from "../../../types/ConceptLatticeLayout";
+import useGlobalsStore from "../../../stores/useGlobalsStore";
+import { useThree } from "@react-three/fiber";
 
 // https://codesandbox.io/p/sandbox/react-three-fiber-poc-segments-with-instancedmesh-and-hightlight-drag-2vcl9i
 const LINE_BASE_SEGMENT = new Shape();
@@ -23,6 +25,8 @@ type Link = {
 }
 
 export default function Links() {
+    const instancedMeshRef = useRef<InstancedMesh>(null);
+    const currentTheme = useGlobalsStore((state) => state.currentTheme);
     const subconceptsMapping = useDataStructuresStore((state) => state.lattice?.subconceptsMapping);
     const layout = useDiagramStore((state) => state.layout);
     const visibleConceptIndexes = useDiagramStore((state) => state.visibleConceptIndexes);
@@ -33,7 +37,7 @@ export default function Links() {
     const cameraType = useDiagramStore((state) => state.cameraType);
     const linksVisibleEnabled = useDiagramStore((state) => state.linksVisibleEnabled);
     const semitransparentLinksEnabled = useDiagramStore((state) => state.semitransparentLinksEnabled);
-    const instancedMeshRef = useRef<InstancedMesh>(null);
+    const invalidate = useThree((state) => state.invalidate);
 
     const links = useMemo(() => {
         const links = new Array<Link>();
@@ -73,7 +77,7 @@ export default function Links() {
 
         const conceptToLayoutIndexesMapping = useDiagramStore.getState().conceptToLayoutIndexesMapping;
 
-        setLinksTransformMatrices2(
+        setLinksTransformMatrices(
             instancedMeshRef.current,
             conceptToLayoutIndexesMapping,
             links,
@@ -91,7 +95,7 @@ export default function Links() {
 
         const conceptToLayoutIndexesMapping = useDiagramStore.getState().conceptToLayoutIndexesMapping;
 
-        setLinksTransformMatrices2(
+        setLinksTransformMatrices(
             instancedMeshRef.current,
             conceptToLayoutIndexesMapping,
             selectedLinks,
@@ -102,6 +106,39 @@ export default function Links() {
             cameraType);
     }, [selectedLinks, layout, subconceptsMapping, conceptsToMoveIndexes, dragOffset, cameraType, diagramOffsets]);
 
+    useLayoutEffect(() => {
+        if (displayHighlightedSublatticeOnly || !visibleConceptIndexes || visibleConceptIndexes.size === 0) {
+            const defaultColor = semitransparentLinksEnabled ?
+                themedColor(SEMITRANSPARENT_LINK_COLOR_LIGHT, SEMITRANSPARENT_LINK_COLOR_DARK, currentTheme) :
+                themedColor(OPAQUE_LINK_COLOR_LIGHT, OPAQUE_LINK_COLOR_DARK, currentTheme);
+
+            for (const link of links) {
+                instancedMeshRef.current?.setColorAt(link.linkId, defaultColor);
+            }
+        }
+        else {
+            const dimColor = semitransparentLinksEnabled ?
+                themedColor(SEMITRANSPARENT_DIM_LINK_COLOR_LIGHT, SEMITRANSPARENT_DIM_LINK_COLOR_DARK, currentTheme) :
+                themedColor(OPAQUE_DIM_LINK_COLOR_LIGHT, OPAQUE_DIM_LINK_COLOR_DARK, currentTheme);
+            const highlightedColor = semitransparentLinksEnabled ?
+                themedColor(SEMITRANSPARENT_HIGHLIGHTED_LINK_COLOR_LIGHT, SEMITRANSPARENT_HIGHLIGHTED_LINK_COLOR_DARK, currentTheme) :
+                themedColor(OPAQUE_HIGHLIGHTED_LINK_COLOR_LIGHT, OPAQUE_HIGHLIGHTED_LINK_COLOR_DARK, currentTheme);
+
+            for (const link of links) {
+                const color = visibleConceptIndexes.has(link.conceptIndex) && visibleConceptIndexes.has(link.subconceptIndex) ?
+                    highlightedColor :
+                    dimColor;
+
+                instancedMeshRef.current?.setColorAt(link.linkId, color);
+            }
+        }
+
+        if (instancedMeshRef.current?.instanceColor) {
+            instancedMeshRef.current.instanceColor.needsUpdate = true;
+            invalidate();
+        }
+    }, [links, visibleConceptIndexes, displayHighlightedSublatticeOnly, semitransparentLinksEnabled, currentTheme]);
+
     return (
         <instancedMesh
             ref={instancedMeshRef}
@@ -111,19 +148,17 @@ export default function Links() {
             <shapeGeometry args={[LINE_BASE_SEGMENT]} />
             {semitransparentLinksEnabled ? 
                 <meshBasicMaterial
-                    color="#a8a8a8"
                     transparent
                     opacity={0.3}
                     side={DoubleSide} /> :
                 <meshBasicMaterial
-                    color="#e3e3e3"
-                    opacity={1}
-                    side={DoubleSide} />}
+                    side={DoubleSide}
+                    color={"#ffffff"} />}
         </instancedMesh>
     );
 }
 
-function setLinksTransformMatrices2(
+function setLinksTransformMatrices(
     instancedMesh: InstancedMesh,
     conceptToLayoutIndexesMapping: Map<number, number>,
     links: Iterable<Link>,
@@ -146,11 +181,11 @@ function setLinksTransformMatrices2(
         }
 
         const fromDef = layout[fromIndex];
-        const fromOffset = getPoint(diagramOffsets, conceptIndex);
+        const fromOffset = getPoint(diagramOffsets, fromIndex);
         const from = transformedPoint(createPoint(fromDef.x, fromDef.y, fromDef.z), fromOffset, conceptsToMoveIndexes.has(conceptIndex) ? dragOffset : defaultDragOffset, cameraType);
 
         const toDef = layout[toIndex];
-        const toOffset = getPoint(diagramOffsets, subconceptIndex);
+        const toOffset = getPoint(diagramOffsets, toIndex);
         const to = transformedPoint(createPoint(toDef.x, toDef.y, toDef.z), toOffset, conceptsToMoveIndexes.has(subconceptIndex) ? dragOffset : defaultDragOffset, cameraType);
         const dx = to[0] - from[0];
         const dy = to[1] - from[1];

@@ -7,6 +7,9 @@ import DiagramPage from "./components/pages/DiagramPage";
 import ExplorerPage from "./components/pages/ExplorerPage";
 import FormatsPage from "./components/pages/FormatsPage";
 import RootLayout from "./components/layouts/RootLayout";
+import useMediaQuery from "./hooks/useMediaQuery";
+import { useEffect } from "react";
+import useGlobalsStore from "./stores/useGlobalsStore";
 
 const router = createBrowserRouter([
     {
@@ -47,7 +50,16 @@ const router = createBrowserRouter([
 export default function App() {
     return (
         <>
+            <ThemeController />
             <RouterProvider router={router} />
         </>
     );
+}
+
+function ThemeController() {
+    const isDark = useMediaQuery("(prefers-color-scheme: dark)");
+
+    useEffect(() => useGlobalsStore.getState().setCurrentTheme(isDark ? "dark" : "light"), [isDark]);
+
+    return undefined;
 }
