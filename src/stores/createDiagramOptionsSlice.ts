@@ -7,6 +7,8 @@ type DiagramOptionsSliceState = {
     linksVisibleEnabled: boolean,
     semitransparentLinksEnabled: boolean,
     editingEnabled: boolean,
+    antialiasEnabled: boolean,
+    labelsEnabled: boolean,
 }
 
 type DiagramOptionsSliceActions = {
@@ -14,6 +16,8 @@ type DiagramOptionsSliceActions = {
     setMovementRegressionEnabled: (movementRegressionEnabled: boolean) => void,
     setLinksVisibleEnabled: (linksVisibleEnabled: boolean) => void,
     setSemitransparentLinksEnabled: (semitransparentLinksEnabled: boolean) => void,
+    setAntialiasEnabled: (antialiasEnabled: boolean) => void,
+    setLabelsEnabled: (labelsEnabled: boolean) => void,
     setEditingEnabled: React.Dispatch<React.SetStateAction<boolean>>,
 }
 
@@ -24,6 +28,8 @@ export const initialState: DiagramOptionsSliceState = {
     movementRegressionEnabled: false,
     linksVisibleEnabled: true,
     semitransparentLinksEnabled: true,
+    antialiasEnabled: true,
+    labelsEnabled: true,
     editingEnabled: false,
 };
 
@@ -34,6 +40,8 @@ export default function createDiagramOptionsSlice(set: (partial: DiagramStore | 
         setMovementRegressionEnabled: (movementRegressionEnabled: boolean) => set({ movementRegressionEnabled }),
         setLinksVisibleEnabled: (linksVisibleEnabled: boolean) => set({ linksVisibleEnabled }),
         setSemitransparentLinksEnabled: (semitransparentLinksEnabled: boolean) => set({ semitransparentLinksEnabled }),
+        setAntialiasEnabled: (antialiasEnabled: boolean) => set({ antialiasEnabled }),
+        setLabelsEnabled: (labelsEnabled: boolean) => set({ labelsEnabled }),
         setEditingEnabled: (editingEnabled) => set((old) => ({
             editingEnabled: typeof editingEnabled === "function" ?
                 editingEnabled(old.editingEnabled) :

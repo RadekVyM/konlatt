@@ -182,7 +182,8 @@ export default function Nodes() {
                 frustumCulled={false}
                 onClick={onClick}
                 onPointerMove={onPointerMove}
-                onPointerLeave={onPointerLeave}>
+                onPointerLeave={onPointerLeave}
+                renderOrder={200}>
                 <sphereGeometry args={[0.1, 8, 8]}/>
                 <meshBasicMaterial />
             </instancedMesh>

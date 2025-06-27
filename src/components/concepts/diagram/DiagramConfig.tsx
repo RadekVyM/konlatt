@@ -12,10 +12,14 @@ export default function DiagramConfig() {
     const cameraType = useDiagramStore((state) => state.cameraType);
     const linksVisibleEnabled = useDiagramStore((state) => state.linksVisibleEnabled);
     const semitransparentLinksEnabled = useDiagramStore((state) => state.semitransparentLinksEnabled);
+    const antialiasEnabled = useDiagramStore((state) => state.antialiasEnabled);
+    const labelsEnabled = useDiagramStore((state) => state.labelsEnabled);
     const setDisplayHighlightedSublatticeOnly = useDiagramStore((state) => state.setDisplayHighlightedSublatticeOnly);
     const setCameraType = useDiagramStore((state) => state.setCameraType);
     const setLinksVisibleEnabled = useDiagramStore((state) => state.setLinksVisibleEnabled);
     const setSemitransparentLinksEnabled = useDiagramStore((state) => state.setSemitransparentLinksEnabled);
+    const setAntialiasEnabled = useDiagramStore((state) => state.setAntialiasEnabled);
+    const setLabelsEnabled = useDiagramStore((state) => state.setLabelsEnabled);
 
     return (
         <>
@@ -50,6 +54,16 @@ export default function DiagramConfig() {
                         checked={semitransparentLinksEnabled}
                         onChange={(e) => setSemitransparentLinksEnabled(e.currentTarget.checked)}>
                         Semitransparent links
+                    </ToggleSwitch>
+                    <ToggleSwitch
+                        checked={labelsEnabled}
+                        onChange={(e) => setLabelsEnabled(e.currentTarget.checked)}>
+                        Labels
+                    </ToggleSwitch>
+                    <ToggleSwitch
+                        checked={antialiasEnabled}
+                        onChange={(e) => setAntialiasEnabled(e.currentTarget.checked)}>
+                        Smooth edges (antialiasing)
                     </ToggleSwitch>
                 </section>
 

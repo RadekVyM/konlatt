@@ -9,6 +9,7 @@ import NodesToMove from "./NodesToMove";
 import { ZoomActionsContext } from "../../../contexts/ZoomActionsContext";
 import { transformedPoint } from "./utils";
 import { createPoint } from "../../../types/Point";
+import Labels from "./Labels";
 
 const { ACTION } = CameraControlsImpl;
 
@@ -41,10 +42,17 @@ const TOUCHES_3D = {
 export default function DiagramCanvas(props: {
     className?: string,
 }) {
+    const antialiasEnabled = useDiagramStore((state) => state.antialiasEnabled);
+
     return (
         <Canvas
+            key={`${antialiasEnabled}`}
             className={props.className}
             frameloop="demand"
+            flat
+            gl={{
+                antialias: antialiasEnabled,
+            }}
             dpr={[Math.min(0.25, window.devicePixelRatio), window.devicePixelRatio]}
             performance={{
                 min: 0.25,
@@ -120,9 +128,11 @@ function Content() {
             <Links
                 key={`${semitransparentLinksEnabled}-links`} />
 
+            <Labels />
+
             <Nodes
                 key={`${layoutId}-nodes`} />
-            
+
             <NodesToMove
                 key={`${layoutId}-nodes-to-move`} />
         </>
