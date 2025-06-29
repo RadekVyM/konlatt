@@ -3,7 +3,7 @@
 
 @layer components {
   .btn {
-    @apply flex items-center gap-2 rounded-md w-fit transition-colors disabled:opacity-50 disabled:pointer-events-none cursor-pointer;
+    @apply flex items-center gap-2 rounded-md w-fit transition-colors disabled:opacity-50 disabled:pointer-events-none cursor-pointer select-none;
   }
 
   .btn-icon {

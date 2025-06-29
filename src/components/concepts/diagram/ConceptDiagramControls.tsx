@@ -1,7 +1,7 @@
-import { LuEye, LuEyeOff, LuScanSearch } from "react-icons/lu";
+import { LuScanSearch } from "react-icons/lu";
 import Button from "../../inputs/Button";
 import ToggleSwitch from "../../inputs/ToggleSwitch";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import useDiagramStore from "../../../stores/useDiagramStore";
 import { ZoomActionsContext } from "../../../contexts/ZoomActionsContext";
 import useDataStructuresStore from "../../../stores/useDataStructuresStore";
@@ -35,18 +35,9 @@ export default function ConceptDiagramControls(props: {
 function Buttons(props: {
     conceptIndex: number,
 }) {
-    const [isHidden, setIsHidden] = useState<boolean>(false);
-
     return (
         <div
             className="flex gap-2 mt-2.5 px-4">
-            <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => setIsHidden((old) => !old)}>
-                {isHidden ? <LuEye /> : <LuEyeOff />}
-                {isHidden ? "Saturate" : "Desaturate"}
-            </Button>
             <FocusButton
                 conceptIndex={props.conceptIndex} />
         </div>

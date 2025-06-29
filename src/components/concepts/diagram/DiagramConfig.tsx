@@ -5,26 +5,10 @@ import NumberInput from "../../inputs/NumberInput";
 import useDiagramStore from "../../../stores/useDiagramStore";
 
 export default function DiagramConfig() {
-    const [selectedLayoutMethod, setSelectedLayoutMethod] = useState<string>("layered");
-    const [horizontalNodesDistance, setHorizontalNodesDistance] = useState<number>(1);
-    const [verticalNodesDistance, setVerticalNodesDistance] = useState<number>(1);
-    const displayHighlightedSublatticeOnly = useDiagramStore((state) => state.displayHighlightedSublatticeOnly);
-    const cameraType = useDiagramStore((state) => state.cameraType);
-    const linksVisibleEnabled = useDiagramStore((state) => state.linksVisibleEnabled);
-    const semitransparentLinksEnabled = useDiagramStore((state) => state.semitransparentLinksEnabled);
-    const antialiasEnabled = useDiagramStore((state) => state.antialiasEnabled);
-    const labelsEnabled = useDiagramStore((state) => state.labelsEnabled);
-    const setDisplayHighlightedSublatticeOnly = useDiagramStore((state) => state.setDisplayHighlightedSublatticeOnly);
-    const setCameraType = useDiagramStore((state) => state.setCameraType);
-    const setLinksVisibleEnabled = useDiagramStore((state) => state.setLinksVisibleEnabled);
-    const setSemitransparentLinksEnabled = useDiagramStore((state) => state.setSemitransparentLinksEnabled);
-    const setAntialiasEnabled = useDiagramStore((state) => state.setAntialiasEnabled);
-    const setLabelsEnabled = useDiagramStore((state) => state.setLabelsEnabled);
-
     return (
         <>
             <header
-                className="pb-3 flex flex-col">
+                className="mb-1 flex flex-col">
                 <h2
                     className="mx-4 mb-2 text-lg font-semibold">
                     Configuration
@@ -33,44 +17,82 @@ export default function DiagramConfig() {
 
             <div
                 className="flex-1 overflow-y-auto px-4 pb-4 thin-scrollbar">
-                <section
-                    className="mb-4 flex flex-col gap-2">
-                    <ToggleSwitch
-                        checked={displayHighlightedSublatticeOnly}
-                        onChange={(e) => setDisplayHighlightedSublatticeOnly(e.currentTarget.checked)}>
-                        Display highlighted sublattice only
-                    </ToggleSwitch>
-                    <ToggleSwitch
-                        checked={cameraType === "3d"}
-                        onChange={(e) => setCameraType(e.currentTarget.checked ? "3d" : "2d")}>
-                        3D mode
-                    </ToggleSwitch>
-                    <ToggleSwitch
-                        checked={linksVisibleEnabled}
-                        onChange={(e) => setLinksVisibleEnabled(e.currentTarget.checked)}>
-                        Links visible
-                    </ToggleSwitch>
-                    <ToggleSwitch
-                        checked={semitransparentLinksEnabled}
-                        onChange={(e) => setSemitransparentLinksEnabled(e.currentTarget.checked)}>
-                        Semitransparent links
-                    </ToggleSwitch>
-                    <ToggleSwitch
-                        checked={labelsEnabled}
-                        onChange={(e) => setLabelsEnabled(e.currentTarget.checked)}>
-                        Labels
-                    </ToggleSwitch>
-                    <ToggleSwitch
-                        checked={antialiasEnabled}
-                        onChange={(e) => setAntialiasEnabled(e.currentTarget.checked)}>
-                        Smooth edges (antialiasing)
-                    </ToggleSwitch>
-                </section>
+                <DisplaySection />
 
+                <LayoutSection />
+
+                <NodesLinksSection />
+
+                <PerformanceSection />
+            </div>
+        </>
+    );
+}
+
+function DisplaySection() {
+    const displayHighlightedSublatticeOnly = useDiagramStore((state) => state.displayHighlightedSublatticeOnly);
+    const cameraType = useDiagramStore((state) => state.cameraType);
+    const setDisplayHighlightedSublatticeOnly = useDiagramStore((state) => state.setDisplayHighlightedSublatticeOnly);
+    const setCameraType = useDiagramStore((state) => state.setCameraType);
+
+    return (
+        <Section>
+            <ToggleSwitch
+                checked={cameraType === "3d"}
+                onChange={(e) => setCameraType(e.currentTarget.checked ? "3d" : "2d")}>
+                3D mode
+            </ToggleSwitch>
+            <ToggleSwitch
+                checked={displayHighlightedSublatticeOnly}
+                onChange={(e) => setDisplayHighlightedSublatticeOnly(e.currentTarget.checked)}>
+                Display highlighted sublattice only
+            </ToggleSwitch>
+        </Section>
+    );
+}
+
+function NodesLinksSection() {
+    const linksVisibleEnabled = useDiagramStore((state) => state.linksVisibleEnabled);
+    const semitransparentLinksEnabled = useDiagramStore((state) => state.semitransparentLinksEnabled);
+    const labelsEnabled = useDiagramStore((state) => state.labelsEnabled);
+    const setLinksVisibleEnabled = useDiagramStore((state) => state.setLinksVisibleEnabled);
+    const setSemitransparentLinksEnabled = useDiagramStore((state) => state.setSemitransparentLinksEnabled);
+    const setLabelsEnabled = useDiagramStore((state) => state.setLabelsEnabled);
+
+    return (
+        <Section
+            heading="Nodes and links">
+            <ToggleSwitch
+                checked={labelsEnabled}
+                onChange={(e) => setLabelsEnabled(e.currentTarget.checked)}>
+                Show labels
+            </ToggleSwitch>
+            <ToggleSwitch
+                checked={linksVisibleEnabled}
+                onChange={(e) => setLinksVisibleEnabled(e.currentTarget.checked)}>
+                Show links
+            </ToggleSwitch>
+            <ToggleSwitch
+                checked={semitransparentLinksEnabled}
+                onChange={(e) => setSemitransparentLinksEnabled(e.currentTarget.checked)}>
+                Semitransparent links
+            </ToggleSwitch>
+        </Section>
+    );
+}
+
+function LayoutSection() {
+    const [selectedLayoutMethod, setSelectedLayoutMethod] = useState<string>("layered");
+    const [horizontalNodesDistance, setHorizontalNodesDistance] = useState<number>(1);
+    const [verticalNodesDistance, setVerticalNodesDistance] = useState<number>(1);
+
+    return (
+        <Section
+            heading="Layout">
+            <div>
                 <label className="text-sm mb-1 block">Layout method</label>
 
                 <ComboBox
-                    className="mb-4"
                     id="diagram-layout-method"
                     items={[
                         { key: "layered", label: "Layered" },
@@ -79,26 +101,67 @@ export default function DiagramConfig() {
                     ]}
                     selectedKey={selectedLayoutMethod}
                     onKeySelectionChange={setSelectedLayoutMethod} />
-
-                <NumberInput
-                    className="mb-2"
-                    label="Vertical nodes distance"
-                    placeholder="1"
-                    min={0.5}
-                    step={0.5}
-                    minimumFractionDigits={1}
-                    value={verticalNodesDistance}
-                    onChange={setVerticalNodesDistance} />
-
-                <NumberInput
-                    label="Horizontal nodes distance"
-                    placeholder="1"
-                    min={0.5}
-                    step={0.5}
-                    minimumFractionDigits={1}
-                    value={horizontalNodesDistance}
-                    onChange={setHorizontalNodesDistance} />
             </div>
-        </>
+
+            <NumberInput
+                label="Vertical nodes distance"
+                id="vertical-nodes-distance"
+                placeholder="1"
+                min={0.5}
+                step={0.5}
+                minimumFractionDigits={1}
+                value={verticalNodesDistance}
+                onChange={setVerticalNodesDistance} />
+
+            <NumberInput
+                label="Horizontal nodes distance"
+                id="horizontal-nodes-distance"
+                placeholder="1"
+                min={0.5}
+                step={0.5}
+                minimumFractionDigits={1}
+                value={horizontalNodesDistance}
+                onChange={setHorizontalNodesDistance} />
+        </Section>
+    );
+}
+
+function PerformanceSection() {
+    const antialiasEnabled = useDiagramStore((state) => state.antialiasEnabled);
+    const movementRegressionEnabled = useDiagramStore((state) => state.movementRegressionEnabled);
+    const setAntialiasEnabled = useDiagramStore((state) => state.setAntialiasEnabled);
+    const setMovementRegressionEnabled = useDiagramStore((state) => state.setMovementRegressionEnabled);
+
+    return (
+        <Section
+            heading="Performance">
+            <ToggleSwitch
+                checked={antialiasEnabled}
+                onChange={(e) => setAntialiasEnabled(e.currentTarget.checked)}>
+                Smooth edges (antialiasing)
+            </ToggleSwitch>
+            <ToggleSwitch
+                checked={movementRegressionEnabled}
+                onChange={(e) => setMovementRegressionEnabled(e.currentTarget.checked)}>
+                Movement regression
+            </ToggleSwitch>
+        </Section>
+    );
+}
+
+function Section(props: {
+    heading?: React.ReactNode,
+    children?: React.ReactNode,
+}) {
+    return (
+        <section
+            className="mb-5 flex flex-col gap-2">
+            {props.heading &&
+                <h3
+                    className="font-semibold">
+                    {props.heading}
+                </h3>}
+            {props.children}
+        </section>
     );
 }

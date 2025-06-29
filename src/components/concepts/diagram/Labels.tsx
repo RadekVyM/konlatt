@@ -44,9 +44,19 @@ function Label(props: Omit<Label, "key">) {
     const isDraggingNodes = useDiagramStore((state) => state.isDraggingNodes);
     const conceptsToMoveIndexes = useDiagramStore((state) => state.conceptsToMoveIndexes);
     const selectedConceptIndex = useDiagramStore((state) => state.selectedConceptIndex);
+    const hoveredConceptIndex = useDiagramStore((state) => state.hoveredConceptIndex);
+    const cameraType = useDiagramStore((state) => state.cameraType);
 
+    const is2D = cameraType === "2d";
     const isVisible = !isDraggingNodes || !conceptsToMoveIndexes.has(props.conceptIndex);
     const isSelected = selectedConceptIndex === props.conceptIndex;
+    const isHovered = hoveredConceptIndex === props.conceptIndex;
+    const isOnTop = is2D || isSelected || isHovered;
+
+    const offset = 0.15;
+    const textPosition: [number, number, number] = [0, props.anchorY === "bottom" ? offset : -offset, 0];
+
+    const renderOrder = isHovered ? 2 : (isSelected || is2D) ? 1 : 0;
 
     return (
         <Billboard
@@ -58,13 +68,14 @@ function Label(props: Omit<Label, "key">) {
                 color={themedColor(LABEL_COLOR_LIGHT, LABEL_COLOR_DARK, currentTheme)}
                 anchorX="center"
                 anchorY={props.anchorY}
+                position={textPosition}
                 textAlign="center"
                 outlineWidth={0.01}
                 outlineColor={themedColor(LABEL_COLOR_DARK, LABEL_COLOR_LIGHT, currentTheme)}
                 fontWeight={600}
                 fontSize={0.09}
-                renderOrder={isSelected ? 1 : 0}>
-                <meshBasicMaterial depthTest={!isSelected} depthWrite={!isSelected} />
+                renderOrder={renderOrder}>
+                <meshBasicMaterial depthTest={!isOnTop} depthWrite={!isOnTop} />
                 {props.text}
             </Text>
         </Billboard>
@@ -110,10 +121,8 @@ function useLabels(
 
             const layoutPoint = layout[layoutIndex];
 
-            const offset = 0.15;
-
             const position = transformedPoint(
-                createPoint(layoutPoint.x, layoutPoint.y + (anchorY === "bottom" ? offset : -offset), layoutPoint.z),
+                createPoint(layoutPoint.x, layoutPoint.y, layoutPoint.z),
                 getPoint(diagramOffsets, layoutIndex),
                 [0, 0, 0],
                 cameraType);

@@ -118,6 +118,13 @@ export default function Nodes() {
             hoverSphereRef.current.position.setFromMatrixPosition(matrix);
             hoverSphereRef.current.visible = true;
             invalidate();
+
+            const diagramStore = useDiagramStore.getState();
+            const conceptIndex = diagramStore.layoutToConceptIndexesMapping.get(e.instanceId);
+
+            if (conceptIndex !== undefined) {
+                diagramStore.setHoveredConceptIndex(conceptIndex);
+            }
         }
         hoveredIdRef.current = e.instanceId;
     }
@@ -128,6 +135,7 @@ export default function Nodes() {
             invalidate();
         }
         hoveredIdRef.current = undefined;
+        useDiagramStore.getState().setHoveredConceptIndex(null);
     }
 
     function onNodeClick(instanceId: number) {

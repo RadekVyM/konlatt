@@ -7,6 +7,7 @@ type R3FCanvasSliceState = {
     isDraggingNodes: boolean,
     dragOffset: Point,
     conceptsToMoveIndexes: Set<number>,
+    hoveredConceptIndex: number | null,
     currentZoomLevel: number,
 }
 
@@ -15,6 +16,7 @@ type R3FCanvasSliceActions = {
     setIsCameraMoving: (isCameraMoving: boolean) => void,
     setDragOffset: (dragOffset: Point) => void,
     setConceptsToMoveIndexes: React.Dispatch<React.SetStateAction<Set<number>>>,
+    setHoveredConceptIndex: (hoveredConceptIndex: number | null) => void,
     setCurrentZoomLevel: (currentZoomLevel: number) => void,
 }
 
@@ -27,27 +29,29 @@ export const initialState: R3FCanvasSliceState = {
     isDraggingNodes: false,
     dragOffset: [0, 0, 0],
     conceptsToMoveIndexes: new Set<number>(),
+    hoveredConceptIndex: null,
     currentZoomLevel: 1,
 };
 
 export default function createR3FCanvasSlice(set: (partial: R3FCanvasSlice | Partial<R3FCanvasSlice> | ((state: R3FCanvasSlice) => R3FCanvasSlice | Partial<R3FCanvasSlice>), replace?: false) => void): R3FCanvasSlice {
     return {
         ...initialState,
-        setIsDraggingNodes: (isDraggingNodes: boolean) => set((old) => ({
+        setIsDraggingNodes: (isDraggingNodes) => set((old) => ({
             isDraggingNodes,
             cameraControlsEnabled: !isDraggingNodes,
             eventsEnabled: !old.isCameraMoving && !isDraggingNodes,
         })),
-        setIsCameraMoving: (isCameraMoving: boolean) => set((old) => ({
+        setIsCameraMoving: (isCameraMoving) => set((old) => ({
             isCameraMoving,
             eventsEnabled: !isCameraMoving && !old.isDraggingNodes,
         })),
-        setDragOffset: (dragOffset: Point) => set(() => ({ dragOffset })),
+        setDragOffset: (dragOffset) => set(() => ({ dragOffset })),
         setConceptsToMoveIndexes: (conceptsToMoveIndexes) => set((old) => ({
             conceptsToMoveIndexes: typeof conceptsToMoveIndexes === "function" ?
                 conceptsToMoveIndexes(old.conceptsToMoveIndexes) :
                 conceptsToMoveIndexes
         })),
-        setCurrentZoomLevel: (currentZoomLevel: number) => set({ currentZoomLevel }),
+        setHoveredConceptIndex: (hoveredConceptIndex) => set({ hoveredConceptIndex }),
+        setCurrentZoomLevel: (currentZoomLevel) => set({ currentZoomLevel }),
     };
 }

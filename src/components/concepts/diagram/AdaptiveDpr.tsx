@@ -1,14 +1,16 @@
-// based on: https://github.com/pmndrs/drei/blob/master/src/core/AdaptiveDpr.tsx
+import { useThree } from "@react-three/fiber";
+import { useEffect } from "react";
+import useDiagramStore from "../../../stores/useDiagramStore";
 
-import { useThree } from "@react-three/fiber"
-import { useEffect } from "react"
-
-export function AdaptiveDpr() {
+export function AdaptiveDprOnMovement() {
     const gl = useThree((state) => state.gl);
     const active = useThree((state) => state.internal.active);
-    const current = useThree((state) => state.performance.current);
+    const minPerformance = useThree((state) => state.performance.min);
     const initialDpr = useThree((state) => state.viewport.initialDpr);
+    const isCameraMoving = useDiagramStore((state) => state.isCameraMoving);
+    const movementRegressionEnabled = useDiagramStore((state) => state.movementRegressionEnabled);
     const setDpr = useThree((state) => state.setDpr);
+
     // Restore initial pixelratio on unmount
     useEffect(() => {
         return () => {
@@ -17,12 +19,17 @@ export function AdaptiveDpr() {
             }
         };
     }, []);
-    // Set adaptive pixelratio
+
     useEffect(() => {
-        setDpr(current * initialDpr);
-        if (gl.domElement) {
-            gl.domElement.style.filter = current === 1 ? "" : `blur(4px)`;
+        if (!movementRegressionEnabled) {
+            return;
         }
-    }, [current]);
+
+        setDpr(isCameraMoving ? minPerformance * initialDpr : initialDpr);
+        if (gl.domElement) {
+            gl.domElement.style.filter = isCameraMoving ? `blur(4px)` : "";
+        }
+    }, [isCameraMoving, movementRegressionEnabled]);
+
     return undefined;
 }

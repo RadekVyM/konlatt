@@ -3,7 +3,7 @@ import useDiagramStore from "../../../stores/useDiagramStore";
 import { useContext, useEffect, useRef } from "react";
 import { CameraControls, CameraControlsImpl, OrthographicCamera, PerspectiveCamera } from "@react-three/drei";
 import Nodes from "./Nodes";
-import { AdaptiveDpr } from "./AdaptiveDpr";
+import { AdaptiveDprOnMovement } from "./AdaptiveDpr";
 import Links from "./Links";
 import NodesToMove from "./NodesToMove";
 import { ZoomActionsContext } from "../../../contexts/ZoomActionsContext";
@@ -61,8 +61,7 @@ export default function DiagramCanvas(props: {
 
             <EventsController />
 
-            {/* https://github.com/pmndrs/drei/issues/2052 */}
-            <AdaptiveDpr />
+            <AdaptiveDprOnMovement />
 
             <Content />
         </Canvas>
