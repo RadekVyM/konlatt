@@ -3,7 +3,7 @@ import useDiagramStore from "../../../stores/useDiagramStore";
 import { useContext, useEffect, useRef } from "react";
 import { CameraControls, CameraControlsImpl, OrthographicCamera, PerspectiveCamera } from "@react-three/drei";
 import Nodes from "./Nodes";
-import { AdaptiveDprOnMovement } from "./AdaptiveDpr";
+import { AdaptiveDprOnMovement } from "./AdaptiveDprOnMovement";
 import Links from "./Links";
 import NodesToMove from "./NodesToMove";
 import { ZoomActionsContext } from "../../../contexts/ZoomActionsContext";
@@ -43,6 +43,7 @@ export default function DiagramCanvas(props: {
     className?: string,
 }) {
     const antialiasEnabled = useDiagramStore((state) => state.antialiasEnabled);
+    const canvasEvents = useCanvasEvents();
 
     return (
         <Canvas
@@ -56,7 +57,8 @@ export default function DiagramCanvas(props: {
             dpr={[Math.min(0.25, window.devicePixelRatio), window.devicePixelRatio]}
             performance={{
                 min: 0.25,
-            }}>
+            }}
+            {...canvasEvents}>
             <CameraController />
 
             <EventsController />
@@ -194,6 +196,29 @@ function useCameraControlsEvents(
         onWake,
         onSleep,
         onUpdate,
+    };
+}
+
+function useCanvasEvents() {
+    function onPointerMissed() {
+        const diagramStore = useDiagramStore.getState();
+
+        if (diagramStore.editingEnabled) {
+            // Testing for diagramStore.isDraggingNodes is needed
+            // because clicking PivotControls is detected as onPointerMissed
+            // To make this working, setting diagramStore.isDraggingNodes to false
+            // has to be delayed a bit in the store
+            if (!diagramStore.isDraggingNodes) {
+                diagramStore.setConceptsToMoveIndexes(new Set());
+            }
+        }
+        else {
+            diagramStore.setSelectedConceptIndex(null);
+        }
+    }
+
+    return {
+        onPointerMissed,
     };
 }
 

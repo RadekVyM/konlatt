@@ -42,7 +42,7 @@ export default function ExportDialog(props: {
             state={dialogState}
             heading="Export"
             className="fullscreen-dialog-content w-full h-full rounded-none bg-surface"
-            outerClassName="fullscreen-dialog p-0"
+            outerClassName="fullscreen-dialog p-0 backdrop:backdrop-blur-none"
             notHideOnSubsequentLoads={true}
             onCloseClick={() => navigate(-1)}>
             <div

@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef } from "react";
-import { Color, InstancedMesh, Matrix4, Mesh } from "three";
+import { InstancedMesh, Matrix4, Mesh } from "three";
 import { ThreeEvent, useThree } from "@react-three/fiber";
-import { NODE_COLOR_DARK, NODE_COLOR_LIGHT, PRIMARY_NODE_COLOR_DARK, PRIMARY_NODE_COLOR_LIGHT } from "./constants";
+import { DIM_NODE_COLOR_DARK, DIM_NODE_COLOR_LIGHT, NODE_COLOR_DARK, NODE_COLOR_LIGHT, PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT } from "./constants";
 import useDiagramStore from "../../../stores/useDiagramStore";
 import { createRange, setNodesTransformMatrices, themedColor } from "./utils";
 import useGlobalsStore from "../../../stores/useGlobalsStore";
@@ -15,7 +15,6 @@ export default function Nodes() {
     const instancedMeshRef = useRef<InstancedMesh>(null);
     const hoverSphereRef = useRef<Mesh>(null);
     const hoveredIdRef = useRef<number | undefined>(undefined);
-    const prevSelectedConceptIndexRef = useRef<number | null>(null);
     const currentTheme = useGlobalsStore((state) => state.currentTheme);
     const layout = useDiagramStore((state) => state.layout);
     const diagramOffsets = useDiagramStore((state) => state.diagramOffsets);
@@ -23,24 +22,36 @@ export default function Nodes() {
     const selectedConceptIndex = useDiagramStore((state) => state.selectedConceptIndex);
     const conceptsToMoveIndexes = useDiagramStore((state) => state.conceptsToMoveIndexes);
     const visibleConceptIndexes = useDiagramStore((state) => state.visibleConceptIndexes);
+    const filteredConceptIndexes = useDiagramStore((state) => state.filteredConceptIndexes);
     const displayHighlightedSublatticeOnly = useDiagramStore((state) => state.displayHighlightedSublatticeOnly);
     const cameraType = useDiagramStore((state) => state.cameraType);
     const invalidate = useThree((state) => state.invalidate);
 
     useLayoutEffect(() => {
+        const layoutToConceptIndexesMapping = useDiagramStore.getState().layoutToConceptIndexesMapping;
+
         if (!layout) {
             return;
         }
 
-        for (let i = 0; i < layout.length; i++) {
-            instancedMeshRef.current?.setColorAt(
-                i,
-                themedColor(NODE_COLOR_LIGHT, NODE_COLOR_DARK, currentTheme));
+        for (let layoutIndex = 0; layoutIndex < layout.length; layoutIndex++) {
+            const conceptIndex = layoutToConceptIndexesMapping.get(layoutIndex);
+            const isSelected = conceptIndex === selectedConceptIndex;
+            const isFilteredOut = conceptIndex !== undefined && filteredConceptIndexes && !filteredConceptIndexes.has(conceptIndex);
+
+            const color = isSelected ?
+                themedColor(PRIMARY_COLOR_LIGHT, PRIMARY_COLOR_DARK, currentTheme) :
+                isFilteredOut ?
+                    themedColor(DIM_NODE_COLOR_LIGHT, DIM_NODE_COLOR_DARK, currentTheme) :
+                    themedColor(NODE_COLOR_LIGHT, NODE_COLOR_DARK, currentTheme);
+
+            instancedMeshRef.current?.setColorAt(layoutIndex, color);
         }
         if (instancedMeshRef.current?.instanceColor) {
             instancedMeshRef.current.instanceColor.needsUpdate = true;
+            invalidate();
         }
-    }, [layout, currentTheme]);
+    }, [layout, selectedConceptIndex, filteredConceptIndexes, currentTheme]);
 
     useLayoutEffect(() => {
         if (!instancedMeshRef.current || !layout || !diagramOffsets) {
@@ -83,21 +94,6 @@ export default function Nodes() {
 
         invalidate();
     }, [conceptsToMoveIndexes, dragOffset, layout, cameraType, diagramOffsets, visibleConceptIndexes, displayHighlightedSublatticeOnly]);
-
-    useLayoutEffect(() => {
-        if (prevSelectedConceptIndexRef.current !== null) {
-            setConceptNodeColor(
-                prevSelectedConceptIndexRef.current,
-                themedColor(NODE_COLOR_LIGHT, NODE_COLOR_DARK, currentTheme));
-        }
-        if (selectedConceptIndex !== null) {
-            setConceptNodeColor(
-                selectedConceptIndex,
-                themedColor(PRIMARY_NODE_COLOR_LIGHT, PRIMARY_NODE_COLOR_DARK, currentTheme));
-        }
-        prevSelectedConceptIndexRef.current = selectedConceptIndex;
-        invalidate();
-    }, [selectedConceptIndex, currentTheme]);
 
     function onClick(e: ThreeEvent<MouseEvent>) {
         if (e.eventObject.name === HOVERED_MESH_NAME && hoveredIdRef.current !== undefined) {
@@ -163,20 +159,6 @@ export default function Nodes() {
         }
     }
 
-    function setConceptNodeColor(conceptIndex: number, color: Color) {
-        const conceptToLayoutIndexesMapping = useDiagramStore.getState().conceptToLayoutIndexesMapping;
-        const instanceId = conceptToLayoutIndexesMapping.get(conceptIndex);
-
-        if (instanceId === undefined) {
-            return;
-        }
-
-        instancedMeshRef.current?.setColorAt(instanceId, color);
-        if (instancedMeshRef.current?.instanceColor) {
-            instancedMeshRef.current.instanceColor.needsUpdate = true;
-        }
-    }
-
     // When I change number of instances, onClick stops working
     // Only thing that fixes that is adding a key to the Nodes element
     // https://github.com/pmndrs/react-three-fiber/issues/1937
@@ -205,7 +187,7 @@ export default function Nodes() {
                 <meshBasicMaterial
                     opacity={0.3}
                     transparent
-                    color={themedColor(PRIMARY_NODE_COLOR_LIGHT, PRIMARY_NODE_COLOR_DARK, currentTheme)} />
+                    color={themedColor(PRIMARY_COLOR_LIGHT, PRIMARY_COLOR_DARK, currentTheme)} />
             </mesh>
         </>
     );

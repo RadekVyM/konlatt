@@ -38,7 +38,7 @@ export function Dialog(props: {
                 }}
                 className={cn("w-full h-full max-w-full max-h-full p-5 safe-area overflow-clip",
                     "grid items-center",
-                    "bg-transparent backdrop:backdrop-blur-md backdrop:bg-[rgba(27,30,39,0.5)] dark:backdrop:bg-[rgba(23,25,32,0.8)]",
+                    "bg-transparent backdrop:backdrop-blur-sm backdrop:bg-[rgba(27,30,39,0.5)] dark:backdrop:bg-[rgba(23,25,32,0.8)]",
                     "window-controls-overlay:backdrop:bg-transparent",
                     props.outerClassName,
                     props.state.animationClass)}>

@@ -35,7 +35,9 @@ export default function NumberInput({ className, inputClassName, id, label, mini
                     }
                 }}
                 size={1}
-                className={cn("text-sm bg-surface-light-dim-container hover:bg-surface-dim-container border border-surface-light-dim-container hover:border-outline px-2 py-1.5 rounded-md w-full h-full", inputClassName)}
+                className={cn(
+                    "text-sm bg-surface-light-dim-container hover:bg-surface-dim-container border border-surface-light-dim-container hover:border-outline px-2 py-1.5 rounded-md w-full",
+                    inputClassName)}
                 {...rest} />
         </div>
     );

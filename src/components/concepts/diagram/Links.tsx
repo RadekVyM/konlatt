@@ -22,6 +22,7 @@ type Link = {
     conceptIndex: number,
     subconceptIndex: number,
     linkId: number,
+    isHighlighted: boolean,
 }
 
 export default function Links() {
@@ -58,6 +59,7 @@ export default function Links() {
                     conceptIndex: node.conceptIndex,
                     subconceptIndex,
                     linkId: i,
+                    isHighlighted: !!visibleConceptIndexes && visibleConceptIndexes.has(node.conceptIndex) && visibleConceptIndexes.has(subconceptIndex),
                 });
                 i++;
             }
@@ -125,7 +127,7 @@ export default function Links() {
                 themedColor(OPAQUE_HIGHLIGHTED_LINK_COLOR_LIGHT, OPAQUE_HIGHLIGHTED_LINK_COLOR_DARK, currentTheme);
 
             for (const link of links) {
-                const color = visibleConceptIndexes.has(link.conceptIndex) && visibleConceptIndexes.has(link.subconceptIndex) ?
+                const color = link.isHighlighted ?
                     highlightedColor :
                     dimColor;
 
@@ -172,7 +174,7 @@ function setLinksTransformMatrices(
     const initialDirection = new Vector3(1, 0, 0);
     const defaultDragOffset: Point = [0, 0, 0];
 
-    for (const { conceptIndex, subconceptIndex, linkId } of links) {
+    for (const { conceptIndex, subconceptIndex, linkId, isHighlighted } of links) {
         const fromIndex = conceptToLayoutIndexesMapping.get(conceptIndex);
         const toIndex = conceptToLayoutIndexesMapping.get(subconceptIndex);
 
@@ -180,13 +182,15 @@ function setLinksTransformMatrices(
             continue;
         }
 
+        const zOffset = isHighlighted ? 0.001 : 0;
+
         const fromDef = layout[fromIndex];
         const fromOffset = getPoint(diagramOffsets, fromIndex);
-        const from = transformedPoint(createPoint(fromDef.x, fromDef.y, fromDef.z), fromOffset, conceptsToMoveIndexes.has(conceptIndex) ? dragOffset : defaultDragOffset, cameraType);
+        const from = transformedPoint(createPoint(fromDef.x, fromDef.y, fromDef.z), fromOffset, conceptsToMoveIndexes.has(conceptIndex) ? dragOffset : defaultDragOffset, cameraType, zOffset);
 
         const toDef = layout[toIndex];
         const toOffset = getPoint(diagramOffsets, toIndex);
-        const to = transformedPoint(createPoint(toDef.x, toDef.y, toDef.z), toOffset, conceptsToMoveIndexes.has(subconceptIndex) ? dragOffset : defaultDragOffset, cameraType);
+        const to = transformedPoint(createPoint(toDef.x, toDef.y, toDef.z), toOffset, conceptsToMoveIndexes.has(subconceptIndex) ? dragOffset : defaultDragOffset, cameraType, zOffset);
         const dx = to[0] - from[0];
         const dy = to[1] - from[1];
         const dz = to[2] - from[2];

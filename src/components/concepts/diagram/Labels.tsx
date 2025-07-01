@@ -107,6 +107,7 @@ function useLabels(
     return useMemo(() => {
         const conceptToLayoutIndexesMapping = useDiagramStore.getState().conceptToLayoutIndexesMapping;
         const newLabels = new Array<Label>();
+        const zOffset = cameraType === "2d" ? 0.002 : 0;
 
         if (!labels || !labeling || !layout || !diagramOffsets || conceptToLayoutIndexesMapping.size !== layout.length) {
             return newLabels;
@@ -125,7 +126,8 @@ function useLabels(
                 createPoint(layoutPoint.x, layoutPoint.y, layoutPoint.z),
                 getPoint(diagramOffsets, layoutIndex),
                 [0, 0, 0],
-                cameraType);
+                cameraType,
+                zOffset);
 
             const text = createLabelText(labelIndexes, labels);
 

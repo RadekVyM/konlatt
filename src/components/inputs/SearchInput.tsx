@@ -1,5 +1,6 @@
 import { LuCircleX } from "react-icons/lu";
 import { cn } from "../../utils/tailwind";
+import Button from "./Button";
 
 export default function SearchInput(props: {
     className?: string,
@@ -24,15 +25,16 @@ export default function SearchInput(props: {
                 className={cn(
                     "disabled:opacity-50 text-sm bg-surface-light-dim-container hover:bg-surface-dim-container border border-surface-light-dim-container hover:border-outline px-2 pr-7 py-1.5 rounded-md w-full h-full",
                     props.inputClassName)} />
-            
+
             {cancelButtonVisible &&
-                <button
-                    className="absolute right-0 mr-2 top-1/2 -translate-y-[50%] cursor-pointer"
+                <Button
+                    className="absolute right-0 top-1/2 -translate-y-[50%]"
+                    variant="plain"
                     title="Clear"
                     disabled={props.disabled}
                     onClick={() => props.onChange("")}>
                     <LuCircleX className="w-4 h-4" />
-                </button>}
+                </Button>}
         </div>
     );
 }

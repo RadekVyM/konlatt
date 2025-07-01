@@ -16,6 +16,8 @@ export const buttonVariants = cva(
                     "btn-secondary",
                 container:
                     "btn-container",
+                plain:
+                    "",
                 "icon-default":
                     "btn-default btn-icon px-0",
                 "icon-destructive":
@@ -26,6 +28,8 @@ export const buttonVariants = cva(
                     "btn-secondary btn-icon px-0",
                 "icon-container":
                     "btn-container btn-icon px-0",
+                "icon-plain":
+                    "",
             },
             size: {
                 default: "btn-md",
@@ -35,17 +39,17 @@ export const buttonVariants = cva(
         },
         compoundVariants: [
             {
-                variant: ["icon-container", "icon-default", "icon-destructive", "icon-primary", "icon-secondary"],
+                variant: ["icon-container", "icon-default", "icon-destructive", "icon-primary", "icon-secondary", "icon-plain"],
                 size: "default",
                 className: "min-w-8",
             },
             {
-                variant: ["icon-container", "icon-default", "icon-destructive", "icon-primary", "icon-secondary"],
+                variant: ["icon-container", "icon-default", "icon-destructive", "icon-primary", "icon-secondary", "icon-plain"],
                 size: "sm",
                 className: "min-w-7",
             },
             {
-                variant: ["icon-container", "icon-default", "icon-destructive", "icon-primary", "icon-secondary"],
+                variant: ["icon-container", "icon-default", "icon-destructive", "icon-primary", "icon-secondary", "icon-plain"],
                 size: "lg",
                 className: "min-w-10",
             },

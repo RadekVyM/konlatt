@@ -4,7 +4,7 @@ import { Group, InstancedMesh, Matrix4, Object3D } from "three";
 import { getPoint, themedColor, transformedPoint } from "./utils";
 import useDiagramStore from "../../../stores/useDiagramStore";
 import { createPoint, Point } from "../../../types/Point";
-import { PRIMARY_NODE_COLOR_DARK, PRIMARY_NODE_COLOR_LIGHT } from "./constants";
+import { PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT } from "./constants";
 import { useDiagramOffsets } from "../../../hooks/useDiagramOffsets";
 import useGlobalsStore from "../../../stores/useGlobalsStore";
 
@@ -140,7 +140,7 @@ export default function NodesToMove() {
                 <meshBasicMaterial
                     opacity={0.3}
                     transparent
-                    color={themedColor(PRIMARY_NODE_COLOR_LIGHT, PRIMARY_NODE_COLOR_DARK, currentTheme)} />
+                    color={themedColor(PRIMARY_COLOR_LIGHT, PRIMARY_COLOR_DARK, currentTheme)} />
             </instancedMesh>
         </>
     );
