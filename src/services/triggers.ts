@@ -1,7 +1,7 @@
 import useProjectStore from "../stores/useProjectStore";
 import { ConceptComputationRequest, ContextParsingRequest, LatticeComputationRequest, LayoutComputationRequest } from "../types/WorkerRequest";
 import { ConceptComputationResponse, ContextParsingResponse, LatticeComputationResponse, LayoutComputationResponse } from "../types/WorkerResponse";
-import useDiagramStore from "../stores/useDiagramStore";
+import useDiagramStore from "../stores/diagram/useDiagramStore";
 import useDataStructuresStore from "../stores/useDataStructuresStore";
 import useExplorerStore from "../stores/useExplorerStore";
 import { DiagramLayoutState } from "../types/DiagramLayoutState";

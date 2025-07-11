@@ -1,6 +1,6 @@
 import { createNodeOffsetMemento, NodeOffsetMemento } from "../types/NodeOffsetMemento";
 import { createPoint, Point } from "../types/Point";
-import useDiagramStore from "../stores/useDiagramStore";
+import useDiagramStore from "../stores/diagram/useDiagramStore";
 
 export function useDiagramOffsets() {
     const diagramOffsets = useDiagramStore((state) => state.diagramOffsets);
@@ -56,7 +56,14 @@ export function useDiagramOffsets() {
 
         const layoutIndexes = new Array<number>();
         for (const conceptIndex of conceptIndexes) {
-            layoutIndexes.push(conceptToLayoutIndexesMapping.get(conceptIndex)!);   
+            const layoutIndex = conceptToLayoutIndexesMapping.get(conceptIndex);
+
+            if (layoutIndex === undefined) {
+                console.error(`Layout index should not be ${layoutIndex}`);
+                continue;
+            }
+
+            layoutIndexes.push(layoutIndex);   
         }
 
         const newOffsets = [...diagramOffsets];

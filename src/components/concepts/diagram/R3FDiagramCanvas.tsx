@@ -1,5 +1,5 @@
 import { Canvas, useThree } from "@react-three/fiber";
-import useDiagramStore from "../../../stores/useDiagramStore";
+import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import { useContext, useEffect, useRef } from "react";
 import { CameraControls, CameraControlsImpl, OrthographicCamera, PerspectiveCamera } from "@react-three/drei";
 import Nodes from "./Nodes";
@@ -10,6 +10,9 @@ import { ZoomActionsContext } from "../../../contexts/ZoomActionsContext";
 import { transformedPoint } from "./utils";
 import { createPoint } from "../../../types/Point";
 import Labels from "./Labels";
+import NodesMultiselectionBox from "./NodesMultiselectionBox";
+import { isRightClick } from "../../../utils/html";
+import Grid from "./Grid";
 
 const { ACTION } = CameraControlsImpl;
 
@@ -66,6 +69,8 @@ export default function DiagramCanvas(props: {
             <AdaptiveDprOnMovement />
 
             <Content />
+
+            <NodesMultiselectionBox />
         </Canvas>
     );
 }
@@ -125,6 +130,8 @@ function Content() {
     return (
         <>
             <ambientLight intensity={1} />
+
+            <Grid />
 
             <Links
                 key={`${semitransparentLinksEnabled}-links`} />
@@ -200,7 +207,11 @@ function useCameraControlsEvents(
 }
 
 function useCanvasEvents() {
-    function onPointerMissed() {
+    function onPointerMissed(e: MouseEvent) {
+        if (isRightClick(e)) {
+            return;
+        }
+
         const diagramStore = useDiagramStore.getState();
 
         if (diagramStore.editingEnabled) {
@@ -217,7 +228,12 @@ function useCanvasEvents() {
         }
     }
 
+    function onContextMenuCapture(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+        e.preventDefault();
+    }
+
     return {
+        onContextMenuCapture,
         onPointerMissed,
     };
 }
@@ -243,6 +259,9 @@ function useZoomActionsSetup(
         const layoutIndex = conceptToLayoutIndexesMapping.get(conceptIndex);
 
         if (!layout || !diagramOffsets || layoutIndex === undefined) {
+            if (layoutIndex === undefined) {
+                console.error(`Layout index should not be ${layoutIndex}`);
+            }
             return;
         }
 

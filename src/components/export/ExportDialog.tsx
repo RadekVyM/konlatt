@@ -7,7 +7,7 @@ import ComboBox from "../inputs/ComboBox";
 import Button from "../inputs/Button";
 import { LuCopy, LuDownload } from "react-icons/lu";
 import FormatsButton from "../formats/FormatsButton";
-import useDiagramStore from "../../stores/useDiagramStore";
+import useDiagramStore from "../../stores/diagram/useDiagramStore";
 import useDataStructuresStore from "../../stores/useDataStructuresStore";
 
 const DEFAULT_FORMAT = "json";

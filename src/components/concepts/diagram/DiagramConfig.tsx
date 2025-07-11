@@ -2,7 +2,7 @@ import { useState } from "react";
 import ComboBox from "../../inputs/ComboBox";
 import ToggleSwitch from "../../inputs/ToggleSwitch";
 import NumberInput from "../../inputs/NumberInput";
-import useDiagramStore from "../../../stores/useDiagramStore";
+import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 
 export default function DiagramConfig() {
     return (

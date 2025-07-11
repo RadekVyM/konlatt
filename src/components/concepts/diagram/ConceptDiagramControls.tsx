@@ -2,7 +2,7 @@ import { LuScanSearch } from "react-icons/lu";
 import Button from "../../inputs/Button";
 import ToggleSwitch from "../../inputs/ToggleSwitch";
 import { useContext } from "react";
-import useDiagramStore from "../../../stores/useDiagramStore";
+import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import { ZoomActionsContext } from "../../../contexts/ZoomActionsContext";
 import useDataStructuresStore from "../../../stores/useDataStructuresStore";
 import { isInfimum, isSupremum } from "../../../types/FormalConcepts";

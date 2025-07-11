@@ -1,4 +1,4 @@
-import useDiagramStore from "../../../stores/useDiagramStore";
+import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import useGlobalsStore from "../../../stores/useGlobalsStore";
 import useDataStructuresStore from "../../../stores/useDataStructuresStore";
 import { useMemo } from "react";

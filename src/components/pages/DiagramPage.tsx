@@ -7,7 +7,7 @@ import useFullscreen from "../../hooks/useFullscreen";
 import { FullscreenState } from "../../types/FullscreenState";
 import DiagramConfig from "../concepts/diagram/DiagramConfig";
 import { ZoomActionsContextProvider } from "../../contexts/ZoomActionsContext";
-import useDiagramStore from "../../stores/useDiagramStore";
+import useDiagramStore from "../../stores/diagram/useDiagramStore";
 import ConceptDiagramControls from "../concepts/diagram/ConceptDiagramControls";
 import DiagramCanvas from "../concepts/diagram/R3FDiagramCanvas";
 import DiagramActions from "../concepts/diagram/DiagramActions";

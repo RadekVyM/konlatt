@@ -2,12 +2,13 @@ import { useLayoutEffect, useRef } from "react";
 import { InstancedMesh, Matrix4, Mesh } from "three";
 import { ThreeEvent, useThree } from "@react-three/fiber";
 import { DIM_NODE_COLOR_DARK, DIM_NODE_COLOR_LIGHT, NODE_COLOR_DARK, NODE_COLOR_LIGHT, PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT } from "./constants";
-import useDiagramStore from "../../../stores/useDiagramStore";
+import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import { createRange, setNodesTransformMatrices, themedColor } from "./utils";
 import useGlobalsStore from "../../../stores/useGlobalsStore";
 import { ConceptLatticeLayout } from "../../../types/ConceptLatticeLayout";
 import { Point } from "../../../types/Point";
 import { CameraType } from "../../../types/CameraType";
+import { isRightClick } from "../../../utils/html";
 
 const HOVERED_MESH_NAME = "hovered_mesh";
 
@@ -96,9 +97,15 @@ export default function Nodes() {
     }, [conceptsToMoveIndexes, dragOffset, layout, cameraType, diagramOffsets, visibleConceptIndexes, displayHighlightedSublatticeOnly]);
 
     function onClick(e: ThreeEvent<MouseEvent>) {
+        if (isRightClick(e)) {
+            // This check is probably not needed
+            return;
+        }
+
+        e.stopPropagation();
+
         if (e.eventObject.name === HOVERED_MESH_NAME && hoveredIdRef.current !== undefined) {
             onNodeClick(hoveredIdRef.current);
-            e.stopPropagation();
             return;
         }
 
@@ -143,7 +150,13 @@ export default function Nodes() {
         }
 
         if (diagramStore.editingEnabled) {
+            const multiselectEnabled = diagramStore.multiselectEnabled;
+
             diagramStore.setConceptsToMoveIndexes((old) => {
+                if (!multiselectEnabled) {
+                    return new Set<number>([conceptIndex]);
+                }
+
                 const newSet = new Set<number>(old);
                 if (newSet.has(conceptIndex)) {
                     newSet.delete(conceptIndex);

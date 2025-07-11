@@ -1,13 +1,13 @@
-import { LuFocus, LuHand, LuLoaderCircle, LuMaximize, LuMinimize, LuMinus, LuPanelBottomClose, LuPanelBottomOpen, LuPanelLeftClose, LuPanelLeftOpen, LuPanelRightClose, LuPanelRightOpen, LuPlus, LuRedo2, LuUndo2 } from "react-icons/lu";
+import { LuFocus, LuHand, LuLoaderCircle, LuMaximize, LuMinimize, LuMinus, LuPanelBottomClose, LuPanelBottomOpen, LuPanelLeftClose, LuPanelLeftOpen, LuPanelRightClose, LuPanelRightOpen, LuPlus, LuRedo2, LuSquareDashedMousePointer, LuUndo2 } from "react-icons/lu";
 import Button from "../../inputs/Button";
 import { cn } from "../../../utils/tailwind";
 import { useContext, useRef } from "react";
 import useEventListener from "../../../hooks/useEventListener";
 import { useDiagramOffsets } from "../../../hooks/useDiagramOffsets";
-import { isCtrlZ, isEditableElement } from "../../../utils/html";
+import { isCtrl, isCtrlZ, isEditableElement } from "../../../utils/html";
 import { FullscreenState } from "../../../types/FullscreenState";
 import ExportButton from "../../export/ExportButton";
-import useDiagramStore from "../../../stores/useDiagramStore";
+import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import useDataStructuresStore from "../../../stores/useDataStructuresStore";
 import { ZoomActionsContext } from "../../../contexts/ZoomActionsContext";
 
@@ -24,6 +24,7 @@ export default function DiagramActions(props: {
     toggleBothPanels: () => void,
 }) {
     const isTemporarilyEditableRef = useRef<boolean>(true);
+    const isTemporarilyMultiselectEnabledRef = useRef<boolean>(true);
     const context = useDataStructuresStore((state) => state.context);
     const lattice = useDataStructuresStore((state) => state.lattice);
     const concepts = useDataStructuresStore((state) => state.concepts);
@@ -32,7 +33,7 @@ export default function DiagramActions(props: {
 
     const isDiagramRenderable = !!(context && lattice && concepts && layout && diagramOffsets);
 
-    useKeyBoardEvents(isTemporarilyEditableRef);
+    useKeyBoardEvents(isTemporarilyEditableRef, isTemporarilyMultiselectEnabledRef);
 
     return (
         <div
@@ -81,6 +82,8 @@ export default function DiagramActions(props: {
                 <UndoRedoBar />
                 <MoveToggle
                     isTemporarilyEditableRef={isTemporarilyEditableRef} />
+                <MultiselectToggle
+                    isTemporarilyMultiselectEnabledRef={isTemporarilyMultiselectEnabledRef} />
             </div>
 
             <div
@@ -282,32 +285,89 @@ function MoveToggle(props: {
     }
 
     return (
+        <Toggle
+            className={props.className}
+            checked={editingEnabled}
+            onClick={onClick}
+            checkedTitle="Disable node movement"
+            uncheckedTitle="Enable node movement">
+            <LuHand />
+        </Toggle>
+    );
+}
+
+function MultiselectToggle(props: {
+    className?: string,
+    isTemporarilyMultiselectEnabledRef: React.RefObject<boolean>,
+}) {
+    const editingEnabled = useDiagramStore((state) => state.editingEnabled);
+    const multiselectEnabled = useDiagramStore((state) => state.multiselectEnabled);
+    const setMultiselectEnabled = useDiagramStore((state) => state.setMultiselectEnabled);
+
+    function onClick() {
+        setMultiselectEnabled((old) => {
+            props.isTemporarilyMultiselectEnabledRef.current = old;
+            return !old;
+        });
+    }
+
+    if (!editingEnabled) {
+        return undefined;
+    }
+
+    return (
+        <Toggle
+            className={props.className}
+            onClick={onClick}
+            checked={multiselectEnabled}
+            checkedTitle="Disable node multi-selection"
+            uncheckedTitle="Enable node multi-selection">
+            <LuSquareDashedMousePointer />
+        </Toggle>
+    );
+}
+
+function Toggle(props: {
+    checked: boolean,
+    checkedTitle?: string,
+    uncheckedTitle?: string,
+    className?: string,
+    children?: React.ReactNode,
+    onClick?: React.MouseEventHandler<HTMLButtonElement>, 
+}) {
+    return (
         <Button
             className={props.className}
-            variant={editingEnabled ? "icon-primary" : "icon-secondary"}
-            onClick={onClick}
+            variant={props.checked ? "icon-primary" : "icon-secondary"}
+            onClick={props.onClick}
             type="button"
             role="switch"
-            aria-checked={editingEnabled}
-            title={editingEnabled ? "Disable node movement" : "Enable node movement"}>
-            <LuHand />
+            aria-checked={props.checked}
+            title={props.checked ? props.checkedTitle : props.uncheckedTitle}>
+            {props.children}
         </Button>
     );
 }
 
 function useKeyBoardEvents(
     isTemporarilyEditableRef: React.RefObject<boolean>,
+    isTemporarilyMultiselectEnabledRef: React.RefObject<boolean>,
 ) {
     const { undo, redo } = useDiagramOffsets();
     const setEditingEnabled = useDiagramStore((state) => state.setEditingEnabled);
+    const setMultiselectEnabled = useDiagramStore((state) => state.setMultiselectEnabled);
 
     useEventListener("keydown", (event) => {
         if (window.document.activeElement && isEditableElement(window.document.activeElement)) {
             return;
         }
 
-        if (event.ctrlKey && isTemporarilyEditableRef.current) {
+        if (isCtrl(event) && isTemporarilyEditableRef.current) {
             setEditingEnabled(true);
+        }
+
+        if (event.shiftKey && isTemporarilyMultiselectEnabledRef.current) {
+            setMultiselectEnabled(true);
         }
 
         if (isCtrlZ(event)) {
@@ -326,8 +386,11 @@ function useKeyBoardEvents(
         if (window.document.activeElement && isEditableElement(window.document.activeElement)) {
             return;
         }
-        if (!event.ctrlKey && isTemporarilyEditableRef.current) {
+        if (!isCtrl(event) && isTemporarilyEditableRef.current) {
             setEditingEnabled(false);
+        }
+        if (!event.shiftKey && isTemporarilyMultiselectEnabledRef.current) {
+            setMultiselectEnabled(false);
         }
     });
 }

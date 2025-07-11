@@ -1,7 +1,7 @@
 import { DoubleSide, InstancedMesh, Object3D, Shape, Vector3 } from "three";
 import { useLayoutEffect, useMemo, useRef } from "react";
 import { getPoint, themedColor, transformedPoint } from "./utils";
-import useDiagramStore from "../../../stores/useDiagramStore";
+import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import useDataStructuresStore from "../../../stores/useDataStructuresStore";
 import { createPoint, Point } from "../../../types/Point";
 import { CameraType } from "../../../types/CameraType";
@@ -179,6 +179,7 @@ function setLinksTransformMatrices(
         const toIndex = conceptToLayoutIndexesMapping.get(subconceptIndex);
 
         if (fromIndex === undefined || toIndex === undefined || fromIndex >= layout.length || toIndex >= layout.length) {
+            console.error(`Layout indexes should not be ${fromIndex} and ${toIndex}`);
             continue;
         }
 

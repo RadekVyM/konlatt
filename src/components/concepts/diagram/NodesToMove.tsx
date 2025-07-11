@@ -2,7 +2,7 @@ import { PivotControls } from "@react-three/drei";
 import { useLayoutEffect, useMemo, useRef } from "react";
 import { Group, InstancedMesh, Matrix4, Object3D } from "three";
 import { getPoint, themedColor, transformedPoint } from "./utils";
-import useDiagramStore from "../../../stores/useDiagramStore";
+import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import { createPoint, Point } from "../../../types/Point";
 import { PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT } from "./constants";
 import { useDiagramOffsets } from "../../../hooks/useDiagramOffsets";
@@ -36,6 +36,7 @@ export default function NodesToMove() {
             const layoutIndex = conceptToLayoutIndexesMapping.get(conceptIndex);
 
             if (layoutIndex === undefined || layoutIndex >= layout.length) {
+                console.error(`Layout index should not be ${layoutIndex}`);
                 continue;
             }
 
@@ -126,6 +127,7 @@ export default function NodesToMove() {
                 enabled={conceptsToMoveIndexes.size > 0}
                 disableRotations
                 disableScaling
+                depthTest={false}
                 activeAxes={activeAxes}
                 onDragStart={onDragStart}
                 onDrag={onDrag}

@@ -1,6 +1,6 @@
 import { useThree } from "@react-three/fiber";
 import { useEffect } from "react";
-import useDiagramStore from "../../../stores/useDiagramStore";
+import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 
 export function AdaptiveDprOnMovement() {
     const gl = useThree((state) => state.gl);

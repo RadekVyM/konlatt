@@ -1,4 +1,9 @@
-import { Point } from "../types/Point";
+import { Box } from "../../types/Box";
+import { Point } from "../../types/Point";
+import { DiagramStore } from "./useDiagramStore";
+import withCameraControlsEnabled from "./withCameraControlsEnabled";
+import withConceptsToMoveBox from "./withConceptsToMoveBox";
+import withSnapCoords from "./withSnapCoords";
 
 type R3FCanvasSliceState = {
     cameraControlsEnabled: boolean,
@@ -7,6 +12,8 @@ type R3FCanvasSliceState = {
     isDraggingNodes: boolean,
     dragOffset: Point,
     conceptsToMoveIndexes: Set<number>,
+    conceptsToMoveBox: Box | null,
+    snapCoords: [number | null, number | null, number | null],
     hoveredConceptIndex: number | null,
     currentZoomLevel: number,
 }
@@ -29,13 +36,15 @@ export const initialState: R3FCanvasSliceState = {
     isDraggingNodes: false,
     dragOffset: [0, 0, 0],
     conceptsToMoveIndexes: new Set<number>(),
+    conceptsToMoveBox: null,
+    snapCoords: [null, null, null],
     hoveredConceptIndex: null,
     currentZoomLevel: 1,
 };
 
 let isDraggingNodesTimeout: number | null = null;
 
-export default function createR3FCanvasSlice(set: (partial: R3FCanvasSlice | Partial<R3FCanvasSlice> | ((state: R3FCanvasSlice) => R3FCanvasSlice | Partial<R3FCanvasSlice>), replace?: false) => void): R3FCanvasSlice {
+export default function createR3FCanvasSlice(set: (partial: DiagramStore | Partial<DiagramStore> | ((state: DiagramStore) => DiagramStore | Partial<DiagramStore>), replace?: false) => void): R3FCanvasSlice {
     return {
         ...initialState,
         setIsDraggingNodes: (isDraggingNodes) => {
@@ -47,31 +56,30 @@ export default function createR3FCanvasSlice(set: (partial: R3FCanvasSlice | Par
                 // Setting diagramStore.isDraggingNodes to false has to be delayed a bit here.
                 // This is needed because diagramStore.isDraggingNodes value is used 
                 // to determine if PivotControls were clicked in the onPointerMissed handler of DiagramCanvas
-                isDraggingNodesTimeout = setTimeout(() => set((old) => createNewIsDraggingNodesState(isDraggingNodes, old)), 10);
+                isDraggingNodesTimeout = setTimeout(() => set((old) => createIsDraggingNodesState(isDraggingNodes, old)), 10);
             }
             else {
-                set((old) => createNewIsDraggingNodesState(isDraggingNodes, old));
+                set((old) => createIsDraggingNodesState(isDraggingNodes, old));
             }
         },
         setIsCameraMoving: (isCameraMoving) => set((old) => ({
             isCameraMoving,
             eventsEnabled: !isCameraMoving && !old.isDraggingNodes,
         })),
-        setDragOffset: (dragOffset) => set(() => ({ dragOffset })),
-        setConceptsToMoveIndexes: (conceptsToMoveIndexes) => set((old) => ({
+        setDragOffset: (dragOffset) => set((old) => withSnapCoords({ dragOffset }, old)),
+        setConceptsToMoveIndexes: (conceptsToMoveIndexes) => set((old) => withConceptsToMoveBox({
             conceptsToMoveIndexes: typeof conceptsToMoveIndexes === "function" ?
                 conceptsToMoveIndexes(old.conceptsToMoveIndexes) :
                 conceptsToMoveIndexes
-        })),
+        }, old)),
         setHoveredConceptIndex: (hoveredConceptIndex) => set({ hoveredConceptIndex }),
         setCurrentZoomLevel: (currentZoomLevel) => set({ currentZoomLevel }),
     };
 }
 
-function createNewIsDraggingNodesState(isDraggingNodes: boolean, old: R3FCanvasSlice): Partial<R3FCanvasSlice> {
-    return {
+function createIsDraggingNodesState(isDraggingNodes: boolean, old: DiagramStore): Partial<R3FCanvasSlice> {
+    return withCameraControlsEnabled({
         isDraggingNodes,
-        cameraControlsEnabled: !isDraggingNodes,
         eventsEnabled: !old.isCameraMoving && !isDraggingNodes,
-    };
+    }, old);
 }
