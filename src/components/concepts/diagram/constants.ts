@@ -3,6 +3,9 @@ import { Color } from "three";
 export const PRIMARY_COLOR_LIGHT = new Color("#ed1870");
 export const PRIMARY_COLOR_DARK = new Color("#ed1870");
 
+export const PRIMARY_LITE_COLOR_LIGHT = new Color("#fef0f8");
+export const PRIMARY_LITE_COLOR_DARK = new Color("#290916");
+
 export const LABEL_COLOR_LIGHT = new Color("#010101");
 export const LABEL_COLOR_DARK = new Color("#fefefe");
 

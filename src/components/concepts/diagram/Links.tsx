@@ -1,4 +1,4 @@
-import { DoubleSide, InstancedMesh, Object3D, Shape, Vector3 } from "three";
+import { DoubleSide, FrontSide, InstancedMesh, LineCurve3, Object3D, Shape, Vector3 } from "three";
 import { useLayoutEffect, useMemo, useRef } from "react";
 import { getPoint, themedColor, transformedPoint } from "./utils";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
@@ -18,10 +18,13 @@ LINE_BASE_SEGMENT.lineTo(1, -0.5);
 LINE_BASE_SEGMENT.lineTo(0, -0.5);
 LINE_BASE_SEGMENT.lineTo(0, 0.5);
 
+const TUBE_LINE_CURVE = new LineCurve3(new Vector3(0, 0, 0), new Vector3(1, 0, 0));
+
 type Link = {
     conceptIndex: number,
     subconceptIndex: number,
     linkId: number,
+    isVisible: boolean,
     isHighlighted: boolean,
 }
 
@@ -38,9 +41,15 @@ export default function Links() {
     const cameraType = useDiagramStore((state) => state.cameraType);
     const linksVisibleEnabled = useDiagramStore((state) => state.linksVisibleEnabled);
     const semitransparentLinksEnabled = useDiagramStore((state) => state.semitransparentLinksEnabled);
+    const flatLinksEnabled = useDiagramStore((state) => state.flatLinksEnabled);
+    const hoveredConceptIndex = useDiagramStore((state) => state.hoveredConceptIndex);
+    const hoveredLinksHighlightingEnabled = useDiagramStore((state) => state.hoveredLinksHighlightingEnabled);
     const invalidate = useThree((state) => state.invalidate);
 
-    const links = useMemo(() => {
+    const noHighlightedLinks = (displayHighlightedSublatticeOnly || !visibleConceptIndexes || visibleConceptIndexes.size === 0) &&
+        (!hoveredLinksHighlightingEnabled || hoveredConceptIndex === null);
+
+    const prepLinks = useMemo(() => {
         const links = new Array<Link>();
 
         if (!layout || !subconceptsMapping) {
@@ -55,22 +64,44 @@ export default function Links() {
                     continue;
                 }
 
+                const isVisible = !!visibleConceptIndexes && visibleConceptIndexes.has(node.conceptIndex) && visibleConceptIndexes.has(subconceptIndex);
+
                 links.push({
                     conceptIndex: node.conceptIndex,
                     subconceptIndex,
                     linkId: i,
-                    isHighlighted: !!visibleConceptIndexes && visibleConceptIndexes.has(node.conceptIndex) && visibleConceptIndexes.has(subconceptIndex),
+                    isVisible,
+                    isHighlighted: isVisible,
                 });
                 i++;
             }
         }
 
         return links;
-    }, [subconceptsMapping, visibleConceptIndexes, displayHighlightedSublatticeOnly, layout]);
+    }, [subconceptsMapping, visibleConceptIndexes, displayHighlightedSublatticeOnly, layout, hoveredLinksHighlightingEnabled]);
+
+    // This is here to reduce CPU to GPU trafic when hoveredConceptIndex changes
+    // and hoveredLinksHighlightingEnabled is false
+    const links = useMemo(() => {
+        if (!hoveredLinksHighlightingEnabled) {
+            return prepLinks;
+        }
+
+        for (const link of prepLinks) {
+            link.isHighlighted = (hoveredConceptIndex === link.conceptIndex || hoveredConceptIndex === link.subconceptIndex) ||
+                (hoveredConceptIndex === null && link.isVisible);
+        }
+
+        return [...prepLinks];
+    }, [prepLinks, hoveredConceptIndex, hoveredLinksHighlightingEnabled]);
 
     const selectedLinks = useMemo(() =>
         links.filter((l) => conceptsToMoveIndexes.has(l.conceptIndex) || conceptsToMoveIndexes.has(l.subconceptIndex)),
     [links, conceptsToMoveIndexes]);
+
+    // When there are lots of links, lots of data has to be transfered to the GPU which takes some time
+    // This is especially noticable on node hovering
+    // TODO: I could use the same hover effect as for nodes to avoid the need to updated instances
 
     useLayoutEffect(() => {
         if (!instancedMeshRef.current || !layout || !diagramOffsets) {
@@ -109,7 +140,9 @@ export default function Links() {
     }, [selectedLinks, layout, subconceptsMapping, conceptsToMoveIndexes, dragOffset, cameraType, diagramOffsets]);
 
     useLayoutEffect(() => {
-        if (displayHighlightedSublatticeOnly || !visibleConceptIndexes || visibleConceptIndexes.size === 0) {
+        console.log("hello", noHighlightedLinks)
+
+        if (noHighlightedLinks) {
             const defaultColor = semitransparentLinksEnabled ?
                 themedColor(SEMITRANSPARENT_LINK_COLOR_LIGHT, SEMITRANSPARENT_LINK_COLOR_DARK, currentTheme) :
                 themedColor(OPAQUE_LINK_COLOR_LIGHT, OPAQUE_LINK_COLOR_DARK, currentTheme);
@@ -139,7 +172,7 @@ export default function Links() {
             instancedMeshRef.current.instanceColor.needsUpdate = true;
             invalidate();
         }
-    }, [links, visibleConceptIndexes, displayHighlightedSublatticeOnly, semitransparentLinksEnabled, currentTheme]);
+    }, [links, noHighlightedLinks, semitransparentLinksEnabled, currentTheme]);
 
     return (
         <instancedMesh
@@ -147,14 +180,17 @@ export default function Links() {
             args={[undefined, undefined, links.length]}
             visible={linksVisibleEnabled}
             frustumCulled={false}>
-            <shapeGeometry args={[LINE_BASE_SEGMENT]} />
+            {flatLinksEnabled || cameraType === "2d" ?
+                <shapeGeometry args={[LINE_BASE_SEGMENT]} /> :
+                <tubeGeometry
+                    args={[TUBE_LINE_CURVE, 1, 0.5, 3, false]} />}
             {semitransparentLinksEnabled ? 
                 <meshBasicMaterial
                     transparent
                     opacity={0.3}
-                    side={DoubleSide} /> :
+                    side={flatLinksEnabled ? DoubleSide : FrontSide} /> :
                 <meshBasicMaterial
-                    side={DoubleSide}
+                    side={flatLinksEnabled ? DoubleSide : FrontSide}
                     color={"#ffffff"} />}
         </instancedMesh>
     );
@@ -199,7 +235,7 @@ function setLinksTransformMatrices(
 
         temp.position.set(from[0], from[1], from[2]);
         temp.quaternion.setFromUnitVectors(initialDirection, new Vector3(dx, dy, dz).normalize());
-        temp.scale.set(length, LINE_WIDTH, 1);
+        temp.scale.set(length, LINE_WIDTH, LINE_WIDTH);
 
         temp.updateMatrix();
         instancedMesh.setMatrixAt(linkId, temp.matrix);

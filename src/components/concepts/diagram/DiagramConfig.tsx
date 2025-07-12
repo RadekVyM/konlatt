@@ -53,11 +53,15 @@ function DisplaySection() {
 
 function NodesLinksSection() {
     const linksVisibleEnabled = useDiagramStore((state) => state.linksVisibleEnabled);
+    const hoveredLinksHighlightingEnabled = useDiagramStore((state) => state.hoveredLinksHighlightingEnabled);
     const semitransparentLinksEnabled = useDiagramStore((state) => state.semitransparentLinksEnabled);
     const labelsEnabled = useDiagramStore((state) => state.labelsEnabled);
+    const flatLinksEnabled = useDiagramStore((state) => state.flatLinksEnabled);
     const setLinksVisibleEnabled = useDiagramStore((state) => state.setLinksVisibleEnabled);
+    const setHoveredLinksHighlightingEnabled = useDiagramStore((state) => state.setHoveredLinksHighlightingEnabled);
     const setSemitransparentLinksEnabled = useDiagramStore((state) => state.setSemitransparentLinksEnabled);
     const setLabelsEnabled = useDiagramStore((state) => state.setLabelsEnabled);
+    const setFlatLinksEnabled = useDiagramStore((state) => state.setFlatLinksEnabled);
 
     return (
         <Section
@@ -73,9 +77,19 @@ function NodesLinksSection() {
                 Show links
             </ToggleSwitch>
             <ToggleSwitch
+                checked={hoveredLinksHighlightingEnabled}
+                onChange={(e) => setHoveredLinksHighlightingEnabled(e.currentTarget.checked)}>
+                Highlight links on hover
+            </ToggleSwitch>
+            <ToggleSwitch
                 checked={semitransparentLinksEnabled}
                 onChange={(e) => setSemitransparentLinksEnabled(e.currentTarget.checked)}>
                 Semitransparent links
+            </ToggleSwitch>
+            <ToggleSwitch
+                checked={flatLinksEnabled}
+                onChange={(e) => setFlatLinksEnabled(e.currentTarget.checked)}>
+                Flat links
             </ToggleSwitch>
         </Section>
     );
