@@ -3,12 +3,13 @@ import useGlobalsStore from "../../../stores/useGlobalsStore";
 import useDataStructuresStore from "../../../stores/useDataStructuresStore";
 import { useMemo } from "react";
 import { createPoint, Point } from "../../../types/Point";
-import { getPoint, themedColor, transformedPoint } from "./utils";
+import { getPoint, themedColor } from "./utils";
 import { ConceptLatticeLabeling } from "../../../types/ConceptLatticeLabeling";
 import { ConceptLatticeLayout } from "../../../types/ConceptLatticeLayout";
 import { CameraType } from "../../../types/CameraType";
 import { Billboard, Html, Text } from "@react-three/drei";
-import { LABEL_COLOR_DARK, LABEL_COLOR_LIGHT } from "./constants";
+import { LABEL_COLOR_DARK, LABEL_COLOR_LIGHT } from "../../../constants/diagram";
+import { transformedPoint } from "../../../utils/layout";
 
 type Label = {
     id: string,

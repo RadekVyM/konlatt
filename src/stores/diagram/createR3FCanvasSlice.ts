@@ -6,6 +6,7 @@ import withConceptsToMoveBox from "./withConceptsToMoveBox";
 import withSnapCoords from "./withSnapCoords";
 
 type R3FCanvasSliceState = {
+    defaultLayoutBox: Box | null,
     cameraControlsEnabled: boolean,
     eventsEnabled: boolean,
     isCameraMoving: boolean,
@@ -30,6 +31,7 @@ type R3FCanvasSliceActions = {
 export type R3FCanvasSlice = R3FCanvasSliceState & R3FCanvasSliceActions
 
 export const initialState: R3FCanvasSliceState = {
+    defaultLayoutBox: null,
     cameraControlsEnabled: true,
     eventsEnabled: true,
     isCameraMoving: false,

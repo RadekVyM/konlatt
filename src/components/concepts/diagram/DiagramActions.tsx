@@ -393,4 +393,13 @@ function useKeyBoardEvents(
             setMultiselectEnabled(false);
         }
     });
+
+    useEventListener("blur", () => {
+        if (isTemporarilyEditableRef.current) {
+            setEditingEnabled(false);
+        }
+        if (isTemporarilyMultiselectEnabledRef.current) {
+            setMultiselectEnabled(false);
+        }
+    });
 }

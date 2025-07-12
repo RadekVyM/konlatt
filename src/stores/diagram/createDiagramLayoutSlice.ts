@@ -2,10 +2,11 @@ import { ConceptLatticeLayout } from "../../types/ConceptLatticeLayout";
 import { ConceptLatticeLayoutCacheItem } from "../../types/ConceptLatticeLayoutCacheItem";
 import { DiagramLayoutState } from "../../types/DiagramLayoutState";
 import { DiagramOffsetMementos } from "../../types/DiagramOffsetMementos";
-import { createPoint, Point } from "../../types/Point";
+import { Point } from "../../types/Point";
 import { DiagramStore } from "./useDiagramStore";
-import { createConceptLayoutIndexesMappings, createDiagramLayoutStateId, createEmptyDiagramOffsetMementos } from "./utils";
+import { createConceptLayoutIndexesMappings, createDefaultDiagramOffsets, createDiagramLayoutStateId, createEmptyDiagramOffsetMementos } from "./utils";
 import withConceptsToMoveBox from "./withConceptsToMoveBox";
+import withDefaultLayoutBox from "./withDefaultLayoutBox";
 
 type DiagramLayoutSliceState = {
     layout: ConceptLatticeLayout | null,
@@ -47,7 +48,7 @@ export default function createDiagramLayoutSlice(set: (partial: DiagramStore | P
             const diagramOffsets = layout ? createDefaultDiagramOffsets(layout.length) : null;
             const diagramOffsetMementos = createEmptyDiagramOffsetMementos();
 
-            return withConceptsToMoveBox({
+            return withDefaultLayoutBox(withConceptsToMoveBox({
                 layout,
                 layoutId: `${layout?.length}-${Math.random()}`,
                 ...createConceptLayoutIndexesMappings(layout),
@@ -62,7 +63,8 @@ export default function createDiagramLayoutSlice(set: (partial: DiagramStore | P
                         old) :
                     new Map(),
                 conceptsToMoveIndexes: new Set(),
-            }, old);
+                currentZoomLevel: 1,
+            }, old), old);
         }),
         setCurrentLayoutJobId: (currentLayoutJobId, layoutState) => set(() => ({
             currentLayoutJobId,
@@ -103,14 +105,4 @@ function updateLayoutCache(
     newCache.set(stateId, { layout: newLayout, stateId, diagramOffsetMementos, diagramOffsets });
 
     return newCache;
-}
-
-function createDefaultDiagramOffsets(length: number) {
-    const offsets = new Array<Point>(length);
-
-    for (let i = 0; i < length; i++) {
-        offsets[i] = createPoint(0, 0, 0);
-    }
-
-    return offsets;
 }

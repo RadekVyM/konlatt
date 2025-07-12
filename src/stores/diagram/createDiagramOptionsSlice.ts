@@ -5,6 +5,7 @@ import useDataStructuresStore from "../useDataStructuresStore";
 import { DiagramStore } from "./useDiagramStore";
 import withCameraControlsEnabled from "./withCameraControlsEnabled";
 import withConceptsToMoveBox from "./withConceptsToMoveBox";
+import withDefaultLayoutBox from "./withDefaultLayoutBox";
 import withLayout from "./withLayout";
 
 type DiagramOptionsSliceState = {
@@ -59,7 +60,7 @@ export const initialState: DiagramOptionsSliceState = {
 export default function createDiagramOptionsSlice(set: (partial: DiagramStore | Partial<DiagramStore> | ((state: DiagramStore) => DiagramStore | Partial<DiagramStore>), replace?: false) => void): DiagramOptionsSlice {
     return {
         ...initialState,
-        setCameraType: (cameraType: CameraType) => set((old) => withConceptsToMoveBox({ cameraType, currentZoomLevel: 1 }, old)),
+        setCameraType: (cameraType: CameraType) => set((old) => withDefaultLayoutBox(withConceptsToMoveBox({ cameraType, currentZoomLevel: 1 }, old), old)),
         setMovementRegressionEnabled: (movementRegressionEnabled: boolean) => set({ movementRegressionEnabled }),
         setLinksVisibleEnabled: (linksVisibleEnabled: boolean) => set({ linksVisibleEnabled }),
         setHoveredLinksHighlightingEnabled: (hoveredLinksHighlightingEnabled: boolean) => set({ hoveredLinksHighlightingEnabled }),

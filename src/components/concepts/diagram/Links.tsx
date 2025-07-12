@@ -1,14 +1,15 @@
 import { DoubleSide, FrontSide, InstancedMesh, LineCurve3, Object3D, Shape, Vector3 } from "three";
 import { useLayoutEffect, useMemo, useRef } from "react";
-import { getPoint, themedColor, transformedPoint } from "./utils";
+import { getPoint, themedColor } from "./utils";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import useDataStructuresStore from "../../../stores/useDataStructuresStore";
 import { createPoint, Point } from "../../../types/Point";
 import { CameraType } from "../../../types/CameraType";
-import { LINE_WIDTH, OPAQUE_DIM_LINK_COLOR_DARK, OPAQUE_DIM_LINK_COLOR_LIGHT, OPAQUE_HIGHLIGHTED_LINK_COLOR_DARK, OPAQUE_HIGHLIGHTED_LINK_COLOR_LIGHT, OPAQUE_LINK_COLOR_DARK, OPAQUE_LINK_COLOR_LIGHT, SEMITRANSPARENT_DIM_LINK_COLOR_DARK, SEMITRANSPARENT_DIM_LINK_COLOR_LIGHT, SEMITRANSPARENT_HIGHLIGHTED_LINK_COLOR_DARK, SEMITRANSPARENT_HIGHLIGHTED_LINK_COLOR_LIGHT, SEMITRANSPARENT_LINK_COLOR_DARK, SEMITRANSPARENT_LINK_COLOR_LIGHT } from "./constants";
+import { LINE_WIDTH, OPAQUE_DIM_LINK_COLOR_DARK, OPAQUE_DIM_LINK_COLOR_LIGHT, OPAQUE_HIGHLIGHTED_LINK_COLOR_DARK, OPAQUE_HIGHLIGHTED_LINK_COLOR_LIGHT, OPAQUE_LINK_COLOR_DARK, OPAQUE_LINK_COLOR_LIGHT, SEMITRANSPARENT_DIM_LINK_COLOR_DARK, SEMITRANSPARENT_DIM_LINK_COLOR_LIGHT, SEMITRANSPARENT_HIGHLIGHTED_LINK_COLOR_DARK, SEMITRANSPARENT_HIGHLIGHTED_LINK_COLOR_LIGHT, SEMITRANSPARENT_LINK_COLOR_DARK, SEMITRANSPARENT_LINK_COLOR_LIGHT } from "../../../constants/diagram";
 import { ConceptLatticeLayout } from "../../../types/ConceptLatticeLayout";
 import useGlobalsStore from "../../../stores/useGlobalsStore";
 import { useThree } from "@react-three/fiber";
+import { transformedPoint } from "../../../utils/layout";
 
 // https://codesandbox.io/p/sandbox/react-three-fiber-poc-segments-with-instancedmesh-and-hightlight-drag-2vcl9i
 const LINE_BASE_SEGMENT = new Shape();
@@ -140,8 +141,6 @@ export default function Links() {
     }, [selectedLinks, layout, subconceptsMapping, conceptsToMoveIndexes, dragOffset, cameraType, diagramOffsets]);
 
     useLayoutEffect(() => {
-        console.log("hello", noHighlightedLinks)
-
         if (noHighlightedLinks) {
             const defaultColor = semitransparentLinksEnabled ?
                 themedColor(SEMITRANSPARENT_LINK_COLOR_LIGHT, SEMITRANSPARENT_LINK_COLOR_DARK, currentTheme) :

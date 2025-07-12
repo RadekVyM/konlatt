@@ -1,9 +1,9 @@
 import { Color, InstancedMesh, Object3D } from "three";
 import { CameraType } from "../../../types/CameraType";
-import { X_SCALE, Y_SCALE, Z_SCALE } from "./constants";
 import { createPoint, Point } from "../../../types/Point";
 import { ConceptLatticeLayout } from "../../../types/ConceptLatticeLayout";
 import { Theme } from "../../../types/Theme";
+import { transformedPoint } from "../../../utils/layout";
 
 export function setNodesTransformMatrices(
     instancedMesh: InstancedMesh,
@@ -53,32 +53,8 @@ export function setupTransform(
     temp.updateMatrix();
 }
 
-export function transformedPoint(
-    point: Point,
-    offset: Point,
-    dragOffset: Point,
-    cameraType: CameraType,
-    zOffset: number = 0,
-): Point {
-    return [
-        (point[0] + offset[0] + dragOffset[0]) * X_SCALE,
-        (point[1] + offset[1] + dragOffset[1]) * Y_SCALE,
-        (cameraType === "2d" ? 0 : (point[2] + offset[2] + dragOffset[2]) * Z_SCALE) + zOffset,
-    ];
-}
-
 export function getPoint(points: Array<Point>, index: number): Point {
     return points[index] || [0, 0, 0];
-}
-
-export function createRange(length: number) {
-    const numbers = new Array<number>(length);
-
-    for (let i = 0; i < length; i++) {
-        numbers[i] = i;
-    }
-
-    return numbers;
 }
 
 export function themedColor(light: Color, dark: Color, theme: Theme) {

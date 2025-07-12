@@ -1,12 +1,13 @@
 import { PivotControls } from "@react-three/drei";
 import { useLayoutEffect, useMemo, useRef } from "react";
 import { Group, InstancedMesh, Matrix4, Object3D } from "three";
-import { getPoint, themedColor, transformedPoint } from "./utils";
+import { getPoint, themedColor } from "./utils";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import { createPoint, Point } from "../../../types/Point";
-import { PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT } from "./constants";
 import { useDiagramOffsets } from "../../../hooks/useDiagramOffsets";
 import useGlobalsStore from "../../../stores/useGlobalsStore";
+import { transformedPoint } from "../../../utils/layout";
+import { PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT } from "../../../constants/diagram";
 
 export default function NodesToMove() {
     const instancedMeshRef = useRef<InstancedMesh>(null);

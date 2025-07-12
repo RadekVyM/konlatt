@@ -8,8 +8,8 @@ import { isInRect } from "../../../utils/rect";
 import { ConceptLatticeLayout } from "../../../types/ConceptLatticeLayout";
 import { createPoint, Point } from "../../../types/Point";
 import { isRightClick } from "../../../utils/html";
-import { transformedPoint } from "./utils";
 import { CameraType } from "../../../types/CameraType";
+import { transformedPoint } from "../../../utils/layout";
 
 export default function NodesMultiselectionBox() {
     const elementRef = useRef<HTMLDivElement>(null);

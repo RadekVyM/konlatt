@@ -4,6 +4,7 @@ import { DiagramLayoutState } from "../../types/DiagramLayoutState";
 import { DiagramStore } from "./useDiagramStore";
 import { createConceptLayoutIndexesMappings, createDiagramLayoutStateId, createEmptyDiagramOffsetMementos } from "./utils";
 import withConceptsToMoveBox from "./withConceptsToMoveBox";
+import withDefaultLayoutBox from "./withDefaultLayoutBox";
 
 export default function withLayout(
     newState: Partial<DiagramStore>,
@@ -15,13 +16,13 @@ export default function withLayout(
     if (oldState.currentLayoutJobStateId === stateId) {
         // Do not react to upperConeOnlyConceptIndex and lowerConeOnlyConceptIndex changes
         // when nothing is rendered yet
-        return withConceptsToMoveBox(newState, oldState);
+        return withDefaultLayoutBox(withConceptsToMoveBox(newState, oldState), oldState);
     }
 
     const cachedLayoutItem = tryGetLayoutFromCache(oldState.layoutCache, stateId);
 
     if (cachedLayoutItem !== null && cachedLayoutItem.layout === oldState.layout) {
-        return withConceptsToMoveBox(newState, oldState);
+        return withDefaultLayoutBox(withConceptsToMoveBox(newState, oldState), oldState);
     }
 
     if (cachedLayoutItem) {
@@ -29,26 +30,27 @@ export default function withLayout(
             triggerCancellation(oldState.currentLayoutJobId);
         }
 
-        return withConceptsToMoveBox({
+        return withDefaultLayoutBox(withConceptsToMoveBox({
             layout: cachedLayoutItem.layout,
             layoutId: `${cachedLayoutItem.layout?.length}-${Math.random()}`,
             ...createConceptLayoutIndexesMappings(cachedLayoutItem.layout),
             diagramOffsets: cachedLayoutItem.diagramOffsets,
             diagramOffsetMementos: cachedLayoutItem.diagramOffsetMementos,
+            currentZoomLevel: 1,
             ...newState,
-        }, oldState);
+        }, oldState), oldState);
     }
 
     triggerLayoutComputation(layoutState);
 
-    return withConceptsToMoveBox({
+    return withDefaultLayoutBox(withConceptsToMoveBox({
         layout: null,
         layoutId: `null-${Math.random()}`,
         conceptToLayoutIndexesMapping: new Map(),
         diagramOffsets: null,
         diagramOffsetMementos: createEmptyDiagramOffsetMementos(),
         ...newState,
-    }, oldState);
+    }, oldState), oldState);
 }
 
 function tryGetLayoutFromCache(

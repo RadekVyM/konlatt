@@ -1,14 +1,15 @@
 import { useLayoutEffect, useRef } from "react";
 import { InstancedMesh, Matrix4, Mesh } from "three";
 import { ThreeEvent, useThree } from "@react-three/fiber";
-import { DIM_NODE_COLOR_DARK, DIM_NODE_COLOR_LIGHT, NODE_COLOR_DARK, NODE_COLOR_LIGHT, PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT } from "./constants";
+import { DIM_NODE_COLOR_DARK, DIM_NODE_COLOR_LIGHT, NODE_COLOR_DARK, NODE_COLOR_LIGHT, PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT } from "../../../constants/diagram";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
-import { createRange, setNodesTransformMatrices, themedColor } from "./utils";
+import { setNodesTransformMatrices, themedColor } from "./utils";
 import useGlobalsStore from "../../../stores/useGlobalsStore";
 import { ConceptLatticeLayout } from "../../../types/ConceptLatticeLayout";
 import { Point } from "../../../types/Point";
 import { CameraType } from "../../../types/CameraType";
 import { isRightClick } from "../../../utils/html";
+import { createRange } from "../../../utils/array";
 
 const HOVERED_MESH_NAME = "hovered_mesh";
 
