@@ -3,7 +3,7 @@ import { Point } from "../../types/Point";
 import { DiagramStore } from "./useDiagramStore";
 import withCameraControlsEnabled from "./withCameraControlsEnabled";
 import withConceptsToMoveBox from "./withConceptsToMoveBox";
-import withSnapCoords from "./withSnapCoords";
+import withDragOffsetSnapping from "./withDragOffsetSnapping";
 
 type R3FCanvasSliceState = {
     defaultLayoutBox: Box | null,
@@ -11,10 +11,13 @@ type R3FCanvasSliceState = {
     eventsEnabled: boolean,
     isCameraMoving: boolean,
     isDraggingNodes: boolean,
+    isDraggingNodesSnappedToXAxis: boolean,
+    isDraggingNodesSnappedToYAxis: boolean,
+    isDraggingNodesSnappedToZAxis: boolean,
     dragOffset: Point,
     conceptsToMoveIndexes: Set<number>,
     conceptsToMoveBox: Box | null,
-    snapCoords: [number | null, number | null, number | null],
+    snapCoords: Point | null,
     hoveredConceptIndex: number | null,
     currentZoomLevel: number,
 }
@@ -36,10 +39,13 @@ export const initialState: R3FCanvasSliceState = {
     eventsEnabled: true,
     isCameraMoving: false,
     isDraggingNodes: false,
+    isDraggingNodesSnappedToXAxis: false,
+    isDraggingNodesSnappedToYAxis: false,
+    isDraggingNodesSnappedToZAxis: false,
     dragOffset: [0, 0, 0],
     conceptsToMoveIndexes: new Set<number>(),
     conceptsToMoveBox: null,
-    snapCoords: [null, null, null],
+    snapCoords: null,
     hoveredConceptIndex: null,
     currentZoomLevel: 1,
 };
@@ -68,7 +74,7 @@ export default function createR3FCanvasSlice(set: (partial: DiagramStore | Parti
             isCameraMoving,
             eventsEnabled: !isCameraMoving && !old.isDraggingNodes,
         })),
-        setDragOffset: (dragOffset) => set((old) => withSnapCoords({ dragOffset }, old)),
+        setDragOffset: (dragOffset) => set((old) => withDragOffsetSnapping({ dragOffset }, old)),
         setConceptsToMoveIndexes: (conceptsToMoveIndexes) => set((old) => withConceptsToMoveBox({
             conceptsToMoveIndexes: typeof conceptsToMoveIndexes === "function" ?
                 conceptsToMoveIndexes(old.conceptsToMoveIndexes) :

@@ -18,6 +18,7 @@ export default function NodesToMove() {
     const dragOffset = useDiagramStore((state) => state.dragOffset);
     const conceptsToMoveIndexes = useDiagramStore((state) => state.conceptsToMoveIndexes);
     const cameraType = useDiagramStore((state) => state.cameraType);
+    const isDraggingNodes = useDiagramStore((state) => state.isDraggingNodes);
     const setIsDraggingNodes = useDiagramStore((state) => state.setIsDraggingNodes);
     const setDragOffset = useDiagramStore((state) => state.setDragOffset);
 
@@ -81,7 +82,7 @@ export default function NodesToMove() {
         pivotControlsRef.current.updateMatrix();
         // This dependency array needs to be like this
         // This effect cannot be run on dragOffset changes
-    }, [conceptsToMoveIndexes, layout, cameraType, diagramOffsets]);
+    }, [conceptsToMoveIndexes, layout, cameraType, diagramOffsets, isDraggingNodes]);
 
     useLayoutEffect(() => {
         if (!instancedMeshRef.current) {

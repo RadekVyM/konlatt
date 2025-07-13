@@ -1,6 +1,6 @@
 import { DiagramStore } from "./useDiagramStore";
 import { calculateLayoutBox } from "./utils";
-import withSnapCoords from "./withSnapCoords";
+import withDragOffsetSnapping from "./withDragOffsetSnapping";
 
 export default function withConceptsToMoveBox(newState: Partial<DiagramStore>, oldState: DiagramStore): Partial<DiagramStore> {
     const layout = newState.layout === undefined ? oldState.layout : newState.layout;
@@ -10,12 +10,12 @@ export default function withConceptsToMoveBox(newState: Partial<DiagramStore>, o
     const cameraType = newState.cameraType === undefined ? oldState.cameraType : newState.cameraType;
 
     if (!layout || !diagramOffsets || layout.length !== conceptToLayoutIndexesMapping.size) {
-        return withSnapCoords({ ...newState, conceptsToMoveBox: null }, oldState);
+        return withDragOffsetSnapping({ ...newState, conceptsToMoveBox: null }, oldState);
     }
 
     const conceptsToMoveBox = calculateLayoutBox(conceptsToMoveIndexes, layout, diagramOffsets, conceptToLayoutIndexesMapping, cameraType);
 
-    return withSnapCoords({
+    return withDragOffsetSnapping({
         ...newState,
         conceptsToMoveBox,
     }, oldState);
