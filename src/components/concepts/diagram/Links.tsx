@@ -50,6 +50,8 @@ export default function Links() {
     const noHighlightedLinks = (displayHighlightedSublatticeOnly || !visibleConceptIndexes || visibleConceptIndexes.size === 0) &&
         (!hoveredLinksHighlightingEnabled || hoveredConceptIndex === null);
 
+    const useFlatLinks = flatLinksEnabled || cameraType === "2d";
+
     const prepLinks = useMemo(() => {
         const links = new Array<Link>();
 
@@ -179,7 +181,7 @@ export default function Links() {
             args={[undefined, undefined, links.length]}
             visible={linksVisibleEnabled}
             frustumCulled={false}>
-            {flatLinksEnabled || cameraType === "2d" ?
+            {useFlatLinks ?
                 <shapeGeometry args={[LINE_BASE_SEGMENT]} /> :
                 <tubeGeometry
                     args={[TUBE_LINE_CURVE, 1, 0.5, 3, false]} />}
@@ -187,9 +189,9 @@ export default function Links() {
                 <meshBasicMaterial
                     transparent
                     opacity={0.3}
-                    side={flatLinksEnabled ? DoubleSide : FrontSide} /> :
+                    side={useFlatLinks ? DoubleSide : FrontSide} /> :
                 <meshBasicMaterial
-                    side={flatLinksEnabled ? DoubleSide : FrontSide}
+                    side={useFlatLinks ? DoubleSide : FrontSide}
                     color={"#ffffff"} />}
         </instancedMesh>
     );
