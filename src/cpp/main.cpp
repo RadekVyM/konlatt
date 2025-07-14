@@ -1,7 +1,7 @@
-#include "FormalConcept.h"
-#include "FormalContext.h"
-#include "TimedResult.h"
-#include "OnProgressCallback.h"
+#include "types/FormalConcept.h"
+#include "types/FormalContext.h"
+#include "types/TimedResult.h"
+#include "types/OnProgressCallback.h"
 
 #include <emscripten/bind.h>
 #include <emscripten/emscripten.h>
@@ -15,12 +15,17 @@
 #include "burmeister.cpp"
 #include "inClose.cpp"
 #include "lattice.cpp"
-#include "layers.cpp"
-#include "layeredLayout.cpp"
-#include "layouts.cpp"
+#include "layout/layers.cpp"
+#include "layout/layeredLayout.cpp"
+#include "layout/freeseLayout.cpp"
+#include "layout/layouts.cpp"
 
 using namespace emscripten;
 using namespace std;
+
+// The result objects are not returned from the functions,
+// but are passed into them through parameters from JavaScript.
+// This way, a few copies of (often large) vectors can be avoided.
 
 EMSCRIPTEN_BINDINGS(my_module) {
     emscripten::register_vector<std::string>("StringArray");
@@ -53,28 +58,32 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .property("index", &IndexedFormalConcept::getIndex, &IndexedFormalConcept::setIndex)
         ;
 
-    emscripten::value_object<TimedResult<std::vector<FormalConcept>>>("FormalConceptsTimedResult")
-        .field("value", &TimedResult<std::vector<FormalConcept>>::value)
-        .field("time", &TimedResult<std::vector<FormalConcept>>::time);
+    emscripten::class_<TimedResult<std::vector<FormalConcept>>>("FormalConceptsTimedResult")
+        .constructor<>()
+        .property("value", &TimedResult<std::vector<FormalConcept>>::value)
+        .property("time", &TimedResult<std::vector<FormalConcept>>::time);
 
-    emscripten::value_object<TimedResult<std::vector<std::vector<int>>>>("IntMultiArrayTimedResult")
-        .field("value", &TimedResult<std::vector<std::vector<int>>>::value)
-        .field("time", &TimedResult<std::vector<std::vector<int>>>::time);
+    emscripten::class_<TimedResult<std::vector<std::vector<int>>>>("IntMultiArrayTimedResult")
+        .constructor<>()
+        .property("value", &TimedResult<std::vector<std::vector<int>>>::value)
+        .property("time", &TimedResult<std::vector<std::vector<int>>>::time);
 
-    emscripten::value_object<TimedResult<std::vector<int>>>("IntArrayTimedResult")
-        .field("value", &TimedResult<std::vector<int>>::value)
-        .field("time", &TimedResult<std::vector<int>>::time);
+    emscripten::class_<TimedResult<std::vector<int>>>("IntArrayTimedResult")
+        .constructor<>()
+        .property("value", &TimedResult<std::vector<int>>::value)
+        .property("time", &TimedResult<std::vector<int>>::time);
 
-    emscripten::value_object<TimedResult<std::vector<float>>>("FloatArrayTimedResult")
-        .field("value", &TimedResult<std::vector<float>>::value)
-        .field("time", &TimedResult<std::vector<float>>::time);
+    emscripten::class_<TimedResult<std::vector<float>>>("FloatArrayTimedResult")
+        .constructor<>()
+        .property("value", &TimedResult<std::vector<float>>::value)
+        .property("time", &TimedResult<std::vector<float>>::time);
 
     emscripten::function("parseBurmeister", &parseBurmeister);
     emscripten::function("formalContextHasAttribute", &formalContextHasAttribute);
     emscripten::function("inClose", &inClose);
-    emscripten::function("conceptsToLattice", &conceptsToLattice);
     emscripten::function("conceptsCover", &conceptsCover);
     emscripten::function("computeLayeredLayout", &computeLayeredLayoutJs);
+    emscripten::function("computeFreeseLayout", &computeFreeseLayoutJs);
 
     emscripten::register_type<OnProgressCallback>("((progress: number) => void) | undefined");
 }

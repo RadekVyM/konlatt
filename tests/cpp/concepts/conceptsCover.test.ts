@@ -12,9 +12,12 @@ test.each<TestValue>([
 ])("concepts cover", async (value) => {
     const module = await Module();
     const context = module.parseBurmeister(value.fileContent);
-    const concepts = module.inClose(context.context, context.cellSize, context.cellsPerObject, context.objects.size(), context.attributes.size(), undefined);
-    const { value: result } = module.conceptsCover(
-        jsArrayToCppIndexedFormalConceptArray(module, [...cppFormalConceptArrayToJs(concepts.value, true)]),
+    const conceptsResult = new module.FormalConceptsTimedResult();
+    module.inClose(conceptsResult, context.context, context.cellSize, context.cellsPerObject, context.objects.size(), context.attributes.size(), undefined);
+    const latticeResult = new module.IntMultiArrayTimedResult();
+    module.conceptsCover(
+        latticeResult,
+        jsArrayToCppIndexedFormalConceptArray(module, [...cppFormalConceptArrayToJs(conceptsResult.value, true)]),
         context.context,
         context.cellSize,
         context.cellsPerObject,
@@ -22,9 +25,15 @@ test.each<TestValue>([
         context.attributes.size(),
         undefined
     );
-    const lattice = [...cppIntMultiArrayToJs(result, true)];
+    const lattice = [...cppIntMultiArrayToJs(latticeResult.value, true)];
     expect(lattice.reduce((prev, curr) => prev + curr.length, 0))
         .toBe(value.coverRelationSize);
+
+    conceptsResult.value.delete();
+    latticeResult.value.delete();
+
+    conceptsResult.delete();
+    latticeResult.delete();
 
     context.delete();
 }, 60000);

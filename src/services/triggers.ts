@@ -82,6 +82,7 @@ export function triggerLayoutComputation(state: DiagramLayoutState) {
 
     const layoutRequest: LayoutComputationRequest = {
         type: "layout",
+        layoutMethod: state.layoutMethod,
         upperConeOnlyConceptIndex: state.displayHighlightedSublatticeOnly ? state.upperConeOnlyConceptIndex : null,
         lowerConeOnlyConceptIndex: state.displayHighlightedSublatticeOnly ? state.lowerConeOnlyConceptIndex : null,
     };

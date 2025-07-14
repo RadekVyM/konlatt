@@ -32,7 +32,7 @@ export function createDiagramLayoutStateId(state: DiagramLayoutState) {
         `${state.lowerConeOnlyConceptIndex};${state.upperConeOnlyConceptIndex}` :
         "null;null";
 
-    return `${start}`;
+    return `${start}-${state.layoutMethod}`;
 }
 
 export function createDefaultDiagramOffsets(length: number) {

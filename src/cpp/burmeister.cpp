@@ -1,4 +1,4 @@
-#include "FormalContext.h"
+#include "types/FormalContext.h"
 #include "utils.h"
 
 #include <stdio.h>

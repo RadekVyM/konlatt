@@ -4,18 +4,18 @@ import Button from "../inputs/Button";
 import { usePopover } from "../../hooks/usePopover";
 import { LuChevronDown } from "react-icons/lu";
 
-type ComboBoxItem = {
-    key: string,
+type ComboBoxItem<KeyT> = {
+    key: KeyT,
     label: string
 }
 
 /** Component for selecting single item from a collection of items which are displayed in a dropdown. */
-export default function ComboBox(props: {
+export default function ComboBox<KeyT extends string>(props: {
     id: string,
-    items: Array<ComboBoxItem>,
+    items: Array<ComboBoxItem<KeyT>>,
     className?: string,
-    selectedKey: string,
-    onKeySelectionChange: (key: string) => void,
+    selectedKey: KeyT,
+    onKeySelectionChange: (key: KeyT) => void,
 }) {
     const divRef = useRef<HTMLDivElement>(null);
     const listRef = useRef<HTMLUListElement>(null);
@@ -90,7 +90,7 @@ export default function ComboBox(props: {
                             id={`${id}-${item.key}`}
                             value={item.key}
                             checked={props.selectedKey === item.key}
-                            onChange={(e) => props.onKeySelectionChange(e.currentTarget.value)} />
+                            onChange={(e) => props.onKeySelectionChange(e.currentTarget.value as KeyT)} />
                         <label
                             className="flex-1 py-0.5 px-2 cursor-pointer"
                             htmlFor={`${id}-${item.key}`}>

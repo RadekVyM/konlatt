@@ -1,7 +1,7 @@
 #include "utils.h"
 #include "inClose.h"
-#include "FormalConcept.h"
-#include "TimedResult.h"
+#include "types/FormalConcept.h"
+#include "types/TimedResult.h"
 
 #include <iostream>
 #include <memory>
@@ -158,7 +158,8 @@ void inCloseImpl(
     }
 }
 
-TimedResult<std::vector<FormalConcept>> inClose(
+void inClose(
+    TimedResult<std::vector<FormalConcept>>& result,
     std::vector<unsigned int>& contextMatrix,
     int cellSize,
     int cellsPerObject,
@@ -185,9 +186,7 @@ TimedResult<std::vector<FormalConcept>> inClose(
     initialConcept.setObjects(initialConceptObjects);
     initialConcept.setAttribute(0);
 
-    std::unique_ptr<std::vector<FormalConcept>> formalConcepts = std::make_unique<std::vector<FormalConcept>>();
-
-    formalConcepts->push_back(initialConcept);
+    result.value.push_back(initialConcept);
 
     inCloseImpl(
         contextMatrix,
@@ -196,7 +195,7 @@ TimedResult<std::vector<FormalConcept>> inClose(
         contextObjectsCount,
         contextAttributesCount,
         newExtentBuffer,
-        *formalConcepts,
+        result.value,
         0,
         0
 #ifdef __EMSCRIPTEN__
@@ -222,7 +221,7 @@ TimedResult<std::vector<FormalConcept>> inClose(
         allAttributesConcept.setAttributes(conceptAttributes);
         allAttributesConcept.setAttribute(0);
 
-        formalConcepts->push_back(allAttributesConcept);
+        result.value.push_back(allAttributesConcept);
     }
 
     long long endTime = nowMills();
@@ -233,5 +232,5 @@ TimedResult<std::vector<FormalConcept>> inClose(
     }
 #endif
 
-    return TimedResult<std::vector<FormalConcept>>(*formalConcepts, (int)endTime - startTime);
+    result.time = (int)endTime - startTime;
 }

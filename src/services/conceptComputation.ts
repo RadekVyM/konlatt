@@ -9,20 +9,26 @@ export async function computeConcepts(context: FormalContext, onProgress?: (prog
 }> {
     const module = await Module();
     const uIntContext = jsArrayToCppUIntArray(module, context.context);
-    const result = module.inClose(
+    const result = new module.FormalConceptsTimedResult();
+
+    module.inClose(
+        result,
         uIntContext,
         context.cellSize,
         context.cellsPerObject,
         context.objects.length,
         context.attributes.length,
         onProgress);
+
     const concepts: Array<FormalConcept> = [...cppFormalConceptArrayToJs(result.value, true)];
-    console.log(`InClose: ${result.time}ms`);
+    const computationTime = result.time;
+    console.log(`InClose: ${computationTime}ms`);
 
     uIntContext.delete();
+    result.delete();
 
     return {
         concepts,
-        computationTime: result.time,
+        computationTime,
     };
 }

@@ -3,6 +3,7 @@ import ComboBox from "../../inputs/ComboBox";
 import ToggleSwitch from "../../inputs/ToggleSwitch";
 import NumberInput from "../../inputs/NumberInput";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
+import { LayoutMethod } from "../../../types/LayoutMethod";
 
 export default function DiagramConfig() {
     return (
@@ -96,7 +97,9 @@ function NodesLinksSection() {
 }
 
 function LayoutSection() {
-    const [selectedLayoutMethod, setSelectedLayoutMethod] = useState<string>("layered");
+    const layoutMethod = useDiagramStore((state) => state.layoutMethod);
+    const setLayoutMethod = useDiagramStore((state) => state.setLayoutMethod);
+
     const [horizontalNodesDistance, setHorizontalNodesDistance] = useState<number>(1);
     const [verticalNodesDistance, setVerticalNodesDistance] = useState<number>(1);
 
@@ -106,15 +109,15 @@ function LayoutSection() {
             <div>
                 <label className="text-sm mb-1 block">Layout method</label>
 
-                <ComboBox
+                <ComboBox<LayoutMethod>
                     id="diagram-layout-method"
                     items={[
                         { key: "layered", label: "Layered" },
                         { key: "freese", label: "Freese" },
                         { key: "redraw", label: "ReDraw" },
                     ]}
-                    selectedKey={selectedLayoutMethod}
-                    onKeySelectionChange={setSelectedLayoutMethod} />
+                    selectedKey={layoutMethod}
+                    onKeySelectionChange={setLayoutMethod} />
             </div>
 
             <NumberInput

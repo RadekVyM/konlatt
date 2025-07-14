@@ -1,6 +1,7 @@
-#include "TimedResult.h"
+#include "../types/TimedResult.h"
+#include "../utils.h"
 #include "layeredLayout.h"
-#include "utils.h"
+#include "freeseLayout.h"
 #include "layouts.h"
 
 #include <emscripten/emscripten.h>
@@ -63,15 +64,34 @@ std::unique_ptr<std::tuple<
     return result;
 }
 
-TimedResult<std::vector<float>> computeLayeredLayoutJs(
+void computeLayeredLayoutJs(
+    TimedResult<std::vector<float>>& result,
     int supremum,
     int conceptsCount,
     const emscripten::val& subconceptsMappingTypedArray
 ) {
-    auto result = convertToCppMappings(conceptsCount, subconceptsMappingTypedArray);
-    auto& [subconceptsMapping, superconceptsMapping] = *result;
+    auto mappings = convertToCppMappings(conceptsCount, subconceptsMappingTypedArray);
+    auto& [subconceptsMapping, superconceptsMapping] = *mappings;
 
-    return computeLayeredLayout(
+    computeLayeredLayout(
+        result,
+        supremum,
+        conceptsCount,
+        subconceptsMapping,
+        superconceptsMapping);
+}
+
+void computeFreeseLayoutJs(
+    TimedResult<std::vector<float>>& result,
+    int supremum,
+    int conceptsCount,
+    const emscripten::val& subconceptsMappingTypedArray
+) {
+    auto mappings = convertToCppMappings(conceptsCount, subconceptsMappingTypedArray);
+    auto& [subconceptsMapping, superconceptsMapping] = *mappings;
+
+    computeFreeseLayout(
+        result,
         supremum,
         conceptsCount,
         subconceptsMapping,

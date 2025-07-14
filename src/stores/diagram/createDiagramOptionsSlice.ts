@@ -1,5 +1,6 @@
 import { CameraType } from "../../types/CameraType";
 import { DiagramLayoutState } from "../../types/DiagramLayoutState";
+import { LayoutMethod } from "../../types/LayoutMethod";
 import { calculateVisibleConceptIndexes } from "../../utils/lattice";
 import useDataStructuresStore from "../useDataStructuresStore";
 import { DiagramStore } from "./useDiagramStore";
@@ -9,6 +10,7 @@ import withDefaultLayoutBox from "./withDefaultLayoutBox";
 import withLayout from "./withLayout";
 
 type DiagramOptionsSliceState = {
+    layoutMethod: LayoutMethod,
     cameraType: CameraType,
     movementRegressionEnabled: boolean,
     linksVisibleEnabled: boolean,
@@ -23,6 +25,7 @@ type DiagramOptionsSliceState = {
 } & DiagramLayoutState
 
 type DiagramOptionsSliceActions = {
+    setLayoutMethod: (layoutMethod: LayoutMethod) => void,
     setCameraType: (cameraType: CameraType) => void,
     setMovementRegressionEnabled: (movementRegressionEnabled: boolean) => void,
     setLinksVisibleEnabled: (linksVisibleEnabled: boolean) => void,
@@ -42,6 +45,7 @@ export type DiagramOptionsSlice = DiagramOptionsSliceState & DiagramOptionsSlice
 
 export const initialState: DiagramOptionsSliceState = {
     cameraType: "2d",
+    layoutMethod: "layered",
     movementRegressionEnabled: false,
     linksVisibleEnabled: true,
     hoveredLinksHighlightingEnabled: false,
@@ -60,7 +64,8 @@ export const initialState: DiagramOptionsSliceState = {
 export default function createDiagramOptionsSlice(set: (partial: DiagramStore | Partial<DiagramStore> | ((state: DiagramStore) => DiagramStore | Partial<DiagramStore>), replace?: false) => void): DiagramOptionsSlice {
     return {
         ...initialState,
-        setCameraType: (cameraType: CameraType) => set((old) => withDefaultLayoutBox(withConceptsToMoveBox({ cameraType, currentZoomLevel: 1 }, old), old)),
+        setLayoutMethod: (layoutMethod) => set((old) => withLayout({ layoutMethod }, old)),
+        setCameraType: (cameraType) => set((old) => withDefaultLayoutBox(withConceptsToMoveBox({ cameraType, currentZoomLevel: 1 }, old), old)),
         setMovementRegressionEnabled: (movementRegressionEnabled: boolean) => set({ movementRegressionEnabled }),
         setLinksVisibleEnabled: (linksVisibleEnabled: boolean) => set({ linksVisibleEnabled }),
         setHoveredLinksHighlightingEnabled: (hoveredLinksHighlightingEnabled: boolean) => set({ hoveredLinksHighlightingEnabled }),

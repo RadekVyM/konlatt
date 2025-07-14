@@ -15,10 +15,12 @@ describe.each<TestValue>([
     test(`inClose on ${value.title}`, async () => {
         const module = await Module();
         const context = module.parseBurmeister(value.fileContent);
-        const concepts = module.inClose(context.context, context.cellSize, context.cellsPerObject, context.objects.size(), context.attributes.size(), undefined);
-        expect(concepts.value.size()).toBe(value.conceptsCount);
+        const result = new module.FormalConceptsTimedResult();
+        module.inClose(result, context.context, context.cellSize, context.cellsPerObject, context.objects.size(), context.attributes.size(), undefined);
+        expect(result.value.size()).toBe(value.conceptsCount);
 
         context.delete();
-        concepts.value.delete();
+        result.value.delete();
+        result.delete();
     }, 60000);
 });

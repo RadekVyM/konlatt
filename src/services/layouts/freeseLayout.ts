@@ -2,7 +2,7 @@ import Module from "../../cpp";
 import { cppFloatArrayToPoints } from "../../utils/cpp";
 import { Point } from "../../types/Point";
 
-export async function computeLayeredLayout(
+export async function computeFreeseLayout(
     conceptsCount: number,
     supremum: number,
     subconceptsMappingArrayBuffer: Int32Array,
@@ -13,7 +13,7 @@ export async function computeLayeredLayout(
     const module = await Module();
     const result = new module.FloatArrayTimedResult();
 
-    module.computeLayeredLayout(result, supremum, conceptsCount, subconceptsMappingArrayBuffer);
+    module.computeFreeseLayout(result, supremum, conceptsCount, subconceptsMappingArrayBuffer);
     const layout = cppFloatArrayToPoints(result.value, conceptsCount, true);
     const computationTime = result.time;
 

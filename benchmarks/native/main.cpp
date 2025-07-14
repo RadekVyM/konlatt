@@ -8,12 +8,13 @@
 
 // clang++ -std=gnu++17 -O3 ./benchmarks/native/main.cpp -o ./benchmarks/native/mainapp
 
-#include "../../src/wasm/cpp/FormalConcept.h"
-#include "../../src/wasm/cpp/FormalContext.h"
+#include "../../src/cpp/types/FormalConcept.h"
+#include "../../src/cpp/types/FormalContext.h"
+#include "../../src/cpp/types/TimedResult.h"
 
-#include "../../src/wasm/cpp/utils.cpp"
-#include "../../src/wasm/cpp/burmeister.cpp"
-#include "../../src/wasm/cpp/inClose.cpp"
+#include "../../src/cpp/utils.cpp"
+#include "../../src/cpp/burmeister.cpp"
+#include "../../src/cpp/inClose.cpp"
 
 #include <stdio.h>
 #include <iostream>
@@ -54,13 +55,16 @@ int main(int argc, char* argv[]) {
     int runsCount = 50;
 
     for (int i = 0; i < runsCount; i++) {
-        auto result = inClose(
+        TimedResult<std::vector<FormalConcept>> result;
+
+        inClose(
+            result,
             context.getContext(),
             context.getCellSize(),
             context.getCellsPerObject(),
             context.getObjects().size(),
             context.getAttributes().size());
-    
+
         sum += result.time;
         std::cerr << "[" << i << "] Time: " << result.time << "ms" << std::endl;
     }

@@ -1,6 +1,6 @@
 import mushroomep from "../../../datasets/mushroomep.cxt?raw";
 import { __collect, inClose, parseBurmeister } from "../../as";
-import Module from "../../../src/wasm/cpp";
+import Module from "../../../src/cpp";
 
 export async function benchCpp(runsCount: number, postMessage: (message: string) => void) {
     let sum = 0;
@@ -10,14 +10,16 @@ export async function benchCpp(runsCount: number, postMessage: (message: string)
 
     for (let i = 0; i < runsCount; i++) {
         const startTime = new Date().getTime();
-        const concepts = module.inClose(context.context, context.cellSize, context.cellsPerObject, context.objects.size(), context.attributes.size(), undefined);
+        const result = new module.FormalConceptsTimedResult();
+        module.inClose(result, context.context, context.cellSize, context.cellsPerObject, context.objects.size(), context.attributes.size(), undefined);
         const time2 = new Date().getTime() - startTime;
 
-        sum += concepts.time;
+        sum += result.time;
         sum2 += time2;
 
-        postMessage(`[${i}] Time: ${concepts.time}ms (${time2}ms)`);
-        concepts.value.delete();
+        postMessage(`[${i}] Time: ${result.time}ms (${time2}ms)`);
+        result.value.delete();
+        result.delete();
 
         await new Promise((resolve) => setTimeout(resolve, 1));
     }

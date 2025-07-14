@@ -1,6 +1,6 @@
-#include "utils.h"
+#include "../utils.h"
+#include "../types/TimedResult.h"
 #include "layers.h"
-#include "TimedResult.h"
 #include "layeredLayout.h"
 
 #include <stdio.h>
@@ -231,9 +231,12 @@ std::unique_ptr<std::vector<std::vector<int>>> reduceCrossingsUsingAverage(
     return reducedLayers;
 }
 
-std::unique_ptr<std::vector<float>> createLayout(int conceptsCount, std::vector<std::vector<int>>& layers) {
-    auto layout = make_unique<std::vector<float>>();
-    layout->resize(conceptsCount * CoordsCount);
+void createLayout(
+    TimedResult<std::vector<float>>& result,
+    int conceptsCount,
+    std::vector<std::vector<int>>& layers
+) {
+    result.value.resize(conceptsCount * CoordsCount);
     float top = (float)(layers.size() - 1) / -2;
 
     for (int i = 0; i < layers.size(); i++) {
@@ -243,20 +246,19 @@ std::unique_ptr<std::vector<float>> createLayout(int conceptsCount, std::vector<
         for (int node : layer) {
             if (node < conceptsCount) {
                 int startNode = node * CoordsCount;
-                (*layout)[startNode] = left;
-                (*layout)[startNode + 1] = -top;
-                (*layout)[startNode + 2] = 0;
+                result.value[startNode] = left;
+                result.value[startNode + 1] = -top;
+                result.value[startNode + 2] = 0;
             }
             left += 1;
         }
 
         top += 1;
     }
-
-    return layout;
 }
 
-TimedResult<std::vector<float>> computeLayeredLayout(
+void computeLayeredLayout(
+    TimedResult<std::vector<float>>& result,
     int supremum,
     int conceptsCount,
     std::vector<std::unordered_set<int>>& subconceptsMapping,
@@ -307,5 +309,6 @@ TimedResult<std::vector<float>> computeLayeredLayout(
 
     long long endTime = nowMills();
 
-    return TimedResult<std::vector<float>>(*createLayout(conceptsCount, *orderedLayers), (int)endTime - startTime);
+    createLayout(result, conceptsCount, *orderedLayers);
+    result.time = (int)endTime - startTime;
 }

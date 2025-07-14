@@ -19,7 +19,10 @@ export async function conceptsToLattice(concepts: FormalConcepts, context: Forma
     const cppConcepts = jsArrayToCppIndexedFormalConceptArray(module, concepts);
     const cppContext = jsArrayToCppUIntArray(module, context.context);
 
-    const result = module.conceptsCover(
+    const result = new module.IntMultiArrayTimedResult();
+
+    module.conceptsCover(
+        result,
         cppConcepts,
         cppContext,
         context.cellSize,
@@ -34,6 +37,7 @@ export async function conceptsToLattice(concepts: FormalConcepts, context: Forma
     const subconceptsMapping = reverseMapping(superconceptsMapping);
     const objectsLabeling = getObjectsLabeling(concepts, superconceptsMapping);
     const attributesLabeling = getAttributesLabeling(concepts, subconceptsMapping);
+    const computationTime = result.time;
 
     cppContext.delete();
     for (let i = 0; i < cppConcepts.size(); i++) {
@@ -43,6 +47,7 @@ export async function conceptsToLattice(concepts: FormalConcepts, context: Forma
         value.delete();
     }
     cppConcepts.delete();
+    result.delete();
 
     return {
         lattice: {
@@ -51,7 +56,7 @@ export async function conceptsToLattice(concepts: FormalConcepts, context: Forma
             objectsLabeling,
             attributesLabeling,
         },
-        computationTime: result.time,
+        computationTime,
     };
 }
 
