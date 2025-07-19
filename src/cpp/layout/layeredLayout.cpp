@@ -1,5 +1,6 @@
 #include "../utils.h"
 #include "../types/TimedResult.h"
+#include "utils.h"
 #include "layers.h"
 #include "layeredLayout.h"
 
@@ -10,8 +11,6 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <algorithm>
-
-#define CoordsCount 3
 
 using namespace std;
 
@@ -236,7 +235,7 @@ void createLayout(
     int conceptsCount,
     std::vector<std::vector<int>>& layers
 ) {
-    result.value.resize(conceptsCount * CoordsCount);
+    result.value.resize(conceptsCount * COORDS_COUNT);
     float top = (float)(layers.size() - 1) / -2;
 
     for (int i = 0; i < layers.size(); i++) {
@@ -245,10 +244,9 @@ void createLayout(
 
         for (int node : layer) {
             if (node < conceptsCount) {
-                int startNode = node * CoordsCount;
-                result.value[startNode] = left;
-                result.value[startNode + 1] = -top;
-                result.value[startNode + 2] = 0;
+                setX(result.value, node, left);
+                setY(result.value, node, -top);
+                setZ(result.value, node, 0);
             }
             left += 1;
         }

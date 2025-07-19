@@ -42,6 +42,7 @@ export function calculateSublattice(visibleConceptIndexes: Set<number>, lattice:
     const subconceptsMapping = new Array<Set<number>>();
     const { layers } = assignNodesToLayersByLongestPath(supremumIndex, lattice.subconceptsMapping);
 
+    let infimum = 0;
     let nextUsableIndex = 0;
 
     for (const layer of layers) {
@@ -67,6 +68,10 @@ export function calculateSublattice(visibleConceptIndexes: Set<number>, lattice:
             }
 
             subconceptsMapping[index] = new Set(subconcepts);
+
+            if (subconcepts.length === 0) {
+                infimum = index;
+            }
         }
     }
 
@@ -74,6 +79,7 @@ export function calculateSublattice(visibleConceptIndexes: Set<number>, lattice:
         reverseIndexMapping,
         subconceptsMapping,
         supremum: 0,
+        infimum,
     };
 }
 

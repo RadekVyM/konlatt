@@ -15,8 +15,9 @@ void computeLayeredLayoutJs(
 void computeFreeseLayoutJs(
     TimedResult<std::vector<float>>& result,
     int supremum,
+    int infimum,
     int conceptsCount,
-    emscripten::val const & superconceptsMappingTypedArray
+    const emscripten::val& subconceptsMappingTypedArray
 );
 
 #endif

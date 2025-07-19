@@ -15,7 +15,7 @@ async function computeLayout(request: CompleteLayoutComputationRequest) {
         case "layered":
             return await computeLayeredLayout(request.conceptsCount, request.supremum, request.subconceptsMappingArrayBuffer);
         case "freese":
-            return await computeFreeseLayout(request.conceptsCount, request.supremum, request.subconceptsMappingArrayBuffer);
+            return await computeFreeseLayout(request.conceptsCount, request.supremum, request.infimum, request.subconceptsMappingArrayBuffer);
         case "redraw":
         default:
             throw new Error("Not implemented");

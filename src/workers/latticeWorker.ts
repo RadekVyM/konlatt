@@ -2,7 +2,7 @@ import { ConceptLattice } from "../types/ConceptLattice";
 import { CompleteLayoutComputationRequest, CompleteWorkerRequest } from "../types/WorkerRequest";
 import { ConceptComputationResponse, ContextParsingResponse, FinishedResponse, LatticeComputationResponse, LayoutComputationResponse, ProgressResponse, StatusResponse, WorkerDataRequestObject, WorkerDataRequestResponse } from "../types/WorkerResponse";
 import { FormalContext } from "../types/FormalContext";
-import { FormalConcepts, getSupremum } from "../types/FormalConcepts";
+import { FormalConcepts, getInfimum, getSupremum } from "../types/FormalConcepts";
 import DiagramLayoutWorker from "./diagramLayoutWorker?worker";
 import { calculateSublattice, calculateVisibleConceptIndexes } from "../utils/lattice";
 import { createConceptPoint } from "../types/ConceptPoint";
@@ -239,13 +239,14 @@ function createCompleteLayoutComputationRequest(
                 layoutMethod,
                 conceptsCount: concepts.length,
                 supremum: getSupremum(concepts).index,
+                infimum: getInfimum(concepts).index,
                 subconceptsMappingArrayBuffer: new Int32Array(lattice.subconceptsMapping.flatMap((set) => [set.size, ...set])),
             },
             reverseIndexMapping: null,
         };
     }
 
-    const { reverseIndexMapping, subconceptsMapping, supremum } = calculateSublattice(visibleConceptIndexes, lattice, getSupremum(concepts).index);
+    const { reverseIndexMapping, subconceptsMapping, supremum, infimum } = calculateSublattice(visibleConceptIndexes, lattice, getSupremum(concepts).index);
 
     return {
         request: {
@@ -253,6 +254,7 @@ function createCompleteLayoutComputationRequest(
             layoutMethod,
             conceptsCount: subconceptsMapping.length,
             supremum,
+            infimum,
             subconceptsMappingArrayBuffer: new Int32Array(subconceptsMapping.flatMap((set) => [set.size, ...set])),
         },
         reverseIndexMapping,

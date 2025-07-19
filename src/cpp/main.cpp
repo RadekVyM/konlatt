@@ -15,6 +15,7 @@
 #include "burmeister.cpp"
 #include "inClose.cpp"
 #include "lattice.cpp"
+#include "layout/utils.cpp"
 #include "layout/layers.cpp"
 #include "layout/layeredLayout.cpp"
 #include "layout/freeseLayout.cpp"

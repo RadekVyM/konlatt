@@ -84,6 +84,7 @@ void computeLayeredLayoutJs(
 void computeFreeseLayoutJs(
     TimedResult<std::vector<float>>& result,
     int supremum,
+    int infimum,
     int conceptsCount,
     const emscripten::val& subconceptsMappingTypedArray
 ) {
@@ -93,6 +94,7 @@ void computeFreeseLayoutJs(
     computeFreeseLayout(
         result,
         supremum,
+        infimum,
         conceptsCount,
         subconceptsMapping,
         superconceptsMapping);
