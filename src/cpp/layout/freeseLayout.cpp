@@ -135,13 +135,12 @@ void normalizeDistances(
     }
 }
 
-std::unique_ptr<std::unordered_set<int>> getComparableConcepts(
+void getComparableConceptsOneWay(
+    std::unordered_set<int>& comparableConcepts,
     int conceptIndex,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping
+    std::vector<std::unordered_set<int>>& mapping
 ) {
     std::queue<int> conceptsQueue;
-    auto comparableConcepts = std::make_unique<std::unordered_set<int>>();
 
     conceptsQueue.push(conceptIndex);
 
@@ -149,33 +148,44 @@ std::unique_ptr<std::unordered_set<int>> getComparableConcepts(
         int conceptIndex = conceptsQueue.front();
         conceptsQueue.pop();
 
-        auto& subconcepts = subconceptsMapping[conceptIndex];
-        auto& superconcepts = superconceptsMapping[conceptIndex];
+        auto& subconcepts = mapping[conceptIndex];
 
         for (auto subconcept : subconcepts) {
-            if (!comparableConcepts->count(subconcept)) {
-                comparableConcepts->insert(subconcept);
+            if (!comparableConcepts.count(subconcept)) {
+                comparableConcepts.insert(subconcept);
                 conceptsQueue.push(subconcept);
             }
         }
-        for (auto superconcept : superconcepts) {
-            if (!comparableConcepts->count(superconcept)) {
-                comparableConcepts->insert(superconcept);
-                conceptsQueue.push(superconcept);
-            }
-        }
     }
+}
+
+std::unique_ptr<std::unordered_set<int>> getComparableConcepts(
+    int conceptIndex,
+    std::vector<std::unordered_set<int>>& subconceptsMapping,
+    std::vector<std::unordered_set<int>>& superconceptsMapping
+) {
+    auto comparableConcepts = std::make_unique<std::unordered_set<int>>();
+
+    getComparableConceptsOneWay(
+        *comparableConcepts,
+        conceptIndex,
+        subconceptsMapping);
+
+    getComparableConceptsOneWay(
+        *comparableConcepts,
+        conceptIndex,
+        superconceptsMapping);
 
     return comparableConcepts;
 }
 
 float forceCorrelation(ForcePoint& force) {
     float newLength = std::sqrt(force.newX * force.newX + force.newZ * force.newZ);
-    float oldLegth = std::sqrt(force.oldX * force.oldX + force.oldZ * force.oldZ);
+    float oldLength = std::sqrt(force.oldX * force.oldX + force.oldZ * force.oldZ);
 
-    return newLength == 0 || oldLegth == 0 ?
+    return newLength == 0 || oldLength == 0 ?
         0 :
-        (force.newX * force.oldX + force.newZ * force.oldZ) / (newLength * oldLegth);
+        (force.newX * force.oldX + force.newZ * force.oldZ) / (newLength * oldLength);
 }
 
 void adjustForce(
@@ -184,8 +194,16 @@ void adjustForce(
     float dx,
     float dz
 ) {
-    forces[index].newX += dx / 10;
-    forces[index].newZ += dz / 10;
+    if (std::abs(dx) >= 1 || std::abs(dz) >= 1) {
+        // Do not apply huge forces, otherwise, it can lead to NaN values pretty fast
+        float scale = std::max(std::abs(dx), std::abs(dz));
+
+        dx /= scale;
+        dz /= scale;
+    }
+
+    forces[index].newX += dx;
+    forces[index].newZ += dz;
 }
 
 void applyForce(
@@ -201,6 +219,8 @@ void applyForce(
 
     force.oldX = force.newX;
     force.oldZ = force.newZ;
+    force.newX = 0;
+    force.newZ = 0;
 }
 
 void attraction(
@@ -224,16 +244,16 @@ void repulsion(
     int first,
     int second
 ) {
-    float dx = getX(layout, second) - getX(layout, first);
-    float dy = getY(layout, second) - getY(layout, first);
-    float dz = getZ(layout, second) - getZ(layout, first);
+    float dx = getX(layout, first) - getX(layout, second);
+    float dy = getY(layout, first) - getY(layout, second);
+    float dz = getZ(layout, first) - getZ(layout, second);
 
     float denominator = dy == 0 && -0.2 < dx && dx < 0.2 && -0.2 < dz && dz < 0.2 ?
         37 :
-        1 / (std::pow(std::abs(dx), 3) + std::pow(std::abs(dy), 3) + std::pow(std::abs(dz), 3));
+        (1 / (std::pow(std::abs(dx), 3) + std::pow(std::abs(dy), 3) + std::pow(std::abs(dz), 3)));
 
-    dx *= repulsionFactor * denominator;
-    dz *= repulsionFactor * denominator;
+    dx *= denominator * repulsionFactor;
+    dz *= denominator * repulsionFactor;
 
     adjustForce(forces, first, dx, dz);
     adjustForce(forces, second, -dx, -dz);
@@ -310,8 +330,8 @@ void computeFreeseLayout(
         ITERATIONS + conceptsCount,
         result.value,
         *forces,
-        attractionFactor * 0.25,
-        repulsionFactor * 1.5,
+        attractionFactor * 0.5,
+        repulsionFactor * 3,
         conceptsCount,
         subconceptsMapping,
         superconceptsMapping);
@@ -320,18 +340,18 @@ void computeFreeseLayout(
         ITERATIONS + conceptsCount,
         result.value,
         *forces,
-        attractionFactor * 1.5,
-        repulsionFactor * 0.25,
-        conceptsCount,
-        subconceptsMapping,
-        superconceptsMapping);
-
-    multiUpdate(
-        ITERATIONS + conceptsCount,
-        result.value,
-        *forces,
-        attractionFactor * 0.38,
+        attractionFactor * 3,
         repulsionFactor * 0.5,
+        conceptsCount,
+        subconceptsMapping,
+        superconceptsMapping);
+
+    multiUpdate(
+        ITERATIONS + conceptsCount,
+        result.value,
+        *forces,
+        attractionFactor * 0.75,
+        repulsionFactor * 1.5,
         conceptsCount,
         subconceptsMapping,
         superconceptsMapping);

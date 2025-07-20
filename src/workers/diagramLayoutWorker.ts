@@ -3,6 +3,8 @@ import { CompleteLayoutComputationRequest } from "../types/WorkerRequest";
 self.onmessage = async (event: MessageEvent<CompleteLayoutComputationRequest>) => {
     const result = await computeLayout(event.data);
 
+    console.log(JSON.stringify(result.layout))
+
     self.postMessage(result);
     self.close();
 }
