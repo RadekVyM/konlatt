@@ -13,7 +13,7 @@ using namespace std;
 
 FormalContext parseBurmeister(std::string fileContent) {
     // TODO: Produce exceptions when issues with the file format are encountered
-    std::unique_ptr<FormalContext> context = std::make_unique<FormalContext>();
+    FormalContext context;
     std::stringstream fileContentStream(fileContent);
 
     std::string bLine;
@@ -87,11 +87,11 @@ FormalContext parseBurmeister(std::string fileContent) {
         contextMatrix.push_back(value);
     }
 
-    context->setObjects(objects);
-    context->setAttributes(atributes);
-    context->setCellsPerObject((int)ceil(atributes.size() / (double)cellSize));
-    context->setCellSize(cellSize);
-    context->setContext(contextMatrix);
+    context.setObjects(objects);
+    context.setAttributes(atributes);
+    context.setCellsPerObject((int)ceil(atributes.size() / (double)cellSize));
+    context.setCellSize(cellSize);
+    context.setContext(contextMatrix);
 
-    return *context;
+    return context;
 }

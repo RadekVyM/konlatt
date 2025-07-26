@@ -2,6 +2,7 @@
 #include "../utils.h"
 #include "layeredLayout.h"
 #include "freeseLayout.h"
+#include "reDrawLayout.h"
 #include "layouts.h"
 
 #include <emscripten/emscripten.h>
@@ -87,9 +88,20 @@ void computeFreeseLayoutJs(
     int infimum,
     int conceptsCount,
     const emscripten::val& subconceptsMappingTypedArray
+#ifdef __EMSCRIPTEN__
+    , OnProgressCallback onProgress
+#endif
 ) {
     auto mappings = convertToCppMappings(conceptsCount, subconceptsMappingTypedArray);
     auto& [subconceptsMapping, superconceptsMapping] = *mappings;
+
+    auto onProgressCallback = [&onProgress](double value) {
+#ifdef __EMSCRIPTEN__
+        if (!onProgress.isUndefined()) {
+            onProgress(value);
+        }
+#endif
+    };
 
     computeFreeseLayout(
         result,
@@ -97,5 +109,37 @@ void computeFreeseLayoutJs(
         infimum,
         conceptsCount,
         subconceptsMapping,
-        superconceptsMapping);
+        superconceptsMapping,
+        onProgressCallback);
+}
+
+void computeReDrawLayoutJs(
+    TimedResult<std::vector<float>>& result,
+    int supremum,
+    int infimum,
+    int conceptsCount,
+    const emscripten::val& subconceptsMappingTypedArray
+#ifdef __EMSCRIPTEN__
+    , OnProgressCallback onProgress
+#endif
+) {
+    auto mappings = convertToCppMappings(conceptsCount, subconceptsMappingTypedArray);
+    auto& [subconceptsMapping, superconceptsMapping] = *mappings;
+
+    auto onProgressCallback = [&onProgress](double value) {
+#ifdef __EMSCRIPTEN__
+        if (!onProgress.isUndefined()) {
+            onProgress(value);
+        }
+#endif
+    };
+
+    computeReDrawLayout(
+        result,
+        supremum,
+        infimum,
+        conceptsCount,
+        subconceptsMapping,
+        superconceptsMapping,
+        onProgressCallback);
 }

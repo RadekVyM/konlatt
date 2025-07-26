@@ -8,6 +8,7 @@ import { calculateSublattice, calculateVisibleConceptIndexes } from "../utils/la
 import { createConceptPoint } from "../types/ConceptPoint";
 import { Point } from "../types/Point";
 import { LayoutMethod } from "../types/LayoutMethod";
+import { LayoutWorkerResponse } from "../types/LayoutWorkerResponse";
 
 let formalContext: FormalContext | null = null;
 let formalConcepts: FormalConcepts | null = null;
@@ -149,17 +150,27 @@ async function calculateLayout(
         workerInstances.set(jobId, { worker, reject });
 
         worker.onmessage = (event) => {
-            const layoutMessage: LayoutComputationResponse = {
-                jobId,
-                time: new Date().getTime(),
-                type: "layout",
-                layout: getValidLayout(event.data.layout, reverseIndexMapping),
-                computationTime: event.data.computationTime,
-            };
-            self.postMessage(layoutMessage);
+            const response = event.data as LayoutWorkerResponse;
 
-            workerInstances.delete(jobId);
-            resolve(undefined);
+            switch (response.type) {
+                case "progress":
+                    postProgressMessage(jobId, response.progress);
+
+                    break;
+                case "result":
+                    const layoutMessage: LayoutComputationResponse = {
+                        jobId,
+                        time: new Date().getTime(),
+                        type: "layout",
+                        layout: getValidLayout(response.layout, reverseIndexMapping),
+                        computationTime: response.computationTime,
+                    };
+                    self.postMessage(layoutMessage);
+
+                    workerInstances.delete(jobId);
+                    resolve(undefined);
+                    break;
+            }
         };
         worker.onerror = (event) => {
             workerInstances.delete(jobId);

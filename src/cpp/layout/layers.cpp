@@ -3,54 +3,9 @@
 #include <memory>
 #include <unordered_set>
 #include "layers.h"
+#include "utils.h"
 
 using namespace std;
-
-void topologicalSortImpl(
-    int currentIndex,
-    std::vector<std::unordered_set<int>>& coverRelation,
-    std::vector<bool>& visited,
-    std::vector<int>& topologicalOrder,
-    std::shared_ptr<int> sortedLastIndex
-) {
-    // https://en.wikipedia.org/wiki/Longest_path_problem#Acyclic_graphs
-
-    std::unordered_set<int>& subconcepts = coverRelation[currentIndex];
-    visited[currentIndex] = true;
-
-    for (int subconceptIndex : subconcepts) {
-        if (!visited[subconceptIndex]) {
-            topologicalSortImpl(
-                subconceptIndex,
-                coverRelation,
-                visited,
-                topologicalOrder,
-                sortedLastIndex);
-        }
-    }
-
-    topologicalOrder[*sortedLastIndex] = currentIndex;
-    *sortedLastIndex = *sortedLastIndex - 1;
-}
-
-std::unique_ptr<std::vector<int>> topologicalSort(int startConceptIndex, std::vector<std::unordered_set<int>>& coverRelation) {
-    std::unique_ptr<std::vector<int>> topologicalOrder = make_unique<std::vector<int>>();
-    std::unique_ptr<std::vector<bool>> visited = make_unique<std::vector<bool>>();
-    std::shared_ptr<int> sortedLastIndex = make_shared<int>();
-
-    visited->resize(coverRelation.size());
-    topologicalOrder->resize(coverRelation.size());
-    *sortedLastIndex = coverRelation.size() - 1;
-
-    topologicalSortImpl(
-        startConceptIndex,
-        coverRelation,
-        *visited,
-        *topologicalOrder,
-        sortedLastIndex);
-
-    return topologicalOrder;
-}
 
 std::unique_ptr<std::tuple<std::vector<int>, std::vector<std::unordered_set<int>>>> assignNodesToLayersByLongestPath(
     int startConceptIndex,

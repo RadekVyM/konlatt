@@ -1,19 +1,12 @@
-#ifndef FREESE_LAYOUT_H
-#define FREESE_LAYOUT_H
+#ifndef REDRAW_LAYOUT_H
+#define REDRAW_LAYOUT_H
 
 #include <vector>
 #include <unordered_set>
 #include <functional>
 #include "../types/TimedResult.h"
 
-struct ForcePoint {
-    float oldX;
-    float oldZ;
-    float newX;
-    float newZ;
-};
-
-void computeFreeseLayout(
+void computeReDrawLayout(
     TimedResult<std::vector<float>>& result,
     int supremum,
     int infimum,

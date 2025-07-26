@@ -19,6 +19,7 @@
 #include "layout/layers.cpp"
 #include "layout/layeredLayout.cpp"
 #include "layout/freeseLayout.cpp"
+#include "layout/reDrawLayout.cpp"
 #include "layout/layouts.cpp"
 
 using namespace emscripten;
@@ -85,6 +86,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
     emscripten::function("conceptsCover", &conceptsCover);
     emscripten::function("computeLayeredLayout", &computeLayeredLayoutJs);
     emscripten::function("computeFreeseLayout", &computeFreeseLayoutJs);
+    emscripten::function("computeReDrawLayout", &computeReDrawLayoutJs);
 
     emscripten::register_type<OnProgressCallback>("((progress: number) => void) | undefined");
 }

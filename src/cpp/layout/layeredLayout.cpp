@@ -153,12 +153,12 @@ std::unique_ptr<std::vector<std::vector<int>>> reduceCrossingsUsingAverage(
     bool useBoth
 ) {
     auto reducedLayers = make_unique<std::vector<std::vector<int>>>();
-    auto averages = make_unique<std::vector<float>>();
+    std::vector<float> averages;
     int first = topToBottom ? 0 : layers.size() - 1;
     int second = topToBottom ? 1 : layers.size() - 2;
     int increase = topToBottom ? 1 : -1;
 
-    averages->resize(horizontalCoords.size());
+    averages.resize(horizontalCoords.size());
     reducedLayers->resize(layers.size());
 
     (*reducedLayers)[first].insert((*reducedLayers)[first].begin(), layers[first].begin(), layers[first].end());
@@ -211,7 +211,7 @@ std::unique_ptr<std::vector<std::vector<int>>> reduceCrossingsUsingAverage(
                 count += subconcepts.size();
             }
 
-            (*averages)[concept] = (float)sum / count;
+            averages[concept] = (float)sum / count;
         }
 
         auto& reducedLayer = (*reducedLayers)[i] = vector<int>(layer.begin(), layer.end());
@@ -219,7 +219,7 @@ std::unique_ptr<std::vector<std::vector<int>>> reduceCrossingsUsingAverage(
 
         // Future self, be aware of the strict weak ordering! You are welcome!
         std::sort(reducedLayer.begin(), reducedLayer.end(), [&](int a, int b) {
-            return (*averages)[a] < (*averages)[b];
+            return averages[a] < averages[b];
         });
 
         for (int j = 0; j < reducedLayer.size(); j++) {

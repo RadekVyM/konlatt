@@ -15,6 +15,7 @@
 #include <unordered_map>
 #include <queue>
 #include <algorithm>
+#include <functional>
 
 using namespace std;
 
@@ -102,81 +103,42 @@ void initializeLayout(
     }
 }
 
+/**
+ * Moves nodes so their distances from the center are closer to the ideal distances.
+ */
 void normalizeDistances(
     std::vector<float>& layout,
     int conceptsCount,
+    int supremum,
+    int infimum,
     std::vector<int>& ranksMapping,
     std::unordered_map<int, int>& rankCounts
 ) {
-    for (int i = 0; i < conceptsCount; i++) {
-        int rank = ranksMapping[i];
+    for (int conceptIndex = 0; conceptIndex < conceptsCount; conceptIndex++) {
+        int rank = ranksMapping[conceptIndex];
         int rankCount = rankCounts[rank];
         float idealDistance = distanceByRank(rank, rankCount);
 
-        float x = getX(layout, i);
-        float z = getZ(layout, i);
+        float x = getX(layout, conceptIndex);
+        float z = getZ(layout, conceptIndex);
 
         float currentDistance = std::sqrt(x * x + z * z);
 
-        if (idealDistance == 0) {
-            setX(layout, i, 0);
-            setZ(layout, i, 0);
+        if (conceptIndex == supremum || conceptIndex == infimum) {
+            setX(layout, conceptIndex, 0);
+            setZ(layout, conceptIndex, 0);
             continue;
         }
 
-        if (currentDistance <= idealDistance * 1.5) {
+        if (currentDistance == 0 || currentDistance <= idealDistance * 1.5) {
             continue;
         }
 
         float scale = idealDistance / currentDistance;
 
-        setX(layout, i, x * scale);
-        setZ(layout, i, z * scale);
+        setX(layout, conceptIndex, x * scale);
+        setZ(layout, conceptIndex, z * scale);
     }
-}
-
-void getComparableConceptsOneWay(
-    std::unordered_set<int>& comparableConcepts,
-    int conceptIndex,
-    std::vector<std::unordered_set<int>>& mapping
-) {
-    std::queue<int> conceptsQueue;
-
-    conceptsQueue.push(conceptIndex);
-
-    while (!conceptsQueue.empty()) {
-        int conceptIndex = conceptsQueue.front();
-        conceptsQueue.pop();
-
-        auto& subconcepts = mapping[conceptIndex];
-
-        for (auto subconcept : subconcepts) {
-            if (!comparableConcepts.count(subconcept)) {
-                comparableConcepts.insert(subconcept);
-                conceptsQueue.push(subconcept);
-            }
-        }
-    }
-}
-
-std::unique_ptr<std::unordered_set<int>> getComparableConcepts(
-    int conceptIndex,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping
-) {
-    auto comparableConcepts = std::make_unique<std::unordered_set<int>>();
-
-    getComparableConceptsOneWay(
-        *comparableConcepts,
-        conceptIndex,
-        subconceptsMapping);
-
-    getComparableConceptsOneWay(
-        *comparableConcepts,
-        conceptIndex,
-        superconceptsMapping);
-
-    return comparableConcepts;
 }
 
 float forceCorrelation(ForcePoint& force) {
@@ -188,6 +150,29 @@ float forceCorrelation(ForcePoint& force) {
         (force.newX * force.oldX + force.newZ * force.oldZ) / (newLength * oldLength);
 }
 
+/**
+ * Applies current force to the node.
+ */
+void applyForce(
+    std::vector<float>& layout,
+    std::vector<ForcePoint>& forces,
+    int index
+) {
+    ForcePoint& force = forces[index];
+    float correction = 1 + CORRECTION_FACTOR * forceCorrelation(force);
+
+    setX(layout, index, getX(layout, index) + correction * force.newX);
+    setZ(layout, index, getZ(layout, index) + correction * force.newZ);
+
+    force.oldX = force.newX;
+    force.oldZ = force.newZ;
+    force.newX = 0;
+    force.newZ = 0;
+}
+
+/**
+ * Adjusts current force of the node using provided vector.
+ */
 void adjustForce(
     std::vector<ForcePoint>& forces,
     int index,
@@ -204,23 +189,6 @@ void adjustForce(
 
     forces[index].newX += dx;
     forces[index].newZ += dz;
-}
-
-void applyForce(
-    std::vector<float>& layout,
-    std::vector<ForcePoint>& forces,
-    int index
-) {
-    ForcePoint& force = forces[index];
-    float correction = 1 + CORRECTION_FACTOR * forceCorrelation(force);
-
-    setX(layout, index, getX(layout, index) + correction * force.newX);
-    setZ(layout, index, getZ(layout, index) + correction * force.newZ);
-
-    force.oldX = force.newX;
-    force.oldZ = force.newZ;
-    force.newX = 0;
-    force.newZ = 0;
 }
 
 void attraction(
@@ -291,17 +259,32 @@ void update(
 
 void multiUpdate(
     int updatesCount,
+    int previousUpdatesCount,
+    int totalUpdatesCount,
     std::vector<float>& layout,
     std::vector<ForcePoint>& forces,
     float attractionFactor,
     float repulsionFactor,
     int conceptsCount,
     std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping
+    std::vector<std::unordered_set<int>>& superconceptsMapping,
+    std::function<void(double)> onProgress
 ) {
+    double updatesPerPercent = totalUpdatesCount / 100.0;
+    double previousRecordedIteration = previousUpdatesCount;
+
     for (int i = 0; i < updatesCount; i++) {
-        std::cout << i << "\n";
         update(layout, forces, attractionFactor, repulsionFactor, conceptsCount, subconceptsMapping, superconceptsMapping);
+
+        double currentIteration = previousUpdatesCount + i + 1;
+        if (currentIteration - previousRecordedIteration >= updatesPerPercent) {
+            onProgress(currentIteration / totalUpdatesCount);
+            previousRecordedIteration = currentIteration;
+        }
+    }
+
+    if (previousUpdatesCount + updatesCount != previousRecordedIteration) {
+        onProgress((double)(previousUpdatesCount + updatesCount) / totalUpdatesCount);
     }
 }
 
@@ -311,7 +294,8 @@ void computeFreeseLayout(
     int infimum,
     int conceptsCount,
     std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping
+    std::vector<std::unordered_set<int>>& superconceptsMapping,
+    std::function<void(double)> onProgress
 ) {
     long long startTime = nowMills();
 
@@ -324,41 +308,53 @@ void computeFreeseLayout(
     float attractionFactor = ATTRACTION_CONSTANT / std::sqrt(conceptsCount);
     float repulsionFactor = REPULSION_CONSTANT / std::sqrt(conceptsCount);
 
+    int singleIterationUpdatesCount = ITERATIONS + conceptsCount;
+    int totalUpdatesCount = 3 * singleIterationUpdatesCount;
+
     initializeLayout(result.value, conceptsCount, ranksMapping, rankCounts);
 
     multiUpdate(
-        ITERATIONS + conceptsCount,
+        singleIterationUpdatesCount,
+        0,
+        totalUpdatesCount,
         result.value,
         *forces,
         attractionFactor * 0.5,
         repulsionFactor * 3,
         conceptsCount,
         subconceptsMapping,
-        superconceptsMapping);
+        superconceptsMapping,
+        onProgress);
 
     multiUpdate(
-        ITERATIONS + conceptsCount,
+        singleIterationUpdatesCount,
+        singleIterationUpdatesCount,
+        totalUpdatesCount,
         result.value,
         *forces,
         attractionFactor * 3,
         repulsionFactor * 0.5,
         conceptsCount,
         subconceptsMapping,
-        superconceptsMapping);
+        superconceptsMapping,
+        onProgress);
 
     multiUpdate(
-        ITERATIONS + conceptsCount,
+        singleIterationUpdatesCount,
+        singleIterationUpdatesCount * 2,
+        totalUpdatesCount,
         result.value,
         *forces,
         attractionFactor * 0.75,
         repulsionFactor * 1.5,
         conceptsCount,
         subconceptsMapping,
-        superconceptsMapping);
+        superconceptsMapping,
+        onProgress);
 
-    normalizeDistances(result.value, conceptsCount, ranksMapping, rankCounts);
+    normalizeDistances(result.value, conceptsCount, supremum, infimum, ranksMapping, rankCounts);
 
     long long endTime = nowMills();
 
-    result.time = (int)endTime - startTime;
+    result.time = (int)(endTime - startTime);
 }

@@ -2,7 +2,7 @@ import Module from "../../cpp";
 import { cppFloatArrayToPoints } from "../../utils/cpp";
 import { Point } from "../../types/Point";
 
-export async function computeFreeseLayout(
+export async function computeReDrawLayout(
     conceptsCount: number,
     supremum: number,
     infimum: number,
@@ -15,7 +15,7 @@ export async function computeFreeseLayout(
     const module = await Module();
     const result = new module.FloatArrayTimedResult();
 
-    module.computeFreeseLayout(result, supremum, infimum, conceptsCount, subconceptsMappingArrayBuffer, onProgress);
+    module.computeReDrawLayout(result, supremum, infimum, conceptsCount, subconceptsMappingArrayBuffer, onProgress);
     const layout = cppFloatArrayToPoints(result.value, conceptsCount, true);
     const computationTime = result.time;
 

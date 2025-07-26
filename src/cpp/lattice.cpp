@@ -28,10 +28,10 @@ void conceptsCover(
     //printFormalContext(contextMatrix, cellSize, cellsPerObject, contextObjectsCount, contextAttributesCount);
     long long startTime = nowMills();
 
-    std::unique_ptr<std::map<std::vector<int>, int>> conceptsMap = make_unique<std::map<std::vector<int>, int>>();
+    std::map<std::vector<int>, int> conceptsMap;
 
     for (int i = 0; i < concepts.size(); i++) {
-        conceptsMap->insert({ concepts[i].getObjectsCopy(), i });
+        conceptsMap.insert({ concepts[i].getObjectsCopy(), i });
     }
 
     result.value.resize(concepts.size());
@@ -83,7 +83,7 @@ void conceptsCover(
             }
 
             // getting concept whose extent is equal to inters
-            int anotherConceptIndex = conceptsMap->find(inters)->second;
+            int anotherConceptIndex = conceptsMap.find(inters)->second;
             counts[anotherConceptIndex] = counts[anotherConceptIndex] + 1;
 
             if (concepts[anotherConceptIndex].getAttributes().size() - conceptAttributesCount == counts[anotherConceptIndex]) {
