@@ -412,7 +412,7 @@ float lineStep(
                         addHForce(negativeForce, forces, dimension, secondTo);
                     }
 
-                    if (similarity < similarity && similarity < C_ANG) {
+                    if (0 < similarity && similarity < C_ANG) {
                         auto force = calculateLineForce(layout, dimension, firstFrom, firstTo, secondFrom, secondTo, similarity, C_ANG);
                         auto positiveForce = multiplyByScalar(force, DELTA);
                         auto negativeForce = multiplyByScalar(force, -DELTA);
