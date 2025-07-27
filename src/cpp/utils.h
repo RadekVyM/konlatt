@@ -21,6 +21,12 @@ bool hasObjectWithAllAttributes(
 
 bool isSortedSubsetOf(std::vector<int>& subset, std::vector<int>& superset);
 
+template <typename T>
+bool allElementsEqualTo(std::vector<T>& vec, T value);
+
+template <typename T>
+bool areCollectionsEqual(std::vector<T>& first, std::vector<T>& second);
+
 void printFormalContext(
     std::vector<unsigned int> &contextMatrix,
     int cellSize,

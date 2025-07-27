@@ -4,8 +4,6 @@ import { CompleteLayoutComputationRequest } from "../types/WorkerRequest";
 self.onmessage = async (event: MessageEvent<CompleteLayoutComputationRequest>) => {
     const result = await computeLayout(event.data);
 
-    console.log(JSON.stringify(result.layout));
-
     const response: LayoutWorkerResultResponse = {
         type: "result",
         layout: result.layout,

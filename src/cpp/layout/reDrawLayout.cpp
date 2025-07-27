@@ -8,10 +8,12 @@
 
 #include <stdio.h>
 #include <cmath>
+#include <numeric>
 #include <random>
 #include <memory>
 #include <vector>
 #include <algorithm>
+#include <limits>
 #include <Eigen/Dense>
 
 #define INITIAL_DIMENSION 5
@@ -22,6 +24,9 @@
 #define C_ANG 0.05
 #define C_DIST 1
 #define DELTA 0.001
+#define EPSILON 0.0025
+
+// TODO: Clean up this file
 
 int getLayoutDimension(int dimension) {
     return std::max(dimension, COORDS_COUNT);
@@ -29,6 +34,35 @@ int getLayoutDimension(int dimension) {
 
 int getStart(int dimension, int index) {
     return index * getLayoutDimension(dimension);
+}
+
+double dotProduct(const std::vector<float>& first, const std::vector<float>& second) {
+    if (first.size() != second.size()) {
+        throw std::invalid_argument("Vectors must have the same size for dot product.");
+    }
+    return std::inner_product(first.begin(), first.end(), second.begin(), 0.0);
+}
+
+double magnitude(const std::vector<float>& vec) {
+    double sumSquared = 0.0;
+    for (float value : vec) {
+        sumSquared += value * value;
+    }
+    return std::sqrt(sumSquared);
+}
+
+double cosineSimilarity(const std::vector<float>& first, const std::vector<float>& second) {
+    double dp = dotProduct(first, second);
+
+    double firstMagnitude = magnitude(first);
+    double secondMagnitude = magnitude(second);
+
+    if (firstMagnitude == 0 || secondMagnitude == 0) {
+        // Cosine similarity is undefined or often treated as 0 in this case.
+        return 0;
+    }
+
+    return dp / (firstMagnitude * secondMagnitude);
 }
 
 double distance(
@@ -42,8 +76,8 @@ double distance(
     double sum = 0;
 
     for (int i = 0; i < count; i++) {
-        float first = layout[getStart(dimension, firstIndex) + offset + i];
-        float second = layout[getStart(dimension, secondIndex) + offset + i];
+        double first = layout[getStart(dimension, firstIndex) + offset + i];
+        double second = layout[getStart(dimension, secondIndex) + offset + i];
         double diff = first - second;
 
         sum += std::pow(diff, 2);
@@ -60,8 +94,7 @@ std::vector<float> difference(
     int offset,
     int count
 ) {
-    std::vector<float> vec;
-    vec.resize(count);
+    std::vector<float> vec(count);
 
     for (int i = 0; i < count; i++) {
         float first = layout[getStart(dimension, firstIndex) + offset + i];
@@ -72,12 +105,32 @@ std::vector<float> difference(
     return vec;
 }
 
-std::vector<float> multiplyVector(std::vector<float> vec, double factor) {
-    for (float& element : vec) {
-        element *= factor;
+std::vector<float> difference(const std::vector<float>& first, const std::vector<float>& second) {
+    std::vector<float> result(first.size());
+
+    for (int i = 0; i < first.size(); i++) {
+        result[i] = first[i] - second[i];
+    }
+
+    return result;
+}
+
+std::vector<float> multiplyByScalar(std::vector<float> vec, double factor) {
+    for (int i = 0; i < vec.size(); i++) {
+        vec[i] *= factor;
     }
 
     return vec;
+}
+
+double length(const std::vector<float>& vec) {
+    double sum = 0;
+
+    for (int i = 0; i < vec.size(); i++) {
+        sum += std::pow(vec[i], 2);
+    }
+
+    return std::sqrt(sum);
 }
 
 void resetForces(
@@ -87,12 +140,47 @@ void resetForces(
 ) {
     forces.resize(conceptsCount * getLayoutDimension(dimension));
 
-    for (int i = 0; i < conceptsCount * getLayoutDimension(dimension); i++) {
+    for (int i = 0; i < forces.size(); i++) {
         forces[i] = 0;
     }
 }
 
-void nodeStep(
+void addForce(
+    std::vector<float>& force,
+    std::vector<float>& forces,
+    int dimension,
+    int index
+) {
+    int start = getStart(dimension, index);
+
+    for (int i = 0; i < dimension; i++) {
+        forces[start + i] += force[i];
+    }
+}
+
+void addVForce(
+    float force,
+    std::vector<float>& forces,
+    int dimension,
+    int index
+) {
+    forces[getStart(dimension, index)] += force;
+}
+
+void addHForce(
+    std::vector<float>& force,
+    std::vector<float>& forces,
+    int dimension,
+    int index
+) {
+    int start = getStart(dimension, index);
+
+    for (int i = 0; i < dimension - 1; i++) {
+        forces[start + i + 1] += force[i];
+    }
+}
+
+float applyForces(
     std::vector<float>& layout,
     std::vector<float>& forces,
     int conceptsCount,
@@ -100,50 +188,139 @@ void nodeStep(
     std::vector<std::unordered_set<int>>& subconceptsMapping,
     std::vector<std::unordered_set<int>>& superconceptsMapping
 ) {
-    for (int startConceptIndex = 0; startConceptIndex < conceptsCount; startConceptIndex++) {
-        // Vertical forces
-        for (int endConceptIndex : subconceptsMapping[startConceptIndex]) {
-            double verticalDistance = distance(layout, dimension, startConceptIndex, endConceptIndex, 0, 1);
-            double horizontalDistance = distance(layout, dimension, startConceptIndex, endConceptIndex, 1, dimension - 1);
-            double spring = -C_VERT * ((1 + horizontalDistance) / verticalDistance - 1);
-            double force = DELTA * spring;
+    float forcesSum = 0;
 
-            // add force
+    for (int conceptIndex = 0; conceptIndex < conceptsCount; conceptIndex++) {
+        int start = getStart(dimension, conceptIndex);
+        float tempY = layout[start];
+
+        for (int i = 0; i < dimension; i++) {
+            layout[start + i] += forces[start + i];
+            forcesSum += std::abs(forces[start + i]);
         }
 
-        auto comparableConcepts = getComparableConcepts(startConceptIndex, subconceptsMapping, superconceptsMapping);
+        if (forces[start] > 0) {
+            float upperb = std::numeric_limits<float>::max();
+            bool hasPredecessor = false;
 
-        for (int comp : *comparableConcepts) {
-            double dist = distance(layout, dimension, startConceptIndex, comp, 1, dimension - 1);
-            double factor = std::min(std::pow(dist, 2), (double)C_HOR) * DELTA;
-            auto direction = difference(layout, dimension, comp, startConceptIndex, 1, dimension - 1);
-
-            // add forces
-            multiplyVector(direction, factor);
-            multiplyVector(direction, -factor);
-        }
-
-        for (int incomp = 0; incomp < conceptsCount; incomp++) {
-            if (incomp == startConceptIndex || comparableConcepts->count(incomp)) {
-                continue;
+            for (int superconcept : superconceptsMapping[conceptIndex]) {
+                upperb = std::min(upperb, layout[getStart(dimension, superconcept)]);
+                hasPredecessor = true;
+            }
+            if (hasPredecessor) {
+                upperb -= 0.1;
             }
 
-            double verticalDistance = distance(layout, dimension, startConceptIndex, incomp, 0, 1);
-            double horizontalDistance = distance(layout, dimension, incomp, startConceptIndex, 1, dimension - 1);
+            if (layout[start] > upperb) {
+                layout[start] = (tempY + upperb) / 2;
+            }
+        }
+        else {
+            float lowerb = std::numeric_limits<float>::min();
+            bool hasSuccessor = false;
 
-            if (horizontalDistance != 0) {
-                double spring = -(C_HOR / (horizontalDistance)) * DELTA;
-                auto direction = difference(layout, dimension, incomp, startConceptIndex, 1, dimension - 1);
-                direction = multiplyVector(direction, 1 / horizontalDistance);
+            for (int subconcept : subconceptsMapping[conceptIndex]) {
+                lowerb = std::max(lowerb, layout[getStart(dimension, subconcept)]);
+                hasSuccessor = true;
+            }
+            if (hasSuccessor) {
+                lowerb += 0.1;
+            }
 
-                // add forces
-                multiplyVector(direction, spring);
-                multiplyVector(direction, -spring);
+            if (layout[start] < lowerb) {
+                layout[start] = (tempY + lowerb) / 2;
             }
         }
     }
 
-    // apply forces
+    return forcesSum;
+}
+
+void correctOffset(
+    std::vector<float>& layout,
+    int conceptsCount,
+    int dimension
+) {
+    std::vector<float> means(dimension - 1, 0);
+
+    for (int conceptIndex = 0; conceptIndex < conceptsCount; conceptIndex++) {
+        int start = getStart(dimension, conceptIndex);
+
+        for (int i = 0; i < means.size(); i++) {
+            means[i] += layout[start + i + 1];
+        }
+    }
+
+    for (int i = 0; i < means.size(); i++) {
+        means[i] /= conceptsCount;
+    }
+
+    for (int conceptIndex = 0; conceptIndex < conceptsCount; conceptIndex++) {
+        int start = getStart(dimension, conceptIndex);
+
+        for (int i = 0; i < means.size(); i++) {
+            layout[start + i + 1] -= means[i];
+        }
+    }
+}
+
+float nodeStep(
+    std::vector<float>& layout,
+    std::vector<float>& forces,
+    int conceptsCount,
+    int dimension,
+    std::vector<std::unordered_set<int>>& subconceptsMapping,
+    std::vector<std::unordered_set<int>>& superconceptsMapping
+) {
+    for (int conceptIndex = 0; conceptIndex < conceptsCount; conceptIndex++) {
+        // Vertical forces
+        for (int endConceptIndex : subconceptsMapping[conceptIndex]) {
+            double verticalDistance = distance(layout, dimension, conceptIndex, endConceptIndex, 0, 1);
+            double horizontalDistance = distance(layout, dimension, conceptIndex, endConceptIndex, 1, dimension - 1);
+            double spring = -C_VERT * ((1 + horizontalDistance) / verticalDistance - 1);
+            double force = DELTA * spring;
+
+            addVForce(-force, forces, dimension, conceptIndex);
+            addVForce(force, forces, dimension, endConceptIndex);
+        }
+
+        auto comparableConcepts = getComparableConcepts(conceptIndex, subconceptsMapping, superconceptsMapping);
+
+        // Attracting forces of chains (comparable elements)
+        for (int comp : *comparableConcepts) {
+            double dist = distance(layout, dimension, conceptIndex, comp, 1, dimension - 1);
+            double factor = std::min(std::pow(dist, 2), (double)C_HOR) * DELTA;
+            auto direction = difference(layout, dimension, comp, conceptIndex, 1, dimension - 1);
+
+            auto startVec = multiplyByScalar(direction, factor);
+            auto compVec = multiplyByScalar(direction, -factor);
+
+            addHForce(startVec, forces, dimension, conceptIndex);
+            addHForce(compVec, forces, dimension, comp);
+        }
+
+        // Repelling forces between incomparable elements
+        for (int incomp = 0; incomp < conceptsCount; incomp++) {
+            if (incomp == conceptIndex || comparableConcepts->count(incomp)) {
+                continue;
+            }
+
+            double verticalDistance = distance(layout, dimension, conceptIndex, incomp, 0, 1);
+            double horizontalDistance = distance(layout, dimension, incomp, conceptIndex, 1, dimension - 1);
+
+            if (horizontalDistance != 0) {
+                double spring = -(C_HOR / horizontalDistance) * DELTA;
+                auto direction = difference(layout, dimension, incomp, conceptIndex, 1, dimension - 1);
+                auto startVec = multiplyByScalar(direction, spring / horizontalDistance);
+                auto incompVec = multiplyByScalar(direction, -spring / horizontalDistance);
+
+                addHForce(startVec, forces, dimension, conceptIndex);
+                addHForce(incompVec, forces, dimension, incomp);
+            }
+        }
+    }
+
+    return applyForces(layout, forces, conceptsCount, dimension, subconceptsMapping, superconceptsMapping);
 }
 
 void multiNodeStep(
@@ -154,14 +331,51 @@ void multiNodeStep(
     std::vector<std::unordered_set<int>>& subconceptsMapping,
     std::vector<std::unordered_set<int>>& superconceptsMapping
 ) {
-    resetForces(forces, conceptsCount, dimension);
-
     for (int i = 0; i < ITERATIONS_COUNT; i++) {
-        nodeStep(layout, forces, conceptsCount, dimension, subconceptsMapping, superconceptsMapping);
+        resetForces(forces, conceptsCount, dimension);
+
+        float totalForce = nodeStep(
+            layout,
+            forces,
+            conceptsCount,
+            dimension,
+            subconceptsMapping,
+            superconceptsMapping);
+
+        if (totalForce < EPSILON) {
+            break;
+        }
     }
 }
 
-void lineStep(
+std::vector<float> calculateLineForce(
+    std::vector<float>& layout,
+    int dimension,
+    int firstFrom,
+    int firstTo,
+    int secondFrom,
+    int secondTo,
+    double similarity,
+    double constant
+) {
+    auto firstVector = difference(layout, dimension, firstTo, firstFrom, 0, dimension);
+    auto secondVector = difference(layout, dimension, firstTo, firstFrom, 0, dimension);
+
+    double firstY = firstVector.front();
+    double secondY = secondVector.front();
+
+    std::vector<float> result(dimension - 1);
+
+    double factor = 1 - similarity * 1 / constant;
+
+    for (int i = 0; i < result.size(); i++) {
+        result[i] = factor * ((firstVector[i + 1] / firstY) - (secondVector[i + 1] / secondY));
+    }
+
+    return result;
+}
+
+float lineStep(
     std::vector<float>& layout,
     std::vector<float>& forces,
     int conceptsCount,
@@ -169,7 +383,78 @@ void lineStep(
     std::vector<std::unordered_set<int>>& subconceptsMapping,
     std::vector<std::unordered_set<int>>& superconceptsMapping
 ) {
+    // TODO: Check if this is implemented correctly
+    for (int firstFrom = 0; firstFrom < conceptsCount; firstFrom++) {
+        for (int firstTo : subconceptsMapping[firstFrom]) {
+            for (int secondFrom = 0; secondFrom < conceptsCount; secondFrom++) {
+                for (int secondTo : subconceptsMapping[secondFrom]) {
+                    if ((firstFrom == secondFrom && firstTo == secondTo) || firstFrom == firstTo || secondFrom == secondTo) {
+                        continue;
+                    }
 
+                    auto firstVector = difference(layout, dimension, firstFrom, firstTo, 0, dimension);
+                    auto secondVector = difference(layout, dimension, secondFrom, secondTo, 0, dimension);
+
+                    if (allElementsEqualTo(firstVector, (float)0) || allElementsEqualTo(secondVector, (float)0)) {
+                        continue;
+                    }
+
+                    double similarity = cosineSimilarity(firstVector, secondVector);
+
+                    if (similarity < C_PAR) {
+                        auto force = calculateLineForce(layout, dimension, firstFrom, firstTo, secondFrom, secondTo, similarity, C_PAR);
+                        auto positiveForce = multiplyByScalar(force, DELTA);
+                        auto negativeForce = multiplyByScalar(force, -DELTA);
+
+                        addHForce(negativeForce, forces, dimension, firstFrom);
+                        addHForce(positiveForce, forces, dimension, firstTo);
+                        addHForce(positiveForce, forces, dimension, secondFrom);
+                        addHForce(negativeForce, forces, dimension, secondTo);
+                    }
+
+                    if (similarity < similarity && similarity < C_ANG) {
+                        auto force = calculateLineForce(layout, dimension, firstFrom, firstTo, secondFrom, secondTo, similarity, C_ANG);
+                        auto positiveForce = multiplyByScalar(force, DELTA);
+                        auto negativeForce = multiplyByScalar(force, -DELTA);
+
+                        if (firstFrom == secondFrom) {
+                            addHForce(negativeForce, forces, dimension, firstTo);
+                            addHForce(positiveForce, forces, dimension, secondTo);
+                        }
+                        if (firstTo == secondTo) {
+                            addHForce(positiveForce, forces, dimension, firstFrom);
+                            addHForce(negativeForce, forces, dimension, secondFrom);
+                        }
+                    }
+                }
+            }
+
+            for (int conceptIndex = 0; conceptIndex < conceptsCount; conceptIndex++) {
+                float conceptY = layout[getStart(dimension, conceptIndex)];
+
+                if (layout[getStart(dimension, firstFrom)] > conceptY && conceptY > layout[getStart(dimension, firstTo)]) {
+                    auto pa = difference(layout, dimension, conceptIndex, firstFrom, 0, dimension);
+                    auto ba = difference(layout, dimension, firstTo, firstFrom, 0, dimension);
+
+                    double t = dotProduct(pa, ba) / dotProduct(ba, ba);
+                    auto bat = multiplyByScalar(ba, t);
+                    auto diff = difference(pa, bat);
+                    double dist = length(diff);
+
+                    if (dist < C_DIST) {
+                        auto first = multiplyByScalar(diff, C_DIST / dist * DELTA);
+                        auto second = multiplyByScalar(diff, -C_DIST / dist * DELTA / 2);
+
+                        addForce(first, forces, dimension, conceptIndex);
+                        addForce(second, forces, dimension, firstFrom);
+                        addForce(second, forces, dimension, firstTo);
+                    }
+                }
+            }
+        }
+    }
+
+    return applyForces(layout, forces, conceptsCount, dimension, subconceptsMapping, superconceptsMapping);
 }
 
 void multiLineStep(
@@ -180,10 +465,20 @@ void multiLineStep(
     std::vector<std::unordered_set<int>>& subconceptsMapping,
     std::vector<std::unordered_set<int>>& superconceptsMapping
 ) {
-    resetForces(forces, conceptsCount, dimension);
-
     for (int i = 0; i < ITERATIONS_COUNT; i++) {
-        lineStep(layout, forces, conceptsCount, dimension, subconceptsMapping, superconceptsMapping);
+        resetForces(forces, conceptsCount, dimension);
+
+        float totalForce = lineStep(
+            layout,
+            forces,
+            conceptsCount,
+            dimension,
+            subconceptsMapping,
+            superconceptsMapping);
+        
+        if (totalForce < EPSILON) {
+            break;
+        }
     }
 }
 
@@ -197,9 +492,11 @@ void round(
     bool parallelize
 ) {
     multiNodeStep(layout, forces, conceptsCount, dimension, subconceptsMapping, superconceptsMapping);
+    correctOffset(layout, conceptsCount, dimension);
 
     if (parallelize) {
         multiLineStep(layout, forces, conceptsCount, dimension, subconceptsMapping, superconceptsMapping);
+        correctOffset(layout, conceptsCount, dimension);
     }
 }
 
@@ -207,8 +504,8 @@ void initializeLayout(
     std::vector<float>& layout,
     int conceptsCount,
     int dimension,
-    int startConceptIndex,
-    std::vector<std::unordered_set<int>>& coverRelation
+    int infimum,
+    std::vector<std::unordered_set<int>>& superconceptsMapping
 ) {
     layout.resize(getLayoutDimension(dimension) * conceptsCount);
 
@@ -218,10 +515,11 @@ void initializeLayout(
     // Uniform distribution for numbers between -0.5 and 0.5
     std::uniform_real_distribution<> distrib(-0.5, 0.5);
 
-    auto topologicalOrder = topologicalSort(startConceptIndex, coverRelation);
+    auto topologicalOrder = topologicalSort(infimum, superconceptsMapping);
 
     for (int i = 0; i < topologicalOrder->size(); i++) {
-        int conceptIndex = (*topologicalOrder)[i];
+        // It is super important to assign the Y values in the opposite direction: topologicalOrder->size() - 1 - i
+        int conceptIndex = (*topologicalOrder)[topologicalOrder->size() - 1 - i];
         int start = getStart(dimension, conceptIndex);
 
         layout[start] = i;
@@ -233,6 +531,13 @@ void initializeLayout(
 }
 
 void finalizeLayout(std::vector<float>& layout, int conceptsCount, int targetDimension) {
+    float minX = std::numeric_limits<float>::max();
+    float maxX = std::numeric_limits<float>::min();
+    float minY = std::numeric_limits<float>::max();
+    float maxY = std::numeric_limits<float>::min();
+    float minZ = std::numeric_limits<float>::max();
+    float maxZ = std::numeric_limits<float>::min();
+
     for (int i = 0; i < conceptsCount; i++) {
         int start = i * COORDS_COUNT;
         float y = layout[start];
@@ -243,6 +548,24 @@ void finalizeLayout(std::vector<float>& layout, int conceptsCount, int targetDim
         if (targetDimension == 2) {
             layout[start + 2] = 0;
         }
+
+        minX = std::min(minX, layout[start]);
+        maxX = std::max(maxX, layout[start]);
+        minY = std::min(minY, layout[start + 1]);
+        maxY = std::max(maxY, layout[start + 1]);
+        minZ = std::min(minZ, layout[start + 2]);
+        maxZ = std::max(maxZ, layout[start + 2]);
+    }
+
+    float offsetX = minX + (std::abs(maxX - minX) / 2);
+    float offsetY = minY + (std::abs(maxY - minY) / 2);
+    float offsetZ = minZ + (std::abs(maxZ - minZ) / 2);
+
+    for (int i = 0; i < conceptsCount; i++) {
+        int start = i * COORDS_COUNT;
+        layout[start] -= offsetX;
+        layout[start + 1] -= offsetY;
+        layout[start + 2] -= offsetZ;
     }
 }
 
@@ -262,7 +585,7 @@ void reduceDimension(
     int newDimension = dimension - 1;
 
     // Create a matrix containing all coordinates except the y-coordinate for all concepts
-    // Rows are concepts
+    // Rows are concepts, columns are coordinates
     Eigen::MatrixXd data(conceptsCount, newDimension);
 
     for (int row = 0; row < conceptsCount; row++) {

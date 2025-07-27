@@ -77,6 +77,21 @@ bool isSortedSubsetOf(std::vector<int>& subset, std::vector<int>& superset) {
 }
 
 template <typename T>
+bool allElementsEqualTo(std::vector<T>& vec, T value) {
+    for (const auto& elem : vec) {
+        if (elem != value) {
+            return false;
+        }
+    }
+    return true;
+}
+
+template <typename T>
+bool areCollectionsEqual(std::vector<T>& first, std::vector<T>& second) {
+    return first.size() == second.size() && std::equal(first.begin(), first.end(), second.begin());
+}
+
+template <typename T>
 void printCollection(const T& collection) {
     std::cout << "[ ";
     for (const auto& value : collection) {
