@@ -32,7 +32,21 @@ export function createDiagramLayoutStateId(state: DiagramLayoutState) {
         `${state.lowerConeOnlyConceptIndex};${state.upperConeOnlyConceptIndex}` :
         "null;null";
 
-    return `${start}-${state.layoutMethod}`;
+    let layoutMethodSegment = "";
+
+    switch (state.layoutMethod) {
+        case "layered":
+            layoutMethodSegment = ``;
+            break;
+        case "freese":
+            layoutMethodSegment = ``;
+            break;
+        case "redraw":
+            layoutMethodSegment = `${state.targetDimensionReDraw}-${state.parallelizeReDraw}`;
+            break;
+    }
+
+    return `${start}-${state.layoutMethod}-${state.layoutMethod}-${layoutMethodSegment}`;
 }
 
 export function createDefaultDiagramOffsets(length: number) {

@@ -5,9 +5,10 @@ import { buttonVariants } from "../variants/buttonVariants";
 import { useRef } from "react";
 import Tooltip from "../Tooltip";
 
-export default function Button({ className, to, variant, size, disabled, title, ref, ...rest }: {
+export default function Button({ className, to, variant, size, disabled, title, ref, shortcutKeys, ...rest }: {
     children: React.ReactNode,
     className?: string,
+    shortcutKeys?: string,
     to?: string,
     ref?: React.RefObject<HTMLElement | null>,
 } & React.ButtonHTMLAttributes<HTMLButtonElement> & VariantProps<typeof buttonVariants>) {
@@ -36,7 +37,8 @@ export default function Button({ className, to, variant, size, disabled, title, 
             {title &&
                 <Tooltip
                     tooltip={title}
-                    elementRef={elementRef} />}
+                    elementRef={elementRef}
+                    shortcutKeys={shortcutKeys} />}
         </>
     );
 }

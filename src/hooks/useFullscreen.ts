@@ -1,6 +1,7 @@
 import { RefObject, useState } from "react";
 import useEventListener from "./useEventListener";
 import { FullscreenState } from "../types/FullscreenState";
+import { isCtrl, isEditableElement } from "../utils/html";
 
 /**
  * Hook that returns operations controlling whether an element is in fullscreen mode or not.
@@ -10,6 +11,16 @@ import { FullscreenState } from "../types/FullscreenState";
 export default function useFullscreen(element: RefObject<HTMLElement | null>): FullscreenState {
     const [isFullscreen, setIsFullscreen] = useState(false);
     useEventListener("fullscreenchange", onFullscreenChange, element);
+
+    useEventListener("keydown", (event) => {
+        const key = event.key.toLocaleLowerCase();
+
+        if (key !== "f" || isCtrl(event) || (window.document.activeElement && isEditableElement(window.document.activeElement)) || document.querySelectorAll("dialog").length) {
+            return;
+        }
+
+        toggleFullscreen();
+    });
 
     async function toggleFullscreen() {
         if (isFullscreen) {

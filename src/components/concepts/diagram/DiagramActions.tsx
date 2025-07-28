@@ -4,7 +4,7 @@ import { cn } from "../../../utils/tailwind";
 import { useContext, useRef } from "react";
 import useEventListener from "../../../hooks/useEventListener";
 import { useDiagramOffsets } from "../../../hooks/useDiagramOffsets";
-import { isCtrl, isCtrlZ, isEditableElement } from "../../../utils/html";
+import { isCtrl, isCtrlZ, isEditableElement, isMac } from "../../../utils/html";
 import { FullscreenState } from "../../../types/FullscreenState";
 import ExportButton from "../../export/ExportButton";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
@@ -173,6 +173,7 @@ function FullscreenButton(props: {
         <Button
             className={props.className}
             title={props.fullscreenState.isFullscreen ? "Exit full screen" : "Full screen"}
+            shortcutKeys="F"
             variant="icon-secondary"
             onClick={props.fullscreenState.toggleFullscreen}>
             {props.fullscreenState.isFullscreen ?
@@ -256,14 +257,16 @@ function UndoRedoBar(props: {
                 variant="icon-secondary"
                 title="Undo"
                 disabled={!canUndo}
-                onClick={undo}>
+                onClick={undo}
+                shortcutKeys={`${ctrlKey()}+Z`}>
                 <LuUndo2 />
             </Button>
             <Button
                 variant="icon-secondary"
                 title="Redo"
                 disabled={!canRedo}
-                onClick={redo}>
+                onClick={redo}
+                shortcutKeys={`${ctrlKey()}+Shift+Z`}>
                 <LuRedo2 />
             </Button>
         </div>
@@ -290,7 +293,8 @@ function MoveToggle(props: {
             checked={editingEnabled}
             onClick={onClick}
             checkedTitle="Disable node movement"
-            uncheckedTitle="Enable node movement">
+            uncheckedTitle="Enable node movement"
+            shortcutKeys={ctrlKey()}>
             <LuHand />
         </Toggle>
     );
@@ -321,7 +325,8 @@ function MultiselectToggle(props: {
             onClick={onClick}
             checked={multiselectEnabled}
             checkedTitle="Disable node multi-selection"
-            uncheckedTitle="Enable node multi-selection">
+            uncheckedTitle="Enable node multi-selection"
+            shortcutKeys="Shift">
             <LuSquareDashedMousePointer />
         </Toggle>
     );
@@ -331,6 +336,7 @@ function Toggle(props: {
     checked: boolean,
     checkedTitle?: string,
     uncheckedTitle?: string,
+    shortcutKeys?: string,
     className?: string,
     children?: React.ReactNode,
     onClick?: React.MouseEventHandler<HTMLButtonElement>, 
@@ -343,7 +349,8 @@ function Toggle(props: {
             type="button"
             role="switch"
             aria-checked={props.checked}
-            title={props.checked ? props.checkedTitle : props.uncheckedTitle}>
+            title={props.checked ? props.checkedTitle : props.uncheckedTitle}
+            shortcutKeys={props.shortcutKeys}>
             {props.children}
         </Button>
     );
@@ -402,4 +409,8 @@ function useKeyBoardEvents(
             setMultiselectEnabled(false);
         }
     });
+}
+
+function ctrlKey() {
+    return isMac ? "Cmd" : "Ctrl";
 }

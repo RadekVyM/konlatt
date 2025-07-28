@@ -7,8 +7,8 @@ import DiagramLayoutWorker from "./diagramLayoutWorker?worker";
 import { calculateSublattice, calculateVisibleConceptIndexes } from "../utils/lattice";
 import { createConceptPoint } from "../types/ConceptPoint";
 import { Point } from "../types/Point";
-import { LayoutMethod } from "../types/LayoutMethod";
 import { LayoutWorkerResponse } from "../types/LayoutWorkerResponse";
+import { LayoutComputationOptions } from "../types/LayoutComputationOptions";
 
 let formalContext: FormalContext | null = null;
 let formalConcepts: FormalConcepts | null = null;
@@ -60,9 +60,9 @@ self.onmessage = async (event: MessageEvent<CompleteWorkerRequest>) => {
                     event.data.jobId,
                     formalConcepts,
                     conceptLattice,
-                    event.data.layoutMethod,
                     event.data.upperConeOnlyConceptIndex,
-                    event.data.lowerConeOnlyConceptIndex);
+                    event.data.lowerConeOnlyConceptIndex,
+                    event.data.options);
                 break;
         }
     }
@@ -135,14 +135,14 @@ async function calculateLayout(
     jobId: number,
     concepts: FormalConcepts,
     lattice: ConceptLattice,
-    layoutMethod: LayoutMethod,
     upperConeOnlyConceptIndex: number | null,
     lowerConeOnlyConceptIndex: number | null,
+    options: LayoutComputationOptions,
 ) {
     postStatusMessage(jobId, "Computing layout");
 
     const worker = new DiagramLayoutWorker();
-    const { request, reverseIndexMapping } = createCompleteLayoutComputationRequest(concepts, lattice, layoutMethod, upperConeOnlyConceptIndex, lowerConeOnlyConceptIndex);
+    const { request, reverseIndexMapping } = createCompleteLayoutComputationRequest(concepts, lattice, upperConeOnlyConceptIndex, lowerConeOnlyConceptIndex, options);
 
     worker.postMessage(request, [request.subconceptsMappingArrayBuffer.buffer]);
 
@@ -233,9 +233,9 @@ function createConceptComputationResponse(jobId: number, concepts: FormalConcept
 function createCompleteLayoutComputationRequest(
     concepts: FormalConcepts,
     lattice: ConceptLattice,
-    layoutMethod: LayoutMethod,
     upperConeOnlyConceptIndex: number | null,
     lowerConeOnlyConceptIndex: number | null,
+    options: LayoutComputationOptions,
 ): {
     request: CompleteLayoutComputationRequest,
     reverseIndexMapping: Map<number, number> | null,
@@ -247,7 +247,7 @@ function createCompleteLayoutComputationRequest(
         return {
             request: {
                 type: "layout",
-                layoutMethod,
+                options,
                 conceptsCount: concepts.length,
                 supremum: getSupremum(concepts).index,
                 infimum: getInfimum(concepts).index,
@@ -262,7 +262,7 @@ function createCompleteLayoutComputationRequest(
     return {
         request: {
             type: "layout",
-            layoutMethod,
+            options,
             conceptsCount: subconceptsMapping.length,
             supremum,
             infimum,

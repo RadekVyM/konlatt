@@ -1,20 +1,28 @@
-import { useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import useEventListener from "../hooks/useEventListener";
 import { createPortal } from "react-dom";
+import { cn } from "../utils/tailwind";
 
-const TOOLTIP_TIMEOUT = 750;
+const TOOLTIP_TIMEOUT = 300;
 
 export default function Tooltip(props: {
-    tooltip: string;
+    tooltip: string,
+    shortcutKeys?: string,
     elementRef: React.RefObject<HTMLElement | null>,
 }) {
     const timetoutRef = useRef<number | null>(null);
+    const tooltipRef = useRef<HTMLDivElement>(null);
+    const [canBeShown, setCanBeShown] = useState<boolean>(false);
     const [isShown, setIsShown] = useState<boolean>(false);
     const [position, setPosition] = useState<[number, number]>([0, 0]);
 
+    useLayoutEffect(() => {
+        updatePosition();
+    }, [canBeShown, props.tooltip, props.shortcutKeys]);
+
     useEventListener("pointerenter", () => {
         tryClearTimeout();
-        updatePosition();
+        setCanBeShown(true);
 
         timetoutRef.current = setTimeout(() => {
             setIsShown(true);
@@ -24,7 +32,7 @@ export default function Tooltip(props: {
     useEventListener("keyup", (e) => {
         if (e.key === "Tab" && document.activeElement === props.elementRef.current) {
             tryClearTimeout();
-            updatePosition();
+            setCanBeShown(true);
             setIsShown(true);
         }
     });
@@ -35,16 +43,33 @@ export default function Tooltip(props: {
 
     function hide() {
         tryClearTimeout();
+        setCanBeShown(false);
         setIsShown(false);
     }
 
     function updatePosition() {
-        if (!props.elementRef.current) {
+        if (!props.elementRef.current || !tooltipRef.current) {
             return;
         }
 
-        const rect = props.elementRef.current.getBoundingClientRect();
-        setPosition([rect.left + (rect.width / 2), rect.top]);
+        const elementRect = props.elementRef.current.getBoundingClientRect();
+        const tooltipRect = tooltipRef.current.getBoundingClientRect();
+        const halfTooltipWidth = tooltipRect.width / 2;
+
+        const idealLeft = elementRect.left + (elementRect.width / 2);
+        const rightDiffX = idealLeft + halfTooltipWidth - window.innerWidth;
+        const leftDiffX = idealLeft - halfTooltipWidth;
+        const left = leftDiffX < 5 ?
+            idealLeft - leftDiffX + 5 :
+            rightDiffX > 5 ?
+                idealLeft - rightDiffX - 5 :
+                idealLeft;
+        const idealOffsetY = -tooltipRect.height - 5;
+        const offsetY = elementRect.top + idealOffsetY < 5 ?
+            elementRect.height + 5 :
+            idealOffsetY;
+
+        setPosition([left, elementRect.top + offsetY]);
     }
 
     function tryClearTimeout() {
@@ -54,24 +79,28 @@ export default function Tooltip(props: {
         }
     }
 
-    if (!isShown || (!position[0] && !position[1])) {
-        return undefined;
+    if (!canBeShown) {
+        return;
     }
 
     const dialogs = document.querySelectorAll("dialog");
     const container = dialogs.length === 0 ?
         (document.fullscreenElement || document.body) :
         dialogs[dialogs.length - 1];
+    const isVisible = isShown && (position[0] || position[1]);
 
     return createPortal(
         <div
-            className="fixed z-50 translate-x-[-50%] translate-y-[calc(-100%-5px)] animate-fadeIn select-none pointer-events-none
-                text-xs w-max px-1.5 pb-0.5 pt-1 bg-on-surface-container text-surface-container drop-shadow-md shadow-shade rounded-md"
+            ref={tooltipRef}
+            className={cn("fixed z-50 translate-x-[-50%] select-none pointer-events-none",
+                "text-xs w-max px-1.5 pb-0.5 pt-1 bg-on-surface-container text-surface-container drop-shadow-md shadow-shade rounded-md",
+                !isVisible && "invisible",
+                isVisible && "animate-fadeIn")}
             aria-hidden
             style={{
                 left: position[0],
                 top: position[1],
             }}>
-            {props.tooltip}
+            {props.tooltip} {props.shortcutKeys && <span className="text-surface-dim-container rounded px-0.5 ml-1.5">{props.shortcutKeys}</span>}
         </div>, container);
 }

@@ -19,13 +19,20 @@ async function computeLayout(request: CompleteLayoutComputationRequest) {
     const { computeFreeseLayout } = await import("../services/layouts/freeseLayout");
     const { computeReDrawLayout } = await import("../services/layouts/reDrawLayout");
 
-    switch (request.layoutMethod) {
+    switch (request.options.layoutMethod) {
         case "layered":
             return await computeLayeredLayout(request.conceptsCount, request.supremum, request.subconceptsMappingArrayBuffer);
         case "freese":
             return await computeFreeseLayout(request.conceptsCount, request.supremum, request.infimum, request.subconceptsMappingArrayBuffer, postProgressMessage);
         case "redraw":
-            return await computeReDrawLayout(request.conceptsCount, request.supremum, request.infimum, request.subconceptsMappingArrayBuffer, postProgressMessage);
+            return await computeReDrawLayout(
+                request.conceptsCount,
+                request.supremum,
+                request.infimum,
+                request.subconceptsMappingArrayBuffer,
+                request.options.targetDimensionReDraw,
+                request.options.parallelizeReDraw,
+                postProgressMessage);
         default:
             throw new Error("Not implemented");
     }

@@ -1,3 +1,8 @@
+// Implementation of the ReDraw algorithm:
+// - https://arxiv.org/pdf/2102.02684
+
+// Based on the source code from: https://github.com/domduerr/redraw
+
 #include "../utils.h"
 #include "../types/TimedResult.h"
 #include "utils.h"
@@ -329,8 +334,13 @@ void multiNodeStep(
     int conceptsCount,
     int dimension,
     std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping
+    std::vector<std::unordered_set<int>>& superconceptsMapping,
+    int totalIterationsCount,
+    int previousIterationsCount,
+    std::function<void(double)> onProgress
 ) {
+    double previousRecordedIteration = previousIterationsCount;
+
     for (int i = 0; i < ITERATIONS_COUNT; i++) {
         resetForces(forces, conceptsCount, dimension);
 
@@ -342,10 +352,14 @@ void multiNodeStep(
             subconceptsMapping,
             superconceptsMapping);
 
+        tryTriggerProgress(totalIterationsCount, previousIterationsCount + i + 1, previousRecordedIteration, onProgress);
+
         if (totalForce < EPSILON) {
             break;
         }
     }
+
+    tryTriggerBlockProgress(totalIterationsCount, previousIterationsCount + ITERATIONS_COUNT, previousRecordedIteration, onProgress);
 }
 
 std::vector<float> calculateLineForce(
@@ -463,8 +477,13 @@ void multiLineStep(
     int conceptsCount,
     int dimension,
     std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping
+    std::vector<std::unordered_set<int>>& superconceptsMapping,
+    int totalIterationsCount,
+    int previousIterationsCount,
+    std::function<void(double)> onProgress
 ) {
+    double previousRecordedIteration = previousIterationsCount;
+
     for (int i = 0; i < ITERATIONS_COUNT; i++) {
         resetForces(forces, conceptsCount, dimension);
 
@@ -475,11 +494,15 @@ void multiLineStep(
             dimension,
             subconceptsMapping,
             superconceptsMapping);
-        
+
+        tryTriggerProgress(totalIterationsCount, previousIterationsCount + i + 1, previousRecordedIteration, onProgress);
+
         if (totalForce < EPSILON) {
             break;
         }
     }
+
+    tryTriggerBlockProgress(totalIterationsCount, previousIterationsCount + ITERATIONS_COUNT, previousRecordedIteration, onProgress);
 }
 
 void round(
@@ -489,13 +512,34 @@ void round(
     int dimension,
     std::vector<std::unordered_set<int>>& subconceptsMapping,
     std::vector<std::unordered_set<int>>& superconceptsMapping,
-    bool parallelize
+    bool parallelize,
+    int totalIterationsCount,
+    int previousIterationsCount,
+    std::function<void(double)> onProgress
 ) {
-    multiNodeStep(layout, forces, conceptsCount, dimension, subconceptsMapping, superconceptsMapping);
+    multiNodeStep(
+        layout,
+        forces,
+        conceptsCount,
+        dimension,
+        subconceptsMapping,
+        superconceptsMapping,
+        totalIterationsCount,
+        previousIterationsCount,
+        onProgress);
     correctOffset(layout, conceptsCount, dimension);
 
     if (parallelize) {
-        multiLineStep(layout, forces, conceptsCount, dimension, subconceptsMapping, superconceptsMapping);
+        multiLineStep(
+            layout,
+            forces,
+            conceptsCount,
+            dimension,
+            subconceptsMapping,
+            superconceptsMapping,
+            totalIterationsCount,
+            previousIterationsCount + ITERATIONS_COUNT,
+            onProgress);
         correctOffset(layout, conceptsCount, dimension);
     }
 }
@@ -651,11 +695,13 @@ void computeReDrawLayout(
     int conceptsCount,
     std::vector<std::unordered_set<int>>& subconceptsMapping,
     std::vector<std::unordered_set<int>>& superconceptsMapping,
+    int targetDimension,
+    bool parallelize,
     std::function<void(double)> onProgress
 ) {
-    int targetDimension = 2;
-
     long long startTime = nowMills();
+
+    int totalIterationsCount = (INITIAL_DIMENSION - targetDimension + 1) * ITERATIONS_COUNT * (parallelize ? 2 : 1);
 
     initializeLayout(result.value, conceptsCount, INITIAL_DIMENSION, infimum, superconceptsMapping);
     std::vector<float> forces;
@@ -668,7 +714,10 @@ void computeReDrawLayout(
             dimension,
             subconceptsMapping,
             superconceptsMapping,
-            true);
+            parallelize,
+            totalIterationsCount,
+            (INITIAL_DIMENSION - dimension) * ITERATIONS_COUNT * (parallelize ? 2 : 1),
+            onProgress);
 
         if (dimension != targetDimension) {
             reduceDimension(result.value, conceptsCount, dimension);

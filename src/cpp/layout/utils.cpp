@@ -3,6 +3,7 @@
 #include <vector>
 #include <unordered_set>
 #include <queue>
+#include <functional>
 
 float getX(std::vector<float>& layout, int index) {
     return layout[index * COORDS_COUNT];
@@ -112,4 +113,30 @@ std::unique_ptr<std::unordered_set<int>> getComparableConcepts(
         superconceptsMapping);
 
     return comparableConcepts;
+}
+
+
+void tryTriggerProgress(
+    double totalIterationsCount,
+    double currentIteration,
+    double& previousRecordedIteration,
+    std::function<void(double)> onProgress
+) {
+    double updatesPerPercent = totalIterationsCount / 100.0;
+
+    if (currentIteration - previousRecordedIteration >= updatesPerPercent) {
+        onProgress(currentIteration / totalIterationsCount);
+        previousRecordedIteration = currentIteration;
+    }
+}
+
+void tryTriggerBlockProgress(
+    double totalIterationsCount,
+    double blockIterationsCount,
+    double& previousRecordedIteration,
+    std::function<void(double)> onProgress
+) {
+    if (blockIterationsCount != previousRecordedIteration) {
+        onProgress(blockIterationsCount / totalIterationsCount);
+    }
 }

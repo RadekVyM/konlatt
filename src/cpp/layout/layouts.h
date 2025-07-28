@@ -32,7 +32,9 @@ void computeReDrawLayoutJs(
     int supremum,
     int infimum,
     int conceptsCount,
-    const emscripten::val& subconceptsMappingTypedArray
+    const emscripten::val& subconceptsMappingTypedArray,
+    int targetDimension,
+    bool parallelize
 #ifdef __EMSCRIPTEN__
     , OnProgressCallback onProgress
 #endif

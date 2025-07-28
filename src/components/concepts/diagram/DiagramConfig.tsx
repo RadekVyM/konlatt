@@ -98,7 +98,11 @@ function NodesLinksSection() {
 
 function LayoutSection() {
     const layoutMethod = useDiagramStore((state) => state.layoutMethod);
+    const parallelizeReDraw = useDiagramStore((state) => state.parallelizeReDraw);
+    const targetDimensionReDraw = useDiagramStore((state) => state.targetDimensionReDraw);
     const setLayoutMethod = useDiagramStore((state) => state.setLayoutMethod);
+    const setParallelizeReDraw = useDiagramStore((state) => state.setParallelizeReDraw);
+    const setTargetDimensionReDraw = useDiagramStore((state) => state.setTargetDimensionReDraw);
 
     const [horizontalNodesDistance, setHorizontalNodesDistance] = useState<number>(1);
     const [verticalNodesDistance, setVerticalNodesDistance] = useState<number>(1);
@@ -139,6 +143,21 @@ function LayoutSection() {
                 minimumFractionDigits={1}
                 value={horizontalNodesDistance}
                 onChange={setHorizontalNodesDistance} />
+
+            {layoutMethod === "redraw" &&
+                <>
+                    <ToggleSwitch
+                        className="mt-1.5"
+                        checked={parallelizeReDraw}
+                        onChange={(e) => setParallelizeReDraw(e.currentTarget.checked)}>
+                        Parallelize links
+                    </ToggleSwitch>
+                    <ToggleSwitch
+                        checked={targetDimensionReDraw === 3}
+                        onChange={(e) => setTargetDimensionReDraw(e.currentTarget.checked ? 3 : 2)}>
+                        Reduce to 3D
+                    </ToggleSwitch>
+                </>}
         </Section>
     );
 }

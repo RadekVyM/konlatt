@@ -82,9 +82,13 @@ export function triggerLayoutComputation(state: DiagramLayoutState) {
 
     const layoutRequest: LayoutComputationRequest = {
         type: "layout",
-        layoutMethod: state.layoutMethod,
         upperConeOnlyConceptIndex: state.displayHighlightedSublatticeOnly ? state.upperConeOnlyConceptIndex : null,
         lowerConeOnlyConceptIndex: state.displayHighlightedSublatticeOnly ? state.lowerConeOnlyConceptIndex : null,
+        options: {
+            layoutMethod: state.layoutMethod,
+            parallelizeReDraw: state.parallelizeReDraw,
+            targetDimensionReDraw: state.targetDimensionReDraw,
+        },
     };
 
     const jobId = workerQueue.enqueue<LayoutComputationResponse>(

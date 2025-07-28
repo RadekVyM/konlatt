@@ -1,7 +1,7 @@
 import { ConceptLattice } from "./ConceptLattice";
 import { FormalConcepts } from "./FormalConcepts";
 import { FormalContext } from "./FormalContext";
-import { LayoutMethod } from "./LayoutMethod";
+import { LayoutComputationOptions } from "./LayoutComputationOptions";
 
 export type WorkerRequest = CancellationRequest | ContextParsingRequest | ConceptComputationRequest | LatticeComputationRequest | LayoutComputationRequest
 
@@ -25,9 +25,9 @@ export type LatticeComputationRequest = {
 
 export type LayoutComputationRequest = {
     type: "layout",
-    layoutMethod: LayoutMethod,
     upperConeOnlyConceptIndex: number | null,
     lowerConeOnlyConceptIndex: number | null,
+    options: LayoutComputationOptions,
 } & BaseRequest
 
 export type CancellationRequest = {
@@ -37,11 +37,11 @@ export type CancellationRequest = {
 
 export type CompleteLayoutComputationRequest = {
     type: "layout",
-    layoutMethod: LayoutMethod,
     supremum: number,
     infimum: number,
     conceptsCount: number,
-    subconceptsMappingArrayBuffer: Int32Array,    
+    subconceptsMappingArrayBuffer: Int32Array,
+    options: LayoutComputationOptions,
 } & BaseRequest
 
 type BaseRequest = {

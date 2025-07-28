@@ -4,6 +4,7 @@
 #include <vector>
 #include <unordered_set>
 #include <memory>
+#include <functional>
 
 #define COORDS_COUNT 3
 
@@ -20,6 +21,19 @@ std::unique_ptr<std::unordered_set<int>> getComparableConcepts(
     int conceptIndex,
     std::vector<std::unordered_set<int>>& subconceptsMapping,
     std::vector<std::unordered_set<int>>& superconceptsMapping
+);
+
+void tryTriggerProgress(
+    double totalIterationsCount,
+    double currentIteration,
+    double& previousRecordedIteration,
+    std::function<void(double)> onProgress
+);
+
+void tryTriggerBlockProgress(
+    double totalIterationsCount,
+    double blockIterationsCount,
+    double& previousRecordedIteration
 );
 
 #endif

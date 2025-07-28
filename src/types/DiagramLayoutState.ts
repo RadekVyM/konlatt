@@ -1,8 +1,7 @@
-import { LayoutMethod } from "./LayoutMethod";
+import { LayoutComputationOptions } from "./LayoutComputationOptions";
 
 export type DiagramLayoutState = {
-    layoutMethod: LayoutMethod,
     displayHighlightedSublatticeOnly: boolean,
     upperConeOnlyConceptIndex: number | null,
     lowerConeOnlyConceptIndex: number | null,
-}
+} & LayoutComputationOptions

@@ -39,6 +39,8 @@ type DiagramOptionsSliceActions = {
     setDisplayHighlightedSublatticeOnly: React.Dispatch<React.SetStateAction<boolean>>,
     setUpperConeOnlyConceptIndex: (upperConeOnlyConceptIndex: number | null, withOtherReset?: boolean) => void,
     setLowerConeOnlyConceptIndex: (lowerConeOnlyConceptIndex: number | null, withOtherReset?: boolean) => void,
+    setParallelizeReDraw: React.Dispatch<React.SetStateAction<boolean>>,
+    setTargetDimensionReDraw: React.Dispatch<React.SetStateAction<2 | 3>>,
 }
 
 export type DiagramOptionsSlice = DiagramOptionsSliceState & DiagramOptionsSliceActions
@@ -59,6 +61,8 @@ export const initialState: DiagramOptionsSliceState = {
     upperConeOnlyConceptIndex: null,
     lowerConeOnlyConceptIndex: null,
     visibleConceptIndexes: null,
+    parallelizeReDraw: true,
+    targetDimensionReDraw: 2,
 };
 
 export default function createDiagramOptionsSlice(set: (partial: DiagramStore | Partial<DiagramStore> | ((state: DiagramStore) => DiagramStore | Partial<DiagramStore>), replace?: false) => void): DiagramOptionsSlice {
@@ -78,13 +82,13 @@ export default function createDiagramOptionsSlice(set: (partial: DiagramStore | 
                 editingEnabled(old.editingEnabled) :
                 editingEnabled;
 
-            return newValue === old.editingEnabled ?
+            return withCameraControlsEnabled(newValue === old.editingEnabled ?
                 {} :
                 withConceptsToMoveBox({
                     editingEnabled: newValue,
                     multiselectEnabled: false,
                     conceptsToMoveIndexes: new Set()
-                }, old);
+                }, old), old);
         }),
         setMultiselectEnabled: (multiselectEnabled) => set((old) => withCameraControlsEnabled({
             multiselectEnabled: (typeof multiselectEnabled === "function" ?
@@ -116,6 +120,20 @@ export default function createDiagramOptionsSlice(set: (partial: DiagramStore | 
                     withOtherReset ? null : old.upperConeOnlyConceptIndex,
                     lowerConeOnlyConceptIndex,
                     useDataStructuresStore.getState().lattice),
+            },
+            old)),
+        setParallelizeReDraw: (parallelizeReDraw) => set((old) => withLayout(
+            {
+                parallelizeReDraw: typeof parallelizeReDraw === "function" ?
+                    parallelizeReDraw(old.parallelizeReDraw) :
+                    parallelizeReDraw
+            },
+            old)),
+        setTargetDimensionReDraw: (targetDimensionReDraw) => set((old) => withLayout(
+            {
+                targetDimensionReDraw: typeof targetDimensionReDraw === "function" ?
+                    targetDimensionReDraw(old.targetDimensionReDraw) :
+                    targetDimensionReDraw
             },
             old)),
     };

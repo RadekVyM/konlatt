@@ -1,6 +1,6 @@
 import { ThreeEvent } from "@react-three/fiber";
 
-const isMac = /mac/i.test(navigator.userAgent);
+export const isMac = /mac/i.test(navigator.userAgent);
 
 export function isCtrlZ(e: React.KeyboardEvent<Element> | KeyboardEvent) {
     return e.key.toLowerCase() === "z" && isCtrl(e);

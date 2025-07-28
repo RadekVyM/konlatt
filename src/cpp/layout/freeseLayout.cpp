@@ -1,3 +1,8 @@
+// Implementation of the Freese algorithm:
+// - https://www.researchgate.net/publication/220923353_Automated_Lattice_Drawing
+
+// Based on the source code from: http://latdraw.org/
+
 #include "../utils.h"
 #include "../types/TimedResult.h"
 #include "utils.h"
@@ -270,22 +275,15 @@ void multiUpdate(
     std::vector<std::unordered_set<int>>& superconceptsMapping,
     std::function<void(double)> onProgress
 ) {
-    double updatesPerPercent = totalUpdatesCount / 100.0;
     double previousRecordedIteration = previousUpdatesCount;
 
     for (int i = 0; i < updatesCount; i++) {
         update(layout, forces, attractionFactor, repulsionFactor, conceptsCount, subconceptsMapping, superconceptsMapping);
 
-        double currentIteration = previousUpdatesCount + i + 1;
-        if (currentIteration - previousRecordedIteration >= updatesPerPercent) {
-            onProgress(currentIteration / totalUpdatesCount);
-            previousRecordedIteration = currentIteration;
-        }
+        tryTriggerProgress(totalUpdatesCount, previousUpdatesCount + i + 1, previousRecordedIteration, onProgress);
     }
 
-    if (previousUpdatesCount + updatesCount != previousRecordedIteration) {
-        onProgress((double)(previousUpdatesCount + updatesCount) / totalUpdatesCount);
-    }
+    tryTriggerBlockProgress(totalUpdatesCount, previousUpdatesCount + updatesCount, previousRecordedIteration, onProgress);
 }
 
 void computeFreeseLayout(
