@@ -4,4 +4,5 @@ export type LayoutComputationOptions = {
     layoutMethod: LayoutMethod,
     targetDimensionReDraw: 2 | 3,
     parallelizeReDraw: boolean,
+    seedReDraw: string,
 }

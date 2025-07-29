@@ -26,10 +26,30 @@ export default function Labels() {
     const layout = useDiagramStore((state) => state.layout);
     const diagramOffsets = useDiagramStore((state) => state.diagramOffsets);
     const cameraType = useDiagramStore((state) => state.cameraType);
+    const horizontalScale = useDiagramStore((state) => state.horizontalScale);
+    const verticalScale = useDiagramStore((state) => state.verticalScale);
     const lablesEnabled = useDiagramStore((state) => state.labelsEnabled);
 
-    const attributeLabels = useLabels("atribute", context?.attributes, attributesLabeling, layout, cameraType, diagramOffsets, "bottom");
-    const objectLabels = useLabels("object", context?.objects, objectsLabeling, layout, cameraType, diagramOffsets, "top");
+    const attributeLabels = useLabels(
+        "atribute",
+        context?.attributes,
+        attributesLabeling,
+        layout,
+        cameraType,
+        horizontalScale,
+        verticalScale,
+        diagramOffsets,
+        "bottom");
+    const objectLabels = useLabels(
+        "object",
+        context?.objects,
+        objectsLabeling,
+        layout,
+        cameraType,
+        horizontalScale,
+        verticalScale,
+        diagramOffsets,
+        "top");
 
     return (
         <group
@@ -102,6 +122,8 @@ function useLabels(
     labeling: ConceptLatticeLabeling | undefined,
     layout: ConceptLatticeLayout | null,
     cameraType: CameraType,
+    horizontalScale: number,
+    verticalScale: number,
     diagramOffsets: Array<Point> | null,
     anchorY: "top" | "bottom",
 ) {
@@ -128,6 +150,8 @@ function useLabels(
                 getPoint(diagramOffsets, layoutIndex),
                 [0, 0, 0],
                 cameraType,
+                horizontalScale,
+                verticalScale,
                 zOffset);
 
             const text = createLabelText(labelIndexes, labels);
@@ -142,7 +166,7 @@ function useLabels(
         }
 
         return newLabels;
-    }, [keyPrefix, labels, labeling, layout, cameraType, diagramOffsets]);
+    }, [keyPrefix, labels, labeling, layout, cameraType, diagramOffsets, horizontalScale, verticalScale]);
 }
 
 function createLabelText(labelIndexes: ReadonlyArray<number>, labels: ReadonlyArray<string>) {

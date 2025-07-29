@@ -1,6 +1,7 @@
 import { LuCircleX } from "react-icons/lu";
 import { cn } from "../../utils/tailwind";
 import Button from "./Button";
+import Input from "./Input";
 
 export default function SearchInput(props: {
     className?: string,
@@ -15,7 +16,7 @@ export default function SearchInput(props: {
     return (
         <div
             className={cn("relative text-on-surface-container", props.className)}>
-            <input
+            <Input
                 type="text"
                 size={1}
                 disabled={props.disabled}
@@ -23,7 +24,7 @@ export default function SearchInput(props: {
                 onChange={(e) => props.onChange(e.target.value)}
                 placeholder={props.placeholder}
                 className={cn(
-                    "disabled:opacity-50 text-sm bg-surface-light-dim-container hover:bg-surface-dim-container border border-surface-light-dim-container hover:border-outline px-2 pr-7 py-1.5 rounded-md w-full h-full",
+                    "pr-7 w-full h-full",
                     props.inputClassName)} />
 
             {cancelButtonVisible &&

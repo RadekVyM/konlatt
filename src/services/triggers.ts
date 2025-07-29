@@ -88,6 +88,7 @@ export function triggerLayoutComputation(state: DiagramLayoutState) {
             layoutMethod: state.layoutMethod,
             parallelizeReDraw: state.parallelizeReDraw,
             targetDimensionReDraw: state.targetDimensionReDraw,
+            seedReDraw: state.seedReDraw,
         },
     };
 

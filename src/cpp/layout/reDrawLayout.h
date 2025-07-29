@@ -13,6 +13,7 @@ void computeReDrawLayout(
     int conceptsCount,
     std::vector<std::unordered_set<int>>& subconceptsMapping,
     std::vector<std::unordered_set<int>>& superconceptsMapping,
+    unsigned int seed,
     int targetDimension,
     bool parallelize,
     std::function<void(double)> onProgress

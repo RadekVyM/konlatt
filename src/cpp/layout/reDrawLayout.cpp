@@ -549,13 +549,13 @@ void initializeLayout(
     int conceptsCount,
     int dimension,
     int infimum,
-    std::vector<std::unordered_set<int>>& superconceptsMapping
+    std::vector<std::unordered_set<int>>& superconceptsMapping,
+    unsigned int seed
 ) {
     layout.resize(getLayoutDimension(dimension) * conceptsCount);
 
     // Random number generation setup
-    std::random_device rd;
-    std::mt19937 gen(rd());
+    std::mt19937 gen(seed);
     // Uniform distribution for numbers between -0.5 and 0.5
     std::uniform_real_distribution<> distrib(-0.5, 0.5);
 
@@ -695,6 +695,7 @@ void computeReDrawLayout(
     int conceptsCount,
     std::vector<std::unordered_set<int>>& subconceptsMapping,
     std::vector<std::unordered_set<int>>& superconceptsMapping,
+    unsigned int seed,
     int targetDimension,
     bool parallelize,
     std::function<void(double)> onProgress
@@ -703,7 +704,7 @@ void computeReDrawLayout(
 
     int totalIterationsCount = (INITIAL_DIMENSION - targetDimension + 1) * ITERATIONS_COUNT * (parallelize ? 2 : 1);
 
-    initializeLayout(result.value, conceptsCount, INITIAL_DIMENSION, infimum, superconceptsMapping);
+    initializeLayout(result.value, conceptsCount, INITIAL_DIMENSION, infimum, superconceptsMapping, seed);
     std::vector<float> forces;
 
     for (int dimension = INITIAL_DIMENSION; dimension >= targetDimension; dimension--) {

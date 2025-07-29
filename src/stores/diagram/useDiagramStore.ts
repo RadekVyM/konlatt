@@ -28,7 +28,7 @@ const useDiagramStore = create<DiagramStore>((set) => ({
         ...initialConceptsFilterState,
         ...initialSelectedConceptState,
         ...initialR3FCanvasState,
-        ...initialDiagramOptionsState,
+        ...initialDiagramOptionsState(),
     })),
 }));
 

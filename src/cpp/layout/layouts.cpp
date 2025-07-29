@@ -119,6 +119,7 @@ void computeReDrawLayoutJs(
     int infimum,
     int conceptsCount,
     const emscripten::val& subconceptsMappingTypedArray,
+    unsigned int seed,
     int targetDimension,
     bool parallelize
 #ifdef __EMSCRIPTEN__
@@ -143,6 +144,7 @@ void computeReDrawLayoutJs(
         conceptsCount,
         subconceptsMapping,
         superconceptsMapping,
+        seed,
         targetDimension,
         parallelize,
         onProgressCallback);

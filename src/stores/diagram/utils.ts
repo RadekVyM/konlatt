@@ -42,7 +42,7 @@ export function createDiagramLayoutStateId(state: DiagramLayoutState) {
             layoutMethodSegment = ``;
             break;
         case "redraw":
-            layoutMethodSegment = `${state.targetDimensionReDraw}-${state.parallelizeReDraw}`;
+            layoutMethodSegment = `${state.targetDimensionReDraw}-${state.parallelizeReDraw}-${state.seedReDraw}`;
             break;
     }
 
@@ -65,6 +65,8 @@ export function calculateLayoutBox(
     diagramOffsets: Array<Point>,
     conceptToLayoutIndexesMapping: Map<number, number>,
     cameraType: CameraType,
+    horizontalScale: number,
+    verticalScale: number,
 ) : Box | null {
     const nullOffset = createPoint(0, 0, 0);
 
@@ -86,7 +88,7 @@ export function calculateLayoutBox(
         const conceptPoint = layout[layoutIndex];
         const offset = diagramOffsets[layoutIndex];
 
-        const point = transformedPoint(createPoint(conceptPoint.x, conceptPoint.y, conceptPoint.z), offset, nullOffset, cameraType);
+        const point = transformedPoint(createPoint(conceptPoint.x, conceptPoint.y, conceptPoint.z), offset, nullOffset, cameraType, horizontalScale, verticalScale);
 
         minX = Math.min(minX, point[0]);
         maxX = Math.max(maxX, point[0]);

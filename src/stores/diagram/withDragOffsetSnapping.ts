@@ -9,6 +9,9 @@ export default function withDragOffsetSnapping(newState: Partial<DiagramStore>, 
         return {
             ...newState,
             snapCoords: null,
+            isDraggingNodesInXYPlane: null,
+            isDraggingNodesInXZPlane: null,
+            isDraggingNodesInYZPlane: null,
             isDraggingNodesSnappedToXAxis: false,
             isDraggingNodesSnappedToYAxis: false,
             isDraggingNodesSnappedToZAxis: false,
@@ -27,11 +30,11 @@ export default function withDragOffsetSnapping(newState: Partial<DiagramStore>, 
     const snapX = Math.round(alignPoint[0] * 2) / 2;
     const snapY = Math.round(alignPoint[1] * 2) / 2;
     const snapZ = Math.round(alignPoint[2] * 2) / 2;
-    const snapCoords = createPoint(snapX, snapY, snapZ);
+    const idealSnapCoords = createPoint(snapX, snapY, snapZ);
 
-    const [dragOffsetX, shouldSnapToX] = getNewDragOffsetCoord(0, initialAlignPoint, alignPoint, snapCoords, dragOffset);
-    const [dragOffsetY, shouldSnapToY] = getNewDragOffsetCoord(1, initialAlignPoint, alignPoint, snapCoords, dragOffset);
-    const [dragOffsetZ, shouldSnapToZ] = getNewDragOffsetCoord(2, initialAlignPoint, alignPoint, snapCoords, dragOffset);
+    const [dragOffsetX, shouldSnapToX] = getNewDragOffsetCoord(0, initialAlignPoint, alignPoint, idealSnapCoords, dragOffset);
+    const [dragOffsetY, shouldSnapToY] = getNewDragOffsetCoord(1, initialAlignPoint, alignPoint, idealSnapCoords, dragOffset);
+    const [dragOffsetZ, shouldSnapToZ] = getNewDragOffsetCoord(2, initialAlignPoint, alignPoint, idealSnapCoords, dragOffset);
 
     const xyPlane = dragOffset[2] === 0;
     const xzPlane = dragOffset[1] === 0;
@@ -40,10 +43,18 @@ export default function withDragOffsetSnapping(newState: Partial<DiagramStore>, 
     const isDraggingNodesSnappedToYAxis = (shouldSnapToX || shouldSnapToZ) && (xyPlane || yzPlane);
     const isDraggingNodesSnappedToZAxis = (shouldSnapToX || shouldSnapToY) && (xzPlane || yzPlane);
 
+    const snapCoords = createPoint(
+        shouldSnapToX ? snapX : alignPoint[0],
+        shouldSnapToY ? snapY : alignPoint[1],
+        shouldSnapToZ ? snapZ : alignPoint[2]);
+
     if (dragOffset[0] === dragOffsetX && dragOffset[1] === dragOffsetY && dragOffset[2] === dragOffsetZ) {
         return {
             ...newState,
             snapCoords,
+            isDraggingNodesInXYPlane: xyPlane,
+            isDraggingNodesInXZPlane: xzPlane,
+            isDraggingNodesInYZPlane: yzPlane,
             isDraggingNodesSnappedToXAxis,
             isDraggingNodesSnappedToYAxis,
             isDraggingNodesSnappedToZAxis,
@@ -54,6 +65,9 @@ export default function withDragOffsetSnapping(newState: Partial<DiagramStore>, 
         ...newState,
         snapCoords,
         dragOffset: createPoint(dragOffsetX, dragOffsetY, dragOffsetZ),
+        isDraggingNodesInXYPlane: xyPlane,
+        isDraggingNodesInXZPlane: xzPlane,
+        isDraggingNodesInYZPlane: yzPlane,
         isDraggingNodesSnappedToXAxis,
         isDraggingNodesSnappedToYAxis,
         isDraggingNodesSnappedToZAxis,

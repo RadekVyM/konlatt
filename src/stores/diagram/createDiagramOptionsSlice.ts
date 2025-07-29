@@ -1,7 +1,9 @@
+import { MAX_SEED_LENGTH_REDRAW } from "../../constants/diagram";
 import { CameraType } from "../../types/CameraType";
 import { DiagramLayoutState } from "../../types/DiagramLayoutState";
 import { LayoutMethod } from "../../types/LayoutMethod";
 import { calculateVisibleConceptIndexes } from "../../utils/lattice";
+import { generateRandomSeed } from "../../utils/string";
 import useDataStructuresStore from "../useDataStructuresStore";
 import { DiagramStore } from "./useDiagramStore";
 import withCameraControlsEnabled from "./withCameraControlsEnabled";
@@ -12,11 +14,14 @@ import withLayout from "./withLayout";
 type DiagramOptionsSliceState = {
     layoutMethod: LayoutMethod,
     cameraType: CameraType,
+    horizontalScale: number,
+    verticalScale: number,
     movementRegressionEnabled: boolean,
     linksVisibleEnabled: boolean,
     hoveredLinksHighlightingEnabled: boolean,
     semitransparentLinksEnabled: boolean,
     editingEnabled: boolean,
+    gridWhileEditingEnabled: boolean,
     multiselectEnabled: boolean,
     antialiasEnabled: boolean,
     labelsEnabled: boolean,
@@ -27,6 +32,8 @@ type DiagramOptionsSliceState = {
 type DiagramOptionsSliceActions = {
     setLayoutMethod: (layoutMethod: LayoutMethod) => void,
     setCameraType: (cameraType: CameraType) => void,
+    setHorizontalScale: (horizontalScale: number) => void,
+    setVerticalScale: (verticalScale: number) => void,
     setMovementRegressionEnabled: (movementRegressionEnabled: boolean) => void,
     setLinksVisibleEnabled: (linksVisibleEnabled: boolean) => void,
     setHoveredLinksHighlightingEnabled: (hoveredLinksHighlightingEnabled: boolean) => void,
@@ -35,48 +42,56 @@ type DiagramOptionsSliceActions = {
     setLabelsEnabled: (labelsEnabled: boolean) => void,
     setFlatLinksEnabled: (flatLinksEnabled: boolean) => void,
     setEditingEnabled: React.Dispatch<React.SetStateAction<boolean>>,
+    setGridWhileEditingEnabled: React.Dispatch<React.SetStateAction<boolean>>,
     setMultiselectEnabled: React.Dispatch<React.SetStateAction<boolean>>,
     setDisplayHighlightedSublatticeOnly: React.Dispatch<React.SetStateAction<boolean>>,
     setUpperConeOnlyConceptIndex: (upperConeOnlyConceptIndex: number | null, withOtherReset?: boolean) => void,
     setLowerConeOnlyConceptIndex: (lowerConeOnlyConceptIndex: number | null, withOtherReset?: boolean) => void,
     setParallelizeReDraw: React.Dispatch<React.SetStateAction<boolean>>,
     setTargetDimensionReDraw: React.Dispatch<React.SetStateAction<2 | 3>>,
+    setSeedReDraw: (seedReDraw: string) => void,
 }
 
 export type DiagramOptionsSlice = DiagramOptionsSliceState & DiagramOptionsSliceActions
 
-export const initialState: DiagramOptionsSliceState = {
-    cameraType: "2d",
-    layoutMethod: "layered",
-    movementRegressionEnabled: false,
-    linksVisibleEnabled: true,
-    hoveredLinksHighlightingEnabled: false,
-    semitransparentLinksEnabled: true,
-    antialiasEnabled: true,
-    labelsEnabled: true,
-    flatLinksEnabled: false,
-    editingEnabled: false,
-    multiselectEnabled: false,
-    displayHighlightedSublatticeOnly: false,
-    upperConeOnlyConceptIndex: null,
-    lowerConeOnlyConceptIndex: null,
-    visibleConceptIndexes: null,
-    parallelizeReDraw: true,
-    targetDimensionReDraw: 2,
-};
+export function initialState(): DiagramOptionsSliceState {
+    return {
+        cameraType: "2d",
+        layoutMethod: "layered",
+        horizontalScale: 1,
+        verticalScale: 1,
+        movementRegressionEnabled: false,
+        linksVisibleEnabled: true,
+        hoveredLinksHighlightingEnabled: false,
+        semitransparentLinksEnabled: true,
+        antialiasEnabled: true,
+        labelsEnabled: true,
+        flatLinksEnabled: false,
+        editingEnabled: false,
+        gridWhileEditingEnabled: true,
+        multiselectEnabled: false,
+        displayHighlightedSublatticeOnly: false,
+        upperConeOnlyConceptIndex: null,
+        lowerConeOnlyConceptIndex: null,
+        visibleConceptIndexes: null,
+        parallelizeReDraw: true,
+        targetDimensionReDraw: 2,
+        seedReDraw: generateRandomSeed(MAX_SEED_LENGTH_REDRAW),
+    };
+}
 
 export default function createDiagramOptionsSlice(set: (partial: DiagramStore | Partial<DiagramStore> | ((state: DiagramStore) => DiagramStore | Partial<DiagramStore>), replace?: false) => void): DiagramOptionsSlice {
     return {
-        ...initialState,
+        ...initialState(),
         setLayoutMethod: (layoutMethod) => set((old) => withLayout({ layoutMethod }, old)),
         setCameraType: (cameraType) => set((old) => withDefaultLayoutBox(withConceptsToMoveBox({ cameraType, currentZoomLevel: 1 }, old), old)),
-        setMovementRegressionEnabled: (movementRegressionEnabled: boolean) => set({ movementRegressionEnabled }),
-        setLinksVisibleEnabled: (linksVisibleEnabled: boolean) => set({ linksVisibleEnabled }),
-        setHoveredLinksHighlightingEnabled: (hoveredLinksHighlightingEnabled: boolean) => set({ hoveredLinksHighlightingEnabled }),
-        setSemitransparentLinksEnabled: (semitransparentLinksEnabled: boolean) => set({ semitransparentLinksEnabled }),
-        setAntialiasEnabled: (antialiasEnabled: boolean) => set({ antialiasEnabled }),
-        setLabelsEnabled: (labelsEnabled: boolean) => set({ labelsEnabled }),
-        setFlatLinksEnabled: (flatLinksEnabled: boolean) => set({ flatLinksEnabled }),
+        setMovementRegressionEnabled: (movementRegressionEnabled) => set({ movementRegressionEnabled }),
+        setLinksVisibleEnabled: (linksVisibleEnabled) => set({ linksVisibleEnabled }),
+        setHoveredLinksHighlightingEnabled: (hoveredLinksHighlightingEnabled) => set({ hoveredLinksHighlightingEnabled }),
+        setSemitransparentLinksEnabled: (semitransparentLinksEnabled) => set({ semitransparentLinksEnabled }),
+        setAntialiasEnabled: (antialiasEnabled) => set({ antialiasEnabled }),
+        setLabelsEnabled: (labelsEnabled) => set({ labelsEnabled }),
+        setFlatLinksEnabled: (flatLinksEnabled) => set({ flatLinksEnabled }),
         setEditingEnabled: (editingEnabled) => set((old) => {
             const newValue = typeof editingEnabled === "function" ?
                 editingEnabled(old.editingEnabled) :
@@ -90,6 +105,11 @@ export default function createDiagramOptionsSlice(set: (partial: DiagramStore | 
                     conceptsToMoveIndexes: new Set()
                 }, old), old);
         }),
+        setGridWhileEditingEnabled: (gridWhileEditingEnabled) => set((old) => ({
+            gridWhileEditingEnabled: (typeof gridWhileEditingEnabled === "function" ?
+                gridWhileEditingEnabled(old.gridWhileEditingEnabled) :
+                gridWhileEditingEnabled)
+        })),
         setMultiselectEnabled: (multiselectEnabled) => set((old) => withCameraControlsEnabled({
             multiselectEnabled: (typeof multiselectEnabled === "function" ?
                 multiselectEnabled(old.multiselectEnabled) :
@@ -136,5 +156,8 @@ export default function createDiagramOptionsSlice(set: (partial: DiagramStore | 
                     targetDimensionReDraw
             },
             old)),
+        setSeedReDraw: (seedReDraw) => set((old) => withLayout({ seedReDraw }, old)),
+        setHorizontalScale: (horizontalScale) => set((old) => withDefaultLayoutBox(withConceptsToMoveBox({ horizontalScale }, old), old)),
+        setVerticalScale: (verticalScale) => set((old) => withDefaultLayoutBox(withConceptsToMoveBox({ verticalScale }, old), old)),
     };
 }

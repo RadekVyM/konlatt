@@ -1,5 +1,6 @@
 import { LayoutWorkerProgressResponse, LayoutWorkerResultResponse } from "../types/LayoutWorkerResponse";
 import { CompleteLayoutComputationRequest } from "../types/WorkerRequest";
+import { hashString } from "../utils/string";
 
 self.onmessage = async (event: MessageEvent<CompleteLayoutComputationRequest>) => {
     const result = await computeLayout(event.data);
@@ -30,6 +31,7 @@ async function computeLayout(request: CompleteLayoutComputationRequest) {
                 request.supremum,
                 request.infimum,
                 request.subconceptsMappingArrayBuffer,
+                hashString(request.options.seedReDraw),
                 request.options.targetDimensionReDraw,
                 request.options.parallelizeReDraw,
                 postProgressMessage);

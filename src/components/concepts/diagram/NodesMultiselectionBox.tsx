@@ -124,6 +124,8 @@ export default function NodesMultiselectionBox() {
             diagramStore.diagramOffsets,
             diagramStore.layoutToConceptIndexesMapping,
             diagramStore.cameraType,
+            diagramStore.horizontalScale,
+            diagramStore.verticalScale,
             camera,
             clientRect);
 
@@ -139,6 +141,8 @@ function getSelectedConceptIndexes(
     diagramOffsets: Array<Point>,
     layoutToConceptIndexesMapping: Map<number, number>,
     cameraType: CameraType,
+    horizontalScale: number,
+    verticalScale: number,
     camera: Camera,
     clientRect: DOMRect,
 ) {
@@ -149,7 +153,7 @@ function getSelectedConceptIndexes(
         const conceptPoint = layout[layoutIndex];
         const pointOffset = diagramOffsets[layoutIndex];
         const conceptIndex = layoutToConceptIndexesMapping.get(layoutIndex);
-        const point = transformedPoint(createPoint(conceptPoint.x, conceptPoint.y, conceptPoint.z), pointOffset, nullOffset, cameraType);
+        const point = transformedPoint(createPoint(conceptPoint.x, conceptPoint.y, conceptPoint.z), pointOffset, nullOffset, cameraType, horizontalScale, verticalScale);
 
         if (conceptIndex === undefined) {
             continue;

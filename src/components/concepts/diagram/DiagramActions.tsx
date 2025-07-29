@@ -1,4 +1,4 @@
-import { LuFocus, LuHand, LuLoaderCircle, LuMaximize, LuMinimize, LuMinus, LuPanelBottomClose, LuPanelBottomOpen, LuPanelLeftClose, LuPanelLeftOpen, LuPanelRightClose, LuPanelRightOpen, LuPlus, LuRedo2, LuSquareDashedMousePointer, LuUndo2 } from "react-icons/lu";
+import { LuFocus, LuGrid3X3, LuHand, LuLoaderCircle, LuMaximize, LuMinimize, LuMinus, LuPanelBottomClose, LuPanelBottomOpen, LuPanelLeftClose, LuPanelLeftOpen, LuPanelRightClose, LuPanelRightOpen, LuPlus, LuRedo2, LuSquareDashedMousePointer, LuUndo2 } from "react-icons/lu";
 import Button from "../../inputs/Button";
 import { cn } from "../../../utils/tailwind";
 import { useContext, useRef } from "react";
@@ -84,6 +84,7 @@ export default function DiagramActions(props: {
                     isTemporarilyEditableRef={isTemporarilyEditableRef} />
                 <MultiselectToggle
                     isTemporarilyMultiselectEnabledRef={isTemporarilyMultiselectEnabledRef} />
+                <GridToggle />
             </div>
 
             <div
@@ -296,6 +297,33 @@ function MoveToggle(props: {
             uncheckedTitle="Enable node movement"
             shortcutKeys={ctrlKey()}>
             <LuHand />
+        </Toggle>
+    );
+}
+
+function GridToggle(props: {
+    className?: string,
+}) {
+    const editingEnabled = useDiagramStore((state) => state.editingEnabled);
+    const gridWhileEditingEnabled = useDiagramStore((state) => state.gridWhileEditingEnabled);
+    const setGridWhileEditingEnabled = useDiagramStore((state) => state.setGridWhileEditingEnabled);
+
+    function onClick() {
+        setGridWhileEditingEnabled((old) => !old);
+    }
+
+    if (!editingEnabled) {
+        return undefined;
+    }
+
+    return (
+        <Toggle
+            className={props.className}
+            onClick={onClick}
+            checked={gridWhileEditingEnabled}
+            checkedTitle="Disable grid"
+            uncheckedTitle="Enable grid">
+            <LuGrid3X3 />
         </Toggle>
     );
 }

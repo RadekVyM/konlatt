@@ -6,6 +6,9 @@ export const PRIMARY_COLOR_DARK = new Color("#ed1870");
 export const LABEL_COLOR_LIGHT = new Color("#010101");
 export const LABEL_COLOR_DARK = new Color("#fefefe");
 
+export const GRID_COLOR_LIGHT = new Color("#f0f0f0");
+export const GRID_COLOR_DARK = new Color("#181818");
+
 export const NODE_COLOR_LIGHT = new Color("#363636");
 export const NODE_COLOR_DARK = new Color("#efefef");
 export const DIM_NODE_COLOR_LIGHT = new Color("#999999");
@@ -31,3 +34,5 @@ export const LINE_WIDTH = 0.035;
 export const X_SCALE = 1;
 export const Y_SCALE = 1;
 export const Z_SCALE = 1;
+
+export const MAX_SEED_LENGTH_REDRAW = 9;

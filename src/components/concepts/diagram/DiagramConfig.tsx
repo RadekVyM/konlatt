@@ -1,9 +1,18 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import ComboBox from "../../inputs/ComboBox";
 import ToggleSwitch from "../../inputs/ToggleSwitch";
 import NumberInput from "../../inputs/NumberInput";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import { LayoutMethod } from "../../../types/LayoutMethod";
+import useDebouncedSetter from "../../../hooks/useDebouncedSetter";
+import Input from "../../inputs/Input";
+import { MAX_SEED_LENGTH_REDRAW } from "../../../constants/diagram";
+import { generateRandomSeed, isNullOrWhitespace } from "../../../utils/string";
+import { cn } from "../../../utils/tailwind";
+import Button from "../../inputs/Button";
+import { LuRefreshCcw } from "react-icons/lu";
+
+const INPUT_DELAY = 500;
 
 export default function DiagramConfig() {
     return (
@@ -104,9 +113,6 @@ function LayoutSection() {
     const setParallelizeReDraw = useDiagramStore((state) => state.setParallelizeReDraw);
     const setTargetDimensionReDraw = useDiagramStore((state) => state.setTargetDimensionReDraw);
 
-    const [horizontalNodesDistance, setHorizontalNodesDistance] = useState<number>(1);
-    const [verticalNodesDistance, setVerticalNodesDistance] = useState<number>(1);
-
     return (
         <Section
             heading="Layout">
@@ -124,28 +130,13 @@ function LayoutSection() {
                     onKeySelectionChange={setLayoutMethod} />
             </div>
 
-            <NumberInput
-                label="Vertical nodes distance"
-                id="vertical-nodes-distance"
-                placeholder="1"
-                min={0.5}
-                step={0.5}
-                minimumFractionDigits={1}
-                value={verticalNodesDistance}
-                onChange={setVerticalNodesDistance} />
-
-            <NumberInput
-                label="Horizontal nodes distance"
-                id="horizontal-nodes-distance"
-                placeholder="1"
-                min={0.5}
-                step={0.5}
-                minimumFractionDigits={1}
-                value={horizontalNodesDistance}
-                onChange={setHorizontalNodesDistance} />
+            <ScaleInputs />
 
             {layoutMethod === "redraw" &&
                 <>
+                    <SeedReDrawInput
+                        id="redraw-seed" />
+
                     <ToggleSwitch
                         className="mt-1.5"
                         checked={parallelizeReDraw}
@@ -199,5 +190,91 @@ function Section(props: {
                 </h3>}
             {props.children}
         </section>
+    );
+}
+
+function ScaleInputs() {
+    const horizontalScale = useDiagramStore((state) => state.horizontalScale);
+    const verticalScale = useDiagramStore((state) => state.verticalScale);
+    const setHorizontalScale = useDiagramStore((state) => state.setHorizontalScale);
+    const setVerticalScale = useDiagramStore((state) => state.setVerticalScale);
+
+    const [horizontalScaleInput, setHorizontalScaleInput] = useState<number>(horizontalScale);
+    const [verticalScaleInput, setVerticalScaleInput] = useState<number>(verticalScale);
+
+    useDebouncedSetter(horizontalScaleInput, setHorizontalScale, INPUT_DELAY);
+    useDebouncedSetter(verticalScaleInput, setVerticalScale, INPUT_DELAY);
+
+    return (
+        <>
+            <NumberInput
+                label="Vertical nodes distance"
+                id="vertical-nodes-distance"
+                placeholder="1"
+                min={0.5}
+                step={0.5}
+                minimumFractionDigits={1}
+                value={verticalScaleInput}
+                onChange={setVerticalScaleInput} />
+
+            <NumberInput
+                label="Horizontal nodes distance"
+                id="horizontal-nodes-distance"
+                placeholder="1"
+                min={0.5}
+                step={0.5}
+                minimumFractionDigits={1}
+                value={horizontalScaleInput}
+                onChange={setHorizontalScaleInput} />
+        </>
+    );
+}
+
+function SeedReDrawInput(props: {
+    className?: string,
+    id?: string,
+}) {
+    const inputRef = useRef<HTMLInputElement>(null);
+    const seedReDraw = useDiagramStore((state) => state.seedReDraw);
+    const setSeedReDraw = useDiagramStore((state) => state.setSeedReDraw);
+
+    const [seedReDrawInput, setSeedReDrawInput] = useState<string>(seedReDraw);
+
+    const seedToSave = isNullOrWhitespace(seedReDrawInput) ? seedReDraw : seedReDrawInput;
+
+    useDebouncedSetter(seedToSave, setSeedReDraw, INPUT_DELAY);
+
+    return (
+        <div
+            className={cn("grid grid-rows-[auto_auto] grid-cols-[1fr_auto] gap-x-2", props.className)}>
+            <label
+                htmlFor={props.id}
+                className="text-sm col-start-1 -col-end-1">
+                Seed
+            </label>
+            <Input
+                ref={inputRef}
+                id={props.id}
+                value={seedReDrawInput}
+                onChange={(event) => setSeedReDrawInput(event.target.value)}
+                onFocus={(event) => event.target.select()}
+                onBlur={() => {
+                    if (inputRef.current && isNullOrWhitespace(inputRef.current.value)) {
+                        inputRef.current.value = seedReDraw;
+                    }
+                }}
+                size={1}
+                minLength={1}
+                maxLength={MAX_SEED_LENGTH_REDRAW}
+                className={"w-full"} />
+
+            <Button
+                variant="icon-secondary"
+                size="sm"
+                title="Generate random seed"
+                onClick={() => setSeedReDrawInput(generateRandomSeed(MAX_SEED_LENGTH_REDRAW))}>
+                <LuRefreshCcw />
+            </Button>
+        </div>
     );
 }

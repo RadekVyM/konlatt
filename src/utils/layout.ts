@@ -7,11 +7,13 @@ export function transformedPoint(
     offset: Point,
     dragOffset: Point,
     cameraType: CameraType,
+    horizontalScale: number,
+    verticalScale: number,
     zOffset: number = 0,
 ): Point {
     return [
-        (point[0] + offset[0] + dragOffset[0]) * X_SCALE,
-        (point[1] + offset[1] + dragOffset[1]) * Y_SCALE,
-        (cameraType === "2d" ? 0 : (point[2] + offset[2] + dragOffset[2]) * Z_SCALE) + zOffset,
+        ((point[0] * horizontalScale) + offset[0] + dragOffset[0]) * X_SCALE,
+        ((point[1] * verticalScale) + offset[1] + dragOffset[1]) * Y_SCALE,
+        (cameraType === "2d" ? 0 : ((point[2] * horizontalScale) + offset[2] + dragOffset[2]) * Z_SCALE) + zOffset,
     ];
 }

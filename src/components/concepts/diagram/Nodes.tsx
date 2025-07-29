@@ -27,6 +27,8 @@ export default function Nodes() {
     const filteredConceptIndexes = useDiagramStore((state) => state.filteredConceptIndexes);
     const displayHighlightedSublatticeOnly = useDiagramStore((state) => state.displayHighlightedSublatticeOnly);
     const cameraType = useDiagramStore((state) => state.cameraType);
+    const horizontalScale = useDiagramStore((state) => state.horizontalScale);
+    const verticalScale = useDiagramStore((state) => state.verticalScale);
     const invalidate = useThree((state) => state.invalidate);
 
     useLayoutEffect(() => {
@@ -70,10 +72,12 @@ export default function Nodes() {
             layout,
             diagramOffsets,
             [0, 0, 0],
-            cameraType);
+            cameraType,
+            horizontalScale,
+            verticalScale);
 
         invalidate();
-    }, [layout, cameraType, diagramOffsets, visibleConceptIndexes, displayHighlightedSublatticeOnly]);
+    }, [layout, cameraType, diagramOffsets, visibleConceptIndexes, displayHighlightedSublatticeOnly, horizontalScale, verticalScale]);
 
     useLayoutEffect(() => {
         if (!instancedMeshRef.current || !layout || !diagramOffsets || conceptsToMoveIndexes.size === 0) {
@@ -92,10 +96,12 @@ export default function Nodes() {
             layout,
             diagramOffsets,
             dragOffset,
-            cameraType);
+            cameraType,
+            horizontalScale,
+            verticalScale);
 
         invalidate();
-    }, [conceptsToMoveIndexes, dragOffset, layout, cameraType, diagramOffsets, visibleConceptIndexes, displayHighlightedSublatticeOnly]);
+    }, [conceptsToMoveIndexes, dragOffset, layout, cameraType, diagramOffsets, visibleConceptIndexes, displayHighlightedSublatticeOnly, horizontalScale, verticalScale]);
 
     function onClick(e: ThreeEvent<MouseEvent>) {
         if (isRightClick(e)) {
@@ -216,6 +222,8 @@ function setNodesTransformMatricesHelper(
     diagramOffsets: Array<Point>,
     dragOffset: Point,
     cameraType: CameraType,
+    horizontalScale: number,
+    verticalScale: number,
 ) {
     const { highlightedLayoutIndexes, dimLayoutIndexes } = separateNodes(layoutIndexes, visibleConceptIndexes, displayHighlightedSublatticeOnly)
 
@@ -226,6 +234,8 @@ function setNodesTransformMatricesHelper(
         diagramOffsets,
         dragOffset,
         cameraType,
+        horizontalScale,
+        verticalScale,
         1);
     setNodesTransformMatrices(
         instancedMesh,
@@ -234,6 +244,8 @@ function setNodesTransformMatricesHelper(
         diagramOffsets,
         dragOffset,
         cameraType,
+        horizontalScale,
+        verticalScale,
         0.5);
 }
 

@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { cn } from "../../utils/tailwind";
+import Input from "./Input";
 
 export default function NumberInput({ className, inputClassName, id, label, minimumFractionDigits, value, onChange, ...rest }: {
     className?: string,
@@ -20,7 +21,7 @@ export default function NumberInput({ className, inputClassName, id, label, mini
                     className="text-sm">
                     {label}
                 </label>}
-            <input
+            <Input
                 ref={inputRef}
                 id={id}
                 type="number"
@@ -36,7 +37,7 @@ export default function NumberInput({ className, inputClassName, id, label, mini
                 }}
                 size={1}
                 className={cn(
-                    "text-sm bg-surface-light-dim-container hover:bg-surface-dim-container border border-surface-light-dim-container hover:border-outline px-2 py-1.5 rounded-md w-full",
+                    "w-full",
                     inputClassName)}
                 {...rest} />
         </div>
