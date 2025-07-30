@@ -16,6 +16,7 @@ type DiagramOptionsSliceState = {
     cameraType: CameraType,
     horizontalScale: number,
     verticalScale: number,
+    rotationDegrees: number,
     movementRegressionEnabled: boolean,
     linksVisibleEnabled: boolean,
     hoveredLinksHighlightingEnabled: boolean,
@@ -34,6 +35,7 @@ type DiagramOptionsSliceActions = {
     setCameraType: (cameraType: CameraType) => void,
     setHorizontalScale: (horizontalScale: number) => void,
     setVerticalScale: (verticalScale: number) => void,
+    setRotationDegrees: (rotationDegrees: number) => void,
     setMovementRegressionEnabled: (movementRegressionEnabled: boolean) => void,
     setLinksVisibleEnabled: (linksVisibleEnabled: boolean) => void,
     setHoveredLinksHighlightingEnabled: (hoveredLinksHighlightingEnabled: boolean) => void,
@@ -60,6 +62,7 @@ export function initialState(): DiagramOptionsSliceState {
         layoutMethod: "layered",
         horizontalScale: 1,
         verticalScale: 1,
+        rotationDegrees: 0,
         movementRegressionEnabled: false,
         linksVisibleEnabled: true,
         hoveredLinksHighlightingEnabled: false,
@@ -159,5 +162,6 @@ export default function createDiagramOptionsSlice(set: (partial: DiagramStore | 
         setSeedReDraw: (seedReDraw) => set((old) => withLayout({ seedReDraw }, old)),
         setHorizontalScale: (horizontalScale) => set((old) => withDefaultLayoutBox(withConceptsToMoveBox({ horizontalScale }, old), old)),
         setVerticalScale: (verticalScale) => set((old) => withDefaultLayoutBox(withConceptsToMoveBox({ verticalScale }, old), old)),
+        setRotationDegrees: (rotationDegrees) => set((old) => withDefaultLayoutBox(withConceptsToMoveBox({ rotationDegrees }, old), old)),
     };
 }

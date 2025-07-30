@@ -189,6 +189,7 @@ function useZoomActionsSetup(
         const cameraType = state.cameraType;
         const horizontalScale = state.horizontalScale;
         const verticalScale = state.verticalScale;
+        const rotationDegrees = state.rotationDegrees;
         const conceptToLayoutIndexesMapping = state.conceptToLayoutIndexesMapping;
         const layoutIndex = conceptToLayoutIndexesMapping.get(conceptIndex);
 
@@ -202,7 +203,7 @@ function useZoomActionsSetup(
         const point = layout[layoutIndex];
         const offset = diagramOffsets[layoutIndex];
 
-        const lookAtPoint = transformedPoint(createPoint(point.x, point.y, point.z), offset, [0, 0, 0], cameraType, horizontalScale, verticalScale);
+        const lookAtPoint = transformedPoint(createPoint(point.x, point.y, point.z), offset, [0, 0, 0], horizontalScale, verticalScale, rotationDegrees, cameraType);
         const distance = defaultDistance + lookAtPoint[2];
 
         cameraControlsRef.current?.setLookAt(lookAtPoint[0], lookAtPoint[1], distance, lookAtPoint[0], lookAtPoint[1], lookAtPoint[2], true).then();

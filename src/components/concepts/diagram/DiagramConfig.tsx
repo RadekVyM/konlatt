@@ -132,6 +132,8 @@ function LayoutSection() {
 
             <ScaleInputs />
 
+            <RotationInput />
+
             {layoutMethod === "redraw" &&
                 <>
                     <SeedReDrawInput
@@ -230,6 +232,27 @@ function ScaleInputs() {
     );
 }
 
+function RotationInput() {
+    const rotationDegrees = useDiagramStore((state) => state.rotationDegrees);
+    const setRotationDegrees = useDiagramStore((state) => state.setRotationDegrees);
+
+    const [rotationDegreesInput, setRotationDegreesInput] = useState<number>(rotationDegrees);
+
+    useDebouncedSetter(rotationDegreesInput, setRotationDegrees, INPUT_DELAY);
+
+    return (
+        <NumberInput
+            label="Rotation"
+            id="diagram-rotation"
+            placeholder="1"
+            min={-180}
+            max={180}
+            step={1}
+            value={rotationDegreesInput}
+            onChange={setRotationDegreesInput} />
+    );
+}
+
 function SeedReDrawInput(props: {
     className?: string,
     id?: string,
@@ -249,7 +272,7 @@ function SeedReDrawInput(props: {
             className={cn("grid grid-rows-[auto_auto] grid-cols-[1fr_auto] gap-x-2", props.className)}>
             <label
                 htmlFor={props.id}
-                className="text-sm col-start-1 -col-end-1">
+                className="text-sm col-start-1 -col-end-1 w-fit">
                 Seed
             </label>
             <Input

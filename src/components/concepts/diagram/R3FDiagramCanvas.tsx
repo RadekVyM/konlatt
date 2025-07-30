@@ -50,8 +50,6 @@ function Content() {
 
     return (
         <>
-            <ambientLight intensity={1} />
-
             <Grid />
 
             <Links

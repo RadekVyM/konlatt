@@ -28,6 +28,7 @@ export default function Labels() {
     const cameraType = useDiagramStore((state) => state.cameraType);
     const horizontalScale = useDiagramStore((state) => state.horizontalScale);
     const verticalScale = useDiagramStore((state) => state.verticalScale);
+    const rotationDegrees = useDiagramStore((state) => state.rotationDegrees);
     const lablesEnabled = useDiagramStore((state) => state.labelsEnabled);
 
     const attributeLabels = useLabels(
@@ -38,6 +39,7 @@ export default function Labels() {
         cameraType,
         horizontalScale,
         verticalScale,
+        rotationDegrees,
         diagramOffsets,
         "bottom");
     const objectLabels = useLabels(
@@ -48,6 +50,7 @@ export default function Labels() {
         cameraType,
         horizontalScale,
         verticalScale,
+        rotationDegrees,
         diagramOffsets,
         "top");
 
@@ -124,6 +127,7 @@ function useLabels(
     cameraType: CameraType,
     horizontalScale: number,
     verticalScale: number,
+    rotationDegrees: number,
     diagramOffsets: Array<Point> | null,
     anchorY: "top" | "bottom",
 ) {
@@ -149,9 +153,10 @@ function useLabels(
                 createPoint(layoutPoint.x, layoutPoint.y, layoutPoint.z),
                 getPoint(diagramOffsets, layoutIndex),
                 [0, 0, 0],
-                cameraType,
                 horizontalScale,
                 verticalScale,
+                rotationDegrees,
+                cameraType,
                 zOffset);
 
             const text = createLabelText(labelIndexes, labels);
@@ -166,7 +171,7 @@ function useLabels(
         }
 
         return newLabels;
-    }, [keyPrefix, labels, labeling, layout, cameraType, diagramOffsets, horizontalScale, verticalScale]);
+    }, [keyPrefix, labels, labeling, layout, cameraType, diagramOffsets, horizontalScale, verticalScale, rotationDegrees]);
 }
 
 function createLabelText(labelIndexes: ReadonlyArray<number>, labels: ReadonlyArray<string>) {

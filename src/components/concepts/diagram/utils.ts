@@ -14,6 +14,7 @@ export function setNodesTransformMatrices(
     cameraType: CameraType,
     horizontalScale: number,
     verticalScale: number,
+    rotationDegrees: number,
     scale: number = 1,
     tempObject?: Object3D,
 ) {
@@ -27,7 +28,7 @@ export function setNodesTransformMatrices(
         const node = layout[layoutIndex];
         const offset = getPoint(diagramOffsets, layoutIndex);
 
-        setupTransform(temp, createPoint(node.x, node.y, node.z), offset, dragOffset, scale, cameraType, horizontalScale, verticalScale);
+        setupTransform(temp, createPoint(node.x, node.y, node.z), offset, dragOffset, scale, cameraType, horizontalScale, verticalScale, rotationDegrees);
 
         instancedMesh.setMatrixAt(layoutIndex, temp.matrix);
     }
@@ -51,8 +52,9 @@ export function setupTransform(
     cameraType: CameraType,
     horizontalScale: number,
     verticalScale: number,
+    rotationDegrees: number,
 ) {
-    temp.position.set(...transformedPoint(point, offset, dragOffset, cameraType, horizontalScale, verticalScale));
+    temp.position.set(...transformedPoint(point, offset, dragOffset, horizontalScale, verticalScale, rotationDegrees, cameraType));
     temp.scale.set(scale, scale, scale);
     temp.updateMatrix();
 }

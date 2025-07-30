@@ -29,6 +29,7 @@ export default function Nodes() {
     const cameraType = useDiagramStore((state) => state.cameraType);
     const horizontalScale = useDiagramStore((state) => state.horizontalScale);
     const verticalScale = useDiagramStore((state) => state.verticalScale);
+    const rotationDegrees = useDiagramStore((state) => state.rotationDegrees);
     const invalidate = useThree((state) => state.invalidate);
 
     useLayoutEffect(() => {
@@ -74,10 +75,11 @@ export default function Nodes() {
             [0, 0, 0],
             cameraType,
             horizontalScale,
-            verticalScale);
+            verticalScale,
+            rotationDegrees);
 
         invalidate();
-    }, [layout, cameraType, diagramOffsets, visibleConceptIndexes, displayHighlightedSublatticeOnly, horizontalScale, verticalScale]);
+    }, [layout, cameraType, diagramOffsets, visibleConceptIndexes, displayHighlightedSublatticeOnly, horizontalScale, verticalScale, rotationDegrees]);
 
     useLayoutEffect(() => {
         if (!instancedMeshRef.current || !layout || !diagramOffsets || conceptsToMoveIndexes.size === 0) {
@@ -98,10 +100,11 @@ export default function Nodes() {
             dragOffset,
             cameraType,
             horizontalScale,
-            verticalScale);
+            verticalScale,
+            rotationDegrees);
 
         invalidate();
-    }, [conceptsToMoveIndexes, dragOffset, layout, cameraType, diagramOffsets, visibleConceptIndexes, displayHighlightedSublatticeOnly, horizontalScale, verticalScale]);
+    }, [conceptsToMoveIndexes, dragOffset, layout, cameraType, diagramOffsets, visibleConceptIndexes, displayHighlightedSublatticeOnly, horizontalScale, verticalScale, rotationDegrees]);
 
     function onClick(e: ThreeEvent<MouseEvent>) {
         if (isRightClick(e)) {
@@ -224,6 +227,7 @@ function setNodesTransformMatricesHelper(
     cameraType: CameraType,
     horizontalScale: number,
     verticalScale: number,
+    rotationDegrees: number,
 ) {
     const { highlightedLayoutIndexes, dimLayoutIndexes } = separateNodes(layoutIndexes, visibleConceptIndexes, displayHighlightedSublatticeOnly)
 
@@ -236,6 +240,7 @@ function setNodesTransformMatricesHelper(
         cameraType,
         horizontalScale,
         verticalScale,
+        rotationDegrees,
         1);
     setNodesTransformMatrices(
         instancedMesh,
@@ -246,6 +251,7 @@ function setNodesTransformMatricesHelper(
         cameraType,
         horizontalScale,
         verticalScale,
+        rotationDegrees,
         0.5);
 }
 

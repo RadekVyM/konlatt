@@ -74,6 +74,7 @@ export default function Grid() {
             cameraType !== "2d" && isDraggingNodesInYZPlane ? Math.PI / 2 : 0));
 
         if (!conceptsToMoveBox) {
+            gridRef.current.position.set(0, 0, 0);
             invalidate();
             return;
         }
@@ -83,9 +84,9 @@ export default function Grid() {
         const z = conceptsToMoveBox.z + (conceptsToMoveBox.depth / 2);
 
         gridRef.current.position.set(
-            isDraggingNodesInYZPlane ? x : 0,
+            cameraType !== "2d" && isDraggingNodesInYZPlane ? x : 0,
             cameraType !== "2d" && isDraggingNodesInXZPlane ? y : 0,
-            isDraggingNodesInXYPlane ? z : 0);
+            cameraType !== "2d" && isDraggingNodesInXYPlane ? z : 0);
 
         invalidate();
     }, [isDraggingNodesInXYPlane, isDraggingNodesInXZPlane, isDraggingNodesInYZPlane, cameraType, conceptsToMoveBox, isGridVisible]);

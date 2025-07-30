@@ -42,6 +42,7 @@ export default function Links() {
     const cameraType = useDiagramStore((state) => state.cameraType);
     const horizontalScale = useDiagramStore((state) => state.horizontalScale);
     const verticalScale = useDiagramStore((state) => state.verticalScale);
+    const rotationDegrees = useDiagramStore((state) => state.rotationDegrees);
     const linksVisibleEnabled = useDiagramStore((state) => state.linksVisibleEnabled);
     const semitransparentLinksEnabled = useDiagramStore((state) => state.semitransparentLinksEnabled);
     const flatLinksEnabled = useDiagramStore((state) => state.flatLinksEnabled);
@@ -125,8 +126,9 @@ export default function Links() {
             [0, 0, 0],
             cameraType,
             horizontalScale,
-            verticalScale);
-    }, [links, layout, subconceptsMapping, cameraType, diagramOffsets, horizontalScale, verticalScale]);
+            verticalScale,
+            rotationDegrees);
+    }, [links, layout, subconceptsMapping, cameraType, diagramOffsets, horizontalScale, verticalScale, rotationDegrees]);
 
     useLayoutEffect(() => {
         if (!instancedMeshRef.current || !layout || !diagramOffsets) {
@@ -145,8 +147,9 @@ export default function Links() {
             dragOffset,
             cameraType,
             horizontalScale,
-            verticalScale);
-    }, [selectedLinks, layout, subconceptsMapping, conceptsToMoveIndexes, dragOffset, cameraType, diagramOffsets, horizontalScale, verticalScale]);
+            verticalScale,
+            rotationDegrees);
+    }, [selectedLinks, layout, subconceptsMapping, conceptsToMoveIndexes, dragOffset, cameraType, diagramOffsets, horizontalScale, verticalScale, rotationDegrees]);
 
     useLayoutEffect(() => {
         if (noHighlightedLinks) {
@@ -214,6 +217,7 @@ function setLinksTransformMatrices(
     cameraType: CameraType,
     horizontalScale: number,
     verticalScale: number,
+    rotationDegrees: number,
 ) {
     const temp = new Object3D();
     const initialDirection = new Vector3(1, 0, 0);
@@ -236,9 +240,10 @@ function setLinksTransformMatrices(
             createPoint(fromDef.x, fromDef.y, fromDef.z),
             fromOffset,
             conceptsToMoveIndexes.has(conceptIndex) ? dragOffset : defaultDragOffset,
-            cameraType,
             horizontalScale,
             verticalScale,
+            rotationDegrees,
+            cameraType,
             zOffset);
 
         const toDef = layout[toIndex];
@@ -247,9 +252,10 @@ function setLinksTransformMatrices(
             createPoint(toDef.x, toDef.y, toDef.z),
             toOffset,
             conceptsToMoveIndexes.has(subconceptIndex) ? dragOffset : defaultDragOffset,
-            cameraType,
             horizontalScale,
             verticalScale,
+            rotationDegrees,
+            cameraType,
             zOffset);
         const dx = to[0] - from[0];
         const dy = to[1] - from[1];

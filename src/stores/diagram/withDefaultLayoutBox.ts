@@ -7,6 +7,7 @@ export default function withDefaultLayoutBox(newState: Partial<DiagramStore>, ol
     const cameraType = newState.cameraType === undefined ? oldState.cameraType : newState.cameraType;
     const horizontalScale = newState.horizontalScale === undefined ? oldState.horizontalScale : newState.horizontalScale;
     const verticalScale = newState.verticalScale === undefined ? oldState.verticalScale : newState.verticalScale;
+    const rotationDegrees = newState.rotationDegrees === undefined ? oldState.rotationDegrees : newState.rotationDegrees;
 
     if (!layout || layout.length !== conceptToLayoutIndexesMapping.size) {
         return { ...newState, defaultLayoutBox: null };
@@ -14,7 +15,7 @@ export default function withDefaultLayoutBox(newState: Partial<DiagramStore>, ol
 
     const conceptIndexes = layout.map((p) => p.conceptIndex);
     const diagramOffsets = createDefaultDiagramOffsets(layout.length);
-    const defaultLayoutBox = calculateLayoutBox(conceptIndexes, layout, diagramOffsets, conceptToLayoutIndexesMapping, cameraType, horizontalScale, verticalScale);
+    const defaultLayoutBox = calculateLayoutBox(conceptIndexes, layout, diagramOffsets, conceptToLayoutIndexesMapping, cameraType, horizontalScale, verticalScale, rotationDegrees);
 
     return { ...newState, defaultLayoutBox };
 }

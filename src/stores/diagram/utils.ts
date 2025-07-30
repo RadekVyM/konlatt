@@ -67,6 +67,7 @@ export function calculateLayoutBox(
     cameraType: CameraType,
     horizontalScale: number,
     verticalScale: number,
+    rotationDegrees: number,
 ) : Box | null {
     const nullOffset = createPoint(0, 0, 0);
 
@@ -88,7 +89,7 @@ export function calculateLayoutBox(
         const conceptPoint = layout[layoutIndex];
         const offset = diagramOffsets[layoutIndex];
 
-        const point = transformedPoint(createPoint(conceptPoint.x, conceptPoint.y, conceptPoint.z), offset, nullOffset, cameraType, horizontalScale, verticalScale);
+        const point = transformedPoint(createPoint(conceptPoint.x, conceptPoint.y, conceptPoint.z), offset, nullOffset, horizontalScale, verticalScale, rotationDegrees, cameraType);
 
         minX = Math.min(minX, point[0]);
         maxX = Math.max(maxX, point[0]);
