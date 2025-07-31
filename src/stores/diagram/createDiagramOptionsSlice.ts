@@ -3,6 +3,7 @@ import { CameraType } from "../../types/CameraType";
 import { DiagramLayoutState } from "../../types/DiagramLayoutState";
 import { LayoutMethod } from "../../types/LayoutMethod";
 import { calculateVisibleConceptIndexes } from "../../utils/lattice";
+import { w } from "../../utils/stores";
 import { generateRandomSeed } from "../../utils/string";
 import useDataStructuresStore from "../useDataStructuresStore";
 import { DiagramStore } from "./useDiagramStore";
@@ -87,7 +88,7 @@ export default function createDiagramOptionsSlice(set: (partial: DiagramStore | 
     return {
         ...initialState(),
         setLayoutMethod: (layoutMethod) => set((old) => withLayout({ layoutMethod }, old)),
-        setCameraType: (cameraType) => set((old) => withDefaultLayoutBox(withConceptsToMoveBox({ cameraType, currentZoomLevel: 1 }, old), old)),
+        setCameraType: (cameraType) => set((old) => w({ cameraType, currentZoomLevel: 1 }, old, withConceptsToMoveBox, withDefaultLayoutBox)),
         setMovementRegressionEnabled: (movementRegressionEnabled) => set({ movementRegressionEnabled }),
         setLinksVisibleEnabled: (linksVisibleEnabled) => set({ linksVisibleEnabled }),
         setHoveredLinksHighlightingEnabled: (hoveredLinksHighlightingEnabled) => set({ hoveredLinksHighlightingEnabled }),
@@ -160,8 +161,8 @@ export default function createDiagramOptionsSlice(set: (partial: DiagramStore | 
             },
             old)),
         setSeedReDraw: (seedReDraw) => set((old) => withLayout({ seedReDraw }, old)),
-        setHorizontalScale: (horizontalScale) => set((old) => withDefaultLayoutBox(withConceptsToMoveBox({ horizontalScale }, old), old)),
-        setVerticalScale: (verticalScale) => set((old) => withDefaultLayoutBox(withConceptsToMoveBox({ verticalScale }, old), old)),
-        setRotationDegrees: (rotationDegrees) => set((old) => withDefaultLayoutBox(withConceptsToMoveBox({ rotationDegrees }, old), old)),
+        setHorizontalScale: (horizontalScale) => set((old) => w({ horizontalScale }, old, withConceptsToMoveBox, withDefaultLayoutBox)),
+        setVerticalScale: (verticalScale) => set((old) => w({ verticalScale }, old, withConceptsToMoveBox, withDefaultLayoutBox)),
+        setRotationDegrees: (rotationDegrees) => set((old) => w({ rotationDegrees }, old, withConceptsToMoveBox, withDefaultLayoutBox)),
     };
 }

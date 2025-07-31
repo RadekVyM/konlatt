@@ -3,7 +3,6 @@ import Button from "../../inputs/Button";
 import { cn } from "../../../utils/tailwind";
 import { useContext, useRef } from "react";
 import useEventListener from "../../../hooks/useEventListener";
-import { useDiagramOffsets } from "../../../hooks/useDiagramOffsets";
 import { isCtrl, isCtrlZ, isEditableElement, isMac } from "../../../utils/html";
 import { FullscreenState } from "../../../types/FullscreenState";
 import ExportButton from "../../export/ExportButton";
@@ -249,7 +248,10 @@ function ZoomBar(props: {
 function UndoRedoBar(props: {
     className?: string,
 }) {
-    const { canUndo, canRedo, undo, redo } = useDiagramOffsets();
+    const canUndo = useDiagramStore((state) => state.canUndo);
+    const canRedo = useDiagramStore((state) => state.canRedo);
+    const undo = useDiagramStore((state) => state.undo);
+    const redo = useDiagramStore((state) => state.redo);
 
     return (
         <div
@@ -388,7 +390,8 @@ function useKeyBoardEvents(
     isTemporarilyEditableRef: React.RefObject<boolean>,
     isTemporarilyMultiselectEnabledRef: React.RefObject<boolean>,
 ) {
-    const { undo, redo } = useDiagramOffsets();
+    const undo = useDiagramStore((state) => state.undo);
+    const redo = useDiagramStore((state) => state.redo);
     const setEditingEnabled = useDiagramStore((state) => state.setEditingEnabled);
     const setMultiselectEnabled = useDiagramStore((state) => state.setMultiselectEnabled);
 

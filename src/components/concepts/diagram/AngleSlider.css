@@ -1,0 +1,67 @@
+@reference "../../../css/index.css";
+@reference "../../../css/colors.css";
+@reference "../../../css/animations.css";
+
+@layer components {
+    .angle-slider {
+        @apply flex flex-col items-stretch isolate relative;
+
+        &::before {
+            content: "";
+            left: min(
+                calc(var(--position) * (100% - var(--spacing) * 4)),
+                calc(50% - var(--spacing) * 2)
+            );
+            right: min(
+                calc(100% - (var(--position) * (100% - var(--spacing) * 4) + var(--spacing) * 4)),
+                calc(100% - (50% + var(--spacing) * 2))
+            );
+            @apply absolute h-4 rounded-full bg-primary z-20 pointer-events-none select-none;
+        }
+
+        &::after {
+            content: "";
+            left: calc(var(--spacing) * 2 + var(--position) * (100% - var(--spacing) * 4));
+            @apply absolute w-4 h-4 box-border border-4 border-primary -translate-x-1/2 rounded-full bg-on-primary z-30 pointer-events-none select-none;
+        }
+
+        input {
+            @apply w-full appearance-none bg-surface-light-dim-container h-4 border border-outline rounded-full cursor-pointer;
+
+            &::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                width: 0;
+                height: 0;
+                border: none;
+                opacity: 0;
+            }
+
+            &::-moz-range-thumb {
+                width: 0;
+                height: 0;
+                border: none;
+                background: transparent;
+                opacity: 0;
+            }
+        }
+
+        input:hover {
+            @apply bg-surface-dim-container;
+        }
+
+        datalist {
+            @apply w-full flex justify-between pointer-events-none select-none;
+
+            option {
+                @apply relative text-[0.6rem] text-center text-on-surface-muted w-6 -mx-1 pt-1;
+
+                &::after {
+                    content: "";
+                    top: calc(var(--spacing) * -3);
+
+                    @apply absolute left-1/2 translate-x-[-1px] w-[1px] h-2 rounded-full bg-outline;
+                }
+            }
+        }
+    }
+}

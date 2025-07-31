@@ -7,10 +7,11 @@ import { LayoutMethod } from "../../../types/LayoutMethod";
 import useDebouncedSetter from "../../../hooks/useDebouncedSetter";
 import Input from "../../inputs/Input";
 import { MAX_SEED_LENGTH_REDRAW } from "../../../constants/diagram";
-import { generateRandomSeed, isNullOrWhitespace } from "../../../utils/string";
+import { generateRandomSeed, isNullOrWhiteSpace } from "../../../utils/string";
 import { cn } from "../../../utils/tailwind";
 import Button from "../../inputs/Button";
 import { LuRefreshCcw } from "react-icons/lu";
+import AngleSlider from "./AngleSlider";
 
 const INPUT_DELAY = 500;
 
@@ -130,10 +131,6 @@ function LayoutSection() {
                     onKeySelectionChange={setLayoutMethod} />
             </div>
 
-            <ScaleInputs />
-
-            <RotationInput />
-
             {layoutMethod === "redraw" &&
                 <>
                     <SeedReDrawInput
@@ -151,6 +148,10 @@ function LayoutSection() {
                         Reduce to 3D
                     </ToggleSwitch>
                 </>}
+
+            <ScaleInputs />
+
+            <RotationInput />
         </Section>
     );
 }
@@ -241,15 +242,23 @@ function RotationInput() {
     useDebouncedSetter(rotationDegreesInput, setRotationDegrees, INPUT_DELAY);
 
     return (
-        <NumberInput
-            label="Rotation"
-            id="diagram-rotation"
-            placeholder="1"
-            min={-180}
-            max={180}
-            step={1}
-            value={rotationDegreesInput}
-            onChange={setRotationDegreesInput} />
+        <div>
+            <NumberInput
+                label="Rotation"
+                id="diagram-rotation"
+                className="mb-2"
+                placeholder="1"
+                min={-180}
+                max={180}
+                step={1}
+                value={rotationDegreesInput}
+                onChange={setRotationDegreesInput} />
+
+            <AngleSlider
+                id="rotation-degrees"
+                value={rotationDegreesInput}
+                onChange={setRotationDegreesInput} />
+        </div>
     );
 }
 
@@ -263,7 +272,7 @@ function SeedReDrawInput(props: {
 
     const [seedReDrawInput, setSeedReDrawInput] = useState<string>(seedReDraw);
 
-    const seedToSave = isNullOrWhitespace(seedReDrawInput) ? seedReDraw : seedReDrawInput;
+    const seedToSave = isNullOrWhiteSpace(seedReDrawInput) ? seedReDraw : seedReDrawInput;
 
     useDebouncedSetter(seedToSave, setSeedReDraw, INPUT_DELAY);
 
@@ -282,7 +291,7 @@ function SeedReDrawInput(props: {
                 onChange={(event) => setSeedReDrawInput(event.target.value)}
                 onFocus={(event) => event.target.select()}
                 onBlur={() => {
-                    if (inputRef.current && isNullOrWhitespace(inputRef.current.value)) {
+                    if (inputRef.current && isNullOrWhiteSpace(inputRef.current.value)) {
                         inputRef.current.value = seedReDraw;
                     }
                 }}
@@ -294,6 +303,7 @@ function SeedReDrawInput(props: {
             <Button
                 variant="icon-secondary"
                 size="sm"
+                className="h-full w-full"
                 title="Generate random seed"
                 onClick={() => setSeedReDrawInput(generateRandomSeed(MAX_SEED_LENGTH_REDRAW))}>
                 <LuRefreshCcw />

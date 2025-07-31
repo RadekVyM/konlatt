@@ -20,6 +20,6 @@ export function generateRandomSeed(length: number) {
     return Math.round(random * Math.pow(10, length)).toString().padStart(length, "0");
 }
 
-export function isNullOrWhitespace(str: string | null | undefined) {
+export function isNullOrWhiteSpace(str: string | null | undefined) {
     return str === null || str === undefined || str.trim().length === 0;
 }

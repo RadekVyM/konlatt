@@ -4,7 +4,6 @@ import { Group, InstancedMesh, Matrix4, Object3D } from "three";
 import { getPoint, themedColor } from "./utils";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import { createPoint, Point } from "../../../types/Point";
-import { useDiagramOffsets } from "../../../hooks/useDiagramOffsets";
 import useGlobalsStore from "../../../stores/useGlobalsStore";
 import { transformedPoint } from "../../../utils/layout";
 import { PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT } from "../../../constants/diagram";
@@ -24,8 +23,7 @@ export default function NodesToMove() {
     const isDraggingNodes = useDiagramStore((state) => state.isDraggingNodes);
     const setIsDraggingNodes = useDiagramStore((state) => state.setIsDraggingNodes);
     const setDragOffset = useDiagramStore((state) => state.setDragOffset);
-
-    const { updateNodeOffsets } = useDiagramOffsets();
+    const updateNodeOffsets = useDiagramStore((state) => state.updateNodeOffsets);
 
     const activeAxes: [boolean, boolean, boolean] | undefined = cameraType === "2d" ? [true, true, false] : undefined;
 

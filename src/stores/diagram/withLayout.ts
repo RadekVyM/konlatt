@@ -1,6 +1,7 @@
 import { triggerCancellation, triggerLayoutComputation } from "../../services/triggers";
 import { ConceptLatticeLayoutCacheItem } from "../../types/ConceptLatticeLayoutCacheItem";
 import { DiagramLayoutState } from "../../types/DiagramLayoutState";
+import { w } from "../../utils/stores";
 import { DiagramStore } from "./useDiagramStore";
 import { createConceptLayoutIndexesMappings, createDiagramLayoutStateId, createEmptyDiagramOffsetMementos } from "./utils";
 import withConceptsToMoveBox from "./withConceptsToMoveBox";
@@ -16,13 +17,13 @@ export default function withLayout(
     if (oldState.currentLayoutJobStateId === stateId) {
         // Do not react to upperConeOnlyConceptIndex and lowerConeOnlyConceptIndex changes
         // when nothing is rendered yet
-        return withDefaultLayoutBox(withConceptsToMoveBox(newState, oldState), oldState);
+        return w(newState, oldState, withConceptsToMoveBox, withDefaultLayoutBox);
     }
 
     const cachedLayoutItem = tryGetLayoutFromCache(oldState.layoutCache, stateId);
 
     if (cachedLayoutItem !== null && cachedLayoutItem.layout === oldState.layout) {
-        return withDefaultLayoutBox(withConceptsToMoveBox(newState, oldState), oldState);
+        return w(newState, oldState, withConceptsToMoveBox, withDefaultLayoutBox);
     }
 
     if (cachedLayoutItem) {
@@ -30,7 +31,7 @@ export default function withLayout(
             triggerCancellation(oldState.currentLayoutJobId);
         }
 
-        return withDefaultLayoutBox(withConceptsToMoveBox({
+        return w({
             layout: cachedLayoutItem.layout,
             layoutId: `${cachedLayoutItem.layout?.length}-${Math.random()}`,
             ...createConceptLayoutIndexesMappings(cachedLayoutItem.layout),
@@ -38,19 +39,19 @@ export default function withLayout(
             diagramOffsetMementos: cachedLayoutItem.diagramOffsetMementos,
             currentZoomLevel: 1,
             ...newState,
-        }, oldState), oldState);
+        }, oldState, withConceptsToMoveBox, withDefaultLayoutBox);
     }
 
     triggerLayoutComputation(layoutState);
 
-    return withDefaultLayoutBox(withConceptsToMoveBox({
+    return w({
         layout: null,
         layoutId: `null-${Math.random()}`,
         conceptToLayoutIndexesMapping: new Map(),
         diagramOffsets: null,
         diagramOffsetMementos: createEmptyDiagramOffsetMementos(),
         ...newState,
-    }, oldState), oldState);
+    }, oldState, withConceptsToMoveBox, withDefaultLayoutBox);
 }
 
 function tryGetLayoutFromCache(
