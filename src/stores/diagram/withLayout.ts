@@ -4,6 +4,7 @@ import { DiagramLayoutState } from "../../types/DiagramLayoutState";
 import { w } from "../../utils/stores";
 import { DiagramStore } from "./useDiagramStore";
 import { createConceptLayoutIndexesMappings, createDiagramLayoutStateId, createEmptyDiagramOffsetMementos } from "./utils";
+import { withCanUndoRedo } from "./withCanUndoRedo";
 import withConceptsToMoveBox from "./withConceptsToMoveBox";
 import withDefaultLayoutBox from "./withDefaultLayoutBox";
 
@@ -39,7 +40,7 @@ export default function withLayout(
             diagramOffsetMementos: cachedLayoutItem.diagramOffsetMementos,
             currentZoomLevel: 1,
             ...newState,
-        }, oldState, withConceptsToMoveBox, withDefaultLayoutBox);
+        }, oldState, withConceptsToMoveBox, withDefaultLayoutBox, withCanUndoRedo);
     }
 
     triggerLayoutComputation(layoutState);
@@ -51,7 +52,7 @@ export default function withLayout(
         diagramOffsets: null,
         diagramOffsetMementos: createEmptyDiagramOffsetMementos(),
         ...newState,
-    }, oldState, withConceptsToMoveBox, withDefaultLayoutBox);
+    }, oldState, withConceptsToMoveBox, withDefaultLayoutBox, withCanUndoRedo);
 }
 
 function tryGetLayoutFromCache(

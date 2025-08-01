@@ -8,6 +8,7 @@ import { rotatePoint } from "../../utils/layout";
 import { w } from "../../utils/stores";
 import { DiagramStore } from "./useDiagramStore";
 import { createConceptLayoutIndexesMappings, createDefaultDiagramOffsets, createDiagramLayoutStateId, createEmptyDiagramOffsetMementos } from "./utils";
+import { withCanUndoRedo } from "./withCanUndoRedo";
 import withConceptsToMoveBox from "./withConceptsToMoveBox";
 import withDefaultLayoutBox from "./withDefaultLayoutBox";
 
@@ -28,8 +29,6 @@ type DiagramLayoutSliceState = {
 type DiagramLayoutSliceActions = {
     setLayout: (layout: ConceptLatticeLayout | null) => void,
     setCurrentLayoutJobId: (currentLayoutJobId: number | null, layoutState: DiagramLayoutState | null) => void,
-    setDiagramOffsets: (diagramOffsets: Array<Point> | null) => void,
-    setDiagramOffsetMementos: (diagramOffsetMementos: DiagramOffsetMementos) => void,
     updateNodeOffsets: (conceptIndexes: Iterable<number>, offset: Point) => void,
     undo: () => void,
     redo: () => void,
@@ -74,14 +73,12 @@ export default function createDiagramLayoutSlice(set: (partial: DiagramStore | P
                     new Map(),
                 conceptsToMoveIndexes: new Set(),
                 currentZoomLevel: 1,
-            }, old, withConceptsToMoveBox, withDefaultLayoutBox);
+            }, old, withConceptsToMoveBox, withDefaultLayoutBox, withCanUndoRedo);
         }),
         setCurrentLayoutJobId: (currentLayoutJobId, layoutState) => set(() => ({
             currentLayoutJobId,
             currentLayoutJobStateId: layoutState === null ? null : createDiagramLayoutStateId(layoutState),
         })),
-        setDiagramOffsets: (diagramOffsets) => set((old) => withDiagramOffsets({ diagramOffsets }, old)),
-        setDiagramOffsetMementos: (diagramOffsetMementos) => set((old) => withDiagramOffsetMementos({ diagramOffsetMementos }, old)),
         updateNodeOffsets: (conceptIndexes, offset) => set((old) => {
             const diagramOffsets = old.diagramOffsets;
             const conceptToLayoutIndexesMapping = old.conceptToLayoutIndexesMapping;
@@ -107,12 +104,12 @@ export default function createDiagramLayoutSlice(set: (partial: DiagramStore | P
             const newOffsets = [...diagramOffsets];
             applyOffset(newOffsets, layoutIndexes, offset);
 
-            return w({
+            return withNodeOffsetsUpdated({
                 diagramOffsets: newOffsets,
                 diagramOffsetMementos: {
                     redos: [], undos: [...old.diagramOffsetMementos.undos, createNodeOffsetMemento(layoutIndexes, offset)],
                 },
-            }, old, withDiagramOffsets, withDiagramOffsetMementos);
+            }, old);
         }),
         undo: () => set((old) => {
             const diagramOffsets = old.diagramOffsets;
@@ -128,13 +125,13 @@ export default function createDiagramLayoutSlice(set: (partial: DiagramStore | P
 
             applyOffset(newOffsets, memento.nodes, memento.offset, -1);
 
-            return w({
+            return withNodeOffsetsUpdated({
                 diagramOffsets: newOffsets,
                 diagramOffsetMementos: {
                     undos: undos.slice(0, undos.length - 1),
                     redos: [...redos, memento],
                 },
-            }, old, withDiagramOffsets, withDiagramOffsetMementos);
+            }, old);
         }),
         redo: () => set((old) => {
             const diagramOffsets = old.diagramOffsets;
@@ -150,50 +147,36 @@ export default function createDiagramLayoutSlice(set: (partial: DiagramStore | P
 
             applyOffset(newOffsets, memento.nodes, memento.offset);
 
-            return w({
+            return withNodeOffsetsUpdated({
                 diagramOffsets: newOffsets,
                 diagramOffsetMementos: {
                     redos: redos.slice(0, redos.length - 1),
                     undos: [...undos, memento],
                 },
-            }, old, withDiagramOffsets, withDiagramOffsetMementos);
+            }, old);
         }),
     };
 }
 
-function withDiagramOffsets(
+function withNodeOffsetsUpdated(
     newState: Partial<DiagramStore>,
     oldState: DiagramStore,
 ): Partial<DiagramStore> {
     const diagramOffsets = newState.diagramOffsets !== undefined ? newState.diagramOffsets : oldState.diagramOffsets;
-    const stateId = createDiagramLayoutStateId(oldState);
-    const cacheItem = oldState.layoutCache.get(stateId);
-
-    if (cacheItem && diagramOffsets) {
-        cacheItem.diagramOffsets = diagramOffsets;
-    }
-
-    return withConceptsToMoveBox({ ...newState, diagramOffsets }, oldState);
-}
-
-function withDiagramOffsetMementos(
-    newState: Partial<DiagramStore>,
-    oldState: DiagramStore,
-): Partial<DiagramStore> {
     const diagramOffsetMementos = newState.diagramOffsetMementos !== undefined ? newState.diagramOffsetMementos : oldState.diagramOffsetMementos;
     const stateId = createDiagramLayoutStateId(oldState);
     const cacheItem = oldState.layoutCache.get(stateId);
 
-    if (cacheItem && diagramOffsetMementos) {
-        cacheItem.diagramOffsetMementos = diagramOffsetMementos;
+    if (cacheItem) {
+        if (diagramOffsetMementos) {
+            cacheItem.diagramOffsetMementos = diagramOffsetMementos;
+        }
+        if (diagramOffsets) {
+            cacheItem.diagramOffsets = diagramOffsets;
+        }
     }
 
-    return {
-        ...newState,
-        diagramOffsetMementos,
-        canUndo: diagramOffsetMementos.undos.length > 0,
-        canRedo: diagramOffsetMementos.redos.length > 0,
-    };
+    return w(newState, oldState, withConceptsToMoveBox, withCanUndoRedo);
 }
 
 function updateLayoutCache(
