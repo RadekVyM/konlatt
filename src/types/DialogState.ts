@@ -4,6 +4,6 @@ export type DialogState = {
     dialogRef: RefObject<HTMLDialogElement | null>,
     isOpen: boolean,
     animationClass: string,
-    show: () => void,
+    show: () => Promise<void>,
     hide: () => Promise<void>
 }

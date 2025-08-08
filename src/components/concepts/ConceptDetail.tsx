@@ -12,9 +12,9 @@ import { searchStringFilter, searchTermsToRegex } from "../../utils/search";
 import HighlightedSearchTerms from "../HighlightedSearchTerms";
 import { LuShapes, LuTag, LuTags } from "react-icons/lu";
 import Found from "../Found";
-import ExportButton from "../export/ExportButton";
 import useDataStructuresStore from "../../stores/useDataStructuresStore";
 import Tooltip from "../Tooltip";
+import ExportConceptButton from "../export/ExportConceptButton";
 
 type TabItem = "objects" | "attributes"
 
@@ -45,7 +45,7 @@ export default function ConceptDetail(props: {
                         All concepts
                     </BackButton>
 
-                    <ExportButton
+                    <ExportConceptButton
                         route={`${props.route}/concept/${props.selectedConceptIndex}/export`} />
                 </div>
 

@@ -6,11 +6,11 @@ export default function InitialPage() {
     const dialogState = useNewProjectStore((state) => state.dialogState);
     const { selectedFile, setSelectedFile } = useNewProjectStore();
 
-    function onFileSelect(file: File | null | undefined) {
+    async function onFileSelect(file: File | null | undefined) {
         setSelectedFile(file);
 
         if (file) {
-            dialogState?.show();
+            await dialogState?.show();
         }
     }
 

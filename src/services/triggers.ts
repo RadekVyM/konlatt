@@ -6,6 +6,14 @@ import useDataStructuresStore from "../stores/useDataStructuresStore";
 import useExplorerStore from "../stores/useExplorerStore";
 import { DiagramLayoutState } from "../types/DiagramLayoutState";
 import useContextStore from "../stores/useContextStore";
+import useExportAttributesStore from "../stores/export/useExportAttributesStore";
+import useExportAttributeStore from "../stores/export/useExportAttributeStore";
+import useExportConceptsStore from "../stores/export/useExportConceptsStore";
+import useExportConceptStore from "../stores/export/useExportConceptStore";
+import useExportContextStore from "../stores/export/useExportContextStore";
+import useExportDiagramStore from "../stores/export/useExportDiagramStore";
+import useExportObjectsStore from "../stores/export/useExportObjectsStore";
+import useExportObjectStore from "../stores/export/useExportObjectStore";
 
 export async function triggerInitialization(file: File) {
     useProjectStore.getState().clearStatusItems();
@@ -13,6 +21,16 @@ export async function triggerInitialization(file: File) {
     useContextStore.getState().reset();
     useDiagramStore.getState().reset();
     useExplorerStore.getState().reset();
+
+    useExportAttributesStore.getState().reset();
+    useExportAttributeStore.getState().reset();
+    useExportConceptsStore.getState().reset();
+    useExportConceptStore.getState().reset();
+    useExportContextStore.getState().reset();
+    useExportDiagramStore.getState().reset();
+    useExportObjectsStore.getState().reset();
+    useExportObjectStore.getState().reset();
+    
     useProjectStore.getState().setFile(file);
 
     const fileContent = await file.text();

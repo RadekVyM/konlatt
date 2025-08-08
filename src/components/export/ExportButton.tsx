@@ -2,12 +2,15 @@ import { LuDownload } from "react-icons/lu";
 import Button from "../inputs/Button";
 import ExportDialog from "./ExportDialog";
 import { useNavigate } from "react-router-dom";
+import { ExportItem } from "./types/ExportItem";
+import { ExportButtonProps } from "./types/ExportButtonProps";
+import { SelectedFormatStoreType } from "../../stores/export/types/SelectedFormatStoreType";
 
-export default function ExportButton(props: {
-    className?: string,
+export default function ExportButton<TKey extends string>(props: {
     isHighlighted?: boolean,
-    route: string,
-}) {
+    items: Array<ExportItem<TKey>>,
+    useSelectedFormatStore: SelectedFormatStoreType<TKey>,
+} & ExportButtonProps) {
     const navigate = useNavigate();
 
     return (
@@ -20,9 +23,15 @@ export default function ExportButton(props: {
                 onClick={() => navigate(props.route)}>
                 <LuDownload />
             </Button>
-            
+
             <ExportDialog
-                route={props.route} />
+                route={props.route}
+                items={props.items}
+                useSelectedFormatStore={props.useSelectedFormatStore}
+                onShowing={props.onShowing}
+                onShown={props.onShown}
+                onHiding={props.onHiding}
+                onHidden={props.onHidden} />
         </>
     );
 }

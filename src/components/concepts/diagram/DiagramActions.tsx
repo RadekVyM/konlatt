@@ -5,10 +5,10 @@ import { useContext, useRef } from "react";
 import useEventListener from "../../../hooks/useEventListener";
 import { isCtrl, isCtrlZ, isEditableElement, isMac } from "../../../utils/html";
 import { FullscreenState } from "../../../types/FullscreenState";
-import ExportButton from "../../export/ExportButton";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import useDataStructuresStore from "../../../stores/useDataStructuresStore";
 import { ZoomActionsContext } from "../../../contexts/ZoomActionsContext";
+import ExportDiagramButton from "../../export/ExportDiagramButton";
 
 const ZOOM_STEP = 0.1;
 
@@ -62,8 +62,7 @@ export default function DiagramActions(props: {
                 className={cn(
                     "absolute top-0 right-0 flex gap-2 pointer-events-auto",
                     props.fullscreenState.isFullscreen ? "my-4 mx-4 md:mx-3" : "m-3")}>
-                <ExportButton
-                    isHighlighted
+                <ExportDiagramButton
                     route="/project/diagram/export" />
                 
                 {props.fullscreenState.isFullscreen &&

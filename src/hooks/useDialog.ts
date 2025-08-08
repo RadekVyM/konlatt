@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { DialogState } from "../types/DialogState";
 
+const ANIMATION_LENGTH = 150;
+
 export default function useDialog(
     openAnimation?: string,
     hideAnimation?: string
@@ -18,9 +20,15 @@ export default function useDialog(
         }
     }, [isOpen]);
 
-    function show() {
+    function show(): Promise<void> {
         setAnimationClass(openAnimation || "backdrop:animate-fadeIn animate-slideUpIn");
         setIsOpen(true);
+        return new Promise((resolve) => {
+            const timeout = setTimeout(() => {
+                clearTimeout(timeout);
+                resolve(undefined);
+            }, ANIMATION_LENGTH);
+        });
     }
 
     function hide(): Promise<void> {
@@ -30,7 +38,7 @@ export default function useDialog(
                 setIsOpen(false);
                 clearTimeout(timeout);
                 resolve(undefined);
-            }, 150);
+            }, ANIMATION_LENGTH);
         });
     }
 

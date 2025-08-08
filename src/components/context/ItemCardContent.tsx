@@ -7,11 +7,10 @@ import { ContextCompleteItem, ContextItem } from "./types";
 import BackButton from "../inputs/BackButton";
 import NothingFound from "../NothingFound";
 import CardSection from "../CardSection";
-import ExportButton from "../export/ExportButton";
 
 export default function ItemCard(props: {
     className?: string,
-    route: string,
+    exportButton?: React.ReactNode,
     item: ContextCompleteItem,
     backButtonContent: React.ReactNode,
     itemsHeading: React.ReactNode,
@@ -28,8 +27,7 @@ export default function ItemCard(props: {
                         {props.backButtonContent}
                     </BackButton>
 
-                    <ExportButton
-                        route={`${props.route}/${props.item.index}/export`} />
+                    {props.exportButton}
                 </div>
 
                 <CardSectionTitle

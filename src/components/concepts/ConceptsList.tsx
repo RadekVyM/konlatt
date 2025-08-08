@@ -14,9 +14,9 @@ import { FormalContext } from "../../types/FormalContext";
 import HighlightedSearchTerms from "../HighlightedSearchTerms";
 import { searchTermsToRegex } from "../../utils/search";
 import SearchInput from "../inputs/SearchInput";
-import ExportButton from "../export/ExportButton";
 import useDataStructuresStore from "../../stores/useDataStructuresStore";
 import useDebouncedSetter from "../../hooks/useDebouncedSetter";
+import ExportConceptsButton from "../export/ExportConceptsButton";
 
 const MAX_TEXT_LENGTH = 500;
 
@@ -85,7 +85,7 @@ function ConceptsList(props: {
                         Concepts
                     </h2>
 
-                    <ExportButton
+                    <ExportConceptsButton
                         className="mr-4"
                         route={`${props.route}/concepts/export`} />
                 </div>

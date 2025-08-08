@@ -1,7 +1,3 @@
-import { useEffect, useState } from "react";
-import useDialog from "../../hooks/useDialog";
-import ContentDialog from "../ContentDialog";
-import { useLocation, useNavigate } from "react-router-dom";
 import Container from "../Container";
 import ComboBox from "../inputs/ComboBox";
 import Button from "../inputs/Button";
@@ -9,81 +5,81 @@ import { LuCopy, LuDownload } from "react-icons/lu";
 import FormatsButton from "../formats/FormatsButton";
 import useDiagramStore from "../../stores/diagram/useDiagramStore";
 import useDataStructuresStore from "../../stores/useDataStructuresStore";
+import FullscreenNavDialog from "../FullscreenNavDialog";
+import { ExportItem } from "./types/ExportItem";
+import { SelectedFormatStoreType } from "../../stores/export/types/SelectedFormatStoreType";
 
-const DEFAULT_FORMAT = "json";
-const FORMATS: Array<{ key: string, label: string }> = [
-    { key: "json", label: "JSON" },
-    { key: "xml", label: "XML" },
-    { key: "csv", label: "CSV" },
-];
-
-export default function ExportDialog(props: {
+export default function ExportDialog<TKey extends string>(props: {
     route: string,
+    items: Array<ExportItem<TKey>>,
+    useSelectedFormatStore: SelectedFormatStoreType<TKey>,
+    onShowing?: () => void,
+    onShown?: () => void,
+    onHiding?: () => void,
+    onHidden?: () => void,
 }) {
-    const [selectedFormat, setSelectedFormat] = useState<string>(DEFAULT_FORMAT);
-    const dialogState = useDialog();
-    const location = useLocation();
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        const isExport = location.pathname.endsWith(props.route);
-
-        if (!dialogState.isOpen && isExport) {
-            dialogState.show();
-        }
-        if (dialogState.isOpen && !isExport) {
-            dialogState.hide().then();
-        }
-    }, [location.pathname, dialogState.isOpen, props.route]);
+    const selectedFormat = props.useSelectedFormatStore((state) => state.selectedFormat);
+    const setSelectedFormat = props.useSelectedFormatStore((state) => state.setSelectedFormat);
 
     return (
-        <ContentDialog
-            ref={dialogState.dialogRef}
-            state={dialogState}
+        <FullscreenNavDialog
+            route={props.route}
             heading="Export"
-            className="fullscreen-dialog-content w-full h-full rounded-none bg-surface"
-            outerClassName="fullscreen-dialog p-0 backdrop:backdrop-blur-none"
-            notHideOnSubsequentLoads={true}
-            onCloseClick={() => navigate(-1)}>
+            onShowing={props.onShowing}
+            onShown={props.onShown}
+            onHiding={props.onHiding}
+            onHidden={props.onHidden}>
             <div
-                className="pt-2 flex-1 flex flex-col gap-3">
-                <div
-                    className="flex justify-between gap-3">
+                className="flex-1 grid grid-rows-[4fr_5fr] md:grid-rows-1 md:grid-cols-[minmax(18rem,2fr)_5fr] xl:grid-cols-[1fr_2.5fr_1fr] pt-2 gap-2">
+                <Container
+                    className="flex flex-col gap-3">
                     <div
-                        className="w-full flex-1 flex gap-2">
-                        <ComboBox
+                        className="w-full flex gap-2 p-4">
+                        <ComboBox<TKey>
                             id={`${props.route}-format`}
-                            className="w-full max-w-72"
-                            items={FORMATS}
+                            className="w-full"
+                            items={props.items.map((item) => ({
+                                key: item.key,
+                                label: item.label,
+                            }))}
                             selectedKey={selectedFormat}
                             onKeySelectionChange={setSelectedFormat} />
 
                         <FormatsButton />
                     </div>
-                    
+
                     <div
-                        className="flex gap-3">
+                        className="flex-1">
+                        {props.items.find((item) => item.key === selectedFormat)?.options?.()}
+                    </div>
+
+                    <div
+                        className="grid grid-cols-2 gap-2 p-4">
                         <Button
                             variant="container"
+                            size="lg"
+                            className="w-full justify-center"
                             onClick={() => console.log(serializeLayoutJson())}>
                             <LuCopy />
                             Copy
                         </Button>
                         <Button
-                            variant="primary">
+                            variant="primary"
+                            size="lg"
+                            className="w-full justify-center">
                             <LuDownload />
                             Download
                         </Button>
                     </div>
-                </div>
+                </Container>
 
                 <Container
                     as="section"
-                    className="flex-1">
-                    {props.route}
+                    className="xl:col-start-2 xl:-col-end-1">
+                    {props.items.find((item) => item.key === selectedFormat)?.content()}
                 </Container>
             </div>
-        </ContentDialog>
+        </FullscreenNavDialog>
     );
 }
 

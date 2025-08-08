@@ -10,7 +10,6 @@ import CardSection from "../CardSection";
 import { searchStringFilter, searchTermsToRegex } from "../../utils/search";
 import FilterOrderBar from "../FilterOrderBar";
 import Found from "../Found";
-import ExportButton from "../export/ExportButton";
 
 export default function ItemsCardContent(props: {
     title: string,
@@ -19,7 +18,8 @@ export default function ItemsCardContent(props: {
     filterTitle: string,
     sortTitle: string,
     items: Array<any>,
-    route: string,
+    disabled?: boolean,
+    exportButton?: React.ReactNode,
     className?: string,
     itemKey: (item: any) => string | number,
     itemContent: (item: any, searchRegex?: RegExp) => React.ReactNode,
@@ -37,9 +37,7 @@ export default function ItemsCardContent(props: {
                 <div
                     className="mb-2 flex justify-between">
                     <CardSectionTitle className="mx-4">{props.title}</CardSectionTitle>
-                    <ExportButton
-                        className="mr-4"
-                        route={`${props.route}/export`} />
+                    {props.exportButton}
                 </div>
                 <div
                     className="self-stretch flex mx-4 mb-2 gap-2">
@@ -47,10 +45,12 @@ export default function ItemsCardContent(props: {
                         className="flex-1"
                         value={searchInput}
                         onChange={setSearchInput}
-                        placeholder={props.searchInputPlaceholder} />
+                        placeholder={props.searchInputPlaceholder}
+                        disabled={props.disabled} />
                     <FilterOrderBar
                         filterTitle={props.filterTitle}
-                        sortTitle={props.sortTitle} />
+                        sortTitle={props.sortTitle}
+                        disabled={props.disabled} />
                 </div>
 
                 <Found

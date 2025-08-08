@@ -6,8 +6,8 @@ import AttributesList from "../context/AttributesList";
 import NothingFound from "../NothingFound";
 import CardSectionTitle from "../CardSectionTitle";
 import PageContainer from "../PageContainer";
-import ExportButton from "../export/ExportButton";
 import useDataStructuresStore from "../../stores/useDataStructuresStore";
+import ExportContextButton from "../export/ExportContextButton";
 
 export default function FormalContextPage() {
     return (
@@ -41,7 +41,7 @@ function Context(props: {
             <header
                 className="flex justify-between items-center pt-3 pb-2">
                 <CardSectionTitle className="mx-4">Context</CardSectionTitle>
-                <ExportButton
+                <ExportContextButton
                     className="mr-4"
                     route="/project/context/export" />
             </header>

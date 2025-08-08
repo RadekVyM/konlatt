@@ -7,6 +7,8 @@ import { cn } from "../../utils/tailwind";
 import HighlightedSearchTerms from "../HighlightedSearchTerms";
 import useDataStructuresStore from "../../stores/useDataStructuresStore";
 import useContextStore from "../../stores/useContextStore";
+import ExportAttributesButton from "../export/ExportAttributesButton";
+import ExportAttributeButton from "../export/ExportAttributeButton";
 
 export type ContextAttributeItem = ContextItem
 
@@ -29,7 +31,10 @@ export default function AttributesList(props: {
                 className={cn(selectedAttribute && "hidden")}
                 items={attributes}
                 title="Attributes"
-                route={`${props.route}/attributes`}
+                exportButton={
+                    <ExportAttributesButton
+                        className="mr-4"
+                        route={`${props.route}/attributes/export`} />}
                 count={context?.attributes.length || 0}
                 searchInputPlaceholder="Search attributes..."
                 filterTitle="Filter attributes"
@@ -39,11 +44,14 @@ export default function AttributesList(props: {
                         text={item.title}
                         regex={regex} />}
                 itemKey={(item: ContextAttributeItem) => item.index}
-                setSelectedItem={(item: ContextAttributeItem) => setSelectedAttributeIndex(item.index)} />
+                setSelectedItem={(item: ContextAttributeItem) => setSelectedAttributeIndex(item.index)}
+                disabled={context === null} />
             {selectedAttribute &&
                 <ItemCardContent
                     item={selectedAttribute}
-                    route={`${props.route}/attribute`}
+                    exportButton={
+                        <ExportAttributeButton
+                            route={`${props.route}/attribute/${selectedAttribute.index}/export`} />}
                     backButtonContent="All attributes"
                     itemsHeading={`${selectedAttribute.items.length} object${selectedAttribute.items.length === 1 ? "" : "s"}`}
                     onBackClick={() => setSelectedAttributeIndex(null)} />}

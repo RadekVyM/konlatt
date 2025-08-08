@@ -7,6 +7,8 @@ import { cn } from "../../utils/tailwind";
 import HighlightedSearchTerms from "../HighlightedSearchTerms";
 import useDataStructuresStore from "../../stores/useDataStructuresStore";
 import useContextStore from "../../stores/useContextStore";
+import ExportObjectsButton from "../export/ExportObjectsButton";
+import ExportObjectButton from "../export/ExportObjectButton";
 
 type ContextObjectItem = ContextItem
 
@@ -29,7 +31,10 @@ export default function ObjectsList(props: {
                 className={cn(selectedObject && "hidden")}
                 items={objects}
                 title="Objects"
-                route={`${props.route}/objects`}
+                exportButton={
+                    <ExportObjectsButton
+                        className="mr-4"
+                        route={`${props.route}/objects/export`} />}
                 count={context?.objects.length || 0}
                 searchInputPlaceholder="Search objects..."
                 filterTitle="Filter objects"
@@ -39,11 +44,14 @@ export default function ObjectsList(props: {
                         text={item.title}
                         regex={regex} />}
                 itemKey={(item: ContextObjectItem) => item.index}
-                setSelectedItem={(item: ContextObjectItem) => setSelectedObjectIndex(item.index)} />
+                setSelectedItem={(item: ContextObjectItem) => setSelectedObjectIndex(item.index)}
+                disabled={context === null} />
             {selectedObject &&
                 <ItemCardContent
                     item={selectedObject}
-                    route={`${props.route}/object`}
+                    exportButton={
+                        <ExportObjectButton
+                            route={`${props.route}/object/${selectedObject.index}/export`} />}
                     backButtonContent="All objects"
                     itemsHeading={`${selectedObject.items.length} attribute${selectedObject.items.length === 1 ? "" : "s"}`}
                     onBackClick={() => setSelectedObjectIndex(null)} />}
