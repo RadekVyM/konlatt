@@ -3,8 +3,6 @@ import ComboBox from "../inputs/ComboBox";
 import Button from "../inputs/Button";
 import { LuCopy, LuDownload } from "react-icons/lu";
 import FormatsButton from "../formats/FormatsButton";
-import useDiagramStore from "../../stores/diagram/useDiagramStore";
-import useDataStructuresStore from "../../stores/useDataStructuresStore";
 import FullscreenNavDialog from "../FullscreenNavDialog";
 import { ExportItem } from "./types/ExportItem";
 import { SelectedFormatStoreType } from "../../stores/export/types/SelectedFormatStoreType";
@@ -58,8 +56,7 @@ export default function ExportDialog<TKey extends string>(props: {
                         <Button
                             variant="container"
                             size="lg"
-                            className="w-full justify-center"
-                            onClick={() => console.log(serializeLayoutJson())}>
+                            className="w-full justify-center">
                             <LuCopy />
                             Copy
                         </Button>
@@ -81,30 +78,4 @@ export default function ExportDialog<TKey extends string>(props: {
             </div>
         </FullscreenNavDialog>
     );
-}
-
-function serializeLayoutJson() {
-    const layout = useDiagramStore.getState().layout;
-    const lattice = useDataStructuresStore.getState().lattice;
-
-    if (!layout || !lattice) {
-        return "";
-    }
-
-    const nodes = new Array<[number, number]>();
-    const links = new Array<[number, number]>();
-
-    for (let conceptIndex = 0; conceptIndex < lattice.subconceptsMapping.length; conceptIndex++) {
-        const point = layout[conceptIndex];
-        nodes.push([point.x, point.y]);
-
-        for (const subconceptIndex of lattice.subconceptsMapping[conceptIndex]) {
-            links.push([conceptIndex, subconceptIndex]);
-        }
-    }
-
-    return JSON.stringify({
-        nodes,
-        links,
-    });
 }

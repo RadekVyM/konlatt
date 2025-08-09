@@ -8,22 +8,22 @@ const ITEMS: Array<ExportItem<ContextExportFormat>> = [
     {
         key: "burmeister",
         label: "Burmeister",
-        content: () => <>Burmeister</>,
+        content: TextResult,
     },
     {
         key: "json",
         label: "JSON",
-        content: () => <>JSON</>,
+        content: TextResult,
     },
     {
         key: "xml",
         label: "XML",
-        content: () => <>XML</>,
+        content: TextResult
     },
     {
         key: "csv",
         label: "CSV",
-        content: () => <>CSV</>,
+        content: TextResult,
     },
 ];
 
@@ -35,5 +35,15 @@ export default function ExportContextButton(props: ExportButtonProps) {
             useSelectedFormatStore={useExportContextStore}
             onShowing={useExportContextStore.getState().resetResult}
             onShown={useExportContextStore.getState().triggerResultComputation} />
+    );
+}
+
+function TextResult() {
+    const result = useExportContextStore((state) => state.result);
+
+    return (
+        <>
+            {result?.length}
+        </>
     );
 }
