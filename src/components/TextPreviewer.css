@@ -1,0 +1,18 @@
+@reference "../css/index.css";
+@reference "../css/animations.css";
+
+.text-previewer {
+    .tp-line {
+        @apply min-w-full grid gap-8 cursor-text;
+    }
+
+    .tp-line::before {
+        content: attr(data-line);
+
+        @apply font-mono justify-self-end self-center select-none text-on-surface-muted text-sm mt-1;
+    }
+
+    .tp-line:hover::before {
+        @apply text-primary font-semibold;
+    }
+}

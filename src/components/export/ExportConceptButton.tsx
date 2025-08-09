@@ -1,5 +1,6 @@
 import useExportConceptStore from "../../stores/export/useExportConceptStore";
 import { ConceptExportFormat } from "../../types/export/ConceptExportFormat";
+import TextPreviewer from "../TextPreviewer";
 import ExportButton from "./ExportButton";
 import { ExportButtonProps } from "./types/ExportButtonProps";
 import { ExportItem } from "./types/ExportItem";
@@ -8,12 +9,12 @@ const ITEMS: Array<ExportItem<ConceptExportFormat>> = [
     {
         key: "json",
         label: "JSON",
-        content: () => <></>,
+        content: TextResult,
     },
     {
         key: "xml",
         label: "XML",
-        content: () => <></>,
+        content: TextResult,
     },
 ];
 
@@ -25,5 +26,17 @@ export default function ExportConceptButton(props: ExportButtonProps) {
             useSelectedFormatStore={useExportConceptStore}
             onShowing={useExportConceptStore.getState().resetResult}
             onShown={useExportConceptStore.getState().triggerResultComputation} />
+    );
+}
+
+function TextResult() {
+    const result = useExportConceptStore((state) => state.result);
+    const selectedFormat = useExportConceptStore((state) => state.selectedFormat);
+
+    return (
+        <TextPreviewer
+            key={selectedFormat}
+            lines={result || []}
+            className="w-full h-full" />
     );
 }

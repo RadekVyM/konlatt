@@ -1,4 +1,5 @@
-import { RefObject, useEffect, useState } from "react";
+import { RefObject, useState } from "react";
+import useDimensionsListener from "./useDimensionsListener";
 
 /**
  * Returns dimensions of an element in the passed reference object. Dimension changes are observed and returned value updated.
@@ -11,21 +12,7 @@ export default function useDimensions(ref: RefObject<Element | null>) {
         height: 0
     });
 
-    useEffect(() => {
-        const observeTarget = ref.current;
-        
-        if (!observeTarget) {
-            return;
-        }
-
-        const resizeObserver = new ResizeObserver(entries => {
-            entries.forEach(entry => {
-                setDimensions(entry.contentRect);
-            });
-        });
-        resizeObserver.observe(observeTarget);
-        return () => resizeObserver.unobserve(observeTarget);
-    }, [ref]);
+    useDimensionsListener(ref, setDimensions);
 
     return dimensions;
 }

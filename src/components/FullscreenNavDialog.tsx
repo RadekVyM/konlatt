@@ -34,7 +34,7 @@ export default function FullscreenNavDialog(props: {
             ref={dialogState.dialogRef}
             state={dialogState}
             heading="Export"
-            className="fullscreen-dialog-content w-full h-full rounded-none bg-surface"
+            className="fullscreen-dialog-content w-full h-full max-h-full overflow-hidden rounded-none bg-surface"
             outerClassName="fullscreen-dialog p-0 backdrop:backdrop-blur-none"
             notHideOnSubsequentLoads={true}
             onCloseClick={() => navigate(-1)}>

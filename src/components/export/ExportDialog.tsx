@@ -28,7 +28,10 @@ export default function ExportDialog<TKey extends string>(props: {
             onHiding={props.onHiding}
             onHidden={props.onHidden}>
             <div
-                className="flex-1 grid grid-rows-[4fr_5fr] md:grid-rows-1 md:grid-cols-[minmax(18rem,2fr)_5fr] xl:grid-cols-[1fr_2.5fr_1fr] pt-2 gap-2">
+                className="
+                    flex-1 overflow-hidden
+                    grid grid-rows-[4fr_5fr] md:grid-rows-1 md:grid-cols-[minmax(18rem,2fr)_5fr] xl:grid-cols-[1fr_2.5fr_1fr] gap-2
+                    pt-2 -mx-2 px-2 -mb-2 pb-2">
                 <Container
                     className="flex flex-col gap-3">
                     <div
@@ -72,7 +75,7 @@ export default function ExportDialog<TKey extends string>(props: {
 
                 <Container
                     as="section"
-                    className="xl:col-start-2 xl:-col-end-1">
+                    className="xl:col-start-2 xl:-col-end-1 overflow-hidden">
                     {props.items.find((item) => item.key === selectedFormat)?.content()}
                 </Container>
             </div>

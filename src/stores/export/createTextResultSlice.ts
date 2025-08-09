@@ -1,5 +1,5 @@
 type TextResultSliceState = {
-    result: string | null,
+    result: Array<string> | null,
 }
 
 type TextResultSliceActions = {

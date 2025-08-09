@@ -1,5 +1,6 @@
 import useExportContextStore from "../../stores/export/useExportContextStore";
 import { ContextExportFormat } from "../../types/export/ContextExportFormat";
+import TextPreviewer from "../TextPreviewer";
 import ExportButton from "./ExportButton";
 import { ExportButtonProps } from "./types/ExportButtonProps";
 import { ExportItem } from "./types/ExportItem";
@@ -40,10 +41,12 @@ export default function ExportContextButton(props: ExportButtonProps) {
 
 function TextResult() {
     const result = useExportContextStore((state) => state.result);
+    const selectedFormat = useExportContextStore((state) => state.selectedFormat);
 
     return (
-        <>
-            {result?.length}
-        </>
+        <TextPreviewer
+            key={selectedFormat}
+            lines={result || []}
+            className="w-full h-full" />
     );
 }
