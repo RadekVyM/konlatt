@@ -3,7 +3,19 @@
 
 .text-previewer {
     .tp-line {
-        @apply min-w-full grid gap-8 cursor-text;
+        @apply min-w-full grid cursor-text;
+    }
+
+    .tp-line > pre {
+        @apply col-start-3;
+    }
+
+    .tp-line > button {
+        @apply grid place-content-center;
+
+        & svg {
+            @apply transition-transform cursor-pointer select-none;
+        }
     }
 
     .tp-line::before {
@@ -14,5 +26,9 @@
 
     .tp-line:hover::before {
         @apply text-primary font-semibold;
+    }
+
+    .tp-line-dots {
+        @apply text-on-surface-muted;
     }
 }

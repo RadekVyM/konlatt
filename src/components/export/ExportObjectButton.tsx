@@ -29,6 +29,7 @@ export default function ExportObjectButton(props: ExportButtonProps) {
             items={ITEMS}
             useSelectedFormatStore={useExportObjectStore}
             onShowing={useExportObjectStore.getState().resetResult}
-            onShown={useExportObjectStore.getState().triggerResultComputation} />
+            onShown={useExportObjectStore.getState().triggerResultComputation}
+            onHiding={useExportObjectStore.getState().resetResult} />
     );
 }

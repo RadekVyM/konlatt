@@ -1,5 +1,6 @@
 type TextResultSliceState = {
     result: Array<string> | null,
+    collapseRegions: Map<number, number> | null,
 }
 
 type TextResultSliceActions = {
@@ -11,6 +12,7 @@ export type TextResultSlice = TextResultSliceState & TextResultSliceActions
 
 export const initialState: TextResultSliceState = {
     result: null,
+    collapseRegions: null,
 };
 
 export default function createTextResultSlice<TStore extends TextResultSlice>(
@@ -19,7 +21,7 @@ export default function createTextResultSlice<TStore extends TextResultSlice>(
 ): TextResultSlice {
     return {
         ...initialState,
-        resetResult: () => set({ result: null }),
+        resetResult: () => set({ result: null, collapseRegions: null }),
         triggerResultComputation: () => set((old) => withResult({}, old)),
     };
 }

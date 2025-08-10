@@ -1,1 +1,1 @@
-export const INDENTATION = "    ";
+export const INDENTATION = "\t";

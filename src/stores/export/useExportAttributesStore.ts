@@ -1,11 +1,18 @@
+import { create } from "zustand";
 import { convertToJson } from "../../services/export/context-items/json";
 import { ContextItemExportFormat } from "../../types/export/ContextItemExportFormat";
 import useDataStructuresStore from "../useDataStructuresStore";
-import createTextResultStore, { TextResultExportStore } from "./createTextResultStore";
+import createTextResultStoreBaseSlice, { TextResultExportStore } from "./createTextResultStoreBaseSlice";
 
 type ExportAttributesStore = TextResultExportStore<ContextItemExportFormat>
 
-const useExportAttributesStore = createTextResultStore<ContextItemExportFormat>("json", withNewFormat);
+const useExportAttributesStore = create<ExportAttributesStore>((set) => ({
+    ...createTextResultStoreBaseSlice<ContextItemExportFormat, ExportAttributesStore>(
+        "json",
+        {},
+        set,
+        withNewFormat),
+}));
 
 export default useExportAttributesStore;
 

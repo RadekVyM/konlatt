@@ -260,9 +260,6 @@ function ExportedObjectSection(props: {
                 </Title>
             </div>
 
-            <InputOutputList
-                exportedObject={props.exportedObject} />
-
             {props.exportedObject.description &&
                 <p
                     className="mb-4">
@@ -281,6 +278,9 @@ function ExportedObjectSection(props: {
                         {format.title}
                     </Button>)}
             </HorizontalScroller>
+
+            <InputOutputList
+                exportedObject={props.exportedObject} />
 
             {selectedFormat &&
                 <>

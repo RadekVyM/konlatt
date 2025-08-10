@@ -29,6 +29,7 @@ export default function ExportAttributeButton(props: ExportButtonProps) {
             items={ITEMS}
             useSelectedFormatStore={useExportAttributeStore}
             onShowing={useExportAttributeStore.getState().resetResult}
-            onShown={useExportAttributeStore.getState().triggerResultComputation} />
+            onShown={useExportAttributeStore.getState().triggerResultComputation}
+            onHiding={useExportAttributeStore.getState().resetResult} />
     );
 }

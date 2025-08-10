@@ -38,7 +38,8 @@ export default function FullscreenNavDialog(props: {
             outerClassName="fullscreen-dialog p-0 backdrop:backdrop-blur-none"
             notHideOnSubsequentLoads={true}
             onCloseClick={() => navigate(-1)}>
-            {props.children}
+            {dialogState.isOpen &&
+                props.children}
         </ContentDialog>
     );
 }

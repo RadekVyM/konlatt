@@ -1,11 +1,18 @@
+import { create } from "zustand";
 import { convertToJson } from "../../services/export/concepts/json";
 import { ConceptExportFormat } from "../../types/export/ConceptExportFormat";
 import useDataStructuresStore from "../useDataStructuresStore";
-import createTextResultStore, { TextResultExportStore } from "./createTextResultStore";
+import createTextResultStoreBaseSlice, { TextResultExportStore } from "./createTextResultStoreBaseSlice";
 
 type ExportConceptsStore = TextResultExportStore<ConceptExportFormat>
 
-const useExportConceptsStore = createTextResultStore<ConceptExportFormat>("json", withNewFormat);
+const useExportConceptsStore = create<ExportConceptsStore>((set) => ({
+    ...createTextResultStoreBaseSlice<ConceptExportFormat, ExportConceptsStore>(
+        "json",
+        {},
+        set,
+        withNewFormat),
+}));
 
 export default useExportConceptsStore;
 
@@ -19,17 +26,22 @@ function withNewFormat(newState: Partial<ExportConceptsStore>, oldState: ExportC
     }
 
     let result: Array<string> | null = null;
+    let collapseRegions: Map<number, number> | null = null;
 
     switch (selectedFormat) {
         case "json":
-            result = convertToJson(
+            const res = convertToJson(
                 context,
                 concepts);
+
+            result = res.lines;
+            collapseRegions = res.collapseRegions;
             break;
     }
 
     return {
         ...newState,
         result,
+        collapseRegions,
     };
 }

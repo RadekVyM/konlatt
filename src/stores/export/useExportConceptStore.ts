@@ -1,12 +1,19 @@
+import { create } from "zustand";
 import { convertToJson } from "../../services/export/concept/json";
 import { ConceptExportFormat } from "../../types/export/ConceptExportFormat";
 import useDiagramStore from "../diagram/useDiagramStore";
 import useDataStructuresStore from "../useDataStructuresStore";
-import createTextResultStore, { TextResultExportStore } from "./createTextResultStore";
+import createTextResultStoreBaseSlice, { TextResultExportStore } from "./createTextResultStoreBaseSlice";
 
 type ExportConceptStore = TextResultExportStore<ConceptExportFormat>
 
-const useExportConceptStore = createTextResultStore<ConceptExportFormat>("json", withNewFormat);
+const useExportConceptStore = create<ExportConceptStore>((set) => ({
+    ...createTextResultStoreBaseSlice<ConceptExportFormat, ExportConceptStore>(
+        "json",
+        {},
+        set,
+        withNewFormat),
+}));
 
 export default useExportConceptStore;
 

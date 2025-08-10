@@ -1,25 +1,27 @@
 import useExportObjectsStore from "../../stores/export/useExportObjectsStore";
 import { ContextItemExportFormat } from "../../types/export/ContextItemExportFormat";
-import TextPreviewer from "../TextPreviewer";
+import createTextResultPreviewerComponent from "./createTextResultPreviewerComponent";
 import ExportButton from "./ExportButton";
 import { ExportButtonProps } from "./types/ExportButtonProps";
 import { ExportItem } from "./types/ExportItem";
+
+const TextPreviewer = createTextResultPreviewerComponent(useExportObjectsStore);
 
 const ITEMS: Array<ExportItem<ContextItemExportFormat>> = [
     {
         key: "json",
         label: "JSON",
-        content: TextResult,
+        content: TextPreviewer,
     },
     {
         key: "xml",
         label: "XML",
-        content: TextResult,
+        content: TextPreviewer,
     },
     {
         key: "csv",
         label: "CSV",
-        content: TextResult,
+        content: TextPreviewer,
     },
 ];
 
@@ -30,18 +32,7 @@ export default function ExportObjectsButton(props: ExportButtonProps) {
             items={ITEMS}
             useSelectedFormatStore={useExportObjectsStore}
             onShowing={useExportObjectsStore.getState().resetResult}
-            onShown={useExportObjectsStore.getState().triggerResultComputation} />
-    );
-}
-
-function TextResult() {
-    const result = useExportObjectsStore((state) => state.result);
-    const selectedFormat = useExportObjectsStore((state) => state.selectedFormat);
-
-    return (
-        <TextPreviewer
-            key={selectedFormat}
-            lines={result || []}
-            className="w-full h-full" />
+            onShown={useExportObjectsStore.getState().triggerResultComputation}
+            onHiding={useExportObjectsStore.getState().resetResult} />
     );
 }
