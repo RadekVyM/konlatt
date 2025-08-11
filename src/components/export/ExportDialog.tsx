@@ -1,7 +1,5 @@
 import Container from "../Container";
 import ComboBox from "../inputs/ComboBox";
-import Button from "../inputs/Button";
-import { LuCopy, LuDownload } from "react-icons/lu";
 import FormatsButton from "../formats/FormatsButton";
 import FullscreenNavDialog from "../FullscreenNavDialog";
 import { ExportItem } from "./types/ExportItem";
@@ -18,6 +16,8 @@ export default function ExportDialog<TKey extends string>(props: {
 }) {
     const selectedFormat = props.useSelectedFormatStore((state) => state.selectedFormat);
     const setSelectedFormat = props.useSelectedFormatStore((state) => state.setSelectedFormat);
+
+    const selectedItem = props.items.find((item) => item.key === selectedFormat);
 
     return (
         <FullscreenNavDialog
@@ -51,32 +51,16 @@ export default function ExportDialog<TKey extends string>(props: {
 
                     <div
                         className="flex-1">
-                        {props.items.find((item) => item.key === selectedFormat)?.options?.()}
+                        {selectedItem?.options?.()}
                     </div>
 
-                    <div
-                        className="grid grid-cols-2 gap-2 p-4">
-                        <Button
-                            variant="container"
-                            size="lg"
-                            className="w-full justify-center">
-                            <LuCopy />
-                            Copy
-                        </Button>
-                        <Button
-                            variant="primary"
-                            size="lg"
-                            className="w-full justify-center">
-                            <LuDownload />
-                            Download
-                        </Button>
-                    </div>
+                    {selectedItem?.buttons()}
                 </Container>
 
                 <Container
                     as="section"
-                    className="xl:col-start-2 xl:-col-end-1 overflow-hidden">
-                    {props.items.find((item) => item.key === selectedFormat)?.content()}
+                    className="relative xl:col-start-2 xl:-col-end-1 overflow-hidden">
+                    {selectedItem?.content()}
                 </Container>
             </div>
         </FullscreenNavDialog>

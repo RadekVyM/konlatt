@@ -3,6 +3,9 @@ import { convertToJson } from "../../services/export/context-items/json";
 import { ContextItemExportFormat } from "../../types/export/ContextItemExportFormat";
 import useDataStructuresStore from "../useDataStructuresStore";
 import createTextResultStoreBaseSlice, { TextResultExportStore } from "./createTextResultStoreBaseSlice";
+import { convertToCsv } from "../../services/export/context-items/csv";
+import { convertToXml } from "../../services/export/context-items/xml";
+import { sumLengths } from "../../utils/array";
 
 type ExportAttributesStore = TextResultExportStore<ContextItemExportFormat>
 
@@ -30,10 +33,17 @@ function withNewFormat(newState: Partial<ExportAttributesStore>, oldState: Expor
         case "json":
             result = convertToJson(context.attributes);
             break;
+        case "xml":
+            result = convertToXml(context.attributes, "attribute");
+            break;
+        case "csv":
+            result = convertToCsv(context.attributes);
+            break;
     }
 
     return {
         ...newState,
         result,
+        charactersCount: sumLengths(result),
     };
 }

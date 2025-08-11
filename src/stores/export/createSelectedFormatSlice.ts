@@ -1,3 +1,5 @@
+import { w } from "../../utils/stores";
+
 type SelectedFormatSliceState<TKey> = {
     selectedFormat: TKey,
 }
@@ -11,17 +13,16 @@ export type SelectedFormatSlice<TKey> = SelectedFormatSliceState<TKey> & Selecte
 export default function createSelectedFormatSlice<TKey extends string, TStore extends SelectedFormatSlice<TKey>>(
     defaultFormat: TKey,
     set: (partial: SelectedFormatSlice<TKey> | Partial<SelectedFormatSlice<TKey>> | ((state: TStore) => SelectedFormatSlice<TKey> | Partial<SelectedFormatSlice<TKey>>), replace?: false) => void,
-    withNewFormat: (newState: Partial<SelectedFormatSlice<TKey>>, oldState: TStore) => Partial<SelectedFormatSlice<TKey>> = defaultWithNewFormat,
+    withNewFormat?: (newState: Partial<SelectedFormatSlice<TKey>>, oldState: TStore) => Partial<TStore>,
+    withDisabledComputation?: (newState: Partial<SelectedFormatSlice<TKey>>, oldState: TStore) => Partial<TStore>,
 ): SelectedFormatSlice<TKey> {
     return {
         selectedFormat: defaultFormat,
-        setSelectedFormat: (selectedFormat) => set((old) => withNewFormat(typeof selectedFormat === "function" ?
+        setSelectedFormat: (selectedFormat) => set((old) => w((typeof selectedFormat === "function" ?
             { selectedFormat: selectedFormat(old.selectedFormat) } :
-            { selectedFormat },
-            old)),
+            { selectedFormat }) as Partial<TStore>,
+            old,
+            withDisabledComputation,
+            withNewFormat)),
     };
-}
-
-function defaultWithNewFormat<TKey extends string, TStore extends SelectedFormatSlice<TKey>>(newState: Partial<SelectedFormatSlice<TKey>>, _oldState: TStore) {
-    return newState;
 }

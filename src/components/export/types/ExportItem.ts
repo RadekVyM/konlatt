@@ -3,4 +3,5 @@ export type ExportItem<TKey extends string> = {
     label: string,
     options?: () => React.ReactNode,
     content: () => React.ReactNode,
+    buttons: () => React.ReactNode,
 }

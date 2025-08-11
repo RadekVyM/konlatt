@@ -7,6 +7,8 @@ import useDataStructuresStore from "../useDataStructuresStore";
 import useProjectStore from "../useProjectStore";
 import createTextResultStoreBaseSlice, { TextResultExportStore } from "./createTextResultStoreBaseSlice";
 import { CsvSeparator } from "../../types/CsvSeparator";
+import { convertToXml } from "../../services/export/context/xml";
+import { sumLengths } from "../../utils/array";
 
 type ExportContextStoreState = {
     csvSeparator: CsvSeparator,
@@ -44,25 +46,33 @@ function withNewFormat(newState: Partial<ExportContextStore>, oldState: ExportCo
     }
 
     let result: Array<string> | null = null;
+    let collapseRegions: Map<number, number> | null = null;
 
     switch (selectedFormat) {
         case "burmeister":
-            result = convertToBurmeister(
+            ({ lines: result, collapseRegions: collapseRegions } = convertToBurmeister(
                 useProjectStore.getState().file?.name || "",
-                context);
+                context));
             break;
         case "json":
-            result = convertToJson(
+            ({ lines: result, collapseRegions: collapseRegions } = convertToJson(
                 useProjectStore.getState().file?.name || "",
-                context);
+                context));
+            break;
+        case "xml":
+            ({ lines: result, collapseRegions: collapseRegions } = convertToXml(
+                useProjectStore.getState().file?.name || "",
+                context));
             break;
         case "csv":
-            result = convertToCsv(context, csvSeparator);
+            ({ lines: result, collapseRegions: collapseRegions } = convertToCsv(context, csvSeparator));
             break;
     }
 
     return {
         ...newState,
         result,
+        collapseRegions,
+        charactersCount: sumLengths(result),
     };
 }

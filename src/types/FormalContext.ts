@@ -16,3 +16,27 @@ export function formalContextHasAttribute(context: FormalContext, object: number
 
     return (cellValue & mask) !== 0;
 }
+
+export function getObjectAttributes(context: FormalContext, object: number): Array<number> {
+    const attributes = new Array<number>();
+
+    for (let attribute = 0; attribute < context.attributes.length; attribute++) {
+        if (formalContextHasAttribute(context, object, attribute)) {
+            attributes.push(attribute);
+        }
+    }
+
+    return attributes;
+}
+
+export function getAttributeObjects(context: FormalContext, attribute: number): Array<number> {
+    const objects = new Array<number>();
+
+    for (let object = 0; object < context.objects.length; object++) {
+        if (formalContextHasAttribute(context, object, attribute)) {
+            objects.push(object);
+        }
+    }
+
+    return objects;
+}

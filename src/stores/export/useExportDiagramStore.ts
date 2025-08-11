@@ -19,7 +19,6 @@ const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
     ...createSelectedFormatSlice<DiagramExportFormat, ExportDiagramStore>("svg", set),
     reset: () => set(() => ({
         ...initialState,
-        
     })),
 }));
 

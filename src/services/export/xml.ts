@@ -1,24 +1,21 @@
 import { FormalConcept, FormalConcepts } from "../../types/FormalConcepts";
 import { FormalContext } from "../../types/FormalContext";
-import { escapeJson } from "../../utils/string";
+import { escapeXml } from "../../utils/string";
 import { CollapseRegions } from "./CollapseRegions";
 import { INDENTATION } from "./constants";
-import { generateRelations } from "./utils";
 
 export function pushArray<T extends {}>(
     lines: Array<string>,
     values: ReadonlyArray<T>,
-    name: string | null,
+    elementName: string,
     indentation: string,
-    withComma: boolean,
-    transformer: (value: T) => string,
+    transformer: (value: T, elementName: string) => string,
     collapseRegions?: CollapseRegions,
 ) {
-    const start = name ? `${indentation}"${name}": ` : `${indentation}`;
     const regionStart = collapseRegions?.nextRegionStart;
 
-    if (values.length <= 5) {
-        lines.push(`${start}[${values.map(transformer).join(", ")}]${withComma ? "," : ""}`);
+    if (values.length == 0) {
+        lines.push(`${indentation}<${elementName}s />`);
 
         if (collapseRegions && regionStart !== undefined) {
             collapseRegions.nextRegionStart = regionStart + 1;
@@ -27,13 +24,13 @@ export function pushArray<T extends {}>(
         return;
     }
 
-    lines.push(`${start}[`);
+    lines.push(`${indentation}<${elementName}s>`);
 
     for (let i = 0; i < values.length; i++) {
-        lines.push(`${indentation}${INDENTATION}${transformer(values[i])}${i === values.length - 1 ? "" : ","}`);
+        lines.push(`${indentation}${INDENTATION}${transformer(values[i], elementName)}`);
     }
 
-    lines.push(`${indentation}]${withComma ? "," : ""}`);
+    lines.push(`${indentation}</${elementName}s>`);
 
     if (collapseRegions && regionStart !== undefined) {
         const end = regionStart + 1 + values.length;
@@ -43,58 +40,24 @@ export function pushArray<T extends {}>(
     }
 }
 
-export function stringTransformer<T extends {}>(value: T) {
-    return `"${value}"`;
+export function bodyValueTransformer<T extends {}>(value: T, elementName: string) {
+    return `<${elementName}>${value}</${elementName}>`;
 }
 
-export function escapedStringTransformer(value: string) {
-    return `"${escapeJson(value)}"`;
-}
-
-export function defaultTransformer<T extends {}>(value: T) {
-    return value.toString();
-}
-
-export function pushRelations(
-    lines: Array<string>,
-    context: FormalContext,
-    indentation: string,
-    withComma: boolean,
-    collapseRegions?: CollapseRegions,
-) {
-    lines.push(`${indentation}"relations": [`);
-
-    const regionStart = collapseRegions?.nextRegionStart;
-    let relationsCount = 0;
-
-    for (const [object, attribute] of generateRelations(context)) {
-        lines.push(`${indentation}${INDENTATION}[${object}, ${attribute}],`);
-        relationsCount++;
-    }
-
-    lines[lines.length - 1] = lines[lines.length - 1].slice(0, lines[lines.length - 1].length - 1);
-
-    lines.push(`${indentation}]${withComma ? "," : ""}`);
-
-    if (collapseRegions && regionStart !== undefined) {
-        const end = regionStart + 1 + relationsCount;
-
-        collapseRegions.collapseRegions.set(regionStart, end);
-        collapseRegions.nextRegionStart = end + 1;
-    }
+export function escapedBodyValueTransformer(value: string, elementName: string) {
+    return `<${elementName}>${escapeXml(value)}</${elementName}>`;
 }
 
 export function pushConcepts(
     lines: Array<string>,
     formalConcepts: FormalConcepts,
     indentation: string,
-    withComma: boolean,
     collapseRegions?: CollapseRegions,
 ) {
     const conceptIndentation = `${indentation}${INDENTATION}`;
     const regionStart = collapseRegions?.nextRegionStart;
 
-    lines.push(`${indentation}"concepts": [`);
+    lines.push(`${indentation}<concepts>`);
 
     const linesCountBeforeConcepts = lines.length;
 
@@ -104,12 +67,12 @@ export function pushConcepts(
 
     for (let conceptIndex = 0; conceptIndex < formalConcepts.length; conceptIndex++) {
         const concept = formalConcepts[conceptIndex];
-        pushConcept(lines, concept, conceptIndentation, conceptIndex !== formalConcepts.length - 1, undefined, collapseRegions);
+        pushConcept(lines, concept, conceptIndentation, undefined, collapseRegions);
     }
 
     const conceptsLinesCount = lines.length - linesCountBeforeConcepts;
 
-    lines.push(`${indentation}]${withComma ? "," : ""}`);
+    lines.push(`${indentation}</concepts>`);
 
     if (collapseRegions && regionStart !== undefined) {
         const end = regionStart + 1 + conceptsLinesCount;
@@ -123,7 +86,6 @@ export function pushConcept(
     lines: Array<string>,
     concept: FormalConcept,
     indentation: string,
-    withComma: boolean,
     context?: FormalContext,
     collapseRegions?: CollapseRegions,
     isTop?: boolean,
@@ -131,7 +93,7 @@ export function pushConcept(
     const conceptBodyIndentation = `${indentation}${INDENTATION}`;
     const regionStart = collapseRegions?.nextRegionStart;
 
-    lines.push(`${indentation}{`);
+    lines.push(`${indentation}<concept>`);
 
     const linesCountBeforeArrays = lines.length;
 
@@ -139,12 +101,28 @@ export function pushConcept(
         collapseRegions.nextRegionStart++;
     }
 
-    pushArray(lines, concept.objects, "objects", conceptBodyIndentation, true, context ? (object) => escapedStringTransformer(context.objects[object]) : defaultTransformer, collapseRegions);
-    pushArray(lines, concept.attributes, "attributes", conceptBodyIndentation, false, context ? (attribute) => escapedStringTransformer(context.attributes[attribute]) : defaultTransformer, collapseRegions);
+    pushArray(
+        lines,
+        concept.objects,
+        "obj",
+        conceptBodyIndentation,
+        context ?
+            (object, elementName) => escapedBodyValueTransformer(context.objects[object], elementName) :
+            bodyValueTransformer,
+        collapseRegions);
+    pushArray(
+        lines,
+        concept.attributes,
+        "attr",
+        conceptBodyIndentation,
+        context ?
+            (attribute, elementName) => escapedBodyValueTransformer(context.attributes[attribute], elementName) :
+            bodyValueTransformer,
+        collapseRegions);
 
     const arraysLinesCount = lines.length - linesCountBeforeArrays;
 
-    lines.push(`${indentation}}${!withComma ? "" : ","}`);
+    lines.push(`${indentation}</concept>`);
 
     if (!isTop && collapseRegions && regionStart !== undefined) {
         const end = regionStart + 1 + arraysLinesCount;

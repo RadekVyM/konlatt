@@ -8,11 +8,15 @@
 export function w<T>(
     newState: Partial<T>,
     oldState: T,
-    ...withTransformations: ((newState: Partial<T>, oldState: T) => Partial<T>)[]
+    ...withTransformations: (((newState: Partial<T>, oldState: T) => Partial<T>) | undefined)[]
 ): Partial<T> {
     let result: Partial<T> = newState;
 
     for (const withFunc of withTransformations) {
+        if (!withFunc) {
+            continue;
+        }
+        
         result = withFunc(result, oldState);
     }
 

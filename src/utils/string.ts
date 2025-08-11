@@ -23,3 +23,47 @@ export function generateRandomSeed(length: number) {
 export function isNullOrWhiteSpace(str: string | null | undefined) {
     return str === null || str === undefined || str.trim().length === 0;
 }
+
+export function escapeJson(str: string) {
+    return str
+        .replace(/\\/g, "\\\\")
+        .replace(/"/g, `\\"`);
+
+    /*
+    .replace(/\n/g, "\\n")
+    .replace(/\r/g, "\\r")
+    .replace(/\t/g, "\\t")
+    .replace(/\f/g, "\\f")
+    .replace(/\b/g, "\\b")
+    */
+}
+
+export function unescapeJson(str: string) {
+    return str
+        .replace(/\\"/g, `"`)
+        .replace(/\\\\/g, "\\");
+
+    /*
+    .replace(/\\n/g, "\n")
+    .replace(/\\r/g, "\r")
+    .replace(/\\t/g, "\t")
+    .replace(/\\f/g, "\f")
+    .replace(/\\b/g, "\b")
+    */
+}
+
+export function escapeXml(str: string) {
+    return str.replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&apos;");
+}
+
+export function unescapeXml(str: string) {
+    return str.replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, `"`)
+        .replace(/&apos;/g, "'");
+}

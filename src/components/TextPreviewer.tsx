@@ -80,8 +80,9 @@ function Line(props: {
                     <LuChevronDown
                         className={cn(props.line.isCollapsed && "-rotate-90")} />
                 </button>}
-            <pre>
-                {props.line.text}{props.line.isCollapsed && <span className="tp-line-dots">…</span>}
+            <pre
+                className={cn(props.line.isCollapsed && "tp-line-dots")}>
+                {props.line.text}
             </pre>
         </span>
     );

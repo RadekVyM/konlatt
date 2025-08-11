@@ -1,4 +1,4 @@
-import { formalContextHasAttribute, FormalContext } from "../../types/FormalContext";
+import { FormalContext, getAttributeObjects } from "../../types/FormalContext";
 import { CardContainer } from "../CardContainer";
 import ItemsCardContent from "./ItemsCardContent";
 import ItemCardContent from "./ItemCardContent";
@@ -65,16 +65,10 @@ function getContextAttribute(context: FormalContext, attributeIndex: number): Co
     }
 
     const title = context.attributes[attributeIndex];
-    const objects = new Array<ContextItem>();
-
-    for (let object = 0; object < context.objects.length; object++) {
-        if (formalContextHasAttribute(context, object, attributeIndex)) {
-            objects.push({
-                index: object,
+    const objects: Array<ContextItem> = getAttributeObjects(context, attributeIndex).map((object) => ({
+        index: object,
                 title: context.objects[object],
-            });
-        }
-    }
+    }));
 
     return {
         index: attributeIndex,

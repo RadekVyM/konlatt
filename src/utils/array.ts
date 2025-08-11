@@ -7,3 +7,7 @@ export function createRange(length: number) {
 
     return numbers;
 }
+
+export function sumLengths(stringArray: Array<string>) {
+    return stringArray.reduce((prev, current) => prev + current.length + 1, 0);
+}

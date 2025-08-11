@@ -4,6 +4,8 @@ import { ConceptExportFormat } from "../../types/export/ConceptExportFormat";
 import useDiagramStore from "../diagram/useDiagramStore";
 import useDataStructuresStore from "../useDataStructuresStore";
 import createTextResultStoreBaseSlice, { TextResultExportStore } from "./createTextResultStoreBaseSlice";
+import { sumLengths } from "../../utils/array";
+import { convertToXml } from "../../services/export/concept/xml";
 
 type ExportConceptStore = TextResultExportStore<ConceptExportFormat>
 
@@ -28,18 +30,27 @@ function withNewFormat(newState: Partial<ExportConceptStore>, oldState: ExportCo
     }
 
     let result: Array<string> | null = null;
+    let collapseRegions: Map<number, number> | null = null;
 
     switch (selectedFormat) {
         case "json":
-            result = convertToJson(
+            ({ lines: result, collapseRegions } = convertToJson(
                 context,
                 concepts,
-                selectedConceptIndex);
+                selectedConceptIndex));
+            break;
+        case "xml":
+            ({ lines: result, collapseRegions } = convertToXml(
+                context,
+                concepts,
+                selectedConceptIndex));
             break;
     }
 
     return {
         ...newState,
         result,
+        collapseRegions,
+        charactersCount: sumLengths(result),
     };
 }

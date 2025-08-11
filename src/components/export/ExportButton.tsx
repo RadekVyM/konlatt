@@ -10,6 +10,7 @@ export default function ExportButton<TKey extends string>(props: {
     isHighlighted?: boolean,
     items: Array<ExportItem<TKey>>,
     useSelectedFormatStore: SelectedFormatStoreType<TKey>,
+    disabled?: boolean,
 } & ExportButtonProps) {
     const navigate = useNavigate();
 
@@ -18,6 +19,7 @@ export default function ExportButton<TKey extends string>(props: {
             <Button
                 className={props.className}
                 title="Export"
+                disabled={props.disabled}
                 variant={props.isHighlighted ? "icon-secondary" : "icon-default"}
                 size={props.isHighlighted ? "default" : "sm"}
                 onClick={() => navigate(props.route)}>

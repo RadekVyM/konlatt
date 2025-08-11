@@ -28,7 +28,9 @@
         @apply text-primary font-semibold;
     }
 
-    .tp-line-dots {
-        @apply text-on-surface-muted;
+    .tp-line-dots::after {
+        content: "…";
+
+        @apply text-on-surface-muted select-none ml-1;
     }
 }
