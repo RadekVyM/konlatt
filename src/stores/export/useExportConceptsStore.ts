@@ -15,7 +15,7 @@ const useExportConceptsStore = create<ExportConceptsStore>((set) => ({
         "json",
         {},
         set,
-        withNewFormat,
+        withResult,
         withTooLarge),
 }));
 
@@ -42,7 +42,7 @@ function withTooLarge(newState: Partial<ExportConceptsStore>, oldState: ExportCo
     };
 }
 
-function withNewFormat(newState: Partial<ExportConceptsStore>, oldState: ExportConceptsStore): Partial<ExportConceptsStore> {
+function withResult(newState: Partial<ExportConceptsStore>, oldState: ExportConceptsStore): Partial<ExportConceptsStore> {
     const selectedFormat = newState.selectedFormat !== undefined ? newState.selectedFormat : oldState.selectedFormat;
     const disabledComputation = newState.disabledComputation !== undefined ? newState.disabledComputation : oldState.disabledComputation;
     const context = useDataStructuresStore.getState().context;

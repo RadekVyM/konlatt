@@ -52,7 +52,11 @@ export default function ComboBox<KeyT extends string>(props: {
                 aria-controls={id}
                 onClick={togglePopover}
                 onKeyDown={onButtonKeyDown}>
-                <span id={`${id}-label`} className="flex-1 text-start">{props.items.find((item) => item.key === props.selectedKey)?.label}</span>
+                <span
+                    id={`${id}-label`}
+                    className="flex-1 text-start">
+                    {props.items.find((item) => item.key === props.selectedKey)?.label}
+                </span>
                 <LuChevronDown
                     className={cn("transition-transform", isOpen && "rotate-180 translate-y-[-1px]")} />
             </Button>
@@ -78,7 +82,10 @@ export default function ComboBox<KeyT extends string>(props: {
                             "focus-within:outline-2",
                             "focus-within:bg-surface-dim-container focus-within:text-on-surface-dim-container",
                             "hover:bg-surface-light-dim-container hover:text-on-surface-dim-container")}
-                        onPointerDown={() => props.onKeySelectionChange(item.key)}
+                        onPointerDown={() => {
+                            props.onKeySelectionChange(item.key);
+                            closePopover();
+                        }}
                         onKeyUp={(e) => {
                             if (e.key === "Enter") {
                                 closePopover();

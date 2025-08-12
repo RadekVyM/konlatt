@@ -1,8 +1,8 @@
 import { LuCheck, LuCopy, LuDownload } from "react-icons/lu";
 import { TextResultStoreType } from "../../stores/export/types/TextResultStoreType";
 import Button from "../inputs/Button";
-import ToggleSwitch from "../inputs/ToggleSwitch";
 import { useRef, useState } from "react";
+import CheckBox from "../inputs/CheckBox";
 
 const COPY_ENABLED_THRESHOLD = 15_000_000;
 const COPY_SUCCESSFUL_TIMEOUT_LENGTH = 1500;
@@ -61,12 +61,12 @@ export default function createDownloadButtonsComponent(useTextResultStore: TextR
         return (
             <div
                 className="grid grid-rows-[auto_auto] grid-cols-2 gap-x-2 gap-y-4 p-4">
-                <ToggleSwitch
+                <CheckBox
                     className="col-start-1 col-end-3"
                     checked={includeFormatting}
                     onChange={(e) => setIncludeFormatting(e.currentTarget.checked)}>
                     Include formatting
-                </ToggleSwitch>
+                </CheckBox>
 
                 <Button
                     variant="container"

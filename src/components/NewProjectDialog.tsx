@@ -9,12 +9,15 @@ import useNewProjectStore from "../stores/useNewProjectStore";
 import { FILE_INPUT_ACCEPT } from "../constants/files";
 import FormatsButton from "./formats/FormatsButton";
 import { triggerInitialization } from "../services/triggers";
+import { withoutExtension } from "../utils/string";
+import DemoDatasetsButton from "./DemoDatasetsButton";
+import DemoDatasetsDialog from "./DemoDatasetsDialog";
+import useDialog from "../hooks/useDialog";
+import { LuCheck } from "react-icons/lu";
 
 const DEFAULT_FILE_TYPE = "burmeister";
 const FILE_TYPES: Array<{ key: string, label: string }> = [
     { key: "burmeister", label: "Burmeister (.cxt)" },
-    { key: "txt", label: "Text (.txt)" },
-    { key: "csv", label: "CSV (.csv)" },
 ];
 
 export default function NewProjectDialog(props: {
@@ -23,6 +26,7 @@ export default function NewProjectDialog(props: {
     const navigate = useNavigate();
     const { selectedFile, setSelectedFile } = useNewProjectStore();
     const [selectedFileType, setSelectedFileType] = useState<string>(DEFAULT_FILE_TYPE);
+    const datasetsDialogState = useDialog();
 
     useEffect(() => {
         if (!props.state.isOpen) {
@@ -37,55 +41,75 @@ export default function NewProjectDialog(props: {
         }
 
         navigate("/project/context", { replace: true });
-        triggerInitialization(selectedFile);
+        triggerInitialization(await selectedFile.text(), withoutExtension(selectedFile.name));
         await props.state.hide();
     }
 
     return (
-        <ContentDialog
-            ref={props.state.dialogRef}
-            state={props.state}
-            heading="New project"
-            className="w-full max-w-xl max-h-full rounded-md">
-            <div
-                className="pt-2">
-                {!selectedFile ?
-                    <LargeFileSelection
-                        className="w-full"
-                        accept={FILE_INPUT_ACCEPT}
-                        file={selectedFile}
-                        onFileSelect={setSelectedFile} /> :
-                    <>
-                        <FileSelection
-                            className="mb-4"
-                            accept={FILE_INPUT_ACCEPT}
-                            file={selectedFile}
-                            onFileSelect={setSelectedFile}>
-                            {selectedFile?.name || "Choose file"}
-                        </FileSelection>
+        <>
+            <ContentDialog
+                ref={props.state.dialogRef}
+                state={props.state}
+                heading="New project"
+                className="w-full max-w-xl max-h-full rounded-md">
+                <div
+                    className="pt-2">
+                    {!selectedFile ?
+                        <>
+                            <LargeFileSelection
+                                className="w-full mb-3"
+                                accept={FILE_INPUT_ACCEPT}
+                                file={selectedFile}
+                                onFileSelect={setSelectedFile} />
 
-                        <label className="text-sm mb-1 block">File format</label>
+                            <div
+                                className="grid grid-cols-2 justify-items-stretch gap-3">
+                                <DemoDatasetsButton
+                                    className="w-full justify-center"
+                                    onClick={async () => {
+                                        props.state.hide();
+                                        datasetsDialogState.show();
+                                    }} />
+                                <FormatsButton
+                                    className="w-full justify-center"
+                                    withText />
+                            </div>
+                        </> :
+                        <>
+                            <FileSelection
+                                className="mb-4"
+                                accept={FILE_INPUT_ACCEPT}
+                                file={selectedFile}
+                                onFileSelect={setSelectedFile}>
+                                {selectedFile?.name || "Choose file"}
+                            </FileSelection>
 
-                        <div
-                            className="mb-4 flex gap-2">
-                            <ComboBox
-                                id="file-type-selection"
-                                className="flex-1"
-                                onKeySelectionChange={setSelectedFileType}
-                                selectedKey={selectedFileType}
-                                items={FILE_TYPES} />
-                            <FormatsButton />
-                        </div>
+                            <label className="text-sm mb-1 block">File format</label>
 
-                        <Button
-                            variant="primary"
-                            className="ml-auto"
-                            onClick={onCreateClick}
-                            disabled={!selectedFile}>
-                            Create
-                        </Button>
-                    </>}
-            </div>
-        </ContentDialog>
+                            <div
+                                className="mb-6 flex gap-2">
+                                <ComboBox
+                                    id="file-type-selection"
+                                    className="flex-1"
+                                    onKeySelectionChange={setSelectedFileType}
+                                    selectedKey={selectedFileType}
+                                    items={FILE_TYPES} />
+                                <FormatsButton />
+                            </div>
+
+                            <Button
+                                variant="primary"
+                                className="ml-auto"
+                                onClick={onCreateClick}
+                                disabled={!selectedFile}>
+                                <LuCheck /> Create project
+                            </Button>
+                        </>}
+                </div>
+            </ContentDialog>
+
+            <DemoDatasetsDialog
+                state={datasetsDialogState} />
+        </>
     );
 }

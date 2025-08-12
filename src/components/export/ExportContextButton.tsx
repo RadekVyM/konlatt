@@ -1,6 +1,8 @@
 import useExportContextStore from "../../stores/export/useExportContextStore";
 import useDataStructuresStore from "../../stores/useDataStructuresStore";
+import { CsvSeparator } from "../../types/CsvSeparator";
 import { ContextExportFormat } from "../../types/export/ContextExportFormat";
+import ComboBox from "../inputs/ComboBox";
 import createDownloadButtonsComponent from "./createDownloadButtonsComponent";
 import createTextResultPreviewerComponent from "./createTextResultPreviewerComponent";
 import ExportButton from "./ExportButton";
@@ -33,6 +35,7 @@ const ITEMS: Array<ExportItem<ContextExportFormat>> = [
         label: "CSV",
         content: TextPreviewer,
         buttons: createDownloadButtonsComponent(useExportContextStore, "exported-context.csv", "\n"),
+        options: () => <CsvOptions />,
     },
 ];
 
@@ -48,5 +51,32 @@ export default function ExportContextButton(props: ExportButtonProps) {
             onShowing={useExportContextStore.getState().resetResult}
             onShown={useExportContextStore.getState().triggerResultComputation}
             onHiding={useExportContextStore.getState().resetResult} />
+    );
+}
+
+function CsvOptions() {
+    const csvSeparator = useExportContextStore((state) => state.csvSeparator);
+    const setCsvSeparator = useExportContextStore((state) => state.setCsvSeparator);
+
+    return (
+        <div
+            className="px-4">
+            <label
+                className="text-sm mb-1 block">
+                Separator
+            </label>
+
+            <ComboBox<CsvSeparator>
+                id={`csv-separator`}
+                className="w-full"
+                items={[
+                    { key: ",", label: "," },
+                    { key: ";", label: ";" },
+                    { key: "|", label: "|" },
+                    { key: "\t", label: "Tab" },
+                ]}
+                selectedKey={csvSeparator}
+                onKeySelectionChange={setCsvSeparator}  />
+        </div>
     );
 }

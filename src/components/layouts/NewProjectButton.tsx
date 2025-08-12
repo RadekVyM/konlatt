@@ -1,4 +1,4 @@
-import { LuFolderPlus } from "react-icons/lu";
+import { LuFilePlus } from "react-icons/lu";
 import useNewProjectStore from "../../stores/useNewProjectStore";
 import Button from "../inputs/Button";
 
@@ -10,7 +10,7 @@ export default function NewProjectButton() {
             className="justify-self-end col-start-3"
             variant="container"
             onClick={dialogState?.show}>
-            <LuFolderPlus />
+            <LuFilePlus />
             <span className="text-sm leading-4">New project</span>
         </Button>
     );

@@ -15,7 +15,7 @@ export default function StatusSection(props: {
     const [position, setPosition] = useState<[number, number]>([0, 0]);
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const progressMessage = useProjectStore((state) => state.progressMessage);
-    const file = useProjectStore((state) => state.file);
+    const projectName = useProjectStore((state) => state.name);
     const statusItems = useProjectStore((state) => state.statusItems);
     const debouncedProgressMessage = useDebouncedValue(progressMessage, 10);
 
@@ -52,7 +52,7 @@ export default function StatusSection(props: {
         setPosition([rect.x + (rect.width / 2), rect.y + rect.height]);
     }
 
-    if (!file) {
+    if (!projectName) {
         return undefined;
     }
 
@@ -73,7 +73,7 @@ export default function StatusSection(props: {
                     className="flex flex-col items-center justify-center">
                     <small
                         className="text-sm text-on-surface line-clamp-1">
-                        {file.name}
+                        {projectName}
                     </small>
                     {debouncedProgressMessage &&
                         <small

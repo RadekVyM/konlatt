@@ -21,7 +21,7 @@ export default function createTextResultStoreBaseSlice<
     defaultFormat: TKey,
     extraInitialState: Partial<TStoreOnly>,
     set: (partial: TextResultExportStore<TKey> | Partial<TextResultExportStore<TKey>> | ((state: TStore) => TextResultExportStore<TKey> | Partial<TextResultExportStore<TKey>>), replace?: false) => void,
-    withNewFormat: (
+    withResult: (
         newState: Partial<TextResultExportStore<TKey>>,
         oldState: TStore) =>
             Partial<TStore>,
@@ -30,8 +30,8 @@ export default function createTextResultStoreBaseSlice<
     return {
         ...initialState,
         ...textResultInitialState,
-        ...createTextResultSlice<TStore>(set, withNewFormat, withDisabledComputation),
-        ...createSelectedFormatSlice<TKey, TStore>(defaultFormat, set, withNewFormat, withDisabledComputation),
+        ...createTextResultSlice<TStore>(set, withResult, withDisabledComputation),
+        ...createSelectedFormatSlice<TKey, TStore>(defaultFormat, set, withResult, withDisabledComputation),
         reset: () => set({
             ...initialState,
             ...textResultInitialState,

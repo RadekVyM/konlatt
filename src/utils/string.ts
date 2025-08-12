@@ -67,3 +67,11 @@ export function unescapeXml(str: string) {
         .replace(/&quot;/g, `"`)
         .replace(/&apos;/g, "'");
 }
+
+export function withoutExtension(str: string) {
+    const split = str.split(".");
+
+    return split.length === 1 ?
+        str :
+        split.slice(0, split.length - 1).join("");
+}

@@ -4,11 +4,11 @@ import { StatusItem } from "../types/StatusItem";
 
 type ProjectStore = {
     progressMessage: string | null,
-    file: File | null,
+    name: string | null,
     workerQueue: LatticeWorkerQueue,
     statusItems: Array<StatusItem>,
     setProgressMessage: (progressMessage: string | null) => void,
-    setFile: (file: File | null) => void,
+    setName: (name: string) => void,
     clearStatusItems: () => void,
     addStatusItem: (jobId: number, title: string, showProgress?: boolean) => void,
     updateStatusItem: (jobId: number, item: Partial<StatusItem>) => void,
@@ -17,11 +17,11 @@ type ProjectStore = {
 
 const useProjectStore = create<ProjectStore>((set) => ({
     progressMessage: null,
-    file: null,
+    name: null,
     workerQueue: new LatticeWorkerQueue(),
     statusItems: [],
     setProgressMessage: (progressMessage) => set(() => ({ progressMessage })),
-    setFile: (file) => set(() => ({ file })),
+    setName: (file) => set(() => ({ name: file })),
     clearStatusItems: () => set(() => ({ statusItems: [] })),
     addStatusItem: (jobId: number, title: string, showProgress: boolean = true) => set((state) => ({
         statusItems: [

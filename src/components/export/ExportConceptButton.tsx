@@ -1,3 +1,4 @@
+import { useLayoutEffect } from "react";
 import useExportConceptStore from "../../stores/export/useExportConceptStore";
 import useDataStructuresStore from "../../stores/useDataStructuresStore";
 import { ConceptExportFormat } from "../../types/export/ConceptExportFormat";
@@ -24,9 +25,15 @@ const ITEMS: Array<ExportItem<ConceptExportFormat>> = [
     },
 ];
 
-export default function ExportConceptButton(props: ExportButtonProps) {
+export default function ExportConceptButton(props: {
+    conceptIndex: number,
+} & ExportButtonProps) {
     const context = useDataStructuresStore((state) => state.context);
     const concepts = useDataStructuresStore((state) => state.concepts);
+
+    useLayoutEffect(() => {
+        useExportConceptStore.getState().setSelectedConceptIndex(props.conceptIndex);
+    }, [props.conceptIndex]);
 
     return (
         <ExportButton<ConceptExportFormat>

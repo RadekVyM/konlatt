@@ -9,6 +9,8 @@ import useHasWindowControlsOverlay from "../../hooks/useHasWindowControlsOverlay
 import NewProjectButton from "./NewProjectButton";
 import useWindowControlsOverlayRect from "../../hooks/useWindowControlsOverlayRect";
 import { cn } from "../../utils/tailwind";
+import DemoDatasetsButton from "../DemoDatasetsButton";
+import DemoDatasetsDialog from "../DemoDatasetsDialog";
 
 export default function RootLayout() {
     const newProjectDialogState = useDialog();
@@ -38,6 +40,7 @@ function Header() {
     const hasWindowControlsOverlay = useHasWindowControlsOverlay();
     const rect = useWindowControlsOverlayRect();
     const isRootPage = useIsRootPage();
+    const datasetsDialogState = useDialog();
 
     return (
         <>
@@ -53,17 +56,29 @@ function Header() {
                     className="justify-self-center col-start-2" />
 
                 {!hasWindowControlsOverlay && (isRootPage ? 
-                    <FormatsButton
-                        className="justify-self-end col-start-3"
-                        withText /> :
+                    <div
+                        className="justify-self-end col-start-3 flex gap-3">
+                        <DemoDatasetsButton
+                            onClick={datasetsDialogState.show} />
+                        <FormatsButton
+                            withText />
+                    </div> :
                     <NewProjectButton />
                 )}
             </header>
 
             {isRootPage && hasWindowControlsOverlay &&
-                <FormatsButton
-                    className="self-end mx-3 mb-2"
-                    withText />}
+                <div
+                    className="self-end mx-3 mb-2 flex gap-3">
+                    <DemoDatasetsButton
+                        onClick={datasetsDialogState.show} />
+                    <FormatsButton
+                        withText />
+                </div>}
+            
+            {isRootPage &&
+                <DemoDatasetsDialog
+                    state={datasetsDialogState} />}
         </>
     );
 }

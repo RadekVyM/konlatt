@@ -14,12 +14,12 @@ const useExportObjectsStore = create<ExportObjectsStore>((set) => ({
         "json",
         {},
         set,
-        withNewFormat),
+        withResult),
 }));
 
 export default useExportObjectsStore;
 
-function withNewFormat(newState: Partial<ExportObjectsStore>, oldState: ExportObjectsStore) {
+function withResult(newState: Partial<ExportObjectsStore>, oldState: ExportObjectsStore) {
     const selectedFormat = newState.selectedFormat !== undefined ? newState.selectedFormat : oldState.selectedFormat;
     const context = useDataStructuresStore.getState().context;
 

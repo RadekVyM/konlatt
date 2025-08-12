@@ -9,6 +9,7 @@ import createTextResultStoreBaseSlice, { TextResultExportStore } from "./createT
 import { CsvSeparator } from "../../types/CsvSeparator";
 import { convertToXml } from "../../services/export/context/xml";
 import { sumLengths } from "../../utils/array";
+import createCsvSlice, { CsvSlice, initialState as csvSliceInitialState } from "./createCsvSlice";
 
 type ExportContextStoreState = {
     csvSeparator: CsvSeparator,
@@ -18,7 +19,7 @@ type ExportContextStoreActions = {
     setCsvSeparator: (csvSeparator: CsvSeparator) => void,
 }
 
-type ExportContextStore = TextResultExportStore<ContextExportFormat> & ExportContextStoreState & ExportContextStoreActions
+type ExportContextStore = TextResultExportStore<ContextExportFormat> & ExportContextStoreState & ExportContextStoreActions & CsvSlice
 
 const initialState: ExportContextStoreState = {
     csvSeparator: ",",
@@ -26,17 +27,17 @@ const initialState: ExportContextStoreState = {
 
 const useExportContextStore = create<ExportContextStore>((set) => ({
     ...initialState,
-    setCsvSeparator: (csvSeparator) => set((old) => withNewFormat({ csvSeparator }, old)),
+    ...createCsvSlice(set, withResult),
     ...createTextResultStoreBaseSlice<ContextExportFormat, ExportContextStore>(
         "burmeister",
-        initialState,
+        { ...initialState, ...csvSliceInitialState },
         set,
-        withNewFormat),
+        withResult),
 }));
 
 export default useExportContextStore;
 
-function withNewFormat(newState: Partial<ExportContextStore>, oldState: ExportContextStore): Partial<ExportContextStore> {
+function withResult(newState: Partial<ExportContextStore>, oldState: ExportContextStore): Partial<ExportContextStore> {
     const selectedFormat = newState.selectedFormat !== undefined ? newState.selectedFormat : oldState.selectedFormat;
     const csvSeparator = newState.csvSeparator !== undefined ? newState.csvSeparator : oldState.csvSeparator;
     const context = useDataStructuresStore.getState().context;
@@ -51,17 +52,17 @@ function withNewFormat(newState: Partial<ExportContextStore>, oldState: ExportCo
     switch (selectedFormat) {
         case "burmeister":
             ({ lines: result, collapseRegions: collapseRegions } = convertToBurmeister(
-                useProjectStore.getState().file?.name || "",
+                useProjectStore.getState().name || "",
                 context));
             break;
         case "json":
             ({ lines: result, collapseRegions: collapseRegions } = convertToJson(
-                useProjectStore.getState().file?.name || "",
+                useProjectStore.getState().name || "",
                 context));
             break;
         case "xml":
             ({ lines: result, collapseRegions: collapseRegions } = convertToXml(
-                useProjectStore.getState().file?.name || "",
+                useProjectStore.getState().name || "",
                 context));
             break;
         case "csv":

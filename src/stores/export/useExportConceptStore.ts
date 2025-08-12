@@ -1,29 +1,30 @@
 import { create } from "zustand";
 import { convertToJson } from "../../services/export/concept/json";
 import { ConceptExportFormat } from "../../types/export/ConceptExportFormat";
-import useDiagramStore from "../diagram/useDiagramStore";
 import useDataStructuresStore from "../useDataStructuresStore";
 import createTextResultStoreBaseSlice, { TextResultExportStore } from "./createTextResultStoreBaseSlice";
 import { sumLengths } from "../../utils/array";
 import { convertToXml } from "../../services/export/concept/xml";
+import createSelectedConceptSlice, { SelectedConceptSlice, initialState as initialSelectedConceptSliceState } from "../createSelectedConceptSlice";
 
-type ExportConceptStore = TextResultExportStore<ConceptExportFormat>
+type ExportConceptStore = TextResultExportStore<ConceptExportFormat> & SelectedConceptSlice
 
 const useExportConceptStore = create<ExportConceptStore>((set) => ({
+    ...createSelectedConceptSlice(set),
     ...createTextResultStoreBaseSlice<ConceptExportFormat, ExportConceptStore>(
         "json",
-        {},
+        initialSelectedConceptSliceState,
         set,
-        withNewFormat),
+        withResult),
 }));
 
 export default useExportConceptStore;
 
-function withNewFormat(newState: Partial<ExportConceptStore>, oldState: ExportConceptStore) {
+function withResult(newState: Partial<ExportConceptStore>, oldState: ExportConceptStore) {
     const selectedFormat = newState.selectedFormat !== undefined ? newState.selectedFormat : oldState.selectedFormat;
+    const selectedConceptIndex = newState.selectedConceptIndex !== undefined ? newState.selectedConceptIndex : oldState.selectedConceptIndex;
     const context = useDataStructuresStore.getState().context;
     const concepts = useDataStructuresStore.getState().concepts;
-    const selectedConceptIndex = useDiagramStore.getState().selectedConceptIndex;
 
     if (!context || !concepts || selectedConceptIndex === null) {
         return newState;

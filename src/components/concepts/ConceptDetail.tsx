@@ -46,6 +46,7 @@ export default function ConceptDetail(props: {
                     </BackButton>
 
                     <ExportConceptButton
+                        conceptIndex={props.selectedConceptIndex}
                         route={`${props.route}/concept/${props.selectedConceptIndex}/export`} />
                 </div>
 

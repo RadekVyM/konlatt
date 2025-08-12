@@ -15,7 +15,7 @@ import useExportDiagramStore from "../stores/export/useExportDiagramStore";
 import useExportObjectsStore from "../stores/export/useExportObjectsStore";
 import useExportObjectStore from "../stores/export/useExportObjectStore";
 
-export async function triggerInitialization(file: File) {
+export async function triggerInitialization(fileContent: string, name: string) {
     useProjectStore.getState().clearStatusItems();
     useDataStructuresStore.getState().reset();
     useContextStore.getState().reset();
@@ -30,10 +30,8 @@ export async function triggerInitialization(file: File) {
     useExportDiagramStore.getState().reset();
     useExportObjectsStore.getState().reset();
     useExportObjectStore.getState().reset();
-    
-    useProjectStore.getState().setFile(file);
 
-    const fileContent = await file.text();
+    useProjectStore.getState().setName(name);
 
     useProjectStore.getState().workerQueue.reset();
 

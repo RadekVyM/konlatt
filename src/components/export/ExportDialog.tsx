@@ -35,18 +35,26 @@ export default function ExportDialog<TKey extends string>(props: {
                 <Container
                     className="flex flex-col gap-3">
                     <div
-                        className="w-full flex gap-2 p-4">
-                        <ComboBox<TKey>
-                            id={`${props.route}-format`}
-                            className="w-full"
-                            items={props.items.map((item) => ({
-                                key: item.key,
-                                label: item.label,
-                            }))}
-                            selectedKey={selectedFormat}
-                            onKeySelectionChange={setSelectedFormat} />
+                        className="px-4 pt-4">
+                        <label
+                            className="text-sm mb-1 block">
+                            File format
+                        </label>
 
-                        <FormatsButton />
+                        <div
+                            className="w-full flex gap-2">
+                            <ComboBox<TKey>
+                                id={`${props.route}-format`}
+                                className="w-full"
+                                items={props.items.map((item) => ({
+                                    key: item.key,
+                                    label: item.label,
+                                }))}
+                                selectedKey={selectedFormat}
+                                onKeySelectionChange={setSelectedFormat} />
+
+                            <FormatsButton />
+                        </div>
                     </div>
 
                     <div
