@@ -53,9 +53,9 @@ void topologicalSortImpl(
 }
 
 std::unique_ptr<std::vector<int>> topologicalSort(int startConceptIndex, std::vector<std::unordered_set<int>>& coverRelation) {
-    std::unique_ptr<std::vector<int>> topologicalOrder = make_unique<std::vector<int>>();
+    auto topologicalOrder = std::make_unique<std::vector<int>>();
     std::vector<bool> visited;
-    std::shared_ptr<int> sortedLastIndex = make_shared<int>();
+    std::shared_ptr<int> sortedLastIndex = std::make_shared<int>();
 
     visited.resize(coverRelation.size());
     topologicalOrder->resize(coverRelation.size());

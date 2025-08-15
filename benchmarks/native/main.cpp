@@ -22,8 +22,6 @@
 #include <sstream>
 #include <string>
 
-using namespace std;
-
 std::string readFileToString(const std::string& filePath) {
     std::ifstream file(filePath);
     if (!file.is_open()) {
@@ -59,11 +57,11 @@ int main(int argc, char* argv[]) {
 
         inClose(
             result,
-            context.getContext(),
-            context.getCellSize(),
-            context.getCellsPerObject(),
-            context.getObjects().size(),
-            context.getAttributes().size());
+            context.context,
+            context.cellSize,
+            context.cellsPerObject,
+            context.objects.size(),
+            context.attributes.size());
 
         sum += result.time;
         std::cerr << "[" << i << "] Time: " << result.time << "ms" << std::endl;

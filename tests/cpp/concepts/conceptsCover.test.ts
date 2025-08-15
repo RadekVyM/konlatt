@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 import Module from "../../../src/cpp";
 import { DIGITS, LATTICE, LIVEINWATER, TEALADY, TestValue } from "../../constants/flowTestValues";
-import { cppFormalConceptArrayToJs, cppIntMultiArrayToJs, jsArrayToCppIndexedFormalConceptArray } from "../../../src/utils/cpp";
+import { cppFormalConceptArrayToJs, cppIntMultiArrayToJs, jsArrayToCppSimpleFormalConceptArray } from "../../../src/utils/cpp";
 
 test.each<TestValue>([
     DIGITS,
@@ -17,7 +17,7 @@ test.each<TestValue>([
     const latticeResult = new module.IntMultiArrayTimedResult();
     module.conceptsCover(
         latticeResult,
-        jsArrayToCppIndexedFormalConceptArray(module, [...cppFormalConceptArrayToJs(conceptsResult.value, true)]),
+        jsArrayToCppSimpleFormalConceptArray(module, [...cppFormalConceptArrayToJs(conceptsResult.value, true)]),
         context.context,
         context.cellSize,
         context.cellsPerObject,

@@ -10,8 +10,6 @@
 #include <string>
 #include <unordered_set>
 
-using namespace std;
-
 long long nowMills() {
     auto now = std::chrono::system_clock::now();
     return std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
@@ -120,14 +118,14 @@ void printFormalContext(
     }
 }
 
-void printIndexedFormalConcepts(std::vector<IndexedFormalConcept>& concepts) {
+void printSimpleFormalConcepts(std::vector<SimpleFormalConcept>& concepts) {
     for (auto & concept : concepts) {
         std::cout << "[";
-        for (auto o : concept.getObjects()) {
+        for (auto o : concept.objects) {
             std::cout << o << ", ";
         }
         std::cout << "] [";
-        for (auto a : concept.getAttributes()) {
+        for (auto a : concept.attributes) {
             std::cout << a << ", ";
         }
         std::cout << "]\n";
@@ -138,7 +136,7 @@ int maxSizeOfSets(std::vector<std::unordered_set<int>>& sets) {
     int maximum = 0;
 
     for (auto item : sets) {
-        maximum = max(maximum, (int)item.size());
+        maximum = std::max(maximum, (int)item.size());
     }
 
     return maximum;
@@ -148,7 +146,7 @@ int maxSizeOfVectors(std::vector<std::vector<int>>& vectors) {
     int maximum = 0;
 
     for (auto item : vectors) {
-        maximum = max(maximum, (int)item.size());
+        maximum = std::max(maximum, (int)item.size());
     }
 
     return maximum;

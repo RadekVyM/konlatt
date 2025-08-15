@@ -1,4 +1,4 @@
-import { FloatArray, FormalConceptArray, IndexedFormalConceptArray, IntArray, IntMultiArray, MainModule, StringArray, UIntArray } from "../cpp";
+import { FloatArray, FormalConceptArray, SimpleFormalConceptArray, IntArray, IntMultiArray, MainModule, StringArray, UIntArray } from "../cpp";
 import { FormalConcept, FormalConcepts } from "../types/FormalConcepts";
 import { createPoint, Point } from "../types/Point";
 
@@ -107,16 +107,13 @@ export function jsArrayToCppUIntArray(module: MainModule, array: Array<number> |
     return cppArray;
 }
 
-export function jsArrayToCppIndexedFormalConceptArray(module: MainModule, array: FormalConcepts): IndexedFormalConceptArray {
-    const cppArray = new module.IndexedFormalConceptArray();
+export function jsArrayToCppSimpleFormalConceptArray(module: MainModule, array: FormalConcepts): SimpleFormalConceptArray {
+    const cppArray = new module.SimpleFormalConceptArray();
 
     for (let i = 0; i < array.length; i++) {
-        const concept = new module.IndexedFormalConcept();
-
-        concept.index = i;
-        concept.attributes = jsArrayToCppIntArray(module, array[i].attributes);
-        concept.objects = jsArrayToCppIntArray(module, array[i].objects);
-
+        const concept = new module.SimpleFormalConcept(
+            jsArrayToCppIntArray(module, array[i].objects),
+            jsArrayToCppIntArray(module, array[i].attributes));
         cppArray.push_back(concept);
     }
 

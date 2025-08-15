@@ -7,8 +7,7 @@
 #include <memory>
 #include <queue>
 #include <vector>
-
-using namespace std;
+#include <numeric>
 
 bool isCannonical(
     std::vector<unsigned int>& contextMatrix,
@@ -19,7 +18,7 @@ bool isCannonical(
     int newExtentSize,
     int startingAttribute
 ) {
-    std::vector<int>& parentConceptAttributes = parentConcept.getAttributes();
+    std::vector<int>& parentConceptAttributes = parentConcept.attributes;
 
     for (int k = parentConceptAttributes.size() - 1; k >= 0; k--) {
         for (int j = startingAttribute; j >= parentConceptAttributes[k] + 1; j--) {
@@ -82,7 +81,7 @@ void inCloseImpl(
 
     for (int j = currentAttribute; j < contextAttributesCount; j++) {
         int lastObjectIndex = 0;
-        std::vector<int>& parentConceptObjects = formalConcepts[parentConceptIndex].getObjects();
+        std::vector<int>& parentConceptObjects = formalConcepts[parentConceptIndex].objects;
 
         // Take those objects from the parentConcept that have attribute j, i.e. generate a new potential extent
         for (int i = 0; i < parentConceptObjects.size(); i++) {
@@ -96,8 +95,7 @@ void inCloseImpl(
 
         if (lastObjectIndex > 0) {
             if (lastObjectIndex == parentConceptObjects.size()) {
-                std::vector<int>& attributes = formalConcepts[parentConceptIndex].getAttributes();
-                attributes.push_back(j);
+                formalConcepts[parentConceptIndex].attributes.push_back(j);
             }
             else if (isCannonical(
                 contextMatrix,
@@ -108,16 +106,15 @@ void inCloseImpl(
                 lastObjectIndex,
                 j - 1
             )) {
-                std::vector<int> newIntent = formalConcepts[parentConceptIndex].getAttributesCopy();
-                newIntent.push_back(j);
-                std::vector<int> newExtent(newExtentBuffer.begin(), newExtentBuffer.begin() + lastObjectIndex);
+                formalConcepts.emplace_back(
+                    std::vector<int>(newExtentBuffer.begin(), newExtentBuffer.begin() + lastObjectIndex),
+                    [&](){
+                        std::vector<int> attr = formalConcepts[parentConceptIndex].attributes;
+                        attr.push_back(j);
+                        return attr;
+                    }(),
+                    j);
 
-                FormalConcept newConcept = FormalConcept();
-                newConcept.setAttributes(newIntent);
-                newConcept.setObjects(newExtent);
-                newConcept.setAttribute(j);
-
-                formalConcepts.push_back(newConcept);
                 conceptsQueue.push(formalConcepts.size() - 1);
             }
         }
@@ -140,7 +137,7 @@ void inCloseImpl(
             newExtentBuffer,
             formalConcepts,
             conceptIndex,
-            formalConcepts[conceptIndex].getAttribute() + 1
+            formalConcepts[conceptIndex].attribute + 1
 #ifdef __EMSCRIPTEN__
             , onProgress,
             false
@@ -176,17 +173,11 @@ void inClose(
     std::vector<int> newExtentBuffer;
     newExtentBuffer.resize(contextObjectsCount);
 
-    std::vector<int> initialConceptObjects;
-    initialConceptObjects.reserve(contextObjectsCount);
-    for (int i = 0; i < contextObjectsCount; i++) {
-        initialConceptObjects.push_back(i);
-    }
+    std::vector<int> initialConceptObjects(contextObjectsCount);
+    // This function fills a range with sequentially increasing values
+    std::iota(initialConceptObjects.begin(), initialConceptObjects.end(), 0);
 
-    FormalConcept initialConcept = FormalConcept();
-    initialConcept.setObjects(initialConceptObjects);
-    initialConcept.setAttribute(0);
-
-    result.value.push_back(initialConcept);
+    result.value.emplace_back(std::move(initialConceptObjects), std::vector<int>(), 0);
 
     inCloseImpl(
         contextMatrix,
@@ -211,17 +202,10 @@ void inClose(
         contextObjectsCount,
         contextAttributesCount
     )) {
-        std::vector<int> conceptAttributes;
-        conceptAttributes.resize(contextAttributesCount);
-        for (int i = 0; i < contextAttributesCount; i++) {
-            conceptAttributes[i] = i;
-        }
+        std::vector<int> conceptAttributes(contextAttributesCount);
+        std::iota(conceptAttributes.begin(), conceptAttributes.end(), 0);
 
-        FormalConcept allAttributesConcept = FormalConcept();
-        allAttributesConcept.setAttributes(conceptAttributes);
-        allAttributesConcept.setAttribute(0);
-
-        result.value.push_back(allAttributesConcept);
+        result.value.emplace_back(std::vector<int>(), std::move(conceptAttributes), 0);
     }
 
     long long endTime = nowMills();

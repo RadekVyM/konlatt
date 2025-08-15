@@ -1,7 +1,6 @@
 #include "types/FormalConcept.h"
-#include "types/LatticeItem.h"
 #include "utils.h"
-#include "lattice.h"
+#include "conceptsCover.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -11,11 +10,9 @@
 #include <unordered_set>
 #include <map>
 
-using namespace std;
-
 void conceptsCover(
     TimedResult<std::vector<std::vector<int>>>& result,
-    std::vector<IndexedFormalConcept>& concepts,
+    std::vector<SimpleFormalConcept>& concepts,
     std::vector<unsigned int>& contextMatrix,
     int cellSize,
     int cellsPerObject,
@@ -31,22 +28,21 @@ void conceptsCover(
     std::map<std::vector<int>, int> conceptsMap;
 
     for (int i = 0; i < concepts.size(); i++) {
-        conceptsMap.insert({ concepts[i].getObjectsCopy(), i });
+        conceptsMap.insert({ concepts[i].objects, i });
     }
 
     result.value.resize(concepts.size());
 
-    std::vector<int> counts;
-    counts.resize(concepts.size(), 0);
+    std::vector<int> counts(concepts.size(), 0);
+    std::vector<int> inters;
+    inters.reserve(contextObjectsCount);
 
 #ifdef __EMSCRIPTEN__
     int progressStep = concepts.size() / 100;
 #endif
 
     for (int i = 0; i < concepts.size(); i++) {
-        for (int j = 0; j < counts.size(); j++) {
-            counts[j] = 0;
-        }
+        std::fill(counts.begin(), counts.end(), 0);
 
 #ifdef __EMSCRIPTEN__
         if ((progressStep == 0 || i % progressStep == 0) && !onProgress.isUndefined()) {
@@ -54,13 +50,13 @@ void conceptsCover(
         }
 #endif
 
-        int conceptAttributesCount = concepts[i].getAttributes().size();
+        int conceptAttributesCount = concepts[i].attributes.size();
         int ignoredConceptAttributeIndex = 0;
 
         for (int m = 0; m < contextAttributesCount; m++) {
             // ignore all the attributes of concepts[i]
             if (ignoredConceptAttributeIndex < conceptAttributesCount) {
-                int ignoredAttribute = concepts[i].getAttributes()[ignoredConceptAttributeIndex];
+                int ignoredAttribute = concepts[i].attributes[ignoredConceptAttributeIndex];
 
                 if (ignoredAttribute == m) {
                     ignoredConceptAttributeIndex++;
@@ -69,8 +65,8 @@ void conceptsCover(
             }
 
             // all objects of concepts[i] that have attribute m
-            std::vector<int> inters;
-            for (int object : concepts[i].getObjects()) {
+            inters.clear();
+            for (int object : concepts[i].objects) {
                 if (formalContextHasAttribute(
                     contextMatrix,
                     cellSize,
@@ -86,7 +82,7 @@ void conceptsCover(
             int anotherConceptIndex = conceptsMap.find(inters)->second;
             counts[anotherConceptIndex] = counts[anotherConceptIndex] + 1;
 
-            if (concepts[anotherConceptIndex].getAttributes().size() - conceptAttributesCount == counts[anotherConceptIndex]) {
+            if (concepts[anotherConceptIndex].attributes.size() - conceptAttributesCount == counts[anotherConceptIndex]) {
                 // add an edge from concepts[anotherConceptIndex] to concepts[i]
                 result.value[anotherConceptIndex].push_back(i);
             }

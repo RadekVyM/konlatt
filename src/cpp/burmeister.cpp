@@ -9,11 +9,8 @@
 #include <vector>
 #include <cmath>
 
-using namespace std;
-
 FormalContext parseBurmeister(std::string fileContent) {
     // TODO: Produce exceptions when issues with the file format are encountered
-    FormalContext context;
     std::stringstream fileContentStream(fileContent);
 
     std::string bLine;
@@ -36,7 +33,7 @@ FormalContext parseBurmeister(std::string fileContent) {
 
     int cellSize = sizeof(unsigned int) * 8;
 
-    std::vector<std::string> atributes;
+    std::vector<std::string> attributes;
     std::vector<std::string> objects;
     std::vector<unsigned int> contextMatrix;
 
@@ -53,7 +50,7 @@ FormalContext parseBurmeister(std::string fileContent) {
         std::getline(fileContentStream, line);
         trim(line);
 
-        atributes.push_back(line);
+        attributes.push_back(line);
     }
 
     for (int i = 0; i < objectsCount; i++) {
@@ -87,11 +84,10 @@ FormalContext parseBurmeister(std::string fileContent) {
         contextMatrix.push_back(value);
     }
 
-    context.setObjects(objects);
-    context.setAttributes(atributes);
-    context.setCellsPerObject((int)ceil(atributes.size() / (double)cellSize));
-    context.setCellSize(cellSize);
-    context.setContext(contextMatrix);
-
-    return context;
+    return FormalContext(
+        cellSize,
+        (int)ceil(attributes.size() / (double)cellSize),
+        objects,
+        attributes,
+        contextMatrix);
 }
