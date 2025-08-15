@@ -13,7 +13,7 @@ template struct TimedResult<std::vector<std::vector<int>>>;
 
 void conceptsCover(
     TimedResult<std::vector<std::vector<int>>>& result,
-    std::vector<IndexedFormalConcept>& concepts,
+    std::vector<SimpleFormalConcept>& concepts,
     std::vector<unsigned int>& contextMatrix,
     int cellSize,
     int cellsPerObject,

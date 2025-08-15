@@ -9,8 +9,6 @@
 #include <vector>
 #include <cmath>
 
-using namespace std;
-
 FormalContext parseBurmeister(std::string fileContent) {
     // TODO: Produce exceptions when issues with the file format are encountered
     FormalContext context;

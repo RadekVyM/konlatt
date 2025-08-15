@@ -1,7 +1,6 @@
 #include "types/FormalConcept.h"
-#include "types/LatticeItem.h"
 #include "utils.h"
-#include "lattice.h"
+#include "conceptsCover.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -11,11 +10,9 @@
 #include <unordered_set>
 #include <map>
 
-using namespace std;
-
 void conceptsCover(
     TimedResult<std::vector<std::vector<int>>>& result,
-    std::vector<IndexedFormalConcept>& concepts,
+    std::vector<SimpleFormalConcept>& concepts,
     std::vector<unsigned int>& contextMatrix,
     int cellSize,
     int cellsPerObject,
@@ -36,17 +33,16 @@ void conceptsCover(
 
     result.value.resize(concepts.size());
 
-    std::vector<int> counts;
-    counts.resize(concepts.size(), 0);
+    std::vector<int> counts(concepts.size(), 0);
+    std::vector<int> inters;
+    inters.reserve(contextObjectsCount);
 
 #ifdef __EMSCRIPTEN__
     int progressStep = concepts.size() / 100;
 #endif
 
     for (int i = 0; i < concepts.size(); i++) {
-        for (int j = 0; j < counts.size(); j++) {
-            counts[j] = 0;
-        }
+        std::fill(counts.begin(), counts.end(), 0);
 
 #ifdef __EMSCRIPTEN__
         if ((progressStep == 0 || i % progressStep == 0) && !onProgress.isUndefined()) {
@@ -69,7 +65,7 @@ void conceptsCover(
             }
 
             // all objects of concepts[i] that have attribute m
-            std::vector<int> inters;
+            inters.clear();
             for (int object : concepts[i].getObjects()) {
                 if (formalContextHasAttribute(
                     contextMatrix,

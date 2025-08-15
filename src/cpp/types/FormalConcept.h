@@ -3,6 +3,9 @@
 
 #include <vector>
 
+// I tried to make these just structs with fields and "pass-by-value-and-move" style constructors
+// Overall, it lead to much worse performance of inClose (approx. from 1100ms to 1600ms) – see the failed-cpp-optimizations branch
+
 class FormalConcept {
 public:
     FormalConcept() {}
@@ -25,12 +28,9 @@ private:
 };
 
 
-class IndexedFormalConcept {
+class SimpleFormalConcept {
 public:
-    IndexedFormalConcept() {}
-
-    int getIndex() const { return index; }
-    void setIndex(int value) { index = value; }
+    SimpleFormalConcept() {}
 
     std::vector<int>& getObjects() { return objects; }
     std::vector<int> getObjectsCopy() const { return objects; }
@@ -43,7 +43,6 @@ public:
 private:
     std::vector<int> objects;
     std::vector<int> attributes;
-    int index;
 };
 
 #endif

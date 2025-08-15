@@ -14,7 +14,7 @@
 #include "utils.cpp"
 #include "burmeister.cpp"
 #include "inClose.cpp"
-#include "lattice.cpp"
+#include "conceptsCover.cpp"
 #include "layout/utils.cpp"
 #include "layout/layers.cpp"
 #include "layout/layeredLayout.cpp"
@@ -23,7 +23,6 @@
 #include "layout/layouts.cpp"
 
 using namespace emscripten;
-using namespace std;
 
 // The result objects are not returned from the functions,
 // but are passed into them through parameters from JavaScript.
@@ -35,7 +34,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
     emscripten::register_vector<int>("IntArray");
     emscripten::register_vector<float>("FloatArray");
     emscripten::register_vector<FormalConcept>("FormalConceptArray");
-    emscripten::register_vector<IndexedFormalConcept>("IndexedFormalConceptArray");
+    emscripten::register_vector<SimpleFormalConcept>("SimpleFormalConceptArray");
     emscripten::register_vector<std::vector<int>>("IntMultiArray");
 
     emscripten::class_<FormalContext>("FormalContext")
@@ -44,21 +43,17 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .property("cellsPerObject", &FormalContext::getCellsPerObject, &FormalContext::setCellsPerObject)
         .property("objects", &FormalContext::getObjectsCopy, &FormalContext::setObjects)
         .property("attributes", &FormalContext::getAttributesCopy, &FormalContext::setAttributes)
-        .property("context", &FormalContext::getContextCopy, &FormalContext::setContext)
-        ;
+        .property("context", &FormalContext::getContextCopy, &FormalContext::setContext);
 
     emscripten::class_<FormalConcept>("FormalConcept")
         .constructor()
         .property("objects", &FormalConcept::getObjectsCopy, &FormalConcept::setObjects)
-        .property("attributes", &FormalConcept::getAttributesCopy, &FormalConcept::setAttributes)
-        ;
+        .property("attributes", &FormalConcept::getAttributesCopy, &FormalConcept::setAttributes);
 
-    emscripten::class_<IndexedFormalConcept>("IndexedFormalConcept")
+    emscripten::class_<SimpleFormalConcept>("SimpleFormalConcept")
         .constructor()
-        .property("objects", &IndexedFormalConcept::getObjectsCopy, &IndexedFormalConcept::setObjects)
-        .property("attributes", &IndexedFormalConcept::getAttributesCopy, &IndexedFormalConcept::setAttributes)
-        .property("index", &IndexedFormalConcept::getIndex, &IndexedFormalConcept::setIndex)
-        ;
+        .property("objects", &SimpleFormalConcept::getObjectsCopy, &SimpleFormalConcept::setObjects)
+        .property("attributes", &SimpleFormalConcept::getAttributesCopy, &SimpleFormalConcept::setAttributes);
 
     emscripten::class_<TimedResult<std::vector<FormalConcept>>>("FormalConceptsTimedResult")
         .constructor<>()

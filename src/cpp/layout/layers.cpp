@@ -5,13 +5,11 @@
 #include "layers.h"
 #include "utils.h"
 
-using namespace std;
-
 std::unique_ptr<std::tuple<std::vector<int>, std::vector<std::unordered_set<int>>>> assignNodesToLayersByLongestPath(
     int startConceptIndex,
     std::vector<std::unordered_set<int>>& coverRelation
 ) {
-    auto result = make_unique<std::tuple<std::vector<int>, std::vector<std::unordered_set<int>>>>();
+    auto result = std::make_unique<std::tuple<std::vector<int>, std::vector<std::unordered_set<int>>>>();
     auto& [layersMapping, layers] = *result;
 
     layersMapping.resize(coverRelation.size(), -1);

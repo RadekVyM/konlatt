@@ -22,8 +22,6 @@
 #include <algorithm>
 #include <functional>
 
-using namespace std;
-
 #define PRIMES_COUNT 10
 #define CORRECTION_FACTOR 0.5
 #define ATTRACTION_CONSTANT 0.1

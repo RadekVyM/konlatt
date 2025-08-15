@@ -12,8 +12,6 @@
 #include <unordered_map>
 #include <algorithm>
 
-using namespace std;
-
 void addSubconceptToMapping(std::unordered_map<int, std::vector<int>> & subconceptsMapping, int superconcept, int subconcept) {
     if (subconceptsMapping.count(superconcept) == 1) {
         std::vector<int>& subconcepts = subconceptsMapping[superconcept];
@@ -90,7 +88,7 @@ std::unique_ptr<std::tuple<
     std::vector<std::unordered_set<int>>& layers,
     const std::vector<int>& layersMapping
 ) {
-    auto result = make_unique<std::tuple<
+    auto result = std::make_unique<std::tuple<
         std::vector<std::vector<int>>,
         std::vector<int>,
         std::unordered_map<int, std::vector<int>>,
@@ -152,7 +150,7 @@ std::unique_ptr<std::vector<std::vector<int>>> reduceCrossingsUsingAverage(
     bool topToBottom,
     bool useBoth
 ) {
-    auto reducedLayers = make_unique<std::vector<std::vector<int>>>();
+    auto reducedLayers = std::make_unique<std::vector<std::vector<int>>>();
     std::vector<float> averages;
     int first = topToBottom ? 0 : layers.size() - 1;
     int second = topToBottom ? 1 : layers.size() - 2;
@@ -214,7 +212,7 @@ std::unique_ptr<std::vector<std::vector<int>>> reduceCrossingsUsingAverage(
             averages[concept] = (float)sum / count;
         }
 
-        auto& reducedLayer = (*reducedLayers)[i] = vector<int>(layer.begin(), layer.end());
+        auto& reducedLayer = (*reducedLayers)[i] = std::vector<int>(layer.begin(), layer.end());
         int offset = horizontalCoords[layer[0]];
 
         // Future self, be aware of the strict weak ordering! You are welcome!

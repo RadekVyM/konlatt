@@ -8,8 +8,6 @@
 #include <queue>
 #include <vector>
 
-using namespace std;
-
 bool isCannonical(
     std::vector<unsigned int>& contextMatrix,
     int cellSize,
@@ -108,16 +106,18 @@ void inCloseImpl(
                 lastObjectIndex,
                 j - 1
             )) {
+                formalConcepts.emplace_back();
+                FormalConcept& newConcept = formalConcepts.back();
+
                 std::vector<int> newIntent = formalConcepts[parentConceptIndex].getAttributesCopy();
                 newIntent.push_back(j);
-                std::vector<int> newExtent(newExtentBuffer.begin(), newExtentBuffer.begin() + lastObjectIndex);
-
-                FormalConcept newConcept = FormalConcept();
                 newConcept.setAttributes(newIntent);
+
+                std::vector<int> newExtent(newExtentBuffer.begin(), newExtentBuffer.begin() + lastObjectIndex);
                 newConcept.setObjects(newExtent);
+
                 newConcept.setAttribute(j);
 
-                formalConcepts.push_back(newConcept);
                 conceptsQueue.push(formalConcepts.size() - 1);
             }
         }

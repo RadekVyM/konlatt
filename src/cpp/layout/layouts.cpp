@@ -12,11 +12,8 @@
 #include <memory>
 #include <unordered_set>
 
-using namespace emscripten;
-using namespace std;
-
 std::unique_ptr<std::vector<int>> jsTypedArrayToVector(const emscripten::val& intArray) {
-    auto vec = make_unique<std::vector<int>>();
+    auto vec = std::make_unique<std::vector<int>>();
 
     unsigned int length = intArray["length"].as<unsigned int>();
     vec->resize(length);
@@ -36,7 +33,7 @@ std::unique_ptr<std::tuple<
 ) {
     auto flatSubconceptsMapping = jsTypedArrayToVector(subconceptsMappingTypedArray);
 
-    auto result = make_unique<std::tuple<
+    auto result = std::make_unique<std::tuple<
         std::vector<std::unordered_set<int>>,
         std::vector<std::unordered_set<int>>>>();
     auto& [subconceptsMapping, superconceptsMapping] = *result;
