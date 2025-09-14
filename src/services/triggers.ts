@@ -14,78 +14,65 @@ import useExportContextStore from "../stores/export/useExportContextStore";
 import useExportDiagramStore from "../stores/export/useExportDiagramStore";
 import useExportObjectsStore from "../stores/export/useExportObjectsStore";
 import useExportObjectStore from "../stores/export/useExportObjectStore";
+import LatticeWorkerQueue from "../workers/LatticeWorkerQueue";
 
-export async function triggerInitialization(fileContent: string, name: string) {
-    useProjectStore.getState().clearStatusItems();
-    useDataStructuresStore.getState().reset();
-    useContextStore.getState().reset();
-    useDiagramStore.getState().reset();
-    useExplorerStore.getState().reset();
+export async function triggerInitialization(
+    fileContent: string,
+    name: string,
+    onSuccess?: () => void,
+) {
+    const newWorkerQueue = new LatticeWorkerQueue();
+    newWorkerQueue.setup();
 
-    useExportAttributesStore.getState().reset();
-    useExportAttributeStore.getState().reset();
-    useExportConceptsStore.getState().reset();
-    useExportConceptStore.getState().reset();
-    useExportContextStore.getState().reset();
-    useExportDiagramStore.getState().reset();
-    useExportObjectsStore.getState().reset();
-    useExportObjectStore.getState().reset();
+    const startTime = new Date().getTime();
 
-    useProjectStore.getState().setName(name);
+    enqueFileParsing(newWorkerQueue, fileContent, (response) => {
+        useProjectStore.getState().replaceWorkerQueue(newWorkerQueue);
 
-    useProjectStore.getState().workerQueue.reset();
+        useProjectStore.getState().setName(name);
+        useProjectStore.getState().clearStatusItems();
+        useProjectStore.getState().addStatusItem(
+            response.jobId,
+            "File parsing", 
+            {
+                showProgress: false,
+                isDone: true,
+                startTime: startTime,
+                endTime: new Date().getTime(),
+            });
 
-    triggerFileParsing(fileContent);
-    triggerConceptComputation();
-    triggerLatticeComputation();
-    triggerLayoutComputation({ ...useDiagramStore.getState() });
-}
+        useDataStructuresStore.getState().reset();
+        useContextStore.getState().reset();
+        useDiagramStore.getState().reset();
+        useExplorerStore.getState().reset();
 
-function triggerFileParsing(fileContent: string) {
-    const workerQueue = useProjectStore.getState().workerQueue;
-    const contextRequest: ContextParsingRequest = { type: "parse-context", content: fileContent };
+        useExportAttributesStore.getState().reset();
+        useExportAttributeStore.getState().reset();
+        useExportConceptsStore.getState().reset();
+        useExportConceptStore.getState().reset();
+        useExportContextStore.getState().reset();
+        useExportDiagramStore.getState().reset();
+        useExportObjectsStore.getState().reset();
+        useExportObjectStore.getState().reset();
 
-    workerQueue.enqueue<ContextParsingResponse>(
-        contextRequest,
-        (response: ContextParsingResponse) => {
-            useDataStructuresStore.getState().setContext(response.context);
-            useProjectStore.getState().updateStatusItem(response.jobId, { isDone: true, endTime: new Date().getTime() });
-        },
-        useProjectStore.getState().setProgressMessage,
-        undefined,
-        (jobId) => useProjectStore.getState().addStatusItem(jobId, "File parsing", false));
+        useDataStructuresStore.getState().setContext(response.context);
+
+        triggerConceptComputation();
+        triggerLatticeComputation();
+        triggerLayoutComputation({ ...useDiagramStore.getState() });
+
+        onSuccess?.();
+    });
 }
 
 function triggerConceptComputation() {
     const workerQueue = useProjectStore.getState().workerQueue;
-    const conceptsRequest: ConceptComputationRequest = { type: "concepts" };
-
-    workerQueue.enqueue<ConceptComputationResponse>(
-        conceptsRequest,
-        (response: ConceptComputationResponse) => {
-            useDataStructuresStore.getState().setConcepts(response.concepts);
-            useProjectStore.getState().updateStatusItem(
-                response.jobId,
-                { isDone: true, endTime: new Date().getTime(), time: response.computationTime });
-        },
-        useProjectStore.getState().setProgressMessage,
-        (jobId, progress) => useProjectStore.getState().updateStatusItem(jobId, { progress }),
-        (jobId) => useProjectStore.getState().addStatusItem(jobId, "Concepts computation"));
+    enqueueConceptComputation(workerQueue);
 }
 
 function triggerLatticeComputation() {
     const workerQueue = useProjectStore.getState().workerQueue;
-    const latticeRequest: LatticeComputationRequest = { type: "lattice" };
-
-    workerQueue.enqueue<LatticeComputationResponse>(
-        latticeRequest,
-        (response: LatticeComputationResponse) => {
-            useDataStructuresStore.getState().setLattice(response.lattice);
-            useProjectStore.getState().updateStatusItem(response.jobId, { isDone: true, endTime: new Date().getTime(), time: response.computationTime });
-        },
-        useProjectStore.getState().setProgressMessage,
-        (jobId, progress) => useProjectStore.getState().updateStatusItem(jobId, { progress }),
-        (jobId) => useProjectStore.getState().addStatusItem(jobId, "Lattice computation"));
+    enqueueLatticeComputation(workerQueue);
 }
 
 export function triggerLayoutComputation(state: DiagramLayoutState) {
@@ -96,6 +83,57 @@ export function triggerLayoutComputation(state: DiagramLayoutState) {
         triggerCancellation(currentJobId);
     }
 
+    enqueueLayoutComputation(workerQueue, state);
+}
+
+export function triggerCancellation(jobId: number) {
+    useProjectStore.getState().workerQueue.cancelJob(jobId);
+    useDiagramStore.getState().setCurrentLayoutJobId(null, null);
+}
+
+function enqueFileParsing(workerQueue: LatticeWorkerQueue, fileContent: string, onSuccess: (response: ContextParsingResponse) => void) {
+    const contextRequest: ContextParsingRequest = { type: "parse-context", content: fileContent };
+
+    workerQueue.enqueue<ContextParsingResponse>(
+        contextRequest,
+        onSuccess);
+}
+
+function enqueueConceptComputation(workerQueue: LatticeWorkerQueue) {
+    const conceptsRequest: ConceptComputationRequest = { type: "concepts" };
+
+    workerQueue.enqueue<ConceptComputationResponse>(
+        conceptsRequest,
+        (response: ConceptComputationResponse) => {
+            useDataStructuresStore.getState().setConcepts(response.concepts);
+            useProjectStore.getState().updateStatusItem(
+                response.jobId,
+                { isDone: true, endTime: new Date().getTime(), time: response.computationTime });
+        },
+        {
+            onStatusMessage: useProjectStore.getState().setProgressMessage,
+            onProgress: (jobId, progress) => useProjectStore.getState().updateStatusItem(jobId, { progress }),
+            onStart: (jobId) => useProjectStore.getState().addStatusItem(jobId, "Concepts computation"),
+        });
+}
+
+function enqueueLatticeComputation(workerQueue: LatticeWorkerQueue) {
+    const latticeRequest: LatticeComputationRequest = { type: "lattice" };
+
+    workerQueue.enqueue<LatticeComputationResponse>(
+        latticeRequest,
+        (response: LatticeComputationResponse) => {
+            useDataStructuresStore.getState().setLattice(response.lattice);
+            useProjectStore.getState().updateStatusItem(response.jobId, { isDone: true, endTime: new Date().getTime(), time: response.computationTime });
+        },
+        {
+            onStatusMessage: useProjectStore.getState().setProgressMessage,
+            onProgress: (jobId, progress) => useProjectStore.getState().updateStatusItem(jobId, { progress }),
+            onStart: (jobId) => useProjectStore.getState().addStatusItem(jobId, "Lattice computation"),
+        });
+}
+
+function enqueueLayoutComputation(workerQueue: LatticeWorkerQueue, state: DiagramLayoutState) {
     const layoutRequest: LayoutComputationRequest = {
         type: "layout",
         upperConeOnlyConceptIndex: state.displayHighlightedSublatticeOnly ? state.upperConeOnlyConceptIndex : null,
@@ -122,15 +160,12 @@ export function triggerLayoutComputation(state: DiagramLayoutState) {
                 response.jobId,
                 { isDone: true, endTime: new Date().getTime(), time: response.computationTime });
         },
-        useProjectStore.getState().setProgressMessage,
-        (jobId, progress) => useProjectStore.getState().updateStatusItem(jobId, { progress }),
-        (jobId) => useProjectStore.getState().addStatusItem(jobId, "Diagram layout computation"),
-        (jobId) => useProjectStore.getState().removeStatusItem(jobId));
+        {
+            onStatusMessage: useProjectStore.getState().setProgressMessage,
+            onProgress: (jobId, progress) => useProjectStore.getState().updateStatusItem(jobId, { progress }),
+            onStart: (jobId) => useProjectStore.getState().addStatusItem(jobId, "Diagram layout computation"),
+            onCancel: (jobId) => useProjectStore.getState().removeStatusItem(jobId)
+        });
 
     useDiagramStore.getState().setCurrentLayoutJobId(jobId, state);
-}
-
-export function triggerCancellation(jobId: number) {
-    useProjectStore.getState().workerQueue.cancelJob(jobId);
-    useDiagramStore.getState().setCurrentLayoutJobId(null, null);
 }

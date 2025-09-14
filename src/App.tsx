@@ -10,6 +10,7 @@ import RootLayout from "./components/layouts/RootLayout";
 import useMediaQuery from "./hooks/useMediaQuery";
 import { useEffect } from "react";
 import useGlobalsStore from "./stores/useGlobalsStore";
+import { Toasts } from "./components/toast";
 
 const router = createBrowserRouter([
     {
@@ -52,6 +53,7 @@ export default function App() {
         <>
             <ThemeController />
             <RouterProvider router={router} />
+            <Toasts />
         </>
     );
 }

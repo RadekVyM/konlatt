@@ -12,6 +12,7 @@ export type DialogProps = {
 
 export function Dialog(props: {
     ref: React.RefObject<HTMLDialogElement | null>,
+    disabled?: boolean,
 } & DialogProps) {
     if (!props.state.isOpen) {
         return undefined;
@@ -22,7 +23,12 @@ export function Dialog(props: {
             <dialog
                 ref={props.ref}
                 onCancel={async (e) => {
+                    e.stopPropagation();
                     e.preventDefault();
+
+                    if (props.disabled) {
+                        return;
+                    }
 
                     if (!e.bubbles) {
                         // I want to hide the dialog only when the ESC key is pressed on the dialog.
@@ -41,7 +47,8 @@ export function Dialog(props: {
                     "bg-transparent backdrop:backdrop-blur-sm backdrop:bg-[rgba(27,30,39,0.5)] dark:backdrop:bg-[rgba(23,25,32,0.8)]",
                     "window-controls-overlay:backdrop:bg-transparent",
                     props.outerClassName,
-                    props.state.animationClass)}>
+                    props.state.animationClass)}
+                aria-disabled={props.disabled}>
                 <article
                     className={cn("border border-outline-variant m-auto w-full window-controls-overlay:drop-shadow-2xl shadow-shade", props.className)}>
                     {props.children}

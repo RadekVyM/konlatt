@@ -11,6 +11,7 @@ export function FileSelection(props: {
     accept?: string,
     fileType?: string,
     file: File | null | undefined,
+    disabled?: boolean,
     onFileSelect: (file: File | null | undefined) => void,
 }) {
     return (
@@ -19,7 +20,8 @@ export function FileSelection(props: {
             onFileSelect={props.onFileSelect}
             accept={props.accept}
             fileType={props.fileType}
-            variant="container">
+            variant="container"
+            disabled={props.disabled}>
             <LuFile
                 className="w-4 h-4"/>
             <span className="truncate">{props.file?.name || "Choose file"}</span>
@@ -33,6 +35,7 @@ export function LargeFileSelection(props: {
     accept?: string,
     fileType?: string,
     file: File | null | undefined,
+    disabled?: boolean,
     onFileSelect: (file: File | null | undefined) => void,
 }) {
     return (
@@ -43,7 +46,8 @@ export function LargeFileSelection(props: {
                 props.className)}
             onFileSelect={props.onFileSelect}
             accept={props.accept}
-            fileType={props.fileType}>
+            fileType={props.fileType}
+            disabled={props.disabled}>
             <div
                 className="grid grid-flow-row justify-items-center gap-y-4">
                 <LuFileUp
@@ -61,6 +65,7 @@ function FileSelectionBase(props: {
     children?: React.ReactNode,
     accept?: string,
     fileType?: string,
+    disabled?: boolean,
     onFileSelect: (file: File | null | undefined) => void,
 } & VariantProps<typeof buttonVariants>) {
     const inputRef = useRef<HTMLInputElement>(null);
@@ -91,7 +96,8 @@ function FileSelectionBase(props: {
                 onDragLeave={() => setIsDragOver(false)}
                 onPointerLeave={() => setIsDragOver(false)}
                 onDrop={onDrop}
-                onClick={() => inputRef.current?.click()}>
+                onClick={() => inputRef.current?.click()}
+                disabled={props.disabled}>
                 {props.children}
             </Button>
 
@@ -106,7 +112,8 @@ function FileSelectionBase(props: {
                     if (item) {
                         props.onFileSelect(item);
                     }
-                }} />
+                }}
+                disabled={props.disabled} />
         </>
     )
 }

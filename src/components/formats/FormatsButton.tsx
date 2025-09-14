@@ -6,6 +6,7 @@ import FormatsDialog from "./FormatsDialog";
 export default function FormatsButton(props: {
     className?: string,
     withText?: boolean,
+    disabled?: boolean,
 }) {
     const dialogState = useDialog();
 
@@ -15,7 +16,8 @@ export default function FormatsButton(props: {
                 className={props.className}
                 title={!props.withText ? "Supported formats" : undefined}
                 variant={props.withText ? "container" : "icon-container"}
-                onClick={dialogState.show}>
+                onClick={dialogState.show}
+                disabled={props.disabled}>
                 <LuInfo />
                 {props.withText &&
                     <span className="text-sm leading-4">Supported formats</span>}

@@ -9,6 +9,7 @@ import TEALADY_URL from "../assets/datasets/tealady.cxt?url"
 import Button from "./inputs/Button";
 import { triggerInitialization } from "../services/triggers";
 import { cn } from "../utils/tailwind";
+import { useState } from "react";
 
 type Dataset = {
     name: string,
@@ -47,6 +48,7 @@ const DATASETS: Array<Dataset> = [
 export default function DemoDatasetsDialog(props: {
     state: DialogState,
 }) {
+    const [disabled, setDisabled] = useState(false);
     const navigate = useNavigate();
 
     async function onDatasetClick(dataset: Dataset) {
@@ -54,14 +56,21 @@ export default function DemoDatasetsDialog(props: {
             const response = await fetch(dataset.url);
             const text = await response.text();
 
-            navigate("/project/context", { replace: true });
-            triggerInitialization(text, dataset.name);
+            setDisabled(true);
+    
+            triggerInitialization(
+                text,
+                dataset.name,
+                async () => {
+                    navigate("/project/context", { replace: true });
+                    setDisabled(false);
+                    await props.state.hide();
+                });
         }
         catch (e) {
             console.error(e);
+            await props.state.hide();
         }
-
-        await props.state.hide();
     }
 
     return (
@@ -82,7 +91,8 @@ export default function DemoDatasetsDialog(props: {
                                 index < DATASETS.length - 1 && "border-b border-outline-variant")}>
                             <Button
                                 className="w-full text-start py-2"
-                                onClick={async () => await onDatasetClick(dataset)}>
+                                onClick={async () => await onDatasetClick(dataset)}
+                                disabled={disabled}>
                                 <div>
                                     <h3
                                         className="font-semibold mb-1">

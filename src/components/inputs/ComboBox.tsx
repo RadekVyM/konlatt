@@ -15,6 +15,7 @@ export default function ComboBox<KeyT extends string>(props: {
     items: Array<ComboBoxItem<KeyT>>,
     className?: string,
     selectedKey: KeyT,
+    disabled?: boolean,
     onKeySelectionChange: (key: KeyT) => void,
 }) {
     const divRef = useRef<HTMLDivElement>(null);
@@ -23,6 +24,10 @@ export default function ComboBox<KeyT extends string>(props: {
     const id = `${props.id}-combobox`;
 
     function onButtonKeyDown(e: React.KeyboardEvent<HTMLButtonElement>) {
+        if (props.disabled) {
+            return;
+        }
+
         if (e.key === "ArrowDown" || e.key === "ArrowUp") {
             e.preventDefault();
             showPopover();
@@ -36,6 +41,10 @@ export default function ComboBox<KeyT extends string>(props: {
             ref={divRef}
             className={cn("relative select-none", props.className)}
             onKeyDownCapture={(e) => {
+                if (props.disabled) {
+                    return;
+                }
+
                 if (e.key === "Escape" && isOpen) {
                     e.preventDefault();
                     e.stopPropagation();
@@ -51,7 +60,8 @@ export default function ComboBox<KeyT extends string>(props: {
                 aria-expanded={isOpen}
                 aria-controls={id}
                 onClick={togglePopover}
-                onKeyDown={onButtonKeyDown}>
+                onKeyDown={onButtonKeyDown}
+                disabled={props.disabled}>
                 <span
                     id={`${id}-label`}
                     className="flex-1 text-start">
@@ -83,10 +93,18 @@ export default function ComboBox<KeyT extends string>(props: {
                             "focus-within:bg-surface-dim-container focus-within:text-on-surface-dim-container",
                             "hover:bg-surface-light-dim-container hover:text-on-surface-dim-container")}
                         onPointerDown={() => {
+                            if (props.disabled) {
+                                return;
+                            }
+
                             props.onKeySelectionChange(item.key);
                             closePopover();
                         }}
                         onKeyUp={(e) => {
+                            if (props.disabled) {
+                                return;
+                            }
+
                             if (e.key === "Enter") {
                                 closePopover();
                             }
@@ -97,7 +115,14 @@ export default function ComboBox<KeyT extends string>(props: {
                             id={`${id}-${item.key}`}
                             value={item.key}
                             checked={props.selectedKey === item.key}
-                            onChange={(e) => props.onKeySelectionChange(e.currentTarget.value as KeyT)} />
+                            onChange={(e) => {
+                                if (props.disabled) {
+                                    return;
+                                }
+
+                                props.onKeySelectionChange(e.currentTarget.value as KeyT);
+                            }}
+                            disabled={props.disabled} />
                         <label
                             className="flex-1 py-0.5 px-2 cursor-pointer"
                             htmlFor={`${id}-${item.key}`}>

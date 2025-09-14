@@ -8,127 +8,157 @@ import LatticeWorker from "../workers/latticeWorker?worker";
 // When a new file is loaded, new worker is created and the old one destroyed
 
 export default class LatticeWorkerQueue {
-    private worker: Worker | null = null;
-    private lastId: number = 0;
-    private queue: Array<Job> = [];
-    private currentJob: Job | null  = null;
+    #worker: Worker | null = null;
+    #lastId: number = 0;
+    #queue: Array<Job> = [];
+    #currentJob: Job | null  = null;
 
-    public enqueue<T extends WorkerResponse>(
+    enqueue<T extends WorkerResponse>(
         request: WorkerRequest,
-        responseCallback: (response: T) => void,
-        statusMessageCallback?: (message: string | null) => void,
-        progressCallback?: (jobId: number, progress: number) => void,
-        startCallback?: (jobId: number) => void,
-        cancelCallback?: (jobId: number) => void,
+        onResponse: (response: T) => void,
+        callbacks?: {
+            onStatusMessage?: (message: string | null) => void,
+            onProgress?: (jobId: number, progress: number) => void,
+            onStart?: (jobId: number) => void,
+            onCancel?: (jobId: number) => void,
+        },
     ): number {
-        this.lastId++;
-        const jobId = this.lastId;
+        this.#lastId++;
+        const jobId = this.#lastId;
 
         const job: Job = {
             id: jobId,
             request,
-            responseCallback,
-            statusMessageCallback,
-            progressCallback,
-            startCallback,
-            cancelCallback,
+            responseCallback: onResponse,
+            statusMessageCallback: callbacks?.onStatusMessage,
+            progressCallback: callbacks?.onProgress,
+            startCallback: callbacks?.onStart,
+            cancelCallback: callbacks?.onCancel,
         };
 
-        this.queue.push(job);
-        this.next();
+        this.#queue.push(job);
+        this.#next();
 
         return jobId;
     }
 
-    public cancelJob(jobId: number) {
-        if (this.currentJob !== null && this.currentJob.id === jobId) {
+    cancelJob(jobId: number) {
+        if (this.#currentJob !== null && this.#currentJob.id === jobId) {
             const request: CancellationRequest = {
                 jobId,
                 type: "cancel",
             };
-            this.worker?.postMessage(request);
+            this.#worker?.postMessage(request);
 
-            if (this.currentJob.cancelCallback) {
-                this.currentJob.cancelCallback(this.currentJob.id);
+            if (this.#currentJob.cancelCallback) {
+                this.#currentJob.cancelCallback(this.#currentJob.id);
             }
-            if (this.currentJob.statusMessageCallback) {
-                this.currentJob.statusMessageCallback(null);
+            if (this.#currentJob.statusMessageCallback) {
+                this.#currentJob.statusMessageCallback(null);
             }
-            this.currentJob = null;
-            this.next();
+            this.#currentJob = null;
+            this.#next();
         }
         else {
-            this.queue = this.queue.filter((j) => j.id !== jobId);
+            this.#queue = this.#queue.filter((j) => j.id !== jobId);
         }
     }
 
-    public reset() {
-        this.worker?.terminate();
+    cancelAllJobs() {
+        if (this.#currentJob !== null) {
+            const request: CancellationRequest = {
+                jobId: this.#currentJob.id,
+                type: "cancel",
+            };
+            this.#worker?.postMessage(request);
 
-        this.lastId = 0;
-        this.currentJob = null;
-        this.queue = [];
+            if (this.#currentJob.cancelCallback) {
+                this.#currentJob.cancelCallback(this.#currentJob.id);
+            }
+            if (this.#currentJob.statusMessageCallback) {
+                this.#currentJob.statusMessageCallback(null);
+            }
+            this.#currentJob = null;
+        }
 
-        this.worker = new LatticeWorker();
-        this.worker.addEventListener("message", (e) => this.onResponse(e));
+        this.#queue = [];
     }
 
-    private next() {
-        if (this.queue.length === 0 || this.currentJob) {
+    setup() {
+        this.#worker?.terminate();
+
+        this.#lastId = 0;
+        this.#currentJob = null;
+        this.#queue = [];
+
+        this.#worker = new LatticeWorker();
+        this.#worker.addEventListener("message", (e) => this.#onResponse(e));
+    }
+
+    dispose() {
+        this.#worker?.terminate();
+
+        this.#lastId = 0;
+        this.#currentJob = null;
+        this.#queue = [];
+    }
+
+    #next() {
+        if (this.#queue.length === 0 || this.#currentJob) {
             return;
         }
 
-        this.currentJob = this.queue.shift() || null;
+        this.#currentJob = this.#queue.shift() || null;
         
-        if (this.currentJob) {
+        if (this.#currentJob) {
             const request: CompleteWorkerRequest = {
-                jobId: this.currentJob.id,
+                jobId: this.#currentJob.id,
                 time: new Date().getTime(),
-                ...this.currentJob.request
+                ...this.#currentJob.request
             };
 
-            if (!this.worker) {
+            if (!this.#worker) {
                 throw new Error("Worker is not initialized");
             }
 
-            this.worker.postMessage(request);
+            this.#worker.postMessage(request);
             
-            if (this.currentJob.startCallback) {
-                this.currentJob.startCallback(this.currentJob.id);
+            if (this.#currentJob.startCallback) {
+                this.#currentJob.startCallback(this.#currentJob.id);
             }
         }
     }
 
-    private onResponse(e: MessageEvent<WorkerResponse>) {
+    #onResponse(e: MessageEvent<WorkerResponse>) {
         // ignore responses with jobId !== this.currentJob.id
         // or suppose that these responses do not exist?
 
-        if (e.data.jobId !== this.currentJob?.id) {
+        if (e.data.jobId !== this.#currentJob?.id) {
             return;
         }
 
         switch (e.data.type) {
             case "status":
-                if (this.currentJob?.statusMessageCallback) {
-                    this.currentJob?.statusMessageCallback(e.data.message);
+                if (this.#currentJob?.statusMessageCallback) {
+                    this.#currentJob?.statusMessageCallback(e.data.message);
                 }
                 break;
             case "progress":
-                if (this.currentJob?.progressCallback) {
-                    this.currentJob?.progressCallback(this.currentJob.id, e.data.progress);
+                if (this.#currentJob?.progressCallback) {
+                    this.#currentJob?.progressCallback(this.#currentJob.id, e.data.progress);
                 }
                 break;
             case "finished":
-                this.currentJob = null;
-                this.next();
+                this.#currentJob = null;
+                this.#next();
                 break;
             case "data-request":
                 const request = createRequestWithData(e.data);
-                this.worker?.postMessage(request);
+                this.#worker?.postMessage(request);
                 break;
             default:
                 console.log(`[${e.data.type}] receiving response: ${new Date().getTime() - e.data.time} ms`);
-                this.currentJob?.responseCallback(e.data);
+                this.#currentJob?.responseCallback(e.data);
                 break;
         }
     }

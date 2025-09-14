@@ -7,12 +7,21 @@ type ProjectStore = {
     name: string | null,
     workerQueue: LatticeWorkerQueue,
     statusItems: Array<StatusItem>,
+    replaceWorkerQueue: (workerQueue: LatticeWorkerQueue) => void,
     setProgressMessage: (progressMessage: string | null) => void,
     setName: (name: string) => void,
     clearStatusItems: () => void,
-    addStatusItem: (jobId: number, title: string, showProgress?: boolean) => void,
+    addStatusItem: (jobId: number, title: string, rest?: StatusItemOptions) => void,
     updateStatusItem: (jobId: number, item: Partial<StatusItem>) => void,
     removeStatusItem: (jobId: number) => void,
+}
+
+type StatusItemOptions = {
+    isDone?: boolean,
+    showProgress?: boolean,
+    progress?: number,
+    startTime?: number,
+    endTime?: number,
 }
 
 const useProjectStore = create<ProjectStore>((set) => ({
@@ -20,19 +29,27 @@ const useProjectStore = create<ProjectStore>((set) => ({
     name: null,
     workerQueue: new LatticeWorkerQueue(),
     statusItems: [],
+    replaceWorkerQueue: (workerQueue) => set((old) => {
+        old.workerQueue.dispose();
+        return { workerQueue };
+    }),
     setProgressMessage: (progressMessage) => set(() => ({ progressMessage })),
     setName: (file) => set(() => ({ name: file })),
     clearStatusItems: () => set(() => ({ statusItems: [] })),
-    addStatusItem: (jobId: number, title: string, showProgress: boolean = true) => set((state) => ({
+    addStatusItem: (
+        jobId: number,
+        title: string,
+        rest?: StatusItemOptions
+    ) => set((state) => ({
         statusItems: [
             {
                 jobId,
                 title,
-                isDone: false,
-                showProgress,
-                progress: 0,
-                startTime: new Date().getTime(),
-                endTime: -1
+                isDone: rest?.isDone ?? false,
+                showProgress: rest?.showProgress ?? true,
+                progress: rest?.progress ?? 0,
+                startTime: rest?.startTime ?? new Date().getTime(),
+                endTime: rest?.endTime ?? -1
             },
             ...state.statusItems]
     })),

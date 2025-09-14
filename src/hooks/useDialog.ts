@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { DialogState } from "../types/DialogState";
+import { dispatchTopLayerChanged } from "../components/toast";
 
 const ANIMATION_LENGTH = 150;
 
@@ -18,6 +19,8 @@ export default function useDialog(
         else {
             dialogRef.current?.close();
         }
+
+        dispatchTopLayerChanged();
     }, [isOpen]);
 
     function show(): Promise<void> {

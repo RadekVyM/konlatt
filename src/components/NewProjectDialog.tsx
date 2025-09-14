@@ -26,9 +26,12 @@ export default function NewProjectDialog(props: {
     const navigate = useNavigate();
     const { selectedFile, setSelectedFile } = useNewProjectStore();
     const [selectedFileType, setSelectedFileType] = useState<string>(DEFAULT_FILE_TYPE);
+    const [disabled, setDisabled] = useState(false);
     const datasetsDialogState = useDialog();
 
     useEffect(() => {
+        setDisabled(false);
+
         if (!props.state.isOpen) {
             setSelectedFile(null);
             setSelectedFileType(DEFAULT_FILE_TYPE);
@@ -40,9 +43,16 @@ export default function NewProjectDialog(props: {
             return;
         }
 
-        navigate("/project/context", { replace: true });
-        triggerInitialization(await selectedFile.text(), withoutExtension(selectedFile.name));
-        await props.state.hide();
+        setDisabled(true);
+
+        triggerInitialization(
+            await selectedFile.text(),
+            withoutExtension(selectedFile.name),
+            async () => {
+                navigate("/project/context", { replace: true });
+                setDisabled(false);
+                await props.state.hide();
+            });
     }
 
     return (
@@ -51,7 +61,8 @@ export default function NewProjectDialog(props: {
                 ref={props.state.dialogRef}
                 state={props.state}
                 heading="New project"
-                className="w-full max-w-xl max-h-full rounded-md">
+                className="w-full max-w-xl max-h-full rounded-md"
+                disabled={disabled}>
                 <div
                     className="pt-2">
                     {!selectedFile ?
@@ -60,7 +71,8 @@ export default function NewProjectDialog(props: {
                                 className="w-full mb-3"
                                 accept={FILE_INPUT_ACCEPT}
                                 file={selectedFile}
-                                onFileSelect={setSelectedFile} />
+                                onFileSelect={setSelectedFile}
+                                disabled={disabled} />
 
                             <div
                                 className="grid grid-cols-2 justify-items-stretch gap-3">
@@ -80,7 +92,8 @@ export default function NewProjectDialog(props: {
                                 className="mb-4"
                                 accept={FILE_INPUT_ACCEPT}
                                 file={selectedFile}
-                                onFileSelect={setSelectedFile}>
+                                onFileSelect={setSelectedFile}
+                                disabled={disabled}>
                                 {selectedFile?.name || "Choose file"}
                             </FileSelection>
 
@@ -93,15 +106,17 @@ export default function NewProjectDialog(props: {
                                     className="flex-1"
                                     onKeySelectionChange={setSelectedFileType}
                                     selectedKey={selectedFileType}
-                                    items={FILE_TYPES} />
-                                <FormatsButton />
+                                    items={FILE_TYPES}
+                                    disabled={disabled} />
+                                <FormatsButton
+                                    disabled={disabled} />
                             </div>
 
                             <Button
                                 variant="primary"
                                 className="ml-auto"
                                 onClick={onCreateClick}
-                                disabled={!selectedFile}>
+                                disabled={!selectedFile || disabled}>
                                 <LuCheck /> Create project
                             </Button>
                         </>}
