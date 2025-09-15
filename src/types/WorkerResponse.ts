@@ -4,7 +4,12 @@ import { FormalConcepts } from "./FormalConcepts";
 import { ConceptLatticeLayout } from "./ConceptLatticeLayout";
 import { CompleteWorkerRequest } from "./WorkerRequest";
 
-export type WorkerResponse = FinishedResponse | StatusResponse | ProgressResponse | ContextParsingResponse | ConceptComputationResponse | LatticeComputationResponse | LayoutComputationResponse | WorkerDataRequestResponse
+export type WorkerResponse = ErrorResponse | FinishedResponse | StatusResponse | ProgressResponse | ContextParsingResponse | ConceptComputationResponse | LatticeComputationResponse | LayoutComputationResponse | WorkerDataRequestResponse
+
+export type ErrorResponse = {
+    type: "error",
+    message: string | null,
+} & BaseResponse
 
 export type FinishedResponse = {
     type: "finished",
@@ -12,17 +17,17 @@ export type FinishedResponse = {
 
 export type StatusResponse = {
     type: "status",
-    message: string | null
+    message: string | null,
 } & BaseResponse
 
 export type ProgressResponse = {
     type: "progress",
-    progress: number
+    progress: number,
 } & BaseResponse
 
 export type ContextParsingResponse = {
     type: "parse-context",
-    context: FormalContext
+    context: FormalContext,
 } & BaseResponse
 
 export type ConceptComputationResponse = {

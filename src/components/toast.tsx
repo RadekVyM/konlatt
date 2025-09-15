@@ -80,7 +80,7 @@ export function Toasts() {
         <ul
             ref={containerRef}
             popover="manual"
-            className="fixed inset-auto right-0 bottom-0 backdrop:hidden bg-transparent pointer-events-none p-6 w-[min(100%,calc(var(--spacing,0.25rem)*80))]">
+            className="fixed inset-auto right-0 bottom-0 backdrop:hidden bg-transparent pointer-events-none p-6 w-[min(100%,calc(var(--spacing,0.25rem)*80))] flex flex-col gap-2">
             {toasts.map((t) =>
                 <Toast
                     key={t.id}
@@ -96,7 +96,7 @@ function Toast(props: {
 }) {
     return (
         <Container
-            className={cn("pointer-events-auto drop-shadow-2xl pl-3 pr-2 py-2 w-full grid grid-cols-[auto_1fr_auto] gap-2.5 items-center", props.className)}
+            className={cn("pointer-events-auto drop-shadow-lg drop-shadow-shade pl-3 pr-2 py-2 w-full grid grid-cols-[auto_1fr_auto] gap-2.5 items-center", props.className)}
             as="li">
             <LuCircleAlert
                 className="text-on-danger bg-danger rounded-full p-0.5 w-5 h-5" />
@@ -107,6 +107,7 @@ function Toast(props: {
 
             {props.onCloseClick &&
                 <Button
+                    className="pointer-events-auto"
                     variant="icon-default"
                     size="sm"
                     onClick={props.onCloseClick}>

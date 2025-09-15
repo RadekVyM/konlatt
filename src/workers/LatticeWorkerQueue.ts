@@ -18,6 +18,7 @@ export default class LatticeWorkerQueue {
         onResponse: (response: T) => void,
         callbacks?: {
             onStatusMessage?: (message: string | null) => void,
+            onError?: (jobId: number, message: string | null) => void,
             onProgress?: (jobId: number, progress: number) => void,
             onStart?: (jobId: number) => void,
             onCancel?: (jobId: number) => void,
@@ -31,6 +32,7 @@ export default class LatticeWorkerQueue {
             request,
             responseCallback: onResponse,
             statusMessageCallback: callbacks?.onStatusMessage,
+            errorCallback: callbacks?.onError,
             progressCallback: callbacks?.onProgress,
             startCallback: callbacks?.onStart,
             cancelCallback: callbacks?.onCancel,
@@ -97,6 +99,7 @@ export default class LatticeWorkerQueue {
 
     dispose() {
         this.#worker?.terminate();
+        this.#worker = null;
 
         this.#lastId = 0;
         this.#currentJob = null;
@@ -139,14 +142,10 @@ export default class LatticeWorkerQueue {
 
         switch (e.data.type) {
             case "status":
-                if (this.#currentJob?.statusMessageCallback) {
-                    this.#currentJob?.statusMessageCallback(e.data.message);
-                }
+                this.#currentJob?.statusMessageCallback?.(e.data.message);
                 break;
             case "progress":
-                if (this.#currentJob?.progressCallback) {
-                    this.#currentJob?.progressCallback(this.#currentJob.id, e.data.progress);
-                }
+                this.#currentJob?.progressCallback?.(this.#currentJob.id, e.data.progress);
                 break;
             case "finished":
                 this.#currentJob = null;
@@ -155,6 +154,11 @@ export default class LatticeWorkerQueue {
             case "data-request":
                 const request = createRequestWithData(e.data);
                 this.#worker?.postMessage(request);
+                break;
+            case "error":
+                this.#currentJob?.errorCallback?.(this.#currentJob.id, e.data.message);
+                this.#currentJob = null;
+                this.#next();
                 break;
             default:
                 console.log(`[${e.data.type}] receiving response: ${new Date().getTime() - e.data.time} ms`);
@@ -172,6 +176,7 @@ type Job = {
     readonly progressCallback?: (jobId: number, progress: number) => void,
     readonly startCallback?: (jobId: number) => void,
     readonly cancelCallback?: (jobId: number) => void,
+    readonly errorCallback?: (jobId: number, message: string | null) => void,
 }
 
 function createRequestWithData(response: WorkerDataRequestResponse) {

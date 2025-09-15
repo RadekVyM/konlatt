@@ -52,7 +52,8 @@ export default function NewProjectDialog(props: {
                 navigate("/project/context", { replace: true });
                 setDisabled(false);
                 await props.state.hide();
-            });
+            },
+            () => setDisabled(false));
     }
 
     return (

@@ -15,11 +15,13 @@ import useExportDiagramStore from "../stores/export/useExportDiagramStore";
 import useExportObjectsStore from "../stores/export/useExportObjectsStore";
 import useExportObjectStore from "../stores/export/useExportObjectStore";
 import LatticeWorkerQueue from "../workers/LatticeWorkerQueue";
+import toast from "../components/toast";
 
 export async function triggerInitialization(
     fileContent: string,
     name: string,
     onSuccess?: () => void,
+    onError?: () => void,
 ) {
     const newWorkerQueue = new LatticeWorkerQueue();
     newWorkerQueue.setup();
@@ -62,6 +64,14 @@ export async function triggerInitialization(
         triggerLayoutComputation({ ...useDiagramStore.getState() });
 
         onSuccess?.();
+    }, (message) => {
+        newWorkerQueue.cancelAllJobs();
+        newWorkerQueue.dispose();
+
+        // TODO: Handle this better
+        toast(message || "File parsing failed");
+
+        onError?.();
     });
 }
 
@@ -91,12 +101,20 @@ export function triggerCancellation(jobId: number) {
     useDiagramStore.getState().setCurrentLayoutJobId(null, null);
 }
 
-function enqueFileParsing(workerQueue: LatticeWorkerQueue, fileContent: string, onSuccess: (response: ContextParsingResponse) => void) {
+function enqueFileParsing(
+    workerQueue: LatticeWorkerQueue,
+    fileContent: string,
+    onSuccess: (response: ContextParsingResponse) => void,
+    onError: (message: string | null) => void,
+) {
     const contextRequest: ContextParsingRequest = { type: "parse-context", content: fileContent };
 
     workerQueue.enqueue<ContextParsingResponse>(
         contextRequest,
-        onSuccess);
+        onSuccess,
+        {
+            onError: (_jobId, message) => onError(message),
+        });
 }
 
 function enqueueConceptComputation(workerQueue: LatticeWorkerQueue) {
@@ -114,6 +132,17 @@ function enqueueConceptComputation(workerQueue: LatticeWorkerQueue) {
             onStatusMessage: useProjectStore.getState().setProgressMessage,
             onProgress: (jobId, progress) => useProjectStore.getState().updateStatusItem(jobId, { progress }),
             onStart: (jobId) => useProjectStore.getState().addStatusItem(jobId, "Concepts computation"),
+            onError: (jobId, message) => {
+                useProjectStore.getState().workerQueue.cancelAllJobs();
+                useProjectStore.getState().workerQueue.dispose();
+
+                // TODO: Add error state for the status messages
+                useProjectStore.getState().updateStatusItem(
+                    jobId,
+                    { isDone: true, endTime: new Date().getTime() });
+
+                toast(message || "Concept computation failed");
+            },
         });
 }
 
@@ -130,6 +159,17 @@ function enqueueLatticeComputation(workerQueue: LatticeWorkerQueue) {
             onStatusMessage: useProjectStore.getState().setProgressMessage,
             onProgress: (jobId, progress) => useProjectStore.getState().updateStatusItem(jobId, { progress }),
             onStart: (jobId) => useProjectStore.getState().addStatusItem(jobId, "Lattice computation"),
+            onError: (jobId, message) => {
+                useProjectStore.getState().workerQueue.cancelAllJobs();
+                useProjectStore.getState().workerQueue.dispose();
+
+                // TODO: Add error state for the status messages
+                useProjectStore.getState().updateStatusItem(
+                    jobId,
+                    { isDone: true, endTime: new Date().getTime() });
+
+                toast(message || "Lattice computation failed");
+            },
         });
 }
 
@@ -164,7 +204,15 @@ function enqueueLayoutComputation(workerQueue: LatticeWorkerQueue, state: Diagra
             onStatusMessage: useProjectStore.getState().setProgressMessage,
             onProgress: (jobId, progress) => useProjectStore.getState().updateStatusItem(jobId, { progress }),
             onStart: (jobId) => useProjectStore.getState().addStatusItem(jobId, "Diagram layout computation"),
-            onCancel: (jobId) => useProjectStore.getState().removeStatusItem(jobId)
+            onCancel: (jobId) => useProjectStore.getState().removeStatusItem(jobId),
+            onError: (jobId, message) => {
+                // TODO: Add error state for the status messages
+                useProjectStore.getState().updateStatusItem(
+                    jobId,
+                    { isDone: true, endTime: new Date().getTime() });
+
+                toast(message || "Layout computation failed");
+            },
         });
 
     useDiagramStore.getState().setCurrentLayoutJobId(jobId, state);

@@ -1,6 +1,6 @@
 import { ConceptLattice } from "../types/ConceptLattice";
 import { CompleteLayoutComputationRequest, CompleteWorkerRequest } from "../types/WorkerRequest";
-import { ConceptComputationResponse, ContextParsingResponse, FinishedResponse, LatticeComputationResponse, LayoutComputationResponse, ProgressResponse, StatusResponse, WorkerDataRequestObject, WorkerDataRequestResponse } from "../types/WorkerResponse";
+import { ConceptComputationResponse, ContextParsingResponse, ErrorResponse, FinishedResponse, LatticeComputationResponse, LayoutComputationResponse, ProgressResponse, StatusResponse, WorkerDataRequestObject, WorkerDataRequestResponse } from "../types/WorkerResponse";
 import { FormalContext } from "../types/FormalContext";
 import { FormalConcepts, getInfimum, getSupremum } from "../types/FormalConcepts";
 import DiagramLayoutWorker from "./diagramLayoutWorker?worker";
@@ -71,8 +71,8 @@ self.onmessage = async (event: MessageEvent<CompleteWorkerRequest>) => {
             return;
         }
 
-        // TODO: Handle errors
         console.warn(error);
+        postError(event.data.jobId, error);
 
         return;
     }
@@ -209,6 +209,17 @@ function postFinished(jobId: number) {
     };
 
     self.postMessage(finishedResponse);
+}
+
+function postError(jobId: number, error?: any) {
+    const errorResponse: ErrorResponse = {
+        jobId,
+        time: new Date().getTime(),
+        type: "error",
+        message: error?.message || null,
+    };
+
+    self.postMessage(errorResponse);
 }
 
 function createContextParsingResponse(jobId: number, context: FormalContext): ContextParsingResponse {

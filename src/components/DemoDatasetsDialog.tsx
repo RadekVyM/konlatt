@@ -52,25 +52,30 @@ export default function DemoDatasetsDialog(props: {
     const navigate = useNavigate();
 
     async function onDatasetClick(dataset: Dataset) {
+        let text: string;
+
+        setDisabled(true);
+
         try {
             const response = await fetch(dataset.url);
-            const text = await response.text();
-
-            setDisabled(true);
-    
-            triggerInitialization(
-                text,
-                dataset.name,
-                async () => {
-                    navigate("/project/context", { replace: true });
-                    setDisabled(false);
-                    await props.state.hide();
-                });
+            text = await response.text();
         }
         catch (e) {
             console.error(e);
             await props.state.hide();
+            setDisabled(false);
+            return;
         }
+
+        triggerInitialization(
+            text,
+            dataset.name,
+            async () => {
+                navigate("/project/context", { replace: true });
+                setDisabled(false);
+                await props.state.hide();
+            },
+            () => setDisabled(false));
     }
 
     return (
