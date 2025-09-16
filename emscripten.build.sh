@@ -74,7 +74,7 @@ echo "============================================="
     -s EXPORT_ES6=1 \
     -s ASSERTIONS=1 \
     -s EXPORTED_RUNTIME_METHODS=['HEAPU8'] \
-    -fexceptions \
+    -fwasm-exceptions \
     --emit-tsd ./index.d.ts
 
     # TODO: -s ASSERTIONS=1 should probably be deleted in the release version

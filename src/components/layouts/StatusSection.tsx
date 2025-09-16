@@ -1,4 +1,4 @@
-import { LuChevronDown, LuCircleCheck, LuLoaderCircle } from "react-icons/lu";
+import { LuChevronDown, LuCircleAlert, LuCircleCheck, LuLoaderCircle } from "react-icons/lu";
 import useProjectStore from "../../stores/useProjectStore";
 import { cn } from "../../utils/tailwind";
 import { useEffect, useRef, useState } from "react";
@@ -6,6 +6,7 @@ import { StatusItem } from "../../types/StatusItem";
 import useDebouncedValue from "../../hooks/useDebouncedValue";
 import Button from "../inputs/Button";
 import useWindowSizeChangedListener from "../../hooks/useWindowSizeChangedListener";
+import Loop from "../../services/Loop";
 
 export default function StatusSection(props: {
     className?: string,
@@ -139,14 +140,17 @@ function StatusListItem(props: {
             props.item.endTime - props.item.startTime :
             currentTime - props.item.startTime);
 
+    const Icon = props.item.isError ?
+        LuCircleAlert :
+        props.item.isDone ?
+            LuCircleCheck :
+            LuLoaderCircle;
+
     return (
         <li
             className="relative overflow-clip grid grid-rows-[auto_auto] grid-cols-[auto_1fr] gap-x-3 px-2 py-1 bg-surface-light-dim-container rounded-lg">
-            {props.item.isDone ?
-                <LuCircleCheck
-                    className="self-center row-start-1 row-end-3 w-5 h-5 text-primary" /> :
-                <LuLoaderCircle
-                    className="self-center row-start-1 row-end-3 w-5 h-5 text-primary animate-spin" />}
+            <Icon
+                className={cn("self-center row-start-1 row-end-3 w-5 h-5 text-primary", !props.item.isError && !props.item.isDone && "animate-spin")} />
             <span className="text-sm">{props.item.title}</span>
             <span className="row-start-2 row-end-3 text-xs text-on-surface-muted">
                 {time}&nbsp;ms
@@ -168,44 +172,4 @@ function StatusListItem(props: {
                 </div>}
         </li>
     );
-}
-
-class Loop {
-    action: (() => void) | null;
-    isRunning: boolean;
-    delay?: number;
-
-    constructor(action: () => void, delay?: number) {
-        this.action = action;
-        this.isRunning = false;
-        this.delay = delay;
-    }
-
-    start() {
-        this.isRunning = true;
-        this.loop().then();
-    }
-
-    stop() {
-        this.isRunning = false;
-    }
-
-    dispose() {
-        this.action = null;
-    }
-
-    async loop() {
-        if (!this.isRunning) {
-            return;
-        }
-        if (this.action) {
-            this.action();
-        }
-
-        if (this.delay !== undefined) {
-            await new Promise((resolve) => setTimeout(resolve, this.delay));
-        }
-
-        requestAnimationFrame(async () => await this.loop());
-    }
 }

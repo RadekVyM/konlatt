@@ -136,10 +136,14 @@ function enqueueConceptComputation(workerQueue: LatticeWorkerQueue) {
                 useProjectStore.getState().workerQueue.cancelAllJobs();
                 useProjectStore.getState().workerQueue.dispose();
 
-                // TODO: Add error state for the status messages
                 useProjectStore.getState().updateStatusItem(
                     jobId,
-                    { isDone: true, endTime: new Date().getTime() });
+                    {
+                        title: "Failed concepts computation",
+                        isDone: true,
+                        isError: true,
+                        endTime: new Date().getTime()
+                    });
 
                 toast(message || "Concept computation failed");
             },
@@ -163,10 +167,14 @@ function enqueueLatticeComputation(workerQueue: LatticeWorkerQueue) {
                 useProjectStore.getState().workerQueue.cancelAllJobs();
                 useProjectStore.getState().workerQueue.dispose();
 
-                // TODO: Add error state for the status messages
                 useProjectStore.getState().updateStatusItem(
                     jobId,
-                    { isDone: true, endTime: new Date().getTime() });
+                    { 
+                        title: "Failed lattice computation",
+                        isDone: true,
+                        isError: true,
+                        endTime: new Date().getTime()
+                    });
 
                 toast(message || "Lattice computation failed");
             },
@@ -206,10 +214,14 @@ function enqueueLayoutComputation(workerQueue: LatticeWorkerQueue, state: Diagra
             onStart: (jobId) => useProjectStore.getState().addStatusItem(jobId, "Diagram layout computation"),
             onCancel: (jobId) => useProjectStore.getState().removeStatusItem(jobId),
             onError: (jobId, message) => {
-                // TODO: Add error state for the status messages
                 useProjectStore.getState().updateStatusItem(
                     jobId,
-                    { isDone: true, endTime: new Date().getTime() });
+                    {
+                        title: "Failed diagram layout computation",
+                        isDone: true,
+                        isError: true,
+                        endTime: new Date().getTime()
+                    });
 
                 toast(message || "Layout computation failed");
             },

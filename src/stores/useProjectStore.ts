@@ -18,6 +18,7 @@ type ProjectStore = {
 
 type StatusItemOptions = {
     isDone?: boolean,
+    isError?: boolean,
     showProgress?: boolean,
     progress?: number,
     startTime?: number,
@@ -46,6 +47,7 @@ const useProjectStore = create<ProjectStore>((set) => ({
                 jobId,
                 title,
                 isDone: rest?.isDone ?? false,
+                isError: rest?.isError ?? false,
                 showProgress: rest?.showProgress ?? true,
                 progress: rest?.progress ?? 0,
                 startTime: rest?.startTime ?? new Date().getTime(),

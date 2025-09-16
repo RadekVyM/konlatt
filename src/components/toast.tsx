@@ -5,9 +5,12 @@ import { cn } from "../utils/tailwind";
 import { LuCircleAlert, LuX } from "react-icons/lu";
 import Button from "./inputs/Button";
 import useEventListener from "../hooks/useEventListener";
+import Loop from "../services/Loop";
 
 const TOP_LAYER_CHANGED_EVENT_KEY = "top-layer-changed";
 const TOAST_EVENT_KEY = "toast";
+
+const TOAST_AUTOCLOSE_DELAY = 5000;
 
 declare global {
     // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
@@ -85,19 +88,58 @@ export function Toasts() {
                 <Toast
                     key={t.id}
                     title={t.title}
-                    onCloseClick={() => setToasts((old) => old.filter((ot) => ot.id !== t.id))} />)}
+                    onClose={() => setToasts((old) => old.filter((ot) => ot.id !== t.id))} />)}
         </ul>, document.body);
 }
 
 function Toast(props: {
     className?: string,
     title: string,
-    onCloseClick?: () => void,
+    onClose?: () => void,
 }) {
+    const loopRef = useRef<Loop | null>(null);
+    const startTimeRef = useRef<number>(0);
+    const onCloseRef = useRef<() => void>(props.onClose);
+    const [currentTime, setCurrentTime] = useState<number>(0);
+
+    onCloseRef.current = props.onClose;
+
+    useEffect(() => {
+        loopRef.current?.stop();
+        loopRef.current?.dispose();
+        loopRef.current = null;
+
+        startTimeRef.current = new Date().getTime();
+
+        loopRef.current = new Loop(() => {
+            const newTime = new Date().getTime();
+            setCurrentTime(newTime);
+
+            if (newTime - startTimeRef.current >= TOAST_AUTOCLOSE_DELAY) {
+                onCloseRef.current?.();
+
+                loopRef.current?.stop();
+                loopRef.current?.dispose();
+                loopRef.current = null;
+            }
+        });
+        loopRef.current.start();
+    }, []);
+
+    const timeDiff = currentTime - startTimeRef.current;
+    const ratio = timeDiff / TOAST_AUTOCLOSE_DELAY;
+
     return (
         <Container
-            className={cn("pointer-events-auto drop-shadow-lg drop-shadow-shade pl-3 pr-2 py-2 w-full grid grid-cols-[auto_1fr_auto] gap-2.5 items-center", props.className)}
-            as="li">
+            className={cn(
+                "pointer-events-auto drop-shadow-lg drop-shadow-shade pl-3 pr-2 py-2 w-full grid grid-cols-[auto_1fr_auto] gap-2.5 items-center relative overflow-clip",
+                props.className)}
+            as="li"
+            onPointerEnter={() => loopRef.current?.stop()}
+            onPointerLeave={() => {
+                startTimeRef.current += new Date().getTime() - currentTime;
+                loopRef.current?.start();
+            }}>
             <LuCircleAlert
                 className="text-on-danger bg-danger rounded-full p-0.5 w-5 h-5" />
             <h2
@@ -105,14 +147,21 @@ function Toast(props: {
                 {props.title}
             </h2>
 
-            {props.onCloseClick &&
+            {props.onClose &&
                 <Button
                     className="pointer-events-auto"
                     variant="icon-default"
                     size="sm"
-                    onClick={props.onCloseClick}>
+                    onClick={props.onClose}>
                     <LuX />
                 </Button>}
+
+            <div
+                className="absolute left-0 bottom-0 h-[2px] bg-primary rounded-full"
+                style={{
+                    right: `${ratio * 100}%`
+                }}>
+            </div>
         </Container>
     );
 }

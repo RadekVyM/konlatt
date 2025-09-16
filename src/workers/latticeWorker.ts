@@ -108,7 +108,9 @@ async function calculateConcepts(jobId: number, context: FormalContext) {
 
     const { computeConcepts } = await import("../services/conceptComputation");
 
-    const { concepts, computationTime } = await computeConcepts(context, (progress) => postProgressMessage(jobId, progress));
+    const { concepts, computationTime } = await tryThrow(
+        computeConcepts(context, (progress) => postProgressMessage(jobId, progress)),
+        "Concept computation failed");
     formalConcepts = concepts;
     self.postMessage(createConceptComputationResponse(jobId, formalConcepts, computationTime));
 }
@@ -118,7 +120,9 @@ async function calculateLattice(jobId: number, concepts: FormalConcepts, context
 
     const { conceptsToLattice } = await import("../services/latticeComputation");
 
-    const { lattice, computationTime } = await conceptsToLattice(concepts, context, (progress) => postProgressMessage(jobId, progress));
+    const { lattice, computationTime } = await tryThrow(
+        conceptsToLattice(concepts, context, (progress) => postProgressMessage(jobId, progress)),
+        "Lattice computation failed");
     conceptLattice = lattice;
     const latticeMessage: LatticeComputationResponse = {
         jobId,
@@ -146,7 +150,7 @@ async function calculateLayout(
 
     worker.postMessage(request, [request.subconceptsMappingArrayBuffer.buffer]);
 
-    await new Promise((resolve, reject) => {
+    await tryThrow(new Promise((resolve, reject) => {
         workerInstances.set(jobId, { worker, reject });
 
         worker.onmessage = (event) => {
@@ -176,7 +180,7 @@ async function calculateLayout(
             workerInstances.delete(jobId);
             reject(event.error);
         };
-    });
+    }), "Diagram layout computation failed");
 }
 
 function postStatusMessage(jobId: number, message: string | null) {
@@ -324,5 +328,15 @@ function tryGetIncomingData(event: MessageEvent<CompleteWorkerRequest>) {
     }
     if (event.data.lattice) {
         conceptLattice = event.data.lattice;
+    }
+}
+
+async function tryThrow<T>(promise: Promise<T>, message: string) {
+    try {
+        return await promise;
+    }
+    catch (e) {
+        console.error(e);
+        throw new Error(message);
     }
 }
