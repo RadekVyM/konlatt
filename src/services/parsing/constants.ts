@@ -1,0 +1,1 @@
+export const INVALID_FILE_MESSAGE = "Invalid file format.";

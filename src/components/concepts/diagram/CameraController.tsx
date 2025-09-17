@@ -206,7 +206,7 @@ function useZoomActionsSetup(
         const lookAtPoint = transformedPoint(createPoint(point.x, point.y, point.z), offset, [0, 0, 0], horizontalScale, verticalScale, rotationDegrees, cameraType);
         const distance = defaultDistance + lookAtPoint[2];
 
-        cameraControlsRef.current?.setLookAt(lookAtPoint[0], lookAtPoint[1], distance, lookAtPoint[0], lookAtPoint[1], lookAtPoint[2], true).then();
+        cameraControlsRef.current?.setLookAt(lookAtPoint[0], lookAtPoint[1], distance, lookAtPoint[0], lookAtPoint[1], lookAtPoint[2], true);
 
         if (cameraType === "2d") {
             await cameraControlsRef.current?.zoomTo(150, true);

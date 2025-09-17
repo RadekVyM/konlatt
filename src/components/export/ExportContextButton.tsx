@@ -1,8 +1,7 @@
 import useExportContextStore from "../../stores/export/useExportContextStore";
 import useDataStructuresStore from "../../stores/useDataStructuresStore";
-import { CsvSeparator } from "../../types/CsvSeparator";
 import { ContextExportFormat } from "../../types/export/ContextExportFormat";
-import ComboBox from "../inputs/ComboBox";
+import CsvSeparatorSelect from "../CsvSeparatorSelect";
 import createDownloadButtonsComponent from "./createDownloadButtonsComponent";
 import createTextResultPreviewerComponent from "./createTextResultPreviewerComponent";
 import ExportButton from "./ExportButton";
@@ -66,17 +65,10 @@ function CsvOptions() {
                 Separator
             </label>
 
-            <ComboBox<CsvSeparator>
-                id={`csv-separator`}
-                className="w-full"
-                items={[
-                    { key: ",", label: "," },
-                    { key: ";", label: ";" },
-                    { key: "|", label: "|" },
-                    { key: "\t", label: "Tab" },
-                ]}
-                selectedKey={csvSeparator}
-                onKeySelectionChange={setCsvSeparator}  />
+            <CsvSeparatorSelect
+                id={`export-csv-separator`}
+                selectedCsvSeparator={csvSeparator}
+                onCsvSeparatorChange={setCsvSeparator} />
         </div>
     );
 }

@@ -20,7 +20,7 @@ export default function ContentDialog(props: {
     // I forgot why exactly this is needed, but it is because of the new project dialog...
     useEffect(() => {
         if (!props.notHideOnSubsequentLoads && !initialLoadRef.current) {
-            props.state.hide().then();
+            props.state.hide();
         }
 
         initialLoadRef.current = false;

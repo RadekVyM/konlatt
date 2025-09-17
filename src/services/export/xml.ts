@@ -7,7 +7,8 @@ import { INDENTATION } from "./constants";
 export function pushArray<T extends {}>(
     lines: Array<string>,
     values: ReadonlyArray<T>,
-    elementName: string,
+    outerElementName: string,
+    innnerElementName: string,
     indentation: string,
     transformer: (value: T, elementName: string) => string,
     collapseRegions?: CollapseRegions,
@@ -15,7 +16,7 @@ export function pushArray<T extends {}>(
     const regionStart = collapseRegions?.nextRegionStart;
 
     if (values.length == 0) {
-        lines.push(`${indentation}<${elementName}s />`);
+        lines.push(`${indentation}<${outerElementName} />`);
 
         if (collapseRegions && regionStart !== undefined) {
             collapseRegions.nextRegionStart = regionStart + 1;
@@ -24,13 +25,13 @@ export function pushArray<T extends {}>(
         return;
     }
 
-    lines.push(`${indentation}<${elementName}s>`);
+    lines.push(`${indentation}<${outerElementName}>`);
 
     for (let i = 0; i < values.length; i++) {
-        lines.push(`${indentation}${INDENTATION}${transformer(values[i], elementName)}`);
+        lines.push(`${indentation}${INDENTATION}${transformer(values[i], innnerElementName)}`);
     }
 
-    lines.push(`${indentation}</${elementName}s>`);
+    lines.push(`${indentation}</${outerElementName}>`);
 
     if (collapseRegions && regionStart !== undefined) {
         const end = regionStart + 1 + values.length;
@@ -104,6 +105,7 @@ export function pushConcept(
     pushArray(
         lines,
         concept.objects,
+        "objects",
         "obj",
         conceptBodyIndentation,
         context ?
@@ -113,6 +115,7 @@ export function pushConcept(
     pushArray(
         lines,
         concept.attributes,
+        "attributes",
         "attr",
         conceptBodyIndentation,
         context ?

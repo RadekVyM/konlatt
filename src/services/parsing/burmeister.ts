@@ -1,7 +1,8 @@
 import { FORMAL_CONTEXT_CELL_SIZE, FormalContext } from "../../types/FormalContext";
+import { readLine } from "../../utils/string";
+import { INVALID_FILE_MESSAGE } from "./constants";
 
-const INVALID_FILE_MESSAGE = "This file is not valid.";
-const INVALID_FILE_LINE_MESSAGE = "This file is not valid. Line:";
+const INVALID_FILE_LINE_MESSAGE = `${INVALID_FILE_MESSAGE} Line:`;
 
 export default function parseBurmeister(content: string): FormalContext {
     content = content.trim();
@@ -107,22 +108,5 @@ function parseContext(objectsCount: number, attributesCount: number, content: st
         attributes,
         cellsPerObject: cellsPerObjectCount,
         cellSize: FORMAL_CONTEXT_CELL_SIZE,
-    };
-}
-
-function readLine(content: string, start: number) {
-    let end = start;
-
-    while (end < content.length && content[end] !== "\n") {
-        end++;
-    }
-
-    const line = content.substring(start, end);
-    end++;
-    const nextStart = end >= content.length ? -1 : end;
-
-    return {
-        line,
-        nextStart,
     };
 }

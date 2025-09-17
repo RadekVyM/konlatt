@@ -13,13 +13,14 @@ export function convertToXml(name: string, context: FormalContext) {
 
     collapseRegions.nextRegionStart = 1;
 
-    pushArray(lines, context.objects, "object", INDENTATION, escapedBodyValueTransformer, collapseRegions);
-    pushArray(lines, context.attributes, "attribute", INDENTATION, escapedBodyValueTransformer, collapseRegions);
+    pushArray(lines, context.objects, "objects", "obj", INDENTATION, escapedBodyValueTransformer, collapseRegions);
+    pushArray(lines, context.attributes, "attributes", "attr", INDENTATION, escapedBodyValueTransformer, collapseRegions);
 
     pushArray(
         lines,
         [...generateRelations(context)],
         "relation",
+        "rel",
         INDENTATION,
         ([object, attribute], elementName) =>
             `<${elementName} obj="${object}" attr="${attribute}" />`,

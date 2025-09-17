@@ -10,6 +10,7 @@ import Button from "./inputs/Button";
 import { triggerInitialization } from "../services/triggers";
 import { cn } from "../utils/tailwind";
 import { useState } from "react";
+import toast from "./toast";
 
 type Dataset = {
     name: string,
@@ -62,6 +63,7 @@ export default function DemoDatasetsDialog(props: {
         }
         catch (e) {
             console.error(e);
+            toast("Dataset could not be downloaded.");
             await props.state.hide();
             setDisabled(false);
             return;
@@ -69,6 +71,8 @@ export default function DemoDatasetsDialog(props: {
 
         triggerInitialization(
             text,
+            "burmeister",
+            null,
             dataset.name,
             async () => {
                 navigate("/project/context", { replace: true });

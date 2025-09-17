@@ -1,5 +1,5 @@
 import { expect, test, describe } from "vitest";
-import { parseFileContent } from "../../src/services/contextParsing";
+import { parseFileContent } from "../../src/services/parsing";
 import { computeConcepts } from "../../src/services/conceptComputation";
 import { conceptsToLattice } from "../../src/services/latticeComputation";
 import { FormalContext } from "../../src/types/FormalContext";
@@ -20,7 +20,7 @@ describe.each<TestValue>([
     let savedLattice: ConceptLattice = null!;
 
     test(`parsing context: ${value.title}`, async () => {
-        savedContext = await parseFileContent(value.fileContent);
+        ({ context: savedContext } = await parseFileContent(value.fileContent, "burmeister"));
         expect(savedContext.cellsPerObject).toBe(value.contextCellsPerObject);
         expect(savedContext.objects.length).toBe(value.objectsCount);
         expect(savedContext.attributes.length).toBe(value.attributesCount);

@@ -14,10 +14,15 @@ import DemoDatasetsButton from "./DemoDatasetsButton";
 import DemoDatasetsDialog from "./DemoDatasetsDialog";
 import useDialog from "../hooks/useDialog";
 import { LuCheck } from "react-icons/lu";
+import { ImportFormat } from "../types/ImportFormat";
+import CsvSeparatorSelect from "./CsvSeparatorSelect";
+import { CsvSeparator } from "../types/CsvSeparator";
 
-const DEFAULT_FILE_TYPE = "burmeister";
-const FILE_TYPES: Array<{ key: string, label: string }> = [
+const DEFAULT_FILE_FORMAT: ImportFormat = "burmeister";
+const FILE_TYPES: Array<{ key: ImportFormat, label: string }> = [
     { key: "burmeister", label: "Burmeister (.cxt)" },
+    { key: "json", label: "JSON (.json)" },
+    { key: "csv", label: "CSV (.csv)" },
 ];
 
 export default function NewProjectDialog(props: {
@@ -25,7 +30,8 @@ export default function NewProjectDialog(props: {
 }) {
     const navigate = useNavigate();
     const { selectedFile, setSelectedFile } = useNewProjectStore();
-    const [selectedFileType, setSelectedFileType] = useState<string>(DEFAULT_FILE_TYPE);
+    const [selectedFileFormat, setSelectedFileFormat] = useState<ImportFormat>(DEFAULT_FILE_FORMAT);
+    const [selectedCsvSeparator, setSelectedCsvSeparator] = useState<CsvSeparator>(",");
     const [disabled, setDisabled] = useState(false);
     const datasetsDialogState = useDialog();
 
@@ -34,7 +40,7 @@ export default function NewProjectDialog(props: {
 
         if (!props.state.isOpen) {
             setSelectedFile(null);
-            setSelectedFileType(DEFAULT_FILE_TYPE);
+            setSelectedFileFormat(DEFAULT_FILE_FORMAT);
         }
     }, [props.state.isOpen]);
 
@@ -47,6 +53,8 @@ export default function NewProjectDialog(props: {
 
         triggerInitialization(
             await selectedFile.text(),
+            selectedFileFormat,
+            selectedCsvSeparator,
             withoutExtension(selectedFile.name),
             async () => {
                 navigate("/project/context", { replace: true });
@@ -101,21 +109,31 @@ export default function NewProjectDialog(props: {
                             <label className="text-sm mb-1 block">File format</label>
 
                             <div
-                                className="mb-6 flex gap-2">
+                                className="flex gap-2">
                                 <ComboBox
                                     id="file-type-selection"
                                     className="flex-1"
-                                    onKeySelectionChange={setSelectedFileType}
-                                    selectedKey={selectedFileType}
+                                    onKeySelectionChange={setSelectedFileFormat}
+                                    selectedKey={selectedFileFormat}
                                     items={FILE_TYPES}
                                     disabled={disabled} />
                                 <FormatsButton
                                     disabled={disabled} />
                             </div>
 
+                            {selectedFileFormat === "csv" &&
+                                <>
+                                    <label className="text-sm mb-1 mt-3 block">Separator</label>
+
+                                    <CsvSeparatorSelect
+                                        id={`import-csv-separator`}
+                                        selectedCsvSeparator={selectedCsvSeparator}
+                                        onCsvSeparatorChange={setSelectedCsvSeparator} />
+                                </>}
+
                             <Button
                                 variant="primary"
-                                className="ml-auto"
+                                className="ml-auto mt-6"
                                 onClick={onCreateClick}
                                 disabled={!selectedFile || disabled}>
                                 <LuCheck /> Create project

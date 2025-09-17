@@ -9,6 +9,8 @@ import { createConceptPoint } from "../types/ConceptPoint";
 import { Point } from "../types/Point";
 import { LayoutWorkerResponse } from "../types/LayoutWorkerResponse";
 import { LayoutComputationOptions } from "../types/LayoutComputationOptions";
+import { ImportFormat } from "../types/ImportFormat";
+import { CsvSeparator } from "../types/CsvSeparator";
 
 let formalContext: FormalContext | null = null;
 let formalConcepts: FormalConcepts | null = null;
@@ -32,7 +34,7 @@ self.onmessage = async (event: MessageEvent<CompleteWorkerRequest>) => {
                 }
                 return;
             case "parse-context":
-                await parseFileContent(event.data.jobId, event.data.content);
+                await parseFileContent(event.data.jobId, event.data.content, event.data.format, event.data.csvSeparator);
                 break;
             case "concepts":
                 if (!formalContext) {
@@ -83,7 +85,7 @@ self.onmessage = async (event: MessageEvent<CompleteWorkerRequest>) => {
 };
 
 
-async function parseFileContent(jobId: number, fileContent: string) {
+async function parseFileContent(jobId: number, fileContent: string, format: ImportFormat, separator?: CsvSeparator) {
     postStatusMessage(jobId, "Parsing file");
 
     if (formalContext) {
@@ -92,9 +94,13 @@ async function parseFileContent(jobId: number, fileContent: string) {
     }
 
     // https://www.audjust.com/blog/wasm-and-workers
-    const { parseFileContent } = await import("../services/contextParsing");
+    const { parseFileContent } = await import("../services/parsing");
 
-    formalContext = await parseFileContent(fileContent);
+    const { context, concepts } = await parseFileContent(fileContent, format, separator);
+
+    formalContext = context;
+    formalConcepts = concepts || null;
+
     self.postMessage(createContextParsingResponse(jobId, formalContext));
 }
 

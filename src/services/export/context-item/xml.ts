@@ -11,7 +11,13 @@ export function convertToXml(items: ReadonlyArray<string>, name: string, itemTyp
 
     collapseRegions.nextRegionStart = 1;
 
-    pushArray(lines, items, itemTypeName === "object" ? "attribute" : "object", INDENTATION, escapedBodyValueTransformer);
+    pushArray(
+        lines,
+        items,
+        `${itemTypeName === "object" ? "attribute" : "object"}s`,
+        itemTypeName === "object" ? "attr" : "obj",
+        INDENTATION,
+        escapedBodyValueTransformer);
 
     lines.push(`</${itemTypeName}>`);
 

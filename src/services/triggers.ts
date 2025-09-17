@@ -16,9 +16,13 @@ import useExportObjectsStore from "../stores/export/useExportObjectsStore";
 import useExportObjectStore from "../stores/export/useExportObjectStore";
 import LatticeWorkerQueue from "../workers/LatticeWorkerQueue";
 import toast from "../components/toast";
+import { ImportFormat } from "../types/ImportFormat";
+import { CsvSeparator } from "../types/CsvSeparator";
 
 export async function triggerInitialization(
     fileContent: string,
+    format: ImportFormat,
+    csvSeparator: CsvSeparator | null,
     name: string,
     onSuccess?: () => void,
     onError?: () => void,
@@ -28,7 +32,7 @@ export async function triggerInitialization(
 
     const startTime = new Date().getTime();
 
-    enqueFileParsing(newWorkerQueue, fileContent, (response) => {
+    enqueFileParsing(newWorkerQueue, fileContent, format, csvSeparator, (response) => {
         useProjectStore.getState().replaceWorkerQueue(newWorkerQueue);
 
         useProjectStore.getState().setName(name);
@@ -104,10 +108,17 @@ export function triggerCancellation(jobId: number) {
 function enqueFileParsing(
     workerQueue: LatticeWorkerQueue,
     fileContent: string,
+    format: ImportFormat,
+    csvSeparator: CsvSeparator | null,
     onSuccess: (response: ContextParsingResponse) => void,
     onError: (message: string | null) => void,
 ) {
-    const contextRequest: ContextParsingRequest = { type: "parse-context", content: fileContent };
+    const contextRequest: ContextParsingRequest = {
+        type: "parse-context",
+        content: fileContent,
+        format,
+        csvSeparator: csvSeparator || undefined,
+    };
 
     workerQueue.enqueue<ContextParsingResponse>(
         contextRequest,

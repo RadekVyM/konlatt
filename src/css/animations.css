@@ -5,6 +5,8 @@
   --animate-slidePopoverDownOut: slidePopoverDownIn 150ms ease-in-out backwards;
   --animate-slideUpIn: slideUpIn 200ms ease-in-out forwards;
   --animate-slideDownOut: slideDownOut 200ms ease-in-out forwards;
+  --animate-slideLeftIn: slideLeftIn 200ms ease-in-out forwards;
+  --animate-slideRightOut: slideRightOut 200ms ease-in-out forwards;
   --animate-fadeIn: fadeIn 200ms ease-in-out forwards;
   --animate-fadeOut: fadeOut 200ms ease-in-out forwards;
 
@@ -35,6 +37,26 @@
     }
     100% {
       transform: translateY(50%);
+      opacity: 0;
+    }
+  }
+  @keyframes slideLeftIn {
+    0% {
+      transform: translateX(50%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  @keyframes slideRightOut {
+    0% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(50%);
       opacity: 0;
     }
   }

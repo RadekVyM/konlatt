@@ -75,3 +75,20 @@ export function withoutExtension(str: string) {
         str :
         split.slice(0, split.length - 1).join("");
 }
+
+export function readLine(content: string, start: number) {
+    let end = start;
+
+    while (end < content.length && content[end] !== "\n") {
+        end++;
+    }
+
+    const line = content.substring(start, end);
+    end++;
+    const nextStart = end >= content.length ? -1 : end;
+
+    return {
+        line,
+        nextStart,
+    };
+}

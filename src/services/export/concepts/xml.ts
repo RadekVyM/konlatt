@@ -12,8 +12,8 @@ export function convertToXml(context: FormalContext, formalConcepts: FormalConce
 
     collapseRegions.nextRegionStart++;
 
-    pushArray(lines, context.objects, "object", INDENTATION, escapedBodyValueTransformer, collapseRegions);
-    pushArray(lines, context.attributes, "attribute", INDENTATION, escapedBodyValueTransformer, collapseRegions);
+    pushArray(lines, context.objects, "objects", "obj", INDENTATION, escapedBodyValueTransformer, collapseRegions);
+    pushArray(lines, context.attributes, "attributes", "attr", INDENTATION, escapedBodyValueTransformer, collapseRegions);
     pushConcepts(lines, formalConcepts, INDENTATION, collapseRegions);
 
     lines.push("</context>");
