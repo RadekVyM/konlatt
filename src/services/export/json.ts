@@ -55,14 +55,14 @@ export function defaultTransformer<T extends {}>(value: T) {
     return value.toString();
 }
 
-export function pushRelations(
+export function pushRelation(
     lines: Array<string>,
     context: FormalContext,
     indentation: string,
     withComma: boolean,
     collapseRegions?: CollapseRegions,
 ) {
-    lines.push(`${indentation}"relations": [`);
+    lines.push(`${indentation}"relation": [`);
 
     const regionStart = collapseRegions?.nextRegionStart;
     let relationsCount = 0;

@@ -1,15 +1,17 @@
 import { escapeXml } from "../../../utils/string";
 import { createCollapseRegions } from "../CollapseRegions";
 import { INDENTATION } from "../constants";
-import { escapedBodyValueTransformer, pushArray } from "../xml";
+import { escapedBodyValueTransformer, pushArray, pushXmlDeclaration } from "../xml";
 
 export function convertToXml(items: ReadonlyArray<string>, name: string, itemTypeName: "object" | "attribute") {
     const lines = new Array<string>();
     const collapseRegions = createCollapseRegions();
 
+    pushXmlDeclaration(lines, collapseRegions);
+
     lines.push(`<${itemTypeName} name="${escapeXml(name)}">`);
 
-    collapseRegions.nextRegionStart = 1;
+    collapseRegions.nextRegionStart++;
 
     pushArray(
         lines,

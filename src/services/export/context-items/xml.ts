@@ -1,7 +1,9 @@
-import { escapedBodyValueTransformer, pushArray } from "../xml";
+import { escapedBodyValueTransformer, pushArray, pushXmlDeclaration } from "../xml";
 
 export function convertToXml(items: ReadonlyArray<string>, itemTypeName: "object" | "attribute") {
     const lines = new Array<string>();
+
+    pushXmlDeclaration(lines);
 
     pushArray(
         lines,

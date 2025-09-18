@@ -1,6 +1,7 @@
 export const FORMAL_CONTEXT_CELL_SIZE: number = 32;
 
 export type FormalContext = {
+    name?: string,
     readonly context: ReadonlyArray<number>,
     readonly objects: ReadonlyArray<string>,
     readonly attributes: ReadonlyArray<string>,

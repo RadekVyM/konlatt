@@ -134,3 +134,11 @@ export function pushConcept(
         collapseRegions.nextRegionStart = end + 1;
     }
 }
+
+export function pushXmlDeclaration(lines: Array<string>, collapseRegions?: CollapseRegions) {
+    if (collapseRegions) {
+        collapseRegions.nextRegionStart++;
+    }
+
+    lines.push(`<?xml version="1.0" encoding="UTF-8"?>`);
+}

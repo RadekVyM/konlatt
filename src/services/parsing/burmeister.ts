@@ -1,5 +1,5 @@
 import { FORMAL_CONTEXT_CELL_SIZE, FormalContext } from "../../types/FormalContext";
-import { readLine } from "../../utils/string";
+import { isNullOrWhiteSpace, readLine } from "../../utils/string";
 import { INVALID_FILE_MESSAGE } from "./constants";
 
 const INVALID_FILE_LINE_MESSAGE = `${INVALID_FILE_MESSAGE} Line:`;
@@ -34,10 +34,15 @@ export default function parseBurmeister(content: string): FormalContext {
     if (!isFinite(objectsCount) || !isFinite(attributesCount))
         throw new Error(`${INVALID_FILE_LINE_MESSAGE} 2 or 3`);
 
-    return parseContext(objectsCount, attributesCount, content, emptyLine.nextStart);
+    return parseContext(
+        objectsCount,
+        attributesCount,
+        content,
+        emptyLine.nextStart,
+        isNullOrWhiteSpace(nameLine.line) ? undefined : nameLine.line.trim());
 }
 
-function parseContext(objectsCount: number, attributesCount: number, content: string, start: number): FormalContext {
+function parseContext(objectsCount: number, attributesCount: number, content: string, start: number, name?: string): FormalContext {
     const cellsPerObjectCount = Math.ceil(attributesCount / FORMAL_CONTEXT_CELL_SIZE);
     const context = new Array<number>(objectsCount * cellsPerObjectCount);
     const objects = new Array<string>(objectsCount);
@@ -103,6 +108,7 @@ function parseContext(objectsCount: number, attributesCount: number, content: st
     }
 
     return {
+        name,
         context,
         objects,
         attributes,

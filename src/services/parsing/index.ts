@@ -5,6 +5,7 @@ import { ImportFormat } from "../../types/ImportFormat";
 import parseBurmeister from "./burmeister";
 import parseCsv from "./csv";
 import parseJson from "./json";
+import parseXml from "./xml";
 
 export async function parseFileContent(content: string, format: ImportFormat, separator?: CsvSeparator): Promise<{
     context: FormalContext,
@@ -19,6 +20,9 @@ export async function parseFileContent(content: string, format: ImportFormat, se
             break;
         case "json":
             ({ context, concepts } = parseJson(content));
+            break;
+        case "xml":
+            ({ context, concepts } = parseXml(content));
             break;
         case "csv":
             if (!separator) {

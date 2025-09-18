@@ -19,10 +19,11 @@ import CsvSeparatorSelect from "./CsvSeparatorSelect";
 import { CsvSeparator } from "../types/CsvSeparator";
 
 const DEFAULT_FILE_FORMAT: ImportFormat = "burmeister";
-const FILE_TYPES: Array<{ key: ImportFormat, label: string }> = [
-    { key: "burmeister", label: "Burmeister (.cxt)" },
-    { key: "json", label: "JSON (.json)" },
-    { key: "csv", label: "CSV (.csv)" },
+const FILE_TYPES: Array<{ key: ImportFormat, label: string, idealExtension: string }> = [
+    { key: "burmeister", label: "Burmeister (.cxt)", idealExtension: ".cxt" },
+    { key: "json", label: "Konlatt JSON (.json)", idealExtension: ".json" },
+    { key: "xml", label: "Konlatt XML (.xml)", idealExtension: ".xml" },
+    { key: "csv", label: "CSV (.csv)", idealExtension: ".csv" },
 ];
 
 export default function NewProjectDialog(props: {
@@ -43,6 +44,21 @@ export default function NewProjectDialog(props: {
             setSelectedFileFormat(DEFAULT_FILE_FORMAT);
         }
     }, [props.state.isOpen]);
+
+    function onFileSelect(file: File | null | undefined) {
+        setSelectedFile(file);
+
+        if (!file) {
+            return;
+        }
+
+        for (const item of FILE_TYPES) {
+            if (file.name.endsWith(item.idealExtension)) {
+                setSelectedFileFormat(item.key);
+                return;
+            }
+        }
+    }
 
     async function onCreateClick() {
         if (!selectedFile) {
@@ -80,7 +96,7 @@ export default function NewProjectDialog(props: {
                                 className="w-full mb-3"
                                 accept={FILE_INPUT_ACCEPT}
                                 file={selectedFile}
-                                onFileSelect={setSelectedFile}
+                                onFileSelect={onFileSelect}
                                 disabled={disabled} />
 
                             <div

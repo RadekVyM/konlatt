@@ -1,1 +1,1 @@
-export type ImportFormat = "burmeister" | "json" | "csv"
+export type ImportFormat = "burmeister" | "json" | "csv" | "xml"

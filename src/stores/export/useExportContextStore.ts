@@ -46,23 +46,24 @@ function withResult(newState: Partial<ExportContextStore>, oldState: ExportConte
         return newState;
     }
 
+    const name = useProjectStore.getState().name || "";
     let result: Array<string> | null = null;
     let collapseRegions: Map<number, number> | null = null;
 
     switch (selectedFormat) {
         case "burmeister":
             ({ lines: result, collapseRegions: collapseRegions } = convertToBurmeister(
-                useProjectStore.getState().name || "",
+                name,
                 context));
             break;
         case "json":
             ({ lines: result, collapseRegions: collapseRegions } = convertToJson(
-                useProjectStore.getState().name || "",
+                name,
                 context));
             break;
         case "xml":
             ({ lines: result, collapseRegions: collapseRegions } = convertToXml(
-                useProjectStore.getState().name || "",
+                name,
                 context));
             break;
         case "csv":

@@ -1,12 +1,14 @@
 import { FormalConcepts } from "../../../types/FormalConcepts";
 import { FormalContext } from "../../../types/FormalContext";
 import { createCollapseRegions } from "../CollapseRegions";
-import { pushConcept } from "../xml";
+import { pushConcept, pushXmlDeclaration } from "../xml";
 
 export function convertToXml(context: FormalContext, formalConcepts: FormalConcepts, conceptIndex: number) {
     const concept = formalConcepts[conceptIndex];
     const lines = new Array<string>();
     const collapseRegions = createCollapseRegions();
+
+    pushXmlDeclaration(lines, collapseRegions);
 
     pushConcept(lines, concept, "", context, collapseRegions, true);
 

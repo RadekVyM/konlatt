@@ -1,5 +1,6 @@
 import { FormalConcepts } from "../../types/FormalConcepts";
 import { FormalContext } from "../../types/FormalContext";
+import parseJsonConcepts from "./concepts/json";
 import { INVALID_FILE_MESSAGE } from "./constants";
 import parseJsonContext from "./context/json";
 
@@ -19,8 +20,11 @@ export default function parseJson(content: string): {
     let context: FormalContext;
     let concepts: FormalConcepts | undefined = undefined;
 
-    if ("objects" in jsonContent && "attributes" in jsonContent && "relations" in jsonContent) {
+    if ("objects" in jsonContent && "attributes" in jsonContent && "relation" in jsonContent) {
         context = parseJsonContext(jsonContent);
+    }
+    else if ("objects" in jsonContent && "attributes" in jsonContent && "concepts" in jsonContent) {
+        ({ context, concepts } = parseJsonConcepts(jsonContent));
     }
     else {
         throw new Error(INVALID_FILE_MESSAGE);

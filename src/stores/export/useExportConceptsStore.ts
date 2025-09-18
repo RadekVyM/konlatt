@@ -5,6 +5,7 @@ import useDataStructuresStore from "../useDataStructuresStore";
 import createTextResultStoreBaseSlice, { TextResultExportStore } from "./createTextResultStoreBaseSlice";
 import { convertToXml } from "../../services/export/concepts/xml";
 import { sumLengths } from "../../utils/array";
+import useProjectStore from "../useProjectStore";
 
 const TOO_LARGE_THRESHOLD = 15_000_000;
 
@@ -52,6 +53,7 @@ function withResult(newState: Partial<ExportConceptsStore>, oldState: ExportConc
         return newState;
     }
 
+    const name = useProjectStore.getState().name || "";
     let result: Array<string> | null = null;
     let collapseRegions: Map<number, number> | null = null;
 
@@ -59,12 +61,14 @@ function withResult(newState: Partial<ExportConceptsStore>, oldState: ExportConc
         case "json":
             ({ lines: result, collapseRegions } = convertToJson(
                 context,
-                concepts));
+                concepts,
+                name));
             break;
         case "xml":
             ({ lines: result, collapseRegions } = convertToXml(
                 context,
-                concepts));
+                concepts,
+                name));
             break;
     }
 

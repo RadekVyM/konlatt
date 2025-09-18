@@ -35,7 +35,7 @@ export async function triggerInitialization(
     enqueFileParsing(newWorkerQueue, fileContent, format, csvSeparator, (response) => {
         useProjectStore.getState().replaceWorkerQueue(newWorkerQueue);
 
-        useProjectStore.getState().setName(name);
+        useProjectStore.getState().setName(response.context.name || name);
         useProjectStore.getState().clearStatusItems();
         useProjectStore.getState().addStatusItem(
             response.jobId,
