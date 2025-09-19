@@ -31,7 +31,6 @@ export default function parseXml(content: string): {
         ({ context, concepts } = parseXmlConcepts(xmlContent));
     }
     else {
-        console.log(JSON.stringify(xmlContent))
         throw new Error(INVALID_FILE_MESSAGE);
     }
 

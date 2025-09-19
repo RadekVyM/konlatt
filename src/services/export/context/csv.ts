@@ -1,6 +1,6 @@
 import { FormalContext } from "../../../types/FormalContext";
 import { createCollapseRegions } from "../CollapseRegions";
-import { generateRelations } from "../utils";
+import { generateContextRelation } from "../utils";
 
 export function convertToCsv(context: FormalContext, separator: string = ",") {
     const lines = new Array<string>();
@@ -9,7 +9,7 @@ export function convertToCsv(context: FormalContext, separator: string = ",") {
     let lastObject: number | null = null;
     let count = 0;
 
-    for (const [object, attribute] of generateRelations(context)) {
+    for (const [object, attribute] of generateContextRelation(context)) {
         if (lastObject !== null && lastObject !== object) {
             const end = collapseRegions.nextRegionStart + count;
             if (end - 1 > collapseRegions.nextRegionStart) {

@@ -3,7 +3,6 @@ import { FormalContext } from "../../types/FormalContext";
 import { escapeJson } from "../../utils/string";
 import { CollapseRegions } from "./CollapseRegions";
 import { INDENTATION } from "./constants";
-import { generateRelations } from "./utils";
 
 export function pushArray<T extends {}>(
     lines: Array<string>,
@@ -57,18 +56,19 @@ export function defaultTransformer<T extends {}>(value: T) {
 
 export function pushRelation(
     lines: Array<string>,
-    context: FormalContext,
+    relation: Generator<[number, number], void, unknown>,
+    name: string,
     indentation: string,
     withComma: boolean,
     collapseRegions?: CollapseRegions,
 ) {
-    lines.push(`${indentation}"relation": [`);
+    lines.push(`${indentation}"${name}": [`);
 
     const regionStart = collapseRegions?.nextRegionStart;
     let relationsCount = 0;
 
-    for (const [object, attribute] of generateRelations(context)) {
-        lines.push(`${indentation}${INDENTATION}[${object}, ${attribute}],`);
+    for (const [first, second] of relation) {
+        lines.push(`${indentation}${INDENTATION}[${first}, ${second}],`);
         relationsCount++;
     }
 

@@ -1,11 +1,17 @@
 import { FormalConcepts } from "../../../types/FormalConcepts";
-import { FormalContext } from "../../../types/FormalContext";
 import { escapeXml } from "../../../utils/string";
 import { createCollapseRegions } from "../CollapseRegions";
 import { INDENTATION } from "../constants";
+import { generateLatticeRelation } from "../utils";
 import { escapedBodyValueTransformer, pushArray, pushConcepts, pushXmlDeclaration } from "../xml";
 
-export function convertToXml(context: FormalContext, formalConcepts: FormalConcepts, name?: string) {
+export function convertToXml(
+    objects: ReadonlyArray<string>,
+    attributes: ReadonlyArray<string>,
+    formalConcepts: FormalConcepts,
+    name?: string,
+    latticeRelation?: ReadonlyArray<Set<number>>,
+) {
     const lines = new Array<string>();
     const collapseRegions = createCollapseRegions();
 
@@ -15,9 +21,21 @@ export function convertToXml(context: FormalContext, formalConcepts: FormalConce
 
     collapseRegions.nextRegionStart++;
 
-    pushArray(lines, context.objects, "objects", "obj", INDENTATION, escapedBodyValueTransformer, collapseRegions);
-    pushArray(lines, context.attributes, "attributes", "attr", INDENTATION, escapedBodyValueTransformer, collapseRegions);
+    pushArray(lines, objects, "objects", "obj", INDENTATION, escapedBodyValueTransformer, collapseRegions);
+    pushArray(lines, attributes, "attributes", "attr", INDENTATION, escapedBodyValueTransformer, collapseRegions);
     pushConcepts(lines, formalConcepts, INDENTATION, collapseRegions);
+
+    if (latticeRelation !== undefined) {
+        pushArray(
+            lines,
+            [...generateLatticeRelation(latticeRelation)],
+            "lattice",
+            "rel",
+            INDENTATION,
+            ([first, second], elementName) =>
+                `<${elementName} sub="${first}" sup="${second}" />`,
+            collapseRegions);
+    }
 
     lines.push("</context>");
 

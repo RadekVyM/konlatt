@@ -60,28 +60,28 @@ export async function conceptsToLattice(concepts: FormalConcepts, context: Forma
     };
 }
 
-function reverseMapping(subconceptsMapping: Array<Set<number>>) {
-    const superconceptsMapping = new Array<Set<number>>(subconceptsMapping.length);
+function reverseMapping(mapping: Array<Set<number>>) {
+    const reversedMapping = new Array<Set<number>>(mapping.length);
 
-    for (let i = 0; i < subconceptsMapping.length; i++) {
-        const subconcepts = subconceptsMapping[i];
+    for (let i = 0; i < mapping.length; i++) {
+        const items = mapping[i];
 
-        for (const subconcept of subconcepts) {
-            if (superconceptsMapping[subconcept] === undefined) {
-                superconceptsMapping[subconcept] = new Set<number>();
+        for (const item of items) {
+            if (reversedMapping[item] === undefined) {
+                reversedMapping[item] = new Set<number>();
             }
 
-            superconceptsMapping[subconcept].add(i);
+            reversedMapping[item].add(i);
         }
     }
 
-    for (let i = 0; i < subconceptsMapping.length; i++) {
-        if (superconceptsMapping[i] === undefined) {
-            superconceptsMapping[i] = new Set<number>();
+    for (let i = 0; i < mapping.length; i++) {
+        if (reversedMapping[i] === undefined) {
+            reversedMapping[i] = new Set<number>();
         }
     }
 
-    return superconceptsMapping;
+    return reversedMapping;
 }
 
 function getObjectsLabeling(concepts: FormalConcepts, superconceptsMapping: ReadonlyArray<Set<number>>): ConceptLatticeLabeling {

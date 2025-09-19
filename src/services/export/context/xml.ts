@@ -2,7 +2,7 @@ import { FormalContext } from "../../../types/FormalContext";
 import { escapeXml } from "../../../utils/string";
 import { createCollapseRegions } from "../CollapseRegions";
 import { INDENTATION } from "../constants";
-import { generateRelations } from "../utils";
+import { generateContextRelation } from "../utils";
 import { escapedBodyValueTransformer, pushArray, pushXmlDeclaration } from "../xml";
 
 export function convertToXml(name: string, context: FormalContext) {
@@ -20,7 +20,7 @@ export function convertToXml(name: string, context: FormalContext) {
 
     pushArray(
         lines,
-        [...generateRelations(context)],
+        [...generateContextRelation(context)],
         "relation",
         "rel",
         INDENTATION,

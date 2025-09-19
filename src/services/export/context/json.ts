@@ -4,6 +4,7 @@ import { escapeJson } from "../../../utils/string";
 import { createCollapseRegions } from "../CollapseRegions";
 import { INDENTATION } from "../constants";
 import { escapedStringTransformer, pushArray, pushConcepts, pushRelation } from "../json";
+import { generateContextRelation } from "../utils";
 
 export function convertToJson(name: string, context: FormalContext, formalConcepts: FormalConcepts | null = null) {
     const lines = new Array<string>();
@@ -17,7 +18,13 @@ export function convertToJson(name: string, context: FormalContext, formalConcep
     pushArray(lines, context.objects, "objects", INDENTATION, true, escapedStringTransformer, collapseRegions);
     pushArray(lines, context.attributes, "attributes", INDENTATION, true, escapedStringTransformer, collapseRegions);
 
-    pushRelation(lines, context, INDENTATION, formalConcepts !== null, collapseRegions);
+    pushRelation(
+        lines,
+        generateContextRelation(context),
+        "relation",
+        INDENTATION,
+        formalConcepts !== null,
+        collapseRegions);
 
     if (formalConcepts) {
         pushConcepts(lines, formalConcepts, INDENTATION, false, collapseRegions);

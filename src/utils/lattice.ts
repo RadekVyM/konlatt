@@ -10,7 +10,7 @@ export function calculateVisibleConceptIndexes(upperConeOnlyConceptIndex: number
     const upperCone = upperConeOnlyConceptIndex !== null && lattice?.superconceptsMapping ?
         collectIndexes(upperConeOnlyConceptIndex, lattice.superconceptsMapping) :
         null;
-    
+
     const lowerCone = lowerConeOnlyConceptIndex !== null && lattice?.subconceptsMapping ?
         collectIndexes(lowerConeOnlyConceptIndex, lattice.subconceptsMapping) :
         null;

@@ -1,11 +1,17 @@
 import { FormalConcepts } from "../../../types/FormalConcepts";
-import { FormalContext } from "../../../types/FormalContext";
 import { escapeJson } from "../../../utils/string";
 import { createCollapseRegions } from "../CollapseRegions";
 import { INDENTATION } from "../constants";
-import { escapedStringTransformer, pushArray, pushConcepts } from "../json";
+import { escapedStringTransformer, pushArray, pushConcepts, pushRelation } from "../json";
+import { generateLatticeRelation } from "../utils";
 
-export function convertToJson(context: FormalContext, formalConcepts: FormalConcepts, name?: string) {
+export function convertToJson(
+    objects: ReadonlyArray<string>,
+    attributes: ReadonlyArray<string>,
+    formalConcepts: FormalConcepts,
+    name?: string,
+    latticeRelation?: ReadonlyArray<Set<number>>,
+) {
     const lines = new Array<string>();
     const collapseRegions = createCollapseRegions();
 
@@ -17,9 +23,19 @@ export function convertToJson(context: FormalContext, formalConcepts: FormalConc
         collapseRegions.nextRegionStart++;
     }
 
-    pushArray(lines, context.objects, "objects", INDENTATION, true, escapedStringTransformer, collapseRegions);
-    pushArray(lines, context.attributes, "attributes", INDENTATION, true, escapedStringTransformer, collapseRegions);
-    pushConcepts(lines, formalConcepts, INDENTATION, false, collapseRegions);
+    pushArray(lines, objects, "objects", INDENTATION, true, escapedStringTransformer, collapseRegions);
+    pushArray(lines, attributes, "attributes", INDENTATION, true, escapedStringTransformer, collapseRegions);
+    pushConcepts(lines, formalConcepts, INDENTATION, latticeRelation !== undefined, collapseRegions);
+
+    if (latticeRelation !== undefined) {
+        pushRelation(
+            lines,
+            generateLatticeRelation(latticeRelation),
+            "lattice",
+            INDENTATION,
+            false,
+            collapseRegions);
+    }
 
     lines.push("}");
 
