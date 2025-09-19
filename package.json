@@ -9,9 +9,9 @@
     "preview": "vite preview --host",
     "build": "tsc -b && vite build",
     "build:as": "cd benchmarks/as && npm run build",
-    "build:emscripten-wins": "docker run --rm -it -v \"%cd%:/usr/src\" -w /usr/src emscripten/emsdk:4.0.6 bash -c \"chmod +x ./emscripten.build.sh && ./emscripten.build.sh\"",
-    "build:emscripten-unix": "docker run --rm -it -v \"${PWD}:/usr/src\" -w /usr/src emscripten/emsdk:4.0.6 bash -c \"chmod +x ./emscripten.build.sh && ./emscripten.build.sh\"",
-    "build:emscripten-arm-unix": "docker run --rm -it -v \"${PWD}:/usr/src\" -w /usr/src emscripten/emsdk:4.0.6-arm64 bash -c \"chmod +x ./emscripten.build.sh && ./emscripten.build.sh\"",
+    "build:emscripten-wins": "docker run --rm -it -v \"%cd%:/usr/src\" -w /usr/src emscripten/emsdk:4.0.6 bash -c \"sed -i 's/\\r//g' ./emscripten.build.sh && chmod +x ./emscripten.build.sh && ./emscripten.build.sh\"",
+    "build:emscripten-unix": "docker run --rm -it -v \"${PWD}:/usr/src\" -w /usr/src emscripten/emsdk:4.0.6 bash -c \"sed -i 's/\\r//g' ./emscripten.build.sh && chmod +x ./emscripten.build.sh && ./emscripten.build.sh\"",
+    "build:emscripten-arm-unix": "docker run --rm -it -v \"${PWD}:/usr/src\" -w /usr/src emscripten/emsdk:4.0.6-arm64 bash -c \"sed -i 's/\\r//g' ./emscripten.build.sh && chmod +x ./emscripten.build.sh && ./emscripten.build.sh\"",
     "test": "vitest run"
   },
   "dependencies": {
