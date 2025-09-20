@@ -1,3 +1,4 @@
+import { ConceptLattice } from "../../types/ConceptLattice";
 import { FormalConcepts } from "../../types/FormalConcepts";
 import { FormalContext } from "../../types/FormalContext";
 import parseJsonConcepts from "./concepts/json";
@@ -7,6 +8,7 @@ import parseJsonContext from "./context/json";
 export default function parseJson(content: string): {
     context: FormalContext,
     concepts?: FormalConcepts,
+    lattice?: ConceptLattice,
 } {
     let jsonContent: any;    
 
@@ -19,12 +21,13 @@ export default function parseJson(content: string): {
 
     let context: FormalContext;
     let concepts: FormalConcepts | undefined = undefined;
+    let lattice: ConceptLattice | undefined = undefined;
 
     if ("objects" in jsonContent && "attributes" in jsonContent && "relation" in jsonContent) {
         context = parseJsonContext(jsonContent);
     }
     else if ("objects" in jsonContent && "attributes" in jsonContent && "concepts" in jsonContent) {
-        ({ context, concepts } = parseJsonConcepts(jsonContent));
+        ({ context, concepts, lattice } = parseJsonConcepts(jsonContent));
     }
     else {
         throw new Error(INVALID_FILE_MESSAGE);
@@ -33,5 +36,6 @@ export default function parseJson(content: string): {
     return {
         context,
         concepts,
+        lattice,
     };
 }

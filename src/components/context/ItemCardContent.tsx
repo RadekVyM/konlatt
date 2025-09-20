@@ -31,7 +31,7 @@ export default function ItemCard(props: {
                 </div>
 
                 <CardSectionTitle
-                    className="mx-4 mb-2">
+                    className="mx-4 mb-2 wrap-anywhere line-clamp-3">
                     {props.item.title}
                 </CardSectionTitle>
             </header>

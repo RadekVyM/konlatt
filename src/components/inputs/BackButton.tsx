@@ -11,7 +11,10 @@ export default function BackButton(props: {
             className="pl-1 ml-2 mb-1.5"
             onClick={props.onClick}>
             <LuChevronLeft />
-            {props.children}
+            <span
+                className="line-clamp-1 text-start">
+                {props.children}
+            </span>
         </Button>
     );
 }

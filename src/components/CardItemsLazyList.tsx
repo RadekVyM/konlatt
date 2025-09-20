@@ -9,7 +9,7 @@ export default function CardItemsLazyList(props: {
     return (
         <div
             className={cn("overflow-y-auto thin-scrollbar", props.className)}>
-            <ul className="px-1 pb-2">
+            <ul className="px-1 pb-2 wrap-anywhere">
                 {props.children}
             </ul>
 

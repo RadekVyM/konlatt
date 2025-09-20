@@ -1,8 +1,8 @@
 import { MAX_SEED_LENGTH_REDRAW } from "../../constants/diagram";
+import { calculateConeConceptIndexes } from "../../services/lattice";
 import { CameraType } from "../../types/CameraType";
 import { DiagramLayoutState } from "../../types/DiagramLayoutState";
 import { LayoutMethod } from "../../types/LayoutMethod";
-import { calculateVisibleConceptIndexes } from "../../utils/lattice";
 import { w } from "../../utils/stores";
 import { generateRandomSeed } from "../../utils/string";
 import useDataStructuresStore from "../useDataStructuresStore";
@@ -130,7 +130,7 @@ export default function createDiagramOptionsSlice(set: (partial: DiagramStore | 
             {
                 upperConeOnlyConceptIndex,
                 lowerConeOnlyConceptIndex: withOtherReset ? null : old.lowerConeOnlyConceptIndex,
-                visibleConceptIndexes: calculateVisibleConceptIndexes(
+                visibleConceptIndexes: calculateConeConceptIndexes(
                     upperConeOnlyConceptIndex,
                     withOtherReset ? null : old.lowerConeOnlyConceptIndex,
                     useDataStructuresStore.getState().lattice),
@@ -140,7 +140,7 @@ export default function createDiagramOptionsSlice(set: (partial: DiagramStore | 
             {
                 lowerConeOnlyConceptIndex,
                 upperConeOnlyConceptIndex: withOtherReset ? null : old.upperConeOnlyConceptIndex,
-                visibleConceptIndexes: calculateVisibleConceptIndexes(
+                visibleConceptIndexes: calculateConeConceptIndexes(
                     withOtherReset ? null : old.upperConeOnlyConceptIndex,
                     lowerConeOnlyConceptIndex,
                     useDataStructuresStore.getState().lattice),

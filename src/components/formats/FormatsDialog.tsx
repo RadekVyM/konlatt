@@ -2,19 +2,73 @@ import { useState } from "react";
 import { DialogState } from "../../types/DialogState";
 import { cn } from "../../utils/tailwind";
 import ContentDialog from "../ContentDialog";
-import burmeisterContextExample from "./examples/context.cxt?raw";
-import jsonContextExample from "./examples/context.json?raw";
-import csvContextExample from "./examples/context.csv?raw";
-import xmlContextExample from "./examples/context.xml?raw";
 import Button from "../inputs/Button";
 import CodePreviewer from "./CodePreviewer";
 import HorizontalScroller from "../HorizontalScroller";
+import { FormalContext, getAttributeObjects, getObjectAttributes } from "../../types/FormalContext";
+import { convertToJson as convertItemsToJson } from "../../services/export/context-items/json";
+import { convertToXml as convertItemsToXml } from "../../services/export/context-items/xml";
+import { convertToBurmeister } from "../../services/export/context/burmeister";
+import { convertToCsv as convertItemsToCsv } from "../../services/export/context-items/csv";
+import { convertToJson as convertContextToJson } from "../../services/export/context/json";
+import { convertToXml as convertContextToXml } from "../../services/export/context/xml";
+import { convertToCsv as convertContextToCsv } from "../../services/export/context/csv";
+import { convertToJson as convertItemToJson } from "../../services/export/context-item/json";
+import { convertToXml as convertItemToXml } from "../../services/export/context-item/xml";
+import { convertToCsv } from "../../services/export/context-item/csv";
+import parseJson from "../../services/parsing/json";
+import { FormalConcepts } from "../../types/FormalConcepts";
+import { ConceptLattice } from "../../types/ConceptLattice";
+import { convertToJson as convertConceptsToJson } from "../../services/export/concepts/json";
+import { convertToXml } from "../../services/export/concepts/xml";
+
+const { context: CONTEXT, concepts: CONCEPTS, lattice: LATTICE } = parseJson(`{
+	"name": "Inner planets",
+	"objects": ["Mercury", "Venus", "Earth", "Mars"],
+	"attributes": ["Is_Terrestrial", "Has_Moons", "Is_Habitable", "Has_Atmosphere"],
+
+	"concepts": [
+
+		{
+			"objects": [0, 1, 2, 3],
+			"attributes": [0]
+		},
+
+		{
+			"objects": [2, 3],
+			"attributes": [0, 1]
+		},
+
+		{
+			"objects": [1, 2],
+			"attributes": [0, 3]
+		},
+
+		{
+			"objects": [2],
+			"attributes": [0, 1, 2, 3]
+		}
+	],
+
+	"lattice": [
+		[1, 0],
+		[2, 0],
+		[3, 1],
+		[3, 2]
+	]
+}`) as {
+    context: FormalContext,
+    concepts: FormalConcepts,
+    lattice: ConceptLattice,
+};
 
 type ExportedObjectId = "context" |
     "objects" |
+    "object" |
     "attributes" |
+    "attribute" |
     "concepts" |
-    "lattice"
+    "concept"
 
 type FormatId = "burmeister" |
     "konlatt-json" |
@@ -30,8 +84,6 @@ type FormatId = "burmeister" |
 type ExportedObject = {
     id: ExportedObjectId,
     title: string,
-    isInput?: boolean,
-    isOutput?: boolean,
     defaultFormatId: FormatId,
     formats: Array<Format>,
     description?: React.ReactNode,
@@ -41,15 +93,14 @@ type FormatBase = {
     id: FormatId,
     title: string,
     suffix?: string,
+    isInput?: boolean,
+    isOutput?: boolean,
 }
 
 type Format = {
-    id: FormatId,
-    title: string,
-    suffix?: string,
-    example: string,
+    example: Array<string>,
     description?: React.ReactNode,
-}
+} & FormatBase
 
 const KONLATT_JSON: FormatBase = {
     id: "konlatt-json",
@@ -63,98 +114,166 @@ const KONLATT_XML: FormatBase = {
     suffix: "xml",
 }
 
+const KONLATT_CSV: FormatBase = {
+    id: "csv",
+    title: "CSV",
+    suffix: "csv",
+}
+
 const EXPORTED_OBJECTS: Array<ExportedObject> = [
     {
         id: "context",
         title: "Formal context",
-        isInput: true,
-        isOutput: true,
         defaultFormatId: "burmeister",
         formats: [
             {
                 id: "burmeister",
                 title: "Burmeister",
                 suffix: "cxt",
-                example: burmeisterContextExample,
+                isInput: true,
+                isOutput: true,
+                example: convertToBurmeister(CONTEXT.name ?? "", CONTEXT).lines,
             },
             {
                 ...KONLATT_JSON,
-                example: jsonContextExample,
+                isInput: true,
+                isOutput: true,
+                example: convertContextToJson(CONTEXT.name ?? "", CONTEXT).lines,
             },
             {
                 ...KONLATT_XML,
-                example: xmlContextExample,
+                isInput: true,
+                isOutput: true,
+                example: convertContextToXml(CONTEXT.name ?? "", CONTEXT).lines,
             },
             {
-                id: "csv",
-                title: "CSV",
-                suffix: "csv",
-                example: csvContextExample,
+                ...KONLATT_CSV,
+                isInput: true,
+                isOutput: true,
+                example: convertContextToCsv(CONTEXT).lines,
             },
         ],
     },
     {
         id: "objects",
         title: "Objects",
-        isOutput: true,
         defaultFormatId: "konlatt-json",
         formats: [
             {
                 ...KONLATT_JSON,
-                example: jsonContextExample,
+                isOutput: true,
+                example: convertItemsToJson(CONTEXT.objects),
             },
             {
                 ...KONLATT_XML,
-                example: xmlContextExample,
+                isOutput: true,
+                example: convertItemsToXml(CONTEXT.objects, "object"),
+            },
+            {
+                ...KONLATT_CSV,
+                isOutput: true,
+                example: convertItemsToCsv(CONTEXT.objects),
+            },
+        ],
+    },
+    {
+        id: "object",
+        title: "Object",
+        defaultFormatId: "konlatt-json",
+        formats: [
+            {
+                ...KONLATT_JSON,
+                isOutput: true,
+                example: convertItemToJson(
+                    getObjectAttributes(CONTEXT, 1).map((attr) => CONTEXT.attributes[attr]),
+                    CONTEXT.objects[1],
+                    "object"
+                ).lines,
+            },
+            {
+                ...KONLATT_XML,
+                isOutput: true,
+                example: convertItemToXml(
+                    getObjectAttributes(CONTEXT, 1).map((attr) => CONTEXT.attributes[attr]),
+                    CONTEXT.objects[1],
+                    "object"
+                ).lines,
+            },
+            {
+                ...KONLATT_CSV,
+                isOutput: true,
+                example: convertToCsv(getObjectAttributes(CONTEXT, 1).map((attr) => CONTEXT.attributes[attr])),
             },
         ],
     },
     {
         id: "attributes",
         title: "Attributes",
-        isOutput: true,
         defaultFormatId: "konlatt-json",
         formats: [
             {
                 ...KONLATT_JSON,
-                example: jsonContextExample,
+                isOutput: true,
+                example: convertItemsToJson(CONTEXT.attributes),
             },
             {
                 ...KONLATT_XML,
-                example: xmlContextExample,
+                isOutput: true,
+                example: convertItemsToXml(CONTEXT.attributes, "attribute"),
+            },
+            {
+                ...KONLATT_CSV,
+                isOutput: true,
+                example: convertItemsToCsv(CONTEXT.attributes),
+            },
+        ],
+    },
+    {
+        id: "attribute",
+        title: "Attribute",
+        defaultFormatId: "konlatt-json",
+        formats: [
+            {
+                ...KONLATT_JSON,
+                isOutput: true,
+                example: convertItemToJson(
+                    getAttributeObjects(CONTEXT, 1).map((obj) => CONTEXT.objects[obj]),
+                    CONTEXT.attributes[1],
+                    "attribute"
+                ).lines,
+            },
+            {
+                ...KONLATT_XML,
+                isOutput: true,
+                example: convertItemToXml(
+                    getAttributeObjects(CONTEXT, 1).map((obj) => CONTEXT.objects[obj]),
+                    CONTEXT.attributes[1],
+                    "attribute"
+                ).lines,
+            },
+            {
+                ...KONLATT_CSV,
+                isOutput: true,
+                example: convertToCsv(getAttributeObjects(CONTEXT, 1).map((obj) => CONTEXT.objects[obj])),
             },
         ],
     },
     {
         id: "concepts",
         title: "Formal concepts",
-        isOutput: true,
-        isInput: true,
         defaultFormatId: "konlatt-json",
         formats: [
             {
                 ...KONLATT_JSON,
-                example: jsonContextExample,
+                isOutput: true,
+                isInput: true,
+                example: convertConceptsToJson(CONTEXT.objects, CONTEXT.attributes, CONCEPTS, CONTEXT.name ?? "", LATTICE.superconceptsMapping).lines,
             },
             {
                 ...KONLATT_XML,
-                example: xmlContextExample,
-            },
-        ],
-    },
-    {
-        id: "lattice",
-        title: "Concept lattice",
-        isOutput: true,
-        defaultFormatId: "konlatt-json",
-        formats: [
-            {
-                ...KONLATT_JSON,
-                example: jsonContextExample,
-            },
-            {
-                ...KONLATT_XML,
-                example: xmlContextExample,
+                isOutput: true,
+                isInput: true,
+                example: convertToXml(CONTEXT.objects, CONTEXT.attributes, CONCEPTS, CONTEXT.name ?? "", LATTICE.superconceptsMapping).lines,
             },
         ],
     },
@@ -182,14 +301,14 @@ function DialogContent() {
     return (
         <div
             onScroll={onScroll}
-            className="px-5 grid grid-cols-1 md:grid-cols-[1fr_15rem] gap-5 max-h-full overflow-y-auto thin-scrollbar">
+            className="px-5 grid grid-cols-1 md:grid-cols-[calc(100%-15rem)_1fr] gap-5 max-h-full max-w-full overflow-y-auto thin-scrollbar">
             <div
                 className="col-start-2 hidden md:block">
                 <Contents
                     scrolledToExportedObjectId={scrolledToExportedObjectId} />
             </div>
             <div
-                className="col-start-1 col-end-2 row-start-1">
+                className="col-start-1 col-end-2 row-start-1 overflow-x-clip">
                 {EXPORTED_OBJECTS.map((exportedObject) =>
                     <ExportedObjectSection
                         key={exportedObject.id}
@@ -279,11 +398,11 @@ function ExportedObjectSection(props: {
                     </Button>)}
             </HorizontalScroller>
 
-            <InputOutputList
-                exportedObject={props.exportedObject} />
-
             {selectedFormat &&
                 <>
+                    <InputOutputList
+                        format={selectedFormat} />
+
                     {selectedFormat.description &&
                         <p
                             className="mb-3">
@@ -326,20 +445,20 @@ function Pill(props: {
 }
 
 function InputOutputList(props: {
-    exportedObject: ExportedObject,
+    format: Format,
 }) {
-    if (!props.exportedObject.isInput && !props.exportedObject.isOutput) {
+    if (!props.format.isInput && !props.format.isOutput) {
         return undefined;
     }
 
     return (
         <div
             className="flex gap-2 mb-4">
-            {props.exportedObject.isInput &&
+            {props.format.isInput &&
                 <Pill>
                     Input
                 </Pill>}
-            {props.exportedObject.isOutput &&
+            {props.format.isOutput &&
                 <Pill>
                     Output
                 </Pill>}

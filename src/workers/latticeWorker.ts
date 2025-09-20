@@ -4,13 +4,13 @@ import { ConceptComputationResponse, ContextParsingResponse, ErrorResponse, Fini
 import { FormalContext } from "../types/FormalContext";
 import { FormalConcepts, getInfimum, getSupremum } from "../types/FormalConcepts";
 import DiagramLayoutWorker from "./diagramLayoutWorker?worker";
-import { calculateSublattice, calculateVisibleConceptIndexes } from "../utils/lattice";
 import { createConceptPoint } from "../types/ConceptPoint";
 import { Point } from "../types/Point";
 import { LayoutWorkerResponse } from "../types/LayoutWorkerResponse";
 import { LayoutComputationOptions } from "../types/LayoutComputationOptions";
 import { ImportFormat } from "../types/ImportFormat";
 import { CsvSeparator } from "../types/CsvSeparator";
+import { calculateConeConceptIndexes, calculateSublattice } from "../services/lattice";
 
 let formalContext: FormalContext | null = null;
 let formalConcepts: FormalConcepts | null = null;
@@ -94,12 +94,13 @@ async function parseFileContent(jobId: number, fileContent: string, format: Impo
     }
 
     // https://www.audjust.com/blog/wasm-and-workers
-    const { parseFileContent } = await import("../services/parsing");
+    const { parseFileContent } = await tryThrow(import("../services/parsing"), "Scripts could not be loaded.");
 
-    const { context, concepts } = await parseFileContent(fileContent, format, separator);
+    const { context, concepts, lattice } = await parseFileContent(fileContent, format, separator);
 
     formalContext = context;
     formalConcepts = concepts || null;
+    conceptLattice = lattice || null;
 
     self.postMessage(createContextParsingResponse(jobId, formalContext));
 }
@@ -112,7 +113,7 @@ async function calculateConcepts(jobId: number, context: FormalContext) {
         return;
     }
 
-    const { computeConcepts } = await import("../services/conceptComputation");
+    const { computeConcepts } = await tryThrow(import("../services/concepts"), "Scripts could not be loaded.");
 
     const { concepts, computationTime } = await tryThrow(
         computeConcepts(context, (progress) => postProgressMessage(jobId, progress)),
@@ -124,21 +125,18 @@ async function calculateConcepts(jobId: number, context: FormalContext) {
 async function calculateLattice(jobId: number, concepts: FormalConcepts, context: FormalContext) {
     postStatusMessage(jobId, "Computing lattice");
 
-    const { conceptsToLattice } = await import("../services/latticeComputation");
+    if (conceptLattice) {
+        self.postMessage(createLatticeComputationResponse(jobId, conceptLattice));
+        return;
+    }
+
+    const { conceptsToLattice } = await tryThrow(import("../services/lattice"), "Scripts could not be loaded.");
 
     const { lattice, computationTime } = await tryThrow(
         conceptsToLattice(concepts, context, (progress) => postProgressMessage(jobId, progress)),
         "Lattice computation failed");
     conceptLattice = lattice;
-    const latticeMessage: LatticeComputationResponse = {
-        jobId,
-        time: new Date().getTime(),
-        type: "lattice",
-        lattice: conceptLattice,
-        computationTime,
-    };
-
-    self.postMessage(latticeMessage);
+    self.postMessage(createLatticeComputationResponse(jobId, conceptLattice, computationTime));
 }
 
 async function calculateLayout(
@@ -251,6 +249,16 @@ function createConceptComputationResponse(jobId: number, concepts: FormalConcept
     };
 }
 
+function createLatticeComputationResponse(jobId: number, lattice: ConceptLattice, computationTime?: number): LatticeComputationResponse {
+    return {
+        jobId,
+        time: new Date().getTime(),
+        type: "lattice",
+        lattice,
+        computationTime,
+    };
+}
+
 function createCompleteLayoutComputationRequest(
     concepts: FormalConcepts,
     lattice: ConceptLattice,
@@ -261,7 +269,7 @@ function createCompleteLayoutComputationRequest(
     request: CompleteLayoutComputationRequest,
     reverseIndexMapping: Map<number, number> | null,
 } {
-    const visibleConceptIndexes = calculateVisibleConceptIndexes(upperConeOnlyConceptIndex, lowerConeOnlyConceptIndex, lattice);
+    const visibleConceptIndexes = calculateConeConceptIndexes(upperConeOnlyConceptIndex, lowerConeOnlyConceptIndex, lattice);
 
     if (visibleConceptIndexes === null) {
         // TODO: use iterators when available: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Iterator/flatMap

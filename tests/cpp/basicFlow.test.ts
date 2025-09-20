@@ -1,7 +1,7 @@
 import { expect, test, describe } from "vitest";
 import { parseFileContent } from "../../src/services/parsing";
-import { computeConcepts } from "../../src/services/conceptComputation";
-import { conceptsToLattice } from "../../src/services/latticeComputation";
+import { computeConcepts } from "../../src/services/concepts";
+import { conceptsToLattice } from "../../src/services/lattice";
 import { FormalContext } from "../../src/types/FormalContext";
 import { FormalConcepts, getSupremum } from "../../src/types/FormalConcepts";
 import { ConceptLattice } from "../../src/types/ConceptLattice";

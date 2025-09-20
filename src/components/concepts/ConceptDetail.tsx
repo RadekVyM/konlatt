@@ -15,6 +15,7 @@ import Found from "../Found";
 import useDataStructuresStore from "../../stores/useDataStructuresStore";
 import Tooltip from "../Tooltip";
 import ExportConceptButton from "../export/ExportConceptButton";
+import HorizontalScroller from "../HorizontalScroller";
 
 type TabItem = "objects" | "attributes"
 
@@ -94,19 +95,21 @@ function TabBar(props: {
 }) {
     return (
         <div
-            className={cn(props.className, "flex gap-2 px-4")}>
-            <TabButton
-                item="objects"
-                isSelected={"objects" === props.currentTab}
-                setItem={props.setCurrentTab}>
-                <LuShapes /> Objects
-            </TabButton>
-            <TabButton
-                item="attributes"
-                isSelected={"attributes" === props.currentTab}
-                setItem={props.setCurrentTab}>
-                <LuTags /> Attributes
-            </TabButton>
+            className={cn(props.className, "px-4")}>
+            <HorizontalScroller>
+                <TabButton
+                    item="objects"
+                    isSelected={"objects" === props.currentTab}
+                    setItem={props.setCurrentTab}>
+                    <LuShapes /> Objects
+                </TabButton>
+                <TabButton
+                    item="attributes"
+                    isSelected={"attributes" === props.currentTab}
+                    setItem={props.setCurrentTab}>
+                    <LuTags /> Attributes
+                </TabButton>
+            </HorizontalScroller>
         </div>
     );
 }
