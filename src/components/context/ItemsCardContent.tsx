@@ -7,27 +7,41 @@ import CardItemsLazyList from "../CardItemsLazyList";
 import CardSectionTitle from "../CardSectionTitle";
 import NothingFound from "../NothingFound";
 import CardSection from "../CardSection";
-import { searchStringFilter, searchTermsToRegex } from "../../utils/search";
-import FilterOrderBar from "../FilterOrderBar";
+import { searchTermsToRegex } from "../../utils/search";
+import FilterSortBar from "../FilterSortBar";
 import Found from "../Found";
+import { ContextItem } from "./types";
+import useDebouncedSetter from "../../hooks/useDebouncedSetter";
+import { ItemSortType } from "../../types/SortType";
+import { SortDirection } from "../../types/SortDirection";
 
-export default function ItemsCardContent(props: {
+export default function ItemsCardContent<TItem extends ContextItem>(props: {
+    id: string,
     title: string,
     count: number,
     searchInputPlaceholder: string,
     filterTitle: string,
     sortTitle: string,
-    items: Array<any>,
+    items: Array<TItem>,
+    filteredItemIndexes: Set<number> | null,
     disabled?: boolean,
     exportButton?: React.ReactNode,
     className?: string,
-    itemKey: (item: any) => string | number,
-    itemContent: (item: any, searchRegex?: RegExp) => React.ReactNode,
-    setSelectedItem: (item: any) => void,
+    searchTerms: Array<string>,
+    storedSearchInput: string,
+    sortType: ItemSortType,
+    sortDirection: SortDirection,
+    itemKey: (item: TItem) => string | number,
+    itemContent: (item: TItem, searchRegex?: RegExp) => React.ReactNode,
+    setSelectedItem: (item: TItem) => void,
+    updateSearchInput: (debouncedSearchInput: string) => void,
+    onSortTypeChange: (key: ItemSortType) => void,
+    onSortDirectionChange: (key: SortDirection) => void,
 }) {
-    const [searchInput, setSearchInput] = useState<string>("");
-    const searchTerms = searchInput.trim().split(" ").filter((t) => t.length > 0);
-    const filteredItems = props.items.filter((item) => searchStringFilter(item.title, searchTerms));
+    const [searchInput, setSearchInput] = useState<string>(props.storedSearchInput);
+    const filteredItems = useFilteredItems(props.items, props.filteredItemIndexes, props.sortType, props.sortDirection);
+
+    useDebouncedSetter(searchInput, props.updateSearchInput, 200);
 
     return (
         <CardSection
@@ -47,10 +61,26 @@ export default function ItemsCardContent(props: {
                         onChange={setSearchInput}
                         placeholder={props.searchInputPlaceholder}
                         disabled={props.disabled} />
-                    <FilterOrderBar
+                    <FilterSortBar<ItemSortType>
                         filterTitle={props.filterTitle}
                         sortTitle={props.sortTitle}
-                        disabled={props.disabled} />
+                        disabled={props.disabled}
+                        id={`${props.id}-actions`}
+                        justify="right"
+                        sortType={props.sortType}
+                        sortDirection={props.sortDirection}
+                        onSortTypeChange={props.onSortTypeChange}
+                        onSortDirectionChange={props.onSortDirectionChange}
+                        sortItems={[
+                            {
+                                key: "default",
+                                label: "Default",
+                            },
+                            {
+                                key: "alphabet",
+                                label: "Alphabet",
+                            },
+                        ]} />
                 </div>
 
                 <Found
@@ -61,7 +91,7 @@ export default function ItemsCardContent(props: {
 
             <List
                 className="flex-1"
-                searchTerms={searchTerms}
+                searchTerms={props.searchTerms}
                 items={filteredItems}
                 itemKey={props.itemKey}
                 itemContent={props.itemContent}
@@ -108,4 +138,29 @@ function List(props: {
                 </li>)}
         </CardItemsLazyList>
     );
+}
+
+function useFilteredItems<T extends ContextItem>(
+    items: ReadonlyArray<T>,
+    filteredItemIndexes: Set<number> | null,
+    sortType: ItemSortType,
+    sortDirection: SortDirection,
+) {
+    const result = new Array<T>();
+
+    for (let i = 0; i < items.length; i++) {
+        if (!filteredItemIndexes || filteredItemIndexes.has(i)) {
+            result.push(items[i]);
+        }
+    }
+
+    if (sortType === "alphabet") {
+        result.sort((a, b) => a.title < b.title ? -1 : 1);
+    }
+
+    if (sortDirection === "desc") {
+        result.reverse();
+    }
+
+    return result;
 }

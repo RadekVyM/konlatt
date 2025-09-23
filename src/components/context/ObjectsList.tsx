@@ -19,6 +19,14 @@ export default function ObjectsList(props: {
     const context = useDataStructuresStore((state) => state.context);
     const selectedObjectIndex = useContextStore((state) => state.selectedObject);
     const setSelectedObjectIndex = useContextStore((state) => state.setSelectedObject);
+    const filteredObjects = useContextStore((state) => state.filteredObjects);
+    const objectsSortType = useContextStore((state) => state.objectsSortType);
+    const setObjectsSortType = useContextStore((state) => state.setObjectsSortType);
+    const objectsSortDirection = useContextStore((state) => state.objectsSortDirection);
+    const setObjectsSortDirection = useContextStore((state) => state.setObjectsSortDirection);
+    const searchTerms = useContextStore((state) => state.objectsSearchTerms);
+    const debouncedSearchInput = useContextStore((state) => state.debouncedObjectsSearchInput);
+    const updateSearchInput = useContextStore((state) => state.setDebouncedObjectsSearchInput);
     const objects = (context?.objects || []).map<ContextObjectItem>((title, index) => ({ index, title }));
     const selectedObject = context && selectedObjectIndex !== null ?
         getContextObject(context, selectedObjectIndex) :
@@ -27,9 +35,11 @@ export default function ObjectsList(props: {
     return (
         <CardContainer
             className={props.className}>
-            <ItemsCardContent
+            <ItemsCardContent<ContextItem>
+                id="objects-list"
                 className={cn(selectedObject && "hidden")}
                 items={objects}
+                filteredItemIndexes={filteredObjects}
                 title="Objects"
                 exportButton={
                     <ExportObjectsButton
@@ -45,7 +55,14 @@ export default function ObjectsList(props: {
                         regex={regex} />}
                 itemKey={(item: ContextObjectItem) => item.index}
                 setSelectedItem={(item: ContextObjectItem) => setSelectedObjectIndex(item.index)}
-                disabled={context === null} />
+                disabled={context === null}
+                searchTerms={searchTerms}
+                storedSearchInput={debouncedSearchInput}
+                updateSearchInput={updateSearchInput}
+                sortType={objectsSortType}
+                onSortTypeChange={setObjectsSortType}
+                sortDirection={objectsSortDirection}
+                onSortDirectionChange={setObjectsSortDirection} />
             {selectedObject &&
                 <ItemCardContent
                     item={selectedObject}

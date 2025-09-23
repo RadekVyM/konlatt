@@ -117,7 +117,7 @@ export default function NewProjectDialog(props: {
                                 className="mb-4"
                                 accept={FILE_INPUT_ACCEPT}
                                 file={selectedFile}
-                                onFileSelect={setSelectedFile}
+                                onFileSelect={onFileSelect}
                                 disabled={disabled}>
                                 {selectedFile?.name || "Choose file"}
                             </FileSelection>

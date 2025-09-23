@@ -7,7 +7,7 @@ import { CardContainer } from "../CardContainer";
 import ConceptDetail from "./ConceptDetail";
 import NothingFound from "../NothingFound";
 import CardSection from "../CardSection";
-import FilterOrderBar from "../FilterOrderBar";
+import FilterSortBar from "../FilterSortBar";
 import Found from "../Found";
 import { FormalConcept, FormalConcepts } from "../../types/FormalConcepts";
 import { FormalContext } from "../../types/FormalContext";
@@ -17,6 +17,8 @@ import SearchInput from "../inputs/SearchInput";
 import useDataStructuresStore from "../../stores/useDataStructuresStore";
 import useDebouncedSetter from "../../hooks/useDebouncedSetter";
 import ExportConceptsButton from "../export/ExportConceptsButton";
+import { ConceptSortType } from "../../types/SortType";
+import { SortDirection } from "../../types/SortDirection";
 
 const MAX_TEXT_LENGTH = 500;
 
@@ -29,6 +31,10 @@ export default function Concepts(props: {
     filteredConcepts: FormalConcepts | null,
     searchTerms: Array<string>,
     storedSearchInput: string,
+    sortType: ConceptSortType,
+    sortDirection: SortDirection,
+    onSortTypeChange: (key: ConceptSortType) => void,
+    onSortDirectionChange: (key: SortDirection) => void,
     setSelectedConceptIndex: React.Dispatch<React.SetStateAction<number | null>>,
     updateSearchInput: (debouncedSearchInput: string) => void,
 }) {
@@ -43,7 +49,11 @@ export default function Concepts(props: {
                 storedSearchInput={props.storedSearchInput}
                 updateSearchInput={props.updateSearchInput}
                 setSelectedConceptIndex={props.setSelectedConceptIndex}
-                visibleConceptIndexes={props.visibleConceptIndexes} />
+                visibleConceptIndexes={props.visibleConceptIndexes}
+                sortType={props.sortType}
+                sortDirection={props.sortDirection}
+                onSortTypeChange={props.onSortTypeChange}
+                onSortDirectionChange={props.onSortDirectionChange} />
             {props.selectedConceptIndex !== null &&
                 <ConceptDetail
                     key={props.selectedConceptIndex}
@@ -62,6 +72,10 @@ function ConceptsList(props: {
     filteredConcepts: FormalConcepts | null,
     searchTerms: Array<string>,
     storedSearchInput: string,
+    sortType: ConceptSortType,
+    sortDirection: SortDirection,
+    onSortTypeChange: (key: ConceptSortType) => void,
+    onSortDirectionChange: (key: SortDirection) => void,
     setSelectedConceptIndex: (index: number | null) => void,
     updateSearchInput: (debouncedSearchInput: string) => void,
 }) {
@@ -71,7 +85,11 @@ function ConceptsList(props: {
 
     useDebouncedSetter(searchInput, props.updateSearchInput, 400);
 
-    const groupedFilteredConcepts = groupByVisibility(props.filteredConcepts || concepts || [], props.visibleConceptIndexes);
+    const groupedFilteredConcepts = useGroupedAndSorted(
+        props.filteredConcepts || concepts || [],
+        props.visibleConceptIndexes,
+        props.sortType,
+        props.sortDirection);
 
     return (
         <CardSection
@@ -97,10 +115,30 @@ function ConceptsList(props: {
                         value={searchInput}
                         onChange={setSearchInput}
                         placeholder="Search concepts..." />
-                    <FilterOrderBar
+                    <FilterSortBar<ConceptSortType>
                         filterTitle="Filter concepts"
                         sortTitle="Sort concepts"
-                        disabled={disabled} />
+                        disabled={disabled}
+                        id="concepts-actions"
+                        justify="right"
+                        sortType={props.sortType}
+                        sortDirection={props.sortDirection}
+                        onSortTypeChange={props.onSortTypeChange}
+                        onSortDirectionChange={props.onSortDirectionChange}
+                        sortItems={[
+                            {
+                                key: "default",
+                                label: "Default",
+                            },
+                            {
+                                key: "objects-count",
+                                label: "Objects count",
+                            },
+                            {
+                                key: "attributes-count",
+                                label: "Attributes count",
+                            },
+                        ]} />
                 </div>
 
                 <Found
@@ -193,12 +231,41 @@ function ListItemButton(props: {
     );
 }
 
-function groupByVisibility(
+function useGroupedAndSorted(
+    concepts: ReadonlyArray<FormalConcept>,
+    visibleConceptIndexes: Set<number> | null | undefined,
+    sortType: ConceptSortType,
+    sortDirection: SortDirection,
+) {
+    const { start, end } = useGroupedByVisibility(concepts, visibleConceptIndexes);
+
+    if (sortType === "objects-count") {
+        start.sort((a, b) => a.objects.length - b.objects.length);
+        end.sort((a, b) => a.objects.length - b.objects.length);
+    }
+
+    if (sortType === "attributes-count") {
+        start.sort((a, b) => a.attributes.length - b.attributes.length);
+        end.sort((a, b) => a.attributes.length - b.attributes.length);
+    }
+
+    if (sortDirection === "desc") {
+        start.reverse();
+        end.reverse();
+    }
+
+    return [...start, ...end];
+}
+
+function useGroupedByVisibility(
     concepts: ReadonlyArray<FormalConcept>,
     visibleConceptIndexes: Set<number> | null | undefined,
 ) {
     if (!visibleConceptIndexes) {
-        return concepts;
+        return {
+            start: [...concepts],
+            end: [],
+        };
     }
 
     const start: Array<FormalConcept> = [];
@@ -213,5 +280,8 @@ function groupByVisibility(
         }
     }
 
-    return [...start, ...end];
+    return {
+        start,
+        end,
+    };
 }

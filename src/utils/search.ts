@@ -10,6 +10,10 @@ export function searchTermsToRegex(searchTerms: Array<string>) {
         undefined;
 }
 
+export function toSearchTerms(str: string) {
+    return str.trim().split(" ").filter((t) => t.length > 0);
+}
+
 function escapeRegex (term: string) {
     return term.replace(/[|\\{}()[\]\^$+*?.-]/g, (char: string) => `\\${char}`);
 }

@@ -22,6 +22,10 @@ function Concepts() {
     const debouncedSearchInput = useExplorerStore((state) => state.debouncedSearchInput);
     const setSelectedConceptIndex = useExplorerStore((state) => state.setSelectedConceptIndex);
     const updateSearchInput = useExplorerStore((state) => state.setDebouncedSearchInput);
+    const sortType = useExplorerStore((state) => state.sortType);
+    const sortDirection = useExplorerStore((state) => state.sortDirection);
+    const setSortType = useExplorerStore((state) => state.setSortType);
+    const setSortDirection = useExplorerStore((state) => state.setSortDirection);
 
     return (
         <ConceptsList
@@ -32,6 +36,10 @@ function Concepts() {
             filteredConcepts={filteredConcepts}
             searchTerms={searchTerms}
             storedSearchInput={debouncedSearchInput}
+            sortType={sortType}
+            sortDirection={sortDirection}
+            onSortTypeChange={setSortType}
+            onSortDirectionChange={setSortDirection}
             visibleConceptIndexes={null} />
     );
 }

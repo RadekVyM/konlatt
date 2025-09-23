@@ -19,6 +19,14 @@ export default function AttributesList(props: {
     const context = useDataStructuresStore((state) => state.context);
     const selectedAttributeIndex = useContextStore((state) => state.selectedAttribute);
     const setSelectedAttributeIndex = useContextStore((state) => state.setSelectedAttribute);
+    const filteredAttributes = useContextStore((state) => state.filteredAttributes);
+    const attributesSortType = useContextStore((state) => state.attributesSortType);
+    const setAttributesSortType = useContextStore((state) => state.setAttributesSortType);
+    const attributesSortDirection = useContextStore((state) => state.attributesSortDirection);
+    const setAttributesSortDirection = useContextStore((state) => state.setAttributesSortDirection);
+    const searchTerms = useContextStore((state) => state.attributesSearchTerms);
+    const debouncedSearchInput = useContextStore((state) => state.debouncedAttributesSearchInput);
+    const updateSearchInput = useContextStore((state) => state.setDebouncedAttributesSearchInput);
     const attributes = (context?.attributes || []).map<ContextAttributeItem>((title, index) => ({ index, title }));
     const selectedAttribute = context && selectedAttributeIndex !== null ?
         getContextAttribute(context, selectedAttributeIndex) :
@@ -27,9 +35,11 @@ export default function AttributesList(props: {
     return (
         <CardContainer
             className={props.className}>
-            <ItemsCardContent
+            <ItemsCardContent<ContextItem>
+                id="attributes-list"
                 className={cn(selectedAttribute && "hidden")}
                 items={attributes}
+                filteredItemIndexes={filteredAttributes}
                 title="Attributes"
                 exportButton={
                     <ExportAttributesButton
@@ -45,7 +55,14 @@ export default function AttributesList(props: {
                         regex={regex} />}
                 itemKey={(item: ContextAttributeItem) => item.index}
                 setSelectedItem={(item: ContextAttributeItem) => setSelectedAttributeIndex(item.index)}
-                disabled={context === null} />
+                disabled={context === null}
+                searchTerms={searchTerms}
+                storedSearchInput={debouncedSearchInput}
+                updateSearchInput={updateSearchInput}
+                sortType={attributesSortType}
+                onSortTypeChange={setAttributesSortType}
+                sortDirection={attributesSortDirection} 
+                onSortDirectionChange={setAttributesSortDirection} />
             {selectedAttribute &&
                 <ItemCardContent
                     item={selectedAttribute}

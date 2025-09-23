@@ -70,6 +70,10 @@ function Concepts(props: {
     const debouncedSearchInput = useDiagramStore((state) => state.debouncedSearchInput);
     const setSelectedConceptIndex = useDiagramStore((state) => state.setSelectedConceptIndex);
     const updateSearchInput = useDiagramStore((state) => state.setDebouncedSearchInput);
+    const sortType = useDiagramStore((state) => state.sortType);
+    const sortDirection = useDiagramStore((state) => state.sortDirection);
+    const setSortType = useDiagramStore((state) => state.setSortType);
+    const setSortDirection = useDiagramStore((state) => state.setSortDirection);
 
     return (
         <ConceptsList
@@ -81,6 +85,10 @@ function Concepts(props: {
             filteredConcepts={filteredConcepts}
             searchTerms={searchTerms}
             storedSearchInput={debouncedSearchInput}
+            sortType={sortType}
+            sortDirection={sortDirection}
+            onSortTypeChange={setSortType}
+            onSortDirectionChange={setSortDirection}
             visibleConceptIndexes={visibleConceptIndexes}
             controls={selectedConceptIndex !== null &&
                 <ConceptDiagramControls

@@ -1,16 +1,23 @@
 import { FormalConcept, FormalConcepts } from "../types/FormalConcepts";
 import { FormalContext } from "../types/FormalContext";
+import { SortDirection } from "../types/SortDirection";
+import { ConceptSortType } from "../types/SortType";
+import { toSearchTerms } from "../utils/search";
 import useDataStructuresStore from "./useDataStructuresStore";
 
 type ConceptsFilterSliceState = {
     debouncedSearchInput: string,
     searchTerms: Array<string>,
+    sortType: ConceptSortType,
+    sortDirection: SortDirection,
     filteredConceptIndexes: Set<number> | null,
     filteredConcepts: FormalConcepts | null,
 }
 
 type ConceptsFilterSliceActions = {
     setDebouncedSearchInput: (debouncedSearchInput: string) => void,
+    setSortType: (objecsortTypetsSortType: ConceptSortType) => void,
+    setSortDirection: (sortDirection: SortDirection) => void,
 }
 
 export type ConceptsFilterSlice = ConceptsFilterSliceState & ConceptsFilterSliceActions
@@ -18,6 +25,8 @@ export type ConceptsFilterSlice = ConceptsFilterSliceState & ConceptsFilterSlice
 export const initialState: ConceptsFilterSliceState = {
     debouncedSearchInput: "",
     searchTerms: [],
+    sortType: "default",
+    sortDirection: "asc",
     filteredConceptIndexes: null,
     filteredConcepts: null,
 };
@@ -26,8 +35,8 @@ export default function createConceptsFilterSlice(set: (partial: ConceptsFilterS
     return {
         ...initialState,
         setDebouncedSearchInput: (debouncedSearchInput) => set(() => {
-            const searchTerms = debouncedSearchInput.trim().split(" ").filter((t) => t.length > 0);
-    
+            const searchTerms = toSearchTerms(debouncedSearchInput);
+
             if (searchTerms.length === 0) {
                 return {
                     debouncedSearchInput,
@@ -36,12 +45,12 @@ export default function createConceptsFilterSlice(set: (partial: ConceptsFilterS
                     filteredConcepts: null,
                 };
             }
-    
+
             const concepts = useDataStructuresStore.getState().concepts;
             const context = useDataStructuresStore.getState().context;
             const filteredIndexes: Array<number> = [];
             const filteredConcepts: Array<FormalConcept> = [];
-    
+
             if (concepts && context) {
                 for (const concept of concepts) {
                     if (conceptsFilter(concept, searchTerms, context)) {
@@ -50,7 +59,7 @@ export default function createConceptsFilterSlice(set: (partial: ConceptsFilterS
                     }
                 }
             }
-    
+
             return {
                 debouncedSearchInput,
                 searchTerms,
@@ -58,6 +67,8 @@ export default function createConceptsFilterSlice(set: (partial: ConceptsFilterS
                 filteredConcepts,
             };
         }),
+        setSortDirection: (sortDirection) => set({ sortDirection }),
+        setSortType: (sortType) => set({ sortType }),
     };
 }
 
