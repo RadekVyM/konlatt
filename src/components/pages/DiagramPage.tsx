@@ -74,6 +74,9 @@ function Concepts(props: {
     const sortDirection = useDiagramStore((state) => state.sortDirection);
     const setSortType = useDiagramStore((state) => state.setSortType);
     const setSortDirection = useDiagramStore((state) => state.setSortDirection);
+    const selectedFilterObjects = useDiagramStore((state) => state.selectedFilterObjects);
+    const selectedFilterAttributes = useDiagramStore((state) => state.selectedFilterAttributes);
+    const setSelectedFilters = useDiagramStore((state) => state.setSelectedFilters);
 
     return (
         <ConceptsList
@@ -90,6 +93,9 @@ function Concepts(props: {
             onSortTypeChange={setSortType}
             onSortDirectionChange={setSortDirection}
             visibleConceptIndexes={visibleConceptIndexes}
+            selectedFilterObjects={selectedFilterObjects}
+            selectedFilterAttributes={selectedFilterAttributes}
+            onSelectedFiltersChange={setSelectedFilters}
             controls={selectedConceptIndex !== null &&
                 <ConceptDiagramControls
                     selectedConceptIndex={selectedConceptIndex}

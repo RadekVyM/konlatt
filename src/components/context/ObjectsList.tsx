@@ -27,6 +27,8 @@ export default function ObjectsList(props: {
     const searchTerms = useContextStore((state) => state.objectsSearchTerms);
     const debouncedSearchInput = useContextStore((state) => state.debouncedObjectsSearchInput);
     const updateSearchInput = useContextStore((state) => state.setDebouncedObjectsSearchInput);
+    const selectedFilterAttributes = useContextStore((state) => state.selectedFilterAttributes);
+    const setSelectedFilterAttributes = useContextStore((state) => state.setSelectedFilterAttributes);
     const objects = (context?.objects || []).map<ContextObjectItem>((title, index) => ({ index, title }));
     const selectedObject = context && selectedObjectIndex !== null ?
         getContextObject(context, selectedObjectIndex) :
@@ -47,6 +49,7 @@ export default function ObjectsList(props: {
                         route={`${props.route}/objects/export`} />}
                 count={context?.objects.length || 0}
                 searchInputPlaceholder="Search objects..."
+                searchFilterItemsPlaceholder="Search attributes..."
                 filterTitle="Filter objects"
                 sortTitle="Sort objects"
                 itemContent={(item: ContextObjectItem, regex) =>
@@ -62,7 +65,10 @@ export default function ObjectsList(props: {
                 sortType={objectsSortType}
                 onSortTypeChange={setObjectsSortType}
                 sortDirection={objectsSortDirection}
-                onSortDirectionChange={setObjectsSortDirection} />
+                onSortDirectionChange={setObjectsSortDirection}
+                filterItems={context?.attributes || []}
+                selectedFilterItems={selectedFilterAttributes}
+                onSelectedFilterItemsChange={setSelectedFilterAttributes} />
             {selectedObject &&
                 <ItemCardContent
                     item={selectedObject}

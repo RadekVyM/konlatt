@@ -1,6 +1,6 @@
-import { LuArrowDownUp, LuFilter } from "react-icons/lu";
-import Button from "./inputs/Button";
-import DropDownMenu, { DropDownMenuItem, useDropDownMenuContext } from "./inputs/DropDownMenu";
+import { LuArrowDownUp, LuDot, LuFilter } from "react-icons/lu";
+import Button from "../inputs/Button";
+import DropDownMenu, { DropDownMenuItem, useDropDownMenuContext } from "../inputs/DropDownMenu";
 
 type SortDirection = "asc" | "desc"
 
@@ -13,6 +13,8 @@ export default function FilterSortBar<TSortType extends string>(props: {
     sortItems: Array<DropDownMenuItem<TSortType>>,
     sortType: TSortType,
     sortDirection: SortDirection,
+    withFilterIndicator?: boolean,
+    onFilterClick: () => void,
     onSortTypeChange: (key: TSortType) => void,
     onSortDirectionChange: (key: SortDirection) => void,
 }) {
@@ -20,11 +22,17 @@ export default function FilterSortBar<TSortType extends string>(props: {
         <div
             className="flex gap-1.5">
             <Button
+                className="relative"
                 title={props.filterTitle || "Filter"}
                 variant="icon-secondary"
                 size="sm"
-                disabled={props.disabled}>
+                disabled={props.disabled}
+                onClick={props.onFilterClick}>
                 <LuFilter />
+
+                {props.withFilterIndicator &&
+                    <LuDot
+                        className="absolute -top-5 -right-5 text-primary w-10 h-10 aspect-square rounded-full pointer-events-none" />}
             </Button>
             <SortButton<TSortType>
                 sortTitle={props.sortTitle}

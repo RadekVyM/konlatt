@@ -8,12 +8,14 @@ import CardSectionTitle from "../CardSectionTitle";
 import NothingFound from "../NothingFound";
 import CardSection from "../CardSection";
 import { searchTermsToRegex } from "../../utils/search";
-import FilterSortBar from "../FilterSortBar";
+import FilterSortBar from "../filters/FilterSortBar";
 import Found from "../Found";
 import { ContextItem } from "./types";
 import useDebouncedSetter from "../../hooks/useDebouncedSetter";
 import { ItemSortType } from "../../types/SortType";
 import { SortDirection } from "../../types/SortDirection";
+import useDialog from "../../hooks/useDialog";
+import ContextItemsFilterDialog from "../filters/ContextItemsFilterDialog";
 
 export default function ItemsCardContent<TItem extends ContextItem>(props: {
     id: string,
@@ -31,12 +33,16 @@ export default function ItemsCardContent<TItem extends ContextItem>(props: {
     storedSearchInput: string,
     sortType: ItemSortType,
     sortDirection: SortDirection,
+    filterItems: ReadonlyArray<string>,
+    selectedFilterItems: ReadonlyArray<number>,
+    searchFilterItemsPlaceholder: string,
     itemKey: (item: TItem) => string | number,
     itemContent: (item: TItem, searchRegex?: RegExp) => React.ReactNode,
     setSelectedItem: (item: TItem) => void,
     updateSearchInput: (debouncedSearchInput: string) => void,
     onSortTypeChange: (key: ItemSortType) => void,
     onSortDirectionChange: (key: SortDirection) => void,
+    onSelectedFilterItemsChange: (selectedItems: ReadonlyArray<number>) => void,
 }) {
     const [searchInput, setSearchInput] = useState<string>(props.storedSearchInput);
     const filteredItems = useFilteredItems(props.items, props.filteredItemIndexes, props.sortType, props.sortDirection);
@@ -53,35 +59,22 @@ export default function ItemsCardContent<TItem extends ContextItem>(props: {
                     <CardSectionTitle className="mx-4">{props.title}</CardSectionTitle>
                     {props.exportButton}
                 </div>
-                <div
-                    className="self-stretch flex mx-4 mb-2 gap-2">
-                    <SearchInput
-                        className="flex-1"
-                        value={searchInput}
-                        onChange={setSearchInput}
-                        placeholder={props.searchInputPlaceholder}
-                        disabled={props.disabled} />
-                    <FilterSortBar<ItemSortType>
-                        filterTitle={props.filterTitle}
-                        sortTitle={props.sortTitle}
-                        disabled={props.disabled}
-                        id={`${props.id}-actions`}
-                        justify="right"
-                        sortType={props.sortType}
-                        sortDirection={props.sortDirection}
-                        onSortTypeChange={props.onSortTypeChange}
-                        onSortDirectionChange={props.onSortDirectionChange}
-                        sortItems={[
-                            {
-                                key: "default",
-                                label: "Default",
-                            },
-                            {
-                                key: "alphabet",
-                                label: "Alphabet",
-                            },
-                        ]} />
-                </div>
+                <Search
+                    id={props.id}
+                    filterTitle={props.filterTitle}
+                    sortTitle={props.sortTitle}
+                    searchInputPlaceholder={props.searchInputPlaceholder}
+                    searchFilterItemsPlaceholder={props.searchFilterItemsPlaceholder}
+                    disabled={props.disabled}
+                    searchInput={searchInput}
+                    setSearchInput={setSearchInput}
+                    sortType={props.sortType}
+                    sortDirection={props.sortDirection}
+                    onSortTypeChange={props.onSortTypeChange}
+                    onSortDirectionChange={props.onSortDirectionChange}
+                    filterItems={props.filterItems}
+                    selectedFilterItems={props.selectedFilterItems}
+                    onSelectedFilterItemsChange={props.onSelectedFilterItemsChange} />
 
                 <Found
                     className="mx-4"
@@ -97,6 +90,67 @@ export default function ItemsCardContent<TItem extends ContextItem>(props: {
                 itemContent={props.itemContent}
                 setSelectedItem={props.setSelectedItem} />
         </CardSection>
+    );
+}
+
+function Search(props: {
+    disabled?: boolean,
+    sortType: ItemSortType,
+    sortDirection: SortDirection,
+    searchInput: string,
+    searchInputPlaceholder: string,
+    filterTitle: string,
+    sortTitle: string,
+    id: string,
+    filterItems: ReadonlyArray<string>,
+    selectedFilterItems: ReadonlyArray<number>,
+    searchFilterItemsPlaceholder: string,
+    setSearchInput: React.Dispatch<React.SetStateAction<string>>,
+    onSortTypeChange: (key: ItemSortType) => void,
+    onSortDirectionChange: (key: SortDirection) => void,
+    onSelectedFilterItemsChange: (selectedItems: ReadonlyArray<number>) => void,
+}) {
+    const filterDialogState = useDialog();
+
+    return (
+        <div
+            className="self-stretch flex mx-4 mb-2 gap-2">
+            <SearchInput
+                className="flex-1"
+                value={props.searchInput}
+                onChange={props.setSearchInput}
+                placeholder={props.searchInputPlaceholder}
+                disabled={props.disabled} />
+            <FilterSortBar<ItemSortType>
+                onFilterClick={filterDialogState.show}
+                withFilterIndicator={props.selectedFilterItems.length > 0}
+                filterTitle={props.filterTitle}
+                sortTitle={props.sortTitle}
+                disabled={props.disabled}
+                id={`${props.id}-actions`}
+                justify="right"
+                sortType={props.sortType}
+                sortDirection={props.sortDirection}
+                onSortTypeChange={props.onSortTypeChange}
+                onSortDirectionChange={props.onSortDirectionChange}
+                sortItems={[
+                    {
+                        key: "default",
+                        label: "Default",
+                    },
+                    {
+                        key: "alphabet",
+                        label: "Alphabet",
+                    },
+                ]} />
+
+            <ContextItemsFilterDialog
+                searchFilterItemsPlaceholder={props.searchFilterItemsPlaceholder}
+                state={filterDialogState}
+                items={props.filterItems}
+                selectedItems={props.selectedFilterItems}
+                onApply={props.onSelectedFilterItemsChange} />
+        </div>
     );
 }
 

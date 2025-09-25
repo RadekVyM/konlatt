@@ -7,7 +7,7 @@ import { CardContainer } from "../CardContainer";
 import ConceptDetail from "./ConceptDetail";
 import NothingFound from "../NothingFound";
 import CardSection from "../CardSection";
-import FilterSortBar from "../FilterSortBar";
+import FilterSortBar from "../filters/FilterSortBar";
 import Found from "../Found";
 import { FormalConcept, FormalConcepts } from "../../types/FormalConcepts";
 import { FormalContext } from "../../types/FormalContext";
@@ -19,6 +19,8 @@ import useDebouncedSetter from "../../hooks/useDebouncedSetter";
 import ExportConceptsButton from "../export/ExportConceptsButton";
 import { ConceptSortType } from "../../types/SortType";
 import { SortDirection } from "../../types/SortDirection";
+import useDialog from "../../hooks/useDialog";
+import ConceptsFilterDialog from "../filters/ConceptsFilterDialog";
 
 const MAX_TEXT_LENGTH = 500;
 
@@ -33,10 +35,13 @@ export default function Concepts(props: {
     storedSearchInput: string,
     sortType: ConceptSortType,
     sortDirection: SortDirection,
+    selectedFilterObjects: ReadonlySet<number>,
+    selectedFilterAttributes: ReadonlySet<number>,
     onSortTypeChange: (key: ConceptSortType) => void,
     onSortDirectionChange: (key: SortDirection) => void,
     setSelectedConceptIndex: React.Dispatch<React.SetStateAction<number | null>>,
     updateSearchInput: (debouncedSearchInput: string) => void,
+    onSelectedFiltersChange: (selectedObjects: ReadonlySet<number>, selectedAttributes: ReadonlySet<number>) => void,
 }) {
     return (
         <CardContainer
@@ -53,7 +58,10 @@ export default function Concepts(props: {
                 sortType={props.sortType}
                 sortDirection={props.sortDirection}
                 onSortTypeChange={props.onSortTypeChange}
-                onSortDirectionChange={props.onSortDirectionChange} />
+                onSortDirectionChange={props.onSortDirectionChange}
+                selectedFilterObjects={props.selectedFilterObjects}
+                selectedFilterAttributes={props.selectedFilterAttributes}
+                onSelectedFiltersChange={props.onSelectedFiltersChange} />
             {props.selectedConceptIndex !== null &&
                 <ConceptDetail
                     key={props.selectedConceptIndex}
@@ -74,10 +82,13 @@ function ConceptsList(props: {
     storedSearchInput: string,
     sortType: ConceptSortType,
     sortDirection: SortDirection,
+    selectedFilterObjects: ReadonlySet<number>,
+    selectedFilterAttributes: ReadonlySet<number>,
     onSortTypeChange: (key: ConceptSortType) => void,
     onSortDirectionChange: (key: SortDirection) => void,
     setSelectedConceptIndex: (index: number | null) => void,
     updateSearchInput: (debouncedSearchInput: string) => void,
+    onSelectedFiltersChange: (selectedObjects: ReadonlySet<number>, selectedAttributes: ReadonlySet<number>) => void,
 }) {
     const [searchInput, setSearchInput] = useState<string>(props.storedSearchInput);
     const concepts = useDataStructuresStore((state) => state.concepts);
@@ -107,39 +118,18 @@ function ConceptsList(props: {
                         className="mr-4"
                         route={`${props.route}/concepts/export`} />
                 </div>
-                <div
-                    className="self-stretch flex mx-4 mb-2 gap-2">
-                    <SearchInput
-                        className="flex-1"
-                        disabled={disabled}
-                        value={searchInput}
-                        onChange={setSearchInput}
-                        placeholder="Search concepts..." />
-                    <FilterSortBar<ConceptSortType>
-                        filterTitle="Filter concepts"
-                        sortTitle="Sort concepts"
-                        disabled={disabled}
-                        id="concepts-actions"
-                        justify="right"
-                        sortType={props.sortType}
-                        sortDirection={props.sortDirection}
-                        onSortTypeChange={props.onSortTypeChange}
-                        onSortDirectionChange={props.onSortDirectionChange}
-                        sortItems={[
-                            {
-                                key: "default",
-                                label: "Default",
-                            },
-                            {
-                                key: "objects-count",
-                                label: "Objects count",
-                            },
-                            {
-                                key: "attributes-count",
-                                label: "Attributes count",
-                            },
-                        ]} />
-                </div>
+
+                <Search
+                    disabled={disabled}
+                    searchInput={searchInput}
+                    setSearchInput={setSearchInput}
+                    sortType={props.sortType}
+                    sortDirection={props.sortDirection}
+                    onSortTypeChange={props.onSortTypeChange}
+                    onSortDirectionChange={props.onSortDirectionChange}
+                    selectedFilterObjects={props.selectedFilterObjects}
+                    selectedFilterAttributes={props.selectedFilterAttributes}
+                    onSelectedFiltersChange={props.onSelectedFiltersChange} />
 
                 <Found
                     className="mx-4"
@@ -154,6 +144,65 @@ function ConceptsList(props: {
                 visibleConceptIndexes={props.visibleConceptIndexes}
                 setSelectedConceptIndex={props.setSelectedConceptIndex} />
         </CardSection>
+    );
+}
+
+function Search(props: {
+    disabled?: boolean,
+    sortType: ConceptSortType,
+    sortDirection: SortDirection,
+    searchInput: string,
+    selectedFilterObjects: ReadonlySet<number>,
+    selectedFilterAttributes: ReadonlySet<number>,
+    setSearchInput: React.Dispatch<React.SetStateAction<string>>,
+    onSortTypeChange: (key: ConceptSortType) => void,
+    onSortDirectionChange: (key: SortDirection) => void,
+    onSelectedFiltersChange: (selectedObjects: ReadonlySet<number>, selectedAttributes: ReadonlySet<number>) => void,
+}) {
+    const filterDialogState = useDialog();
+
+    return (
+        <div
+            className="self-stretch flex mx-4 mb-2 gap-2">
+            <SearchInput
+                className="flex-1"
+                disabled={props.disabled}
+                value={props.searchInput}
+                onChange={props.setSearchInput}
+                placeholder="Search concepts..." />
+            <FilterSortBar<ConceptSortType>
+                withFilterIndicator={props.selectedFilterAttributes.size > 0 || props.selectedFilterObjects.size > 0}
+                filterTitle="Filter concepts"
+                sortTitle="Sort concepts"
+                disabled={props.disabled}
+                id="concepts-actions"
+                justify="right"
+                onFilterClick={filterDialogState.show}
+                sortType={props.sortType}
+                sortDirection={props.sortDirection}
+                onSortTypeChange={props.onSortTypeChange}
+                onSortDirectionChange={props.onSortDirectionChange}
+                sortItems={[
+                    {
+                        key: "default",
+                        label: "Default",
+                    },
+                    {
+                        key: "objects-count",
+                        label: "Objects count",
+                    },
+                    {
+                        key: "attributes-count",
+                        label: "Attributes count",
+                    },
+                ]} />
+
+            <ConceptsFilterDialog
+                state={filterDialogState}
+                selectedObjects={props.selectedFilterObjects}
+                selectedAttributes={props.selectedFilterAttributes}
+                onApply={props.onSelectedFiltersChange} />
+        </div>
     );
 }
 

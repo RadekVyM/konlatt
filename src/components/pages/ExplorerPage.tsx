@@ -26,6 +26,9 @@ function Concepts() {
     const sortDirection = useExplorerStore((state) => state.sortDirection);
     const setSortType = useExplorerStore((state) => state.setSortType);
     const setSortDirection = useExplorerStore((state) => state.setSortDirection);
+    const selectedFilterObjects = useExplorerStore((state) => state.selectedFilterObjects);
+    const selectedFilterAttributes = useExplorerStore((state) => state.selectedFilterAttributes);
+    const setSelectedFilters = useExplorerStore((state) => state.setSelectedFilters);
 
     return (
         <ConceptsList
@@ -40,7 +43,10 @@ function Concepts() {
             sortDirection={sortDirection}
             onSortTypeChange={setSortType}
             onSortDirectionChange={setSortDirection}
-            visibleConceptIndexes={null} />
+            visibleConceptIndexes={null}
+            selectedFilterObjects={selectedFilterObjects}
+            selectedFilterAttributes={selectedFilterAttributes}
+            onSelectedFiltersChange={setSelectedFilters} />
     );
 }
 
