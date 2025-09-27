@@ -1,0 +1,58 @@
+@reference "../../css/index.css";
+@reference "../../css/colors.css";
+@reference "../../css/animations.css";
+
+@layer components {
+    .range-slider {
+        @apply relative isolate bg-surface-light-dim-container h-4 border border-outline rounded-full cursor-pointer box-content;
+
+        &::before {
+            content: "";
+            left: calc(var(--position-bottom) * (100% - var(--spacing) * 4));
+            right: calc((100% - var(--spacing) * 4) - var(--position-top) * (100% - var(--spacing) * 4));
+            @apply absolute h-4 rounded-full bg-primary pointer-events-none select-none;
+        }
+
+        input {
+            @apply absolute inset-0 w-full appearance-none bg-transparent h-4 border border-transparent rounded-full;
+
+            &::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                width: 0;
+                height: 0;
+                border: none;
+                opacity: 0;
+            }
+
+            &::-moz-range-thumb {
+                width: 0;
+                height: 0;
+                border: none;
+                background: transparent;
+                opacity: 0;
+            }
+        }
+
+        input.range-slider-bottom::after, input.range-slider-top::after {
+            content: "";
+            top: -1px;
+            @apply absolute w-4 h-4 box-border border-primary -translate-x-1/2 rounded-full bg-on-primary pointer-events-none select-none;
+        }
+
+        input.range-slider-bottom::after {
+            left: calc(var(--spacing) * 2 + var(--position-bottom) * (100% - var(--spacing) * 4));
+        }
+
+        input.range-slider-top::after {
+            left: calc(var(--spacing) * 2 + var(--position-top) * (100% - var(--spacing) * 4));
+        }
+
+        input::after {
+            @apply border-4;
+        }
+
+        input.on-top:hover::after {
+            @apply border-3;
+        }
+    }
+}

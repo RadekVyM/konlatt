@@ -76,6 +76,10 @@ function Concepts(props: {
     const setSortDirection = useDiagramStore((state) => state.setSortDirection);
     const selectedFilterObjects = useDiagramStore((state) => state.selectedFilterObjects);
     const selectedFilterAttributes = useDiagramStore((state) => state.selectedFilterAttributes);
+    const minObjectsCount = useDiagramStore((state) => state.minObjectsCount);
+    const maxObjectsCount = useDiagramStore((state) => state.maxObjectsCount);
+    const minAttributesCount = useDiagramStore((state) => state.minAttributesCount);
+    const maxAttributesCount = useDiagramStore((state) => state.maxAttributesCount);
     const setSelectedFilters = useDiagramStore((state) => state.setSelectedFilters);
 
     return (
@@ -95,6 +99,10 @@ function Concepts(props: {
             visibleConceptIndexes={visibleConceptIndexes}
             selectedFilterObjects={selectedFilterObjects}
             selectedFilterAttributes={selectedFilterAttributes}
+            minObjectsCount={minObjectsCount}
+            maxObjectsCount={maxObjectsCount}
+            minAttributesCount={minAttributesCount}
+            maxAttributesCount={maxAttributesCount}
             onSelectedFiltersChange={setSelectedFilters}
             controls={selectedConceptIndex !== null &&
                 <ConceptDiagramControls

@@ -31,10 +31,15 @@ type Link = {
 
 export default function Links() {
     const instancedMeshRef = useRef<InstancedMesh>(null);
+    const previousHoveredConceptIndexRef = useRef<number | null>(null);
+    const previousSelectedConceptIndexRef = useRef<number | null>(null);
+    const previousHoveredLinksHighlightingEnabledRef = useRef<boolean | null>(null);
+    const previousSelectedLinksHighlightingEnabledRef = useRef<boolean | null>(null);
     const currentTheme = useGlobalsStore((state) => state.currentTheme);
     const subconceptsMapping = useDataStructuresStore((state) => state.lattice?.subconceptsMapping);
     const layout = useDiagramStore((state) => state.layout);
     const visibleConceptIndexes = useDiagramStore((state) => state.visibleConceptIndexes);
+    const filteredConceptIndexes = useDiagramStore((state) => state.filteredConceptIndexes);
     const displayHighlightedSublatticeOnly = useDiagramStore((state) => state.displayHighlightedSublatticeOnly);
     const diagramOffsets = useDiagramStore((state) => state.diagramOffsets);
     const dragOffset = useDiagramStore((state) => state.dragOffset);
@@ -46,12 +51,17 @@ export default function Links() {
     const linksVisibleEnabled = useDiagramStore((state) => state.linksVisibleEnabled);
     const semitransparentLinksEnabled = useDiagramStore((state) => state.semitransparentLinksEnabled);
     const flatLinksEnabled = useDiagramStore((state) => state.flatLinksEnabled);
+    const selectedConceptIndex = useDiagramStore((state) => state.selectedConceptIndex);
     const hoveredConceptIndex = useDiagramStore((state) => state.hoveredConceptIndex);
     const hoveredLinksHighlightingEnabled = useDiagramStore((state) => state.hoveredLinksHighlightingEnabled);
+    const selectedLinksHighlightingEnabled = useDiagramStore((state) => state.selectedLinksHighlightingEnabled);
     const invalidate = useThree((state) => state.invalidate);
 
-    const noHighlightedLinks = (displayHighlightedSublatticeOnly || !visibleConceptIndexes || visibleConceptIndexes.size === 0) &&
-        (!hoveredLinksHighlightingEnabled || hoveredConceptIndex === null);
+    const noInvisibleConcepts = !visibleConceptIndexes || visibleConceptIndexes.size === 0;
+    const noFilteredConcepts = !filteredConceptIndexes || filteredConceptIndexes.size === 0 || filteredConceptIndexes.size === subconceptsMapping?.length;
+    const noHighlightedLinks = (displayHighlightedSublatticeOnly || noInvisibleConcepts) && noFilteredConcepts &&
+        (!hoveredLinksHighlightingEnabled || hoveredConceptIndex === null) &&
+        (!selectedLinksHighlightingEnabled || selectedConceptIndex === null);
 
     const useFlatLinks = flatLinksEnabled || cameraType === "2d";
 
@@ -66,40 +76,66 @@ export default function Links() {
 
         for (const node of layout) {
             for (const subconceptIndex of subconceptsMapping[node.conceptIndex]) {
-                if (displayHighlightedSublatticeOnly && visibleConceptIndexes && !visibleConceptIndexes.has(subconceptIndex)) {
+                const isNotVisible = visibleConceptIndexes && !visibleConceptIndexes.has(subconceptIndex);
+
+                if (displayHighlightedSublatticeOnly && isNotVisible) {
                     continue;
                 }
 
                 const isVisible = !!visibleConceptIndexes && visibleConceptIndexes.has(node.conceptIndex) && visibleConceptIndexes.has(subconceptIndex);
+                const isFiltered = !!filteredConceptIndexes && filteredConceptIndexes.has(node.conceptIndex) && filteredConceptIndexes.has(subconceptIndex);
 
                 links.push({
                     conceptIndex: node.conceptIndex,
                     subconceptIndex,
                     linkId: i,
-                    isVisible,
-                    isHighlighted: isVisible,
+                    isVisible: noInvisibleConcepts ? isFiltered : isVisible && (!displayHighlightedSublatticeOnly || isFiltered),
+                    isHighlighted: noInvisibleConcepts ? isFiltered : isVisible && (!displayHighlightedSublatticeOnly || isFiltered),
                 });
                 i++;
             }
         }
 
         return links;
-    }, [subconceptsMapping, visibleConceptIndexes, displayHighlightedSublatticeOnly, layout, hoveredLinksHighlightingEnabled]);
+    }, [subconceptsMapping, visibleConceptIndexes, filteredConceptIndexes, displayHighlightedSublatticeOnly, layout, noInvisibleConcepts]);
 
     // This is here to reduce CPU to GPU trafic when hoveredConceptIndex changes
     // and hoveredLinksHighlightingEnabled is false
     const links = useMemo(() => {
-        if (!hoveredLinksHighlightingEnabled) {
+        const selectionEnabledChanged = previousSelectedLinksHighlightingEnabledRef.current !== selectedLinksHighlightingEnabled;
+        const hoverEnabledChanged = previousHoveredLinksHighlightingEnabledRef.current !== hoveredLinksHighlightingEnabled;
+        const selectionChanged = previousSelectedConceptIndexRef.current !== selectedConceptIndex;
+        const hoverChanged = previousHoveredConceptIndexRef.current !== hoveredConceptIndex;
+
+        previousSelectedLinksHighlightingEnabledRef.current = selectedLinksHighlightingEnabled;
+        previousHoveredLinksHighlightingEnabledRef.current = hoveredLinksHighlightingEnabled;
+        previousSelectedConceptIndexRef.current = selectedConceptIndex;
+        previousHoveredConceptIndexRef.current = hoveredConceptIndex;
+
+        if (!selectionEnabledChanged && !hoverEnabledChanged && !hoveredLinksHighlightingEnabled && !selectedLinksHighlightingEnabled) {
+            return prepLinks;
+        }
+
+        if (!selectionEnabledChanged && !selectionChanged && !hoveredLinksHighlightingEnabled) {
+            return prepLinks;
+        }
+
+        if (!selectionEnabledChanged && !hoverChanged && !selectedLinksHighlightingEnabled) {
             return prepLinks;
         }
 
         for (const link of prepLinks) {
-            link.isHighlighted = (hoveredConceptIndex === link.conceptIndex || hoveredConceptIndex === link.subconceptIndex) ||
-                (hoveredConceptIndex === null && link.isVisible);
+            const isHovered = hoveredLinksHighlightingEnabled &&
+                ((hoveredConceptIndex === link.conceptIndex || hoveredConceptIndex === link.subconceptIndex) ||
+                    (hoveredConceptIndex === null && link.isVisible));
+            const isSelected = selectedLinksHighlightingEnabled &&
+                ((selectedConceptIndex === link.conceptIndex || selectedConceptIndex === link.subconceptIndex) ||
+                    (selectedConceptIndex === null && link.isVisible));
+            link.isHighlighted = isSelected || isHovered;
         }
 
         return [...prepLinks];
-    }, [prepLinks, hoveredConceptIndex, hoveredLinksHighlightingEnabled]);
+    }, [prepLinks, hoveredConceptIndex, selectedConceptIndex, hoveredLinksHighlightingEnabled, selectedLinksHighlightingEnabled]);
 
     const selectedLinks = useMemo(() =>
         links.filter((l) => conceptsToMoveIndexes.has(l.conceptIndex) || conceptsToMoveIndexes.has(l.subconceptIndex)),

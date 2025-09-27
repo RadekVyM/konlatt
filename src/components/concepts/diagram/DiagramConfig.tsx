@@ -65,11 +65,13 @@ function DisplaySection() {
 function NodesLinksSection() {
     const linksVisibleEnabled = useDiagramStore((state) => state.linksVisibleEnabled);
     const hoveredLinksHighlightingEnabled = useDiagramStore((state) => state.hoveredLinksHighlightingEnabled);
+    const selectedLinksHighlightingEnabled = useDiagramStore((state) => state.selectedLinksHighlightingEnabled);
     const semitransparentLinksEnabled = useDiagramStore((state) => state.semitransparentLinksEnabled);
     const labelsEnabled = useDiagramStore((state) => state.labelsEnabled);
     const flatLinksEnabled = useDiagramStore((state) => state.flatLinksEnabled);
     const setLinksVisibleEnabled = useDiagramStore((state) => state.setLinksVisibleEnabled);
     const setHoveredLinksHighlightingEnabled = useDiagramStore((state) => state.setHoveredLinksHighlightingEnabled);
+    const setSelectedLinksHighlightingEnabled = useDiagramStore((state) => state.setSelectedLinksHighlightingEnabled);
     const setSemitransparentLinksEnabled = useDiagramStore((state) => state.setSemitransparentLinksEnabled);
     const setLabelsEnabled = useDiagramStore((state) => state.setLabelsEnabled);
     const setFlatLinksEnabled = useDiagramStore((state) => state.setFlatLinksEnabled);
@@ -88,11 +90,6 @@ function NodesLinksSection() {
                 Show links
             </ToggleSwitch>
             <ToggleSwitch
-                checked={hoveredLinksHighlightingEnabled}
-                onChange={(e) => setHoveredLinksHighlightingEnabled(e.currentTarget.checked)}>
-                Highlight links on hover
-            </ToggleSwitch>
-            <ToggleSwitch
                 checked={semitransparentLinksEnabled}
                 onChange={(e) => setSemitransparentLinksEnabled(e.currentTarget.checked)}>
                 Semitransparent links
@@ -101,6 +98,16 @@ function NodesLinksSection() {
                 checked={flatLinksEnabled}
                 onChange={(e) => setFlatLinksEnabled(e.currentTarget.checked)}>
                 Flat links
+            </ToggleSwitch>
+            <ToggleSwitch
+                checked={selectedLinksHighlightingEnabled}
+                onChange={(e) => setSelectedLinksHighlightingEnabled(e.currentTarget.checked)}>
+                Highlight links of selected concept
+            </ToggleSwitch>
+            <ToggleSwitch
+                checked={hoveredLinksHighlightingEnabled}
+                onChange={(e) => setHoveredLinksHighlightingEnabled(e.currentTarget.checked)}>
+                Highlight links on hover
             </ToggleSwitch>
         </Section>
     );

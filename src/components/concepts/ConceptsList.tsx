@@ -37,11 +37,22 @@ export default function Concepts(props: {
     sortDirection: SortDirection,
     selectedFilterObjects: ReadonlySet<number>,
     selectedFilterAttributes: ReadonlySet<number>,
+    minObjectsCount: number | null,
+    maxObjectsCount: number | null,
+    minAttributesCount: number | null,
+    maxAttributesCount: number | null,
     onSortTypeChange: (key: ConceptSortType) => void,
     onSortDirectionChange: (key: SortDirection) => void,
     setSelectedConceptIndex: React.Dispatch<React.SetStateAction<number | null>>,
     updateSearchInput: (debouncedSearchInput: string) => void,
-    onSelectedFiltersChange: (selectedObjects: ReadonlySet<number>, selectedAttributes: ReadonlySet<number>) => void,
+    onSelectedFiltersChange: (
+        selectedObjects: ReadonlySet<number>,
+        selectedAttributes: ReadonlySet<number>,
+        minObjectsCount: number | null,
+        maxObjectsCount: number | null,
+        minAttributesCount: number | null,
+        maxAttributesCount: number | null,
+    ) => void,
 }) {
     return (
         <CardContainer
@@ -61,6 +72,10 @@ export default function Concepts(props: {
                 onSortDirectionChange={props.onSortDirectionChange}
                 selectedFilterObjects={props.selectedFilterObjects}
                 selectedFilterAttributes={props.selectedFilterAttributes}
+                minObjectsCount={props.minObjectsCount}
+                maxObjectsCount={props.maxObjectsCount}
+                minAttributesCount={props.minAttributesCount}
+                maxAttributesCount={props.maxAttributesCount}
                 onSelectedFiltersChange={props.onSelectedFiltersChange} />
             {props.selectedConceptIndex !== null &&
                 <ConceptDetail
@@ -84,11 +99,22 @@ function ConceptsList(props: {
     sortDirection: SortDirection,
     selectedFilterObjects: ReadonlySet<number>,
     selectedFilterAttributes: ReadonlySet<number>,
+    minObjectsCount: number | null,
+    maxObjectsCount: number | null,
+    minAttributesCount: number | null,
+    maxAttributesCount: number | null,
     onSortTypeChange: (key: ConceptSortType) => void,
     onSortDirectionChange: (key: SortDirection) => void,
     setSelectedConceptIndex: (index: number | null) => void,
     updateSearchInput: (debouncedSearchInput: string) => void,
-    onSelectedFiltersChange: (selectedObjects: ReadonlySet<number>, selectedAttributes: ReadonlySet<number>) => void,
+    onSelectedFiltersChange: (
+        selectedObjects: ReadonlySet<number>,
+        selectedAttributes: ReadonlySet<number>,
+        minObjectsCount: number | null,
+        maxObjectsCount: number | null,
+        minAttributesCount: number | null,
+        maxAttributesCount: number | null,
+    ) => void,
 }) {
     const [searchInput, setSearchInput] = useState<string>(props.storedSearchInput);
     const concepts = useDataStructuresStore((state) => state.concepts);
@@ -129,6 +155,10 @@ function ConceptsList(props: {
                     onSortDirectionChange={props.onSortDirectionChange}
                     selectedFilterObjects={props.selectedFilterObjects}
                     selectedFilterAttributes={props.selectedFilterAttributes}
+                    minObjectsCount={props.minObjectsCount}
+                    maxObjectsCount={props.maxObjectsCount}
+                    minAttributesCount={props.minAttributesCount}
+                    maxAttributesCount={props.maxAttributesCount}
                     onSelectedFiltersChange={props.onSelectedFiltersChange} />
 
                 <Found
@@ -154,12 +184,29 @@ function Search(props: {
     searchInput: string,
     selectedFilterObjects: ReadonlySet<number>,
     selectedFilterAttributes: ReadonlySet<number>,
+    minObjectsCount: number | null,
+    maxObjectsCount: number | null,
+    minAttributesCount: number | null,
+    maxAttributesCount: number | null,
     setSearchInput: React.Dispatch<React.SetStateAction<string>>,
     onSortTypeChange: (key: ConceptSortType) => void,
     onSortDirectionChange: (key: SortDirection) => void,
-    onSelectedFiltersChange: (selectedObjects: ReadonlySet<number>, selectedAttributes: ReadonlySet<number>) => void,
+    onSelectedFiltersChange: (
+        selectedObjects: ReadonlySet<number>,
+        selectedAttributes: ReadonlySet<number>,
+        minObjectsCount: number | null,
+        maxObjectsCount: number | null,
+        minAttributesCount: number | null,
+        maxAttributesCount: number | null,
+    ) => void,
 }) {
     const filterDialogState = useDialog();
+    const withFilterIndicator = props.selectedFilterAttributes.size > 0 ||
+        props.selectedFilterObjects.size > 0 ||
+        props.minObjectsCount !== null ||
+        props.maxObjectsCount !== null ||
+        props.minAttributesCount !== null ||
+        props.maxAttributesCount !== null;
 
     return (
         <div
@@ -171,7 +218,7 @@ function Search(props: {
                 onChange={props.setSearchInput}
                 placeholder="Search concepts..." />
             <FilterSortBar<ConceptSortType>
-                withFilterIndicator={props.selectedFilterAttributes.size > 0 || props.selectedFilterObjects.size > 0}
+                withFilterIndicator={withFilterIndicator}
                 filterTitle="Filter concepts"
                 sortTitle="Sort concepts"
                 disabled={props.disabled}
@@ -201,6 +248,10 @@ function Search(props: {
                 state={filterDialogState}
                 selectedObjects={props.selectedFilterObjects}
                 selectedAttributes={props.selectedFilterAttributes}
+                minObjectsCount={props.minObjectsCount}
+                maxObjectsCount={props.maxObjectsCount}
+                minAttributesCount={props.minAttributesCount}
+                maxAttributesCount={props.maxAttributesCount}
                 onApply={props.onSelectedFiltersChange} />
         </div>
     );

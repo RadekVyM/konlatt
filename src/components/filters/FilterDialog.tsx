@@ -16,7 +16,7 @@ export default function FilterDialog(props: {
             headerClassName="px-5"
             ref={props.state.dialogRef}
             state={props.state}
-            heading="Filter">
+            heading="Filters">
             {props.children}
             <footer
                 className="px-5 pt-3 flex gap-2 justify-between items-center">

@@ -14,13 +14,24 @@ type ConceptsFilterSliceState = {
     filteredConcepts: FormalConcepts | null,
     selectedFilterObjects: ReadonlySet<number>,
     selectedFilterAttributes: ReadonlySet<number>,
+    minObjectsCount: number | null,
+    maxObjectsCount: number | null,
+    minAttributesCount: number | null,
+    maxAttributesCount: number | null,
 }
 
 type ConceptsFilterSliceActions = {
     setDebouncedSearchInput: (debouncedSearchInput: string) => void,
     setSortType: (objecsortTypetsSortType: ConceptSortType) => void,
     setSortDirection: (sortDirection: SortDirection) => void,
-    setSelectedFilters: (selectedFilterObjects: ReadonlySet<number>, selectedFilterAttributes: ReadonlySet<number>) => void,
+    setSelectedFilters: (
+        selectedFilterObjects: ReadonlySet<number>,
+        selectedFilterAttributes: ReadonlySet<number>,
+        minObjectsCount: number | null,
+        maxObjectsCount: number | null,
+        minAttributesCount: number | null,
+        maxAttributesCount: number | null,
+    ) => void,
 }
 
 export type ConceptsFilterSlice = ConceptsFilterSliceState & ConceptsFilterSliceActions
@@ -34,14 +45,25 @@ export const initialState: ConceptsFilterSliceState = {
     filteredConcepts: null,
     selectedFilterObjects: new Set(),
     selectedFilterAttributes: new Set(),
+    minObjectsCount: null,
+    maxObjectsCount: null,
+    minAttributesCount: null,
+    maxAttributesCount: null,
 };
 
 export default function createConceptsFilterSlice(set: (partial: ConceptsFilterSlice | Partial<ConceptsFilterSlice> | ((state: ConceptsFilterSlice) => ConceptsFilterSlice | Partial<ConceptsFilterSlice>), replace?: false) => void): ConceptsFilterSlice {
     return {
         ...initialState,
         setDebouncedSearchInput: (debouncedSearchInput) => set((old) => withFilteredConceptIndexes({ debouncedSearchInput }, old)),
-        setSelectedFilters: (selectedFilterObjects, selectedFilterAttributes) => set((old) =>
-            withFilteredConceptIndexes({ selectedFilterObjects, selectedFilterAttributes }, old)),
+        setSelectedFilters: (
+            selectedFilterObjects,
+            selectedFilterAttributes,
+            minObjectsCount,
+            maxObjectsCount,
+            minAttributesCount,
+            maxAttributesCount,
+        ) => set((old) =>
+            withFilteredConceptIndexes({ selectedFilterObjects, selectedFilterAttributes, minObjectsCount, maxObjectsCount, minAttributesCount, maxAttributesCount }, old)),
         setSortDirection: (sortDirection) => set({ sortDirection }),
         setSortType: (sortType) => set({ sortType }),
     };
@@ -57,9 +79,29 @@ function withFilteredConceptIndexes(newState: Partial<ConceptsFilterSlice>, oldS
     const selectedFilterAttributes = newState.selectedFilterAttributes !== undefined ?
         newState.selectedFilterAttributes :
         oldState.selectedFilterAttributes;
+    const minObjectsCount = newState.minObjectsCount !== undefined ?
+        newState.minObjectsCount :
+        oldState.minObjectsCount;
+    const maxObjectsCount = newState.maxObjectsCount !== undefined ?
+        newState.maxObjectsCount :
+        oldState.maxObjectsCount;
+    const minAttributesCount = newState.minAttributesCount !== undefined ?
+        newState.minAttributesCount :
+        oldState.minAttributesCount;
+    const maxAttributesCount = newState.maxAttributesCount !== undefined ?
+        newState.maxAttributesCount :
+        oldState.maxAttributesCount;
     const searchTerms = toSearchTerms(debouncedSearchInput);
 
-    if (searchTerms.length === 0 && selectedFilterObjects.size === 0 && selectedFilterAttributes.size === 0) {
+    if (
+        searchTerms.length === 0 &&
+        selectedFilterObjects.size === 0 &&
+        selectedFilterAttributes.size === 0 &&
+        minObjectsCount === null &&
+        maxObjectsCount === null &&
+        minAttributesCount === null &&
+        maxAttributesCount === null
+    ) {
         return {
             ...newState,
             searchTerms,
@@ -77,7 +119,17 @@ function withFilteredConceptIndexes(newState: Partial<ConceptsFilterSlice>, oldS
         const lowerSearchTerms = searchTerms.map((t) => t.toLowerCase());
 
         for (const concept of concepts) {
-            if (conceptFilter(concept, lowerSearchTerms, context, selectedFilterObjects, selectedFilterAttributes)) {
+            if (conceptFilter(
+                concept,
+                lowerSearchTerms,
+                context,
+                selectedFilterObjects,
+                selectedFilterAttributes,
+                minObjectsCount,
+                maxObjectsCount,
+                minAttributesCount,
+                maxAttributesCount,
+            )) {
                 filteredIndexes.push(concept.index);
                 filteredConcepts.push(concept);
             }
@@ -98,7 +150,18 @@ function conceptFilter(
     context: FormalContext,
     selectedFilterObjects: ReadonlySet<number>,
     selectedFilterAttributes: ReadonlySet<number>,
+    minObjectsCount: number | null,
+    maxObjectsCount: number | null,
+    minAttributesCount: number | null,
+    maxAttributesCount: number | null,
 ): boolean {
+    if ((minObjectsCount !== null && concept.objects.length < minObjectsCount) ||
+        (maxObjectsCount !== null && concept.objects.length > maxObjectsCount) ||
+        (minAttributesCount !== null && concept.attributes.length < minAttributesCount) ||
+        (maxAttributesCount !== null && concept.attributes.length > maxAttributesCount)) {
+        return false;
+    }
+
     // The concept has to contain one of the selected objects AND
     // one of the selected attributes AND
     // all the search terms
