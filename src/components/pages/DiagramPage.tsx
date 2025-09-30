@@ -11,6 +11,7 @@ import useDiagramStore from "../../stores/diagram/useDiagramStore";
 import ConceptDiagramControls from "../concepts/diagram/ConceptDiagramControls";
 import DiagramCanvas from "../concepts/diagram/R3FDiagramCanvas";
 import DiagramActions from "../concepts/diagram/DiagramActions";
+import ConceptHoverDetail from "../concepts/ConceptHoverDetail";
 
 export default function DiagramPage() {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -55,6 +56,8 @@ export default function DiagramPage() {
                         fullscreenState.isFullscreen && "mt-0 mb-4 mr-4 md:mr-0 md:ml-4 xl:ml-0 xl:mr-4 xl:mt-4 shadow-lg",
                         fullscreenState.isFullscreen && !(configPanelEnabled && conceptsPanelEnabled) && "hidden xl:block",
                         fullscreenState.isFullscreen && !configPanelEnabled && "xl:hidden")} />
+                
+                <ConceptHoverDetail />
             </PageContainer>
         </ZoomActionsContextProvider>
     );

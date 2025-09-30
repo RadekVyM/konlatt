@@ -1,8 +1,7 @@
 import { LuArrowDownUp, LuDot, LuFilter } from "react-icons/lu";
 import Button from "../inputs/Button";
 import DropDownMenu, { DropDownMenuItem, useDropDownMenuContext } from "../inputs/DropDownMenu";
-
-type SortDirection = "asc" | "desc"
+import { SortDirection } from "../../types/SortDirection";
 
 export default function FilterSortBar<TSortType extends string>(props: {
     filterTitle?: string,

@@ -42,8 +42,10 @@ export default function DiagramConfig() {
 
 function DisplaySection() {
     const displayHighlightedSublatticeOnly = useDiagramStore((state) => state.displayHighlightedSublatticeOnly);
+    const hoveredConceptDetailEnabled = useDiagramStore((state) => state.hoveredConceptDetailEnabled);
     const cameraType = useDiagramStore((state) => state.cameraType);
     const setDisplayHighlightedSublatticeOnly = useDiagramStore((state) => state.setDisplayHighlightedSublatticeOnly);
+    const setHoveredConceptDetailEnabled = useDiagramStore((state) => state.setHoveredConceptDetailEnabled);
     const setCameraType = useDiagramStore((state) => state.setCameraType);
 
     return (
@@ -57,6 +59,11 @@ function DisplaySection() {
                 checked={displayHighlightedSublatticeOnly}
                 onChange={(e) => setDisplayHighlightedSublatticeOnly(e.currentTarget.checked)}>
                 Display highlighted sublattice only
+            </ToggleSwitch>
+            <ToggleSwitch
+                checked={hoveredConceptDetailEnabled}
+                onChange={(e) => setHoveredConceptDetailEnabled(e.currentTarget.checked)}>
+                Display concept detail on hover
             </ToggleSwitch>
         </Section>
     );

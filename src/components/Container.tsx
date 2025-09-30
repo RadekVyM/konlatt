@@ -1,7 +1,7 @@
 import { cn } from "../utils/tailwind";
 
 export default function Container(props: {
-    as?: "div" | "section" | "li",
+    as?: "div" | "section" | "li" | "article",
     children?: React.ReactNode,
     className?: string,
     style?: React.CSSProperties,

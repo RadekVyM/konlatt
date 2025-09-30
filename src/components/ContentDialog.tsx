@@ -1,9 +1,9 @@
 import { useEffect, useRef } from "react";
 import { cn } from "../utils/tailwind";
 import { Dialog, DialogProps } from "./Dialog";
-import { MdClose } from "react-icons/md";
 import Button from "./inputs/Button";
 import { useLocation } from "react-router-dom";
+import { LuX } from "react-icons/lu";
 
 export default function ContentDialog(props: {
     ref: React.RefObject<HTMLDialogElement | null>,
@@ -52,7 +52,7 @@ export default function ContentDialog(props: {
                             await props.state.hide();
                         }
                     }}>
-                    <MdClose className="w-5 h-5" />
+                    <LuX className="w-5 h-5" />
                 </Button>
             </header>
 
