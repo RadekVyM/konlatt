@@ -3,8 +3,8 @@ import useEventListener from "../../hooks/useEventListener";
 import useDiagramStore from "../../stores/diagram/useDiagramStore";
 import useDataStructuresStore from "../../stores/useDataStructuresStore";
 import Container from "../Container";
-import HighlightedSearchTerms from "../HighlightedSearchTerms";
 import { searchTermsToRegex } from "../../utils/search";
+import ConceptItemsList from "./ConceptItemsList";
 
 export default function ConceptHoverDetail() {
     const hoveredConceptDetailEnabled = useDiagramStore((state) => state.hoveredConceptDetailEnabled);
@@ -15,12 +15,14 @@ export default function ConceptHoverDetail() {
 
     return (
         <ConceptCard />
-    )
+    );
 }
 
 function ConceptCard() {
     const hoveredConceptIndex = useDiagramStore((state) => state.hoveredConceptIndex);
     const searchTerms = useDiagramStore((state) => state.searchTerms);
+    const selectedFilterObjects = useDiagramStore((state) => state.selectedFilterObjects);
+    const selectedFilterAttributes = useDiagramStore((state) => state.selectedFilterAttributes);
     const concepts = useDataStructuresStore((state) => state.concepts);
     const context = useDataStructuresStore((state) => state.context);
     
@@ -45,18 +47,20 @@ function ConceptCard() {
                 bottom: position[1],
             }}>
             <div className="mb-0.5 text-sm line-clamp-8">
-                {concept.objects.length > 0 ?
-                    <HighlightedSearchTerms
-                        text={concept.objects.map((o) => context.objects[o]).join(", ")}
-                        regex={searchRegex} /> :
-                    <span className="italic">No objects</span>}
+                <ConceptItemsList
+                    noItemsText="No objects"
+                    contextItems={context.objects}
+                    filterItems={selectedFilterObjects}
+                    items={concept.objects}
+                    searchRegex={searchRegex} />
             </div>
             <div className="text-on-surface-container-muted text-xs line-clamp-8">
-                {concept.attributes.length > 0 ?
-                    <HighlightedSearchTerms
-                        text={concept.attributes.map((a) => context.attributes[a]).join(", ")}
-                        regex={searchRegex} /> :
-                    <span className="italic">No attributes</span>}
+                <ConceptItemsList
+                    noItemsText="No attributes"
+                    contextItems={context.attributes}
+                    filterItems={selectedFilterAttributes}
+                    items={concept.attributes}
+                    searchRegex={searchRegex} />
             </div>
         </Container>
     );

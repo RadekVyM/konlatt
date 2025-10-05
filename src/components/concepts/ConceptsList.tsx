@@ -11,7 +11,6 @@ import FilterSortBar from "../filters/FilterSortBar";
 import Found from "../Found";
 import { FormalConcept, FormalConcepts } from "../../types/FormalConcepts";
 import { FormalContext } from "../../types/FormalContext";
-import HighlightedSearchTerms from "../HighlightedSearchTerms";
 import { searchTermsToRegex } from "../../utils/search";
 import SearchInput from "../inputs/SearchInput";
 import useDataStructuresStore from "../../stores/useDataStructuresStore";
@@ -21,6 +20,8 @@ import { ConceptSortType } from "../../types/SortType";
 import { SortDirection } from "../../types/SortDirection";
 import useDialog from "../../hooks/useDialog";
 import ConceptsFilterDialog from "../filters/ConceptsFilterDialog";
+import ConceptItemsList from "./ConceptItemsList";
+import useDiagramStore from "../../stores/diagram/useDiagramStore";
 
 const MAX_TEXT_LENGTH = 500;
 
@@ -306,6 +307,9 @@ function ListItemButton(props: {
     searchRegex: RegExp | undefined,
     onClick: () => void,
 }) {
+    const selectedFilterObjects = useDiagramStore((state) => state.selectedFilterObjects);
+    const selectedFilterAttributes = useDiagramStore((state) => state.selectedFilterAttributes);
+
     return (
         <Button
             className="w-full text-start py-1.5"
@@ -313,18 +317,22 @@ function ListItemButton(props: {
             <div
                 className={props.contentClassName}>
                 <div className="mb-0.5 text-sm line-clamp-3">
-                    {props.item.objects.length > 0 ?
-                        <HighlightedSearchTerms
-                            text={props.item.objects.map((o) => props.context.objects[o]).join(", ").substring(0, MAX_TEXT_LENGTH)}
-                            regex={props.searchRegex} /> :
-                        <span className="italic">No objects</span>}
+                    <ConceptItemsList
+                        noItemsText="No objects"
+                        contextItems={props.context.objects}
+                        filterItems={selectedFilterObjects}
+                        items={props.item.objects}
+                        searchRegex={props.searchRegex}
+                        maxTextLength={MAX_TEXT_LENGTH} />
                 </div>
                 <div className="text-on-surface-container-muted text-xs line-clamp-3">
-                    {props.item.attributes.length > 0 ?
-                        <HighlightedSearchTerms
-                            text={props.item.attributes.map((a) => props.context.attributes[a]).join(", ").substring(0, MAX_TEXT_LENGTH)}
-                            regex={props.searchRegex} /> :
-                        <span className="italic">No attributes</span>}
+                    <ConceptItemsList
+                        noItemsText="No attributes"
+                        contextItems={props.context.attributes}
+                        filterItems={selectedFilterAttributes}
+                        items={props.item.attributes}
+                        searchRegex={props.searchRegex}
+                        maxTextLength={MAX_TEXT_LENGTH} />
                 </div>
             </div>
         </Button>

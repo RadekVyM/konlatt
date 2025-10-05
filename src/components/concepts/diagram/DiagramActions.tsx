@@ -1,4 +1,4 @@
-import { LuFocus, LuGrid3X3, LuHand, LuLoaderCircle, LuMaximize, LuMinimize, LuMinus, LuPanelBottomClose, LuPanelBottomOpen, LuPanelLeftClose, LuPanelLeftOpen, LuPanelRightClose, LuPanelRightOpen, LuPlus, LuRedo2, LuSquareDashedMousePointer, LuUndo2 } from "react-icons/lu";
+import { LuFocus, LuGrid3X3, LuHand, LuLoaderCircle, LuMaximize, LuMinimize, LuPanelBottomClose, LuPanelBottomOpen, LuPanelLeftClose, LuPanelLeftOpen, LuPanelRightClose, LuPanelRightOpen, LuRedo2, LuSquareDashedMousePointer, LuUndo2 } from "react-icons/lu";
 import Button from "../../inputs/Button";
 import { cn } from "../../../utils/tailwind";
 import { useContext, useRef } from "react";
@@ -9,6 +9,7 @@ import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import useDataStructuresStore from "../../../stores/useDataStructuresStore";
 import { ZoomActionsContext } from "../../../contexts/ZoomActionsContext";
 import ExportDiagramButton from "../../export/ExportDiagramButton";
+import ZoomBar from "../../ZoomBar";
 
 const ZOOM_STEP = 0.1;
 
@@ -96,7 +97,7 @@ export default function DiagramActions(props: {
                         panelEnabled={props.conceptsPanelEnabled && props.configPanelEnabled}
                         onClick={props.toggleBothPanels} />}
 
-                <ZoomBar />    
+                <DiagramZoomBar />    
                 <ZoomToCenterButton />
 
                 <FullscreenButton
@@ -202,7 +203,7 @@ function ZoomToCenterButton(props: {
     );
 }
 
-function ZoomBar(props: {
+function DiagramZoomBar(props: {
     className?: string,
 }) {
     const zoomActionsRef = useContext(ZoomActionsContext);
@@ -223,24 +224,11 @@ function ZoomBar(props: {
 */
 
     return (
-        <div
-            className={cn("flex items-center gap-1 bg-secondary rounded-md", props.className)}>
-            <Button
-                variant="icon-secondary"
-                title="Zoom out"
-                onClick={onDecrease}>
-                <LuMinus />
-            </Button>
-            <span className="text-sm w-10 text-center">
-                {Math.round(100 * currentZoomLevel)}%
-            </span>
-            <Button
-                variant="icon-secondary"
-                title="Zoom in"
-                onClick={onIncrease}>
-                <LuPlus />
-            </Button>
-        </div>
+        <ZoomBar
+            className={props.className}
+            currentZoomLevel={currentZoomLevel}
+            onDecreaseClick={onDecrease}
+            onIncreaseClick={onIncrease} />
     );
 }
 

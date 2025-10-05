@@ -85,12 +85,14 @@ export default function Links() {
                 const isVisible = !!visibleConceptIndexes && visibleConceptIndexes.has(node.conceptIndex) && visibleConceptIndexes.has(subconceptIndex);
                 const isFiltered = !!filteredConceptIndexes && filteredConceptIndexes.has(node.conceptIndex) && filteredConceptIndexes.has(subconceptIndex);
 
+                const finalIsVisible = noInvisibleConcepts ? isFiltered : isVisible && (!displayHighlightedSublatticeOnly || isFiltered);
+
                 links.push({
                     conceptIndex: node.conceptIndex,
                     subconceptIndex,
                     linkId: i,
-                    isVisible: noInvisibleConcepts ? isFiltered : isVisible && (!displayHighlightedSublatticeOnly || isFiltered),
-                    isHighlighted: noInvisibleConcepts ? isFiltered : isVisible && (!displayHighlightedSublatticeOnly || isFiltered),
+                    isVisible: finalIsVisible,
+                    isHighlighted: finalIsVisible,
                 });
                 i++;
             }
@@ -102,6 +104,10 @@ export default function Links() {
     // This is here to reduce CPU to GPU trafic when hoveredConceptIndex changes
     // and hoveredLinksHighlightingEnabled is false
     const links = useMemo(() => {
+        const initialRender = previousSelectedLinksHighlightingEnabledRef.current === null &&
+            previousHoveredLinksHighlightingEnabledRef.current === null &&
+            previousSelectedConceptIndexRef.current === null &&
+            previousHoveredConceptIndexRef.current === null;
         const selectionEnabledChanged = previousSelectedLinksHighlightingEnabledRef.current !== selectedLinksHighlightingEnabled;
         const hoverEnabledChanged = previousHoveredLinksHighlightingEnabledRef.current !== hoveredLinksHighlightingEnabled;
         const selectionChanged = previousSelectedConceptIndexRef.current !== selectedConceptIndex;
@@ -112,6 +118,12 @@ export default function Links() {
         previousSelectedConceptIndexRef.current = selectedConceptIndex;
         previousHoveredConceptIndexRef.current = hoveredConceptIndex;
 
+        // Nothing could change before initial render
+        if (initialRender) {
+            return prepLinks;
+        }
+
+        // TODO: I need to document following cases
         if (!selectionEnabledChanged && !hoverEnabledChanged && !hoveredLinksHighlightingEnabled && !selectedLinksHighlightingEnabled) {
             return prepLinks;
         }
@@ -130,8 +142,8 @@ export default function Links() {
                     (hoveredConceptIndex === null && link.isVisible));
             const isSelected = selectedLinksHighlightingEnabled &&
                 ((selectedConceptIndex === link.conceptIndex || selectedConceptIndex === link.subconceptIndex) ||
-                    (selectedConceptIndex === null && link.isVisible));
-            link.isHighlighted = isSelected || isHovered;
+                    (link.isVisible));
+            link.isHighlighted = link.isVisible || isSelected || isHovered;
         }
 
         return [...prepLinks];

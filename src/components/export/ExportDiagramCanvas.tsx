@@ -1,201 +1,183 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { cn } from "../../utils/tailwind";
-import { create } from "zustand";
-import DiagramCanvasWorker from "../../workers/exportDiagramCanvasWorker?worker";
-import { ExportDiagramInitCanvasRequest, ExportDiagramInitLayoutRequest, ExportDiagramInitLinksRequest, ExportDiagramOptionsRequest } from "../../types/ExportDiagramCanvasWorkerRequest";
 import useDiagramStore from "../../stores/diagram/useDiagramStore";
-import useDataStructuresStore from "../../stores/useDataStructuresStore";
 import { ConceptLatticeLayout } from "../../types/ConceptLatticeLayout";
 import { ExportDiagramOptions } from "../../types/ExportDiagramOptions";
-
-const useWorkerStore = create<{
-    worker: Worker,
-}>(() => ({
-    worker: new DiagramCanvasWorker(),
-}));
+import { transformedPoint } from "../../utils/layout";
+import { createPoint, Point } from "../../types/Point";
+import { CameraType } from "../../types/CameraType";
+import { TransformWrapper, TransformComponent, useControls, useTransformComponent } from "react-zoom-pan-pinch";
+import ZoomBar from "../ZoomBar";
+import Button from "../inputs/Button";
+import { LuFocus } from "react-icons/lu";
 
 const DEFAULT_OPTIONS: ExportDiagramOptions = {
-    scale: 50,
-    nodeRadius: 5,
-}
+    scale: 30,
+    nodeRadius: 3,
+} as const;
+
+/*
+I tried to use transferControlToOffscreen() and do all the drawing in a worker.
+However, drawing and modifying the canvas (width and size) stopped working from a certain size of the canvas –
+even though the size was within the limit supported by the browser (https://jhildenbiddle.github.io/canvas-size/#/?id=test-results).
+I do not know why that is. The canvas pixels should be stored in a single shared buffer for both the main thread and the worker.
+
+So I do everything in the main thread...
+*/
 
 export default function ExportDiagramCanvas(props: {
     className?: string,
 }) {
-    const divRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const lattice = useDataStructuresStore((state) => state.lattice);
     const layout = useDiagramStore((state) => state.layout);
-    const worker = useWorkerStore((state) => state.worker);
+    const diagramOffsets = useDiagramStore((state) => state.diagramOffsets);
+    const horizontalScale = useDiagramStore((state) => state.horizontalScale);
+    const verticalScale = useDiagramStore((state) => state.verticalScale);
+    const rotationDegrees = useDiagramStore((state) => state.rotationDegrees);
+    // const conceptToLayoutIndexesMapping = useDiagramStore((state) => state.conceptToLayoutIndexesMapping);
+
+    const transformedLayout = useTransformedLayout(layout, diagramOffsets, horizontalScale, verticalScale, rotationDegrees, "2d");
 
     const options = DEFAULT_OPTIONS;
-    const canvasDimensions = useCanvasDimensions(layout, options);
+    const canvasDimensions = useCanvasDimensions(transformedLayout, options);
 
     useEffect(() => {
         const canvas = canvasRef.current;
         const context = canvasRef.current?.getContext("2d");
 
-        if (!canvas || !context || !layout || !canvasDimensions) {
+        if (!canvas || !context || !transformedLayout || !canvasDimensions) {
             return;
         }
 
         context.clearRect(0, 0, canvas.width, canvas.height);
 
-        console.log(canvas.width, canvas.height);
         context.save();
         context.translate(canvasDimensions.centerX, canvasDimensions.centerY);
-        drawDiagram(context, layout, options);
+        drawDiagram(context, transformedLayout, options);
         context.restore();
-    }, [layout, options, canvasDimensions?.width, canvasDimensions?.height, canvasDimensions?.centerX, canvasDimensions?.centerY]);
+    }, [transformedLayout, options, canvasDimensions?.width, canvasDimensions?.height, canvasDimensions?.centerX, canvasDimensions?.centerY]);
 
-/*
+    return (
+        <TransformWrapper
+            centerOnInit
+            disablePadding
+            minScale={0.1}>
+            <TransformComponent
+                wrapperClass={cn("checkered", props.className)}
+                wrapperStyle={{
+                    width: "100%",
+                    height: "100%",
+                }}
+                contentClass="drop-shadow-xl">
+                <canvas
+                    ref={canvasRef}
+                    style={{
+                        imageRendering: "pixelated",
+                    }}
+                    role="img"
+                    width={canvasDimensions?.width}
+                    height={canvasDimensions?.height} />
+            </TransformComponent>
 
-    useEffect(() => {
-        const canvas = canvasRef.current;
+            <Controls
+                className="absolute bottom-0 right-0" />
+        </TransformWrapper>
+    );
+}
 
-        if (!canvas || canvas.hasAttribute("transfered")) {
-            return;
-        }
-
-        canvas.setAttribute("transfered", "true");
-        const offscreenCanvas = canvas.transferControlToOffscreen();
-
-        const message: ExportDiagramInitCanvasRequest = {
-            type: "init-canvas",
-            canvas: offscreenCanvas,
-        };
-        worker.postMessage(message, [offscreenCanvas]);
-    }, []);
-
-    useEffect(() => {
-        if (!layout) {
-            return;
-        }
-
-        const floatArray = new Float64Array(layout.length * 3);
-
-        for (let i = 0; i < layout.length; i++) {
-            const point = layout[i];
-            floatArray[i * 3] = point.x;
-            floatArray[(i * 3) + 1] = point.y;
-            floatArray[(i * 3) + 2] = point.z;
-        }
-
-        const message: ExportDiagramInitLayoutRequest = {
-            type: "init-layout",
-            nodesCount: layout.length,
-            layout: floatArray.buffer,
-        };
-
-        worker.postMessage(message);
-    }, [layout]);
-
-    useEffect(() => {
-        if (!lattice) {
-            return;
-        }
-
-        const linksCount = lattice.subconceptsMapping.reduce((prev, curr) => prev + curr.size, 0);
-        const floatArray = new Float64Array(linksCount * 2);
-        let index = 0;
-
-        for (let startIndex = 0; startIndex < lattice.subconceptsMapping.length; startIndex++) {
-            for (const endIndex of lattice.subconceptsMapping[startIndex]) {
-                floatArray[index] = startIndex;
-                floatArray[index + 1] = endIndex;
-                index += 2;
-            }
-        }
-
-        const message: ExportDiagramInitLinksRequest = {
-            type: "init-links",
-            links: floatArray.buffer,
-        };
-
-        worker.postMessage(message);
-    }, [lattice]);
-
-    useEffect(() => {
-        if (!canvasDimensions) {
-            return;
-        }
-
-        const message: ExportDiagramOptionsRequest = {
-            type: "options",
-            options: options,
-            width: canvasDimensions.width,
-            height: canvasDimensions.height,
-            centerX: canvasDimensions.centerX,
-            centerY: canvasDimensions.centerY,
-        };
-
-        worker.postMessage(message);
-    }, [canvasDimensions?.width, canvasDimensions?.height, canvasDimensions?.centerX, canvasDimensions?.centerY, options]);
-
-*/
+function Controls(props: {
+    className?: string,
+}) {
+    const scale = useTransformComponent(({ state }) => state.scale);
+    const { zoomIn, zoomOut, centerView } = useControls();
 
     return (
         <div
-            ref={divRef}
-            className={cn(props.className, "w-full h-full bg-surface grid items-center overflow-auto")}>
-            <canvas
-                ref={canvasRef}
-                className="bg-white mx-auto"
-                role="img"
-                width={canvasDimensions?.width}
-                height={canvasDimensions?.height} />
+            className={cn("m-3 flex gap-2", props.className)}>
+            <ZoomBar
+                onIncreaseClick={() => zoomIn()}
+                onDecreaseClick={() => zoomOut()}
+                currentZoomLevel={scale} />
+
+            <Button
+                title="Zoom to center"
+                variant="icon-secondary"
+                onClick={() => centerView(1)}>
+                <LuFocus />
+            </Button>
         </div>
     );
 }
 
-function useCanvasDimensions(
+function useTransformedLayout(
     layout: ConceptLatticeLayout | null,
+    diagramOffsets: Array<Point> | null,
+    horizontalScale: number,
+    verticalScale: number,
+    rotationDegrees: number,
+    cameraType: CameraType,
+) {
+    if (!layout || !diagramOffsets) {
+        return null;
+    }
+
+    return layout.map((point, i) => transformedPoint(
+        createPoint(point.x, point.y, point.z),
+        diagramOffsets[i],
+        [0, 0, 0],
+        horizontalScale,
+        verticalScale,
+        rotationDegrees,
+        cameraType));
+}
+
+function useCanvasDimensions(
+    layout: Array<Point> | null,
     options: ExportDiagramOptions,
 ) {
-    return useMemo(() => {
-        if (!layout) {
-            return null;
-        }
+    if (!layout) {
+        return null;
+    }
 
-        let minX = Number.MAX_SAFE_INTEGER;
-        let maxX = Number.MIN_SAFE_INTEGER;
-        let minY = Number.MAX_SAFE_INTEGER;
-        let maxY = Number.MIN_SAFE_INTEGER;
+    let minX = Number.MAX_SAFE_INTEGER;
+    let maxX = Number.MIN_SAFE_INTEGER;
+    let minY = Number.MAX_SAFE_INTEGER;
+    let maxY = Number.MIN_SAFE_INTEGER;
 
-        for (const point of layout) {
-            minX = Math.min(minX, point.x);
-            maxX = Math.max(maxX, point.x);
-            minY = Math.min(minY, point.y);
-            maxY = Math.max(maxY, point.y);
-        }
+    for (const point of layout) {
+        minX = Math.min(minX, point[0]);
+        maxX = Math.max(maxX, point[0]);
+        minY = Math.min(minY, point[1]);
+        maxY = Math.max(maxY, point[1]);
+    }
 
-        const nodeDiameter = 2 * options.nodeRadius;
-        const width = (maxX - minX) * options.scale + nodeDiameter;
-        const height = (maxY - minY) * options.scale + nodeDiameter;
-        const centerX = -minX * options.scale + options.nodeRadius;
-        const centerY = -minY * options.scale + options.nodeRadius;
+    const nodeDiameter = 2 * options.nodeRadius;
+    const width = (maxX - minX) * options.scale + nodeDiameter;
+    const height = (maxY - minY) * options.scale + nodeDiameter;
+    const centerX = -minX * options.scale + options.nodeRadius;
+    const centerY = -minY * options.scale + options.nodeRadius;
 
-        return {
-            width,
-            height,
-            centerX,
-            centerY: height - centerY,
-        };
-    }, [layout, options.nodeRadius, options.scale]);
+    return {
+        width,
+        height,
+        centerX,
+        centerY: height - centerY,
+    };
 }
 
 function drawDiagram(
     context: CanvasRenderingContext2D,
-    layout: ConceptLatticeLayout,
+    layout: Array<Point>,
     options: ExportDiagramOptions,
 ) {
     if (options === null) {
         return;
     }
 
-    for (const point of layout) {
-        const x = point.x * options.scale;
-        const y = -point.y * options.scale;
+    for (let i = 0; i < layout.length; i++) {
+        const point = layout[i];
+        const x = point[0] * options.scale;
+        const y = -point[1] * options.scale;
 
         context.beginPath();
         context.arc(x, y, options.nodeRadius, 0, 2 * Math.PI);

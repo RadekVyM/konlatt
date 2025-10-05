@@ -58,12 +58,12 @@ function DisplaySection() {
             <ToggleSwitch
                 checked={displayHighlightedSublatticeOnly}
                 onChange={(e) => setDisplayHighlightedSublatticeOnly(e.currentTarget.checked)}>
-                Display highlighted sublattice only
+                Show highlighted sublattice only
             </ToggleSwitch>
             <ToggleSwitch
                 checked={hoveredConceptDetailEnabled}
                 onChange={(e) => setHoveredConceptDetailEnabled(e.currentTarget.checked)}>
-                Display concept detail on hover
+                Show concept detail on hover
             </ToggleSwitch>
         </Section>
     );
