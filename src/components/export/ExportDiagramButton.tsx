@@ -2,6 +2,7 @@ import useDiagramStore from "../../stores/diagram/useDiagramStore";
 import useExportDiagramStore from "../../stores/export/useExportDiagramStore";
 import { DiagramExportFormat } from "../../types/export/DiagramExportFormat";
 import ExportButton from "./ExportButton";
+import ExportDiagramCanvas from "./ExportDiagramCanvas";
 import { ExportButtonProps } from "./types/ExportButtonProps";
 import { ExportItem } from "./types/ExportItem";
 
@@ -9,7 +10,6 @@ const ITEMS: Array<ExportItem<DiagramExportFormat>> = [
     {
         key: "svg",
         label: "SVG",
-        content: () => <></>,
         buttons: () => <></>,
     },
 ];
@@ -23,6 +23,7 @@ export default function ExportDiagramButton(props: ExportButtonProps) {
             disabled={!layout}
             items={ITEMS}
             isHighlighted
-            useSelectedFormatStore={useExportDiagramStore} />
+            useSelectedFormatStore={useExportDiagramStore}
+            content={<ExportDiagramCanvas />} />
     );
 }

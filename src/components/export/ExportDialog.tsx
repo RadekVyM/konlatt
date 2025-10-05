@@ -9,6 +9,7 @@ export default function ExportDialog<TKey extends string>(props: {
     route: string,
     items: Array<ExportItem<TKey>>,
     useSelectedFormatStore: SelectedFormatStoreType<TKey>,
+    content?: React.ReactNode,
     onShowing?: () => void,
     onShown?: () => void,
     onHiding?: () => void,
@@ -68,7 +69,7 @@ export default function ExportDialog<TKey extends string>(props: {
                 <Container
                     as="section"
                     className="relative xl:col-start-2 xl:-col-end-1 overflow-hidden">
-                    {selectedItem?.content()}
+                    {props.content || selectedItem?.content?.()}
                 </Container>
             </div>
         </FullscreenNavDialog>

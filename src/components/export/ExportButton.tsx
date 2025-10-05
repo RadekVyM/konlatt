@@ -11,6 +11,7 @@ export default function ExportButton<TKey extends string>(props: {
     items: Array<ExportItem<TKey>>,
     useSelectedFormatStore: SelectedFormatStoreType<TKey>,
     disabled?: boolean,
+    content?: React.ReactNode,
 } & ExportButtonProps) {
     const navigate = useNavigate();
 
@@ -30,6 +31,7 @@ export default function ExportButton<TKey extends string>(props: {
                 route={props.route}
                 items={props.items}
                 useSelectedFormatStore={props.useSelectedFormatStore}
+                content={props.content}
                 onShowing={props.onShowing}
                 onShown={props.onShown}
                 onHiding={props.onHiding}
