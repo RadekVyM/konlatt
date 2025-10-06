@@ -48,6 +48,8 @@ dist-ssr
 *.exe
 *.obj
 /benchmarks/native/mainapp
+/benchmarks/native/main_clang
+/benchmarks/native/main_gcc
 
 
 /tests/__snapshots__

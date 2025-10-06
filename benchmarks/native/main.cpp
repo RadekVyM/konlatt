@@ -19,7 +19,7 @@
 // docker run --rm cpp-windows-clang llvm-config --version
 
 // Clang macOS:
-// clang++ -std=gnu++17 -O3 ./benchmarks/native/main.cpp -o ./benchmarks/native/mainapp
+// clang++ -std=gnu++17 -O3 ./benchmarks/native/main.cpp -o ./benchmarks/native/main_clang
 
 #include "../../src/cpp/types/FormalConcept.h"
 #include "../../src/cpp/types/FormalContext.h"
