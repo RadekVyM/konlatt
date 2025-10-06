@@ -40,7 +40,7 @@ function ConceptCard() {
 
     return (
         <Container
-            className="fixed z-50 pointer-events-none px-2 py-1 max-w-xl ml-2 mt-2 shadow-shade drop-shadow-2xl animate-fadeIn"
+            className="fixed z-50 pointer-events-none px-2 py-1 max-w-xl ml-2 mt-2 mr-1 mb-1 shadow-shade drop-shadow-2xl animate-fadeIn"
             as="article"
             style={{
                 right: position[0],

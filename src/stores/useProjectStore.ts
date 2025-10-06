@@ -23,6 +23,7 @@ type StatusItemOptions = {
     progress?: number,
     startTime?: number,
     endTime?: number,
+    tag?: string,
 }
 
 const useProjectStore = create<ProjectStore>((set) => ({
@@ -51,7 +52,8 @@ const useProjectStore = create<ProjectStore>((set) => ({
                 showProgress: rest?.showProgress ?? true,
                 progress: rest?.progress ?? 0,
                 startTime: rest?.startTime ?? new Date().getTime(),
-                endTime: rest?.endTime ?? -1
+                endTime: rest?.endTime ?? -1,
+                tag: rest?.tag,
             },
             ...state.statusItems]
     })),

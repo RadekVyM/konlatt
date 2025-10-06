@@ -6,7 +6,8 @@ import { StatusItem } from "../../types/StatusItem";
 import useDebouncedValue from "../../hooks/useDebouncedValue";
 import Button from "../inputs/Button";
 import useWindowSizeChangedListener from "../../hooks/useWindowSizeChangedListener";
-import Loop from "../../services/Loop";
+import useCurrentTime from "../../hooks/useCurrentTime";
+import { formatTimeInterval } from "../../utils/numbers";
 
 export default function StatusSection(props: {
     className?: string,
@@ -115,24 +116,7 @@ export default function StatusSection(props: {
 function StatusListItem(props: {
     item: StatusItem,
 }) {
-    const loopRef = useRef<Loop | null>(null);
-    const [currentTime, setCurrentTime] = useState<number>(0);
-
-    useEffect(() => {
-        if (loopRef.current) {
-            loopRef.current.stop();
-            loopRef.current.dispose();
-            loopRef.current = null;
-        }
-
-        if (!props.item.isDone) {
-            loopRef.current = new Loop(() => {
-                const newTime = new Date().getTime();
-                setCurrentTime(newTime);
-            }, 500);
-            loopRef.current.start();
-        }
-    }, [props.item.isDone]);
+    const currentTime = useCurrentTime(!props.item.isDone);
 
     const time = Math.max(
         0,
@@ -153,9 +137,9 @@ function StatusListItem(props: {
                 className={cn("self-center row-start-1 row-end-3 w-5 h-5 text-primary", !props.item.isError && !props.item.isDone && "animate-spin")} />
             <span className="text-sm">{props.item.title}</span>
             <span className="row-start-2 row-end-3 text-xs text-on-surface-muted">
-                {time}&nbsp;ms
+                <span className="w-max">{formatTimeInterval(time)}</span>
                 {props.item.time !== undefined &&
-                    <> ({props.item.time}&nbsp;ms)</>}
+                    <> ({props.item.time}ms)</>}
             </span>
             {props.item.showProgress && !props.item.isDone &&
                 <span
@@ -165,6 +149,9 @@ function StatusListItem(props: {
 
             {props.item.showProgress && !props.item.isDone &&
                 <div
+                    role="progressbar"
+                    aria-valuemax={1}
+                    aria-valuenow={props.item.progress}
                     className="absolute left-0 bottom-0 h-[2px] bg-primary rounded-full"
                     style={{
                         right: `${(1 - props.item.progress) * 100}%`

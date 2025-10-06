@@ -1,4 +1,4 @@
-import { LuFocus, LuGrid3X3, LuHand, LuLoaderCircle, LuMaximize, LuMinimize, LuPanelBottomClose, LuPanelBottomOpen, LuPanelLeftClose, LuPanelLeftOpen, LuPanelRightClose, LuPanelRightOpen, LuRedo2, LuSquareDashedMousePointer, LuUndo2 } from "react-icons/lu";
+import { LuFocus, LuGrid3X3, LuHand, LuMaximize, LuMinimize, LuPanelBottomClose, LuPanelBottomOpen, LuPanelLeftClose, LuPanelLeftOpen, LuPanelRightClose, LuPanelRightOpen, LuRedo2, LuSquareDashedMousePointer, LuUndo2 } from "react-icons/lu";
 import Button from "../../inputs/Button";
 import { cn } from "../../../utils/tailwind";
 import { useContext, useRef } from "react";
@@ -10,8 +10,16 @@ import useDataStructuresStore from "../../../stores/useDataStructuresStore";
 import { ZoomActionsContext } from "../../../contexts/ZoomActionsContext";
 import ExportDiagramButton from "../../export/ExportDiagramButton";
 import ZoomBar from "../../ZoomBar";
+import DiagramLoadingSpinner from "./DiagramLoadingSpinner";
 
 const ZOOM_STEP = 0.1;
+
+type PanelToggleButtonProps = {
+    className?: string,
+    title: string,
+    panelEnabled: boolean,
+    onClick: () => void,
+}
 
 export default function DiagramActions(props: {
     className?: string,
@@ -41,8 +49,7 @@ export default function DiagramActions(props: {
             {(props.showSpinner || !isDiagramRenderable) &&
                 <div
                     className="absolute inset-0 grid place-content-center">
-                    <LuLoaderCircle
-                        className="animate-spin w-8 h-8 text-on-surface-muted" />
+                    <DiagramLoadingSpinner />
                 </div>}
 
             {props.fullscreenState.isFullscreen && 
@@ -105,13 +112,6 @@ export default function DiagramActions(props: {
             </div>
         </div>
     );
-}
-
-type PanelToggleButtonProps = {
-    className?: string,
-    title: string,
-    panelEnabled: boolean,
-    onClick: () => void,
 }
 
 function PanelToggleButton(props: {

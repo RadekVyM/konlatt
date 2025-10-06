@@ -222,7 +222,7 @@ function enqueueLayoutComputation(workerQueue: LatticeWorkerQueue, state: Diagra
         {
             onStatusMessage: useProjectStore.getState().setProgressMessage,
             onProgress: (jobId, progress) => useProjectStore.getState().updateStatusItem(jobId, { progress }),
-            onStart: (jobId) => useProjectStore.getState().addStatusItem(jobId, "Diagram layout computation"),
+            onStart: (jobId) => useProjectStore.getState().addStatusItem(jobId, "Diagram layout computation", { tag: "layout" }),
             onCancel: (jobId) => useProjectStore.getState().removeStatusItem(jobId),
             onError: (jobId, message) => {
                 useProjectStore.getState().updateStatusItem(

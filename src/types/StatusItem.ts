@@ -8,4 +8,5 @@ export type StatusItem = {
     startTime: number,
     endTime: number,
     time?: number,
+    tag?: string,
 }
