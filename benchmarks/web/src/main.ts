@@ -1,5 +1,5 @@
 import "./style.css";
-import { benchAs, benchCpp } from "./bench";
+import { benchAs, benchCpp, benchJs } from "./bench";
 import TheWorker from "./worker?worker";
 import { RUNS_COUNT } from "./constants";
 
@@ -7,53 +7,42 @@ const cppButton = document.querySelector<HTMLButtonElement>("#cpp-button")!;
 const cppWorkerButton = document.querySelector<HTMLButtonElement>("#cpp-worker-button")!;
 const asButton = document.querySelector<HTMLButtonElement>("#as-button")!;
 const asWorkerButton = document.querySelector<HTMLButtonElement>("#as-worker-button")!;
+const jsButton = document.querySelector<HTMLButtonElement>("#js-button")!;
+const jsWorkerButton = document.querySelector<HTMLButtonElement>("#js-worker-button")!;
 const resultsList = document.querySelector<HTMLUListElement>("#results")!;
 
-cppButton.addEventListener("click", async () => {
-    clearLog();
-    disableButtons();
-    await benchCpp(RUNS_COUNT, (message) => resultsList.innerHTML += `<li>${message}</li>`);
-    enableButtons();
-});
+setupButtons(cppButton, cppWorkerButton, benchCpp, "cpp");
+setupButtons(asButton, asWorkerButton, benchAs, "as");
+setupButtons(jsButton, jsWorkerButton, benchJs, "js");
 
-cppWorkerButton.addEventListener("click", async () => {
-    clearLog();
-    disableButtons();
-    const worker = new TheWorker();
-    worker.onmessage = (event) => {
-        if (event.data === "finished") {
-            enableButtons();
-        }
-        else {
-            resultsList.innerHTML += `<li>${event.data}</li>`;
-        }
-    };
-    worker.postMessage("cpp");
-});
+function setupButtons(
+    mainButton: HTMLButtonElement,
+    workerButton: HTMLButtonElement,
+    benchFunc: (runsCount: number, postMessage: (message: string) => void) => Promise<void>,
+    message: "cpp" | "as" | "js",
+) {
+    mainButton.addEventListener("click", async () => {
+        clearLog();
+        disableButtons();
+        await benchFunc(RUNS_COUNT, (message) => resultsList.innerHTML += `<li>${message}</li>`);
+        enableButtons();
+    });
 
-asButton.addEventListener("click", async () => {
-    clearLog();
-    disableButtons();
-    await new Promise((resolve) => setTimeout(resolve, 1));
-    await benchAs(RUNS_COUNT, (message) => resultsList.innerHTML += `<li>${message}</li>`);
-    enableButtons();
-});
-
-asWorkerButton.addEventListener("click", async () => {
-    clearLog();
-    disableButtons();
-    await new Promise((resolve) => setTimeout(resolve, 1));
-    const worker = new TheWorker();
-    worker.onmessage = (event) => {
-        if (event.data === "finished") {
-            enableButtons();
-        }
-        else {
-            resultsList.innerHTML += `<li>${event.data}</li>`;
-        }
-    };
-    worker.postMessage("as");
-});
+    workerButton.addEventListener("click", async () => {
+        clearLog();
+        disableButtons();
+        const worker = new TheWorker();
+        worker.onmessage = (event) => {
+            if (event.data === "finished") {
+                enableButtons();
+            }
+            else {
+                resultsList.innerHTML += `<li>${event.data}</li>`;
+            }
+        };
+        worker.postMessage(message);
+    });
+}
 
 function clearLog() {
     resultsList.innerHTML = "";
@@ -64,6 +53,8 @@ function disableButtons() {
     cppWorkerButton.disabled = true;
     asButton.disabled = true;
     asWorkerButton.disabled = true;
+    jsButton.disabled = true;
+    jsWorkerButton.disabled = true;
 }
 
 function enableButtons() {
@@ -71,4 +62,6 @@ function enableButtons() {
     cppWorkerButton.disabled = false;
     asButton.disabled = false;
     asWorkerButton.disabled = false;
+    jsButton.disabled = false;
+    jsWorkerButton.disabled = false;
 }

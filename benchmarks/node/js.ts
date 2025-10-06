@@ -1,24 +1,19 @@
-// npx vite-node ./benchmarks/node/cpp.ts
+// npx vite-node ./benchmarks/node/js.ts
 
 import mushroomep from "../../datasets/mushroomep.cxt?raw";
-import Module from "../../src/cpp";
+import parseBurmeister from "../../src/services/parsing/burmeister";
+import { inClose } from "../js/inClose";
 import { generateStats } from "../stats";
 
 const RUNS_COUNT = 50;
 
-const module = await Module();
-const context = module.parseBurmeister(mushroomep);
+const context = parseBurmeister(mushroomep);
 const times = new Array<number>();
 
 for (let i = 0; i < RUNS_COUNT; i++) {
-    const result = new module.FormalConceptsTimedResult();
-    module.inClose(result, context.context, context.cellSize, context.cellsPerObject, context.objects.size(), context.attributes.size(), undefined);
-
+    const result = inClose(context);
     times.push(result.time);
     console.log(`[${i}] Time: ${result.time}ms`);
-
-    result.value.delete();
-    result.delete();
 }
 
 const stats = generateStats(times);

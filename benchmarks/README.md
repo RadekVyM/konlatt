@@ -15,21 +15,33 @@ the highest levels of compiler optimizations
 - 16 GB
 - Windows 11 Home (24H2)
 
-|                    | Mushroom |
-| ------------------ | -------- |
-| **Native Clang**   | 1133.62  |
-| Native VS 2022     | 1634.48  |
-| Native G++         | 1728.24  |
-| **Node C++**       | 1281.96  |
-| **Node AS**        | 4613.60  |
-| Chrome C++         | 1400.08  |
-| Chrome C++ Worker  | 1429.64  |
-| Chrome AS          | 4167.76  |
-| Chrome AS Worker   | 4085.82  |
-| Firefox C++        | 1772.50  |
-| Firefox C++ Worker | 1716.92  |
-| Firefox AS         | 4200.46  |
-| Firefox AS Worker  | 4318.34  |
+- LLVM 18.1.3, Ubuntu clang version 18.1.3 (1ubuntu1)
+- gcc version 11.3.0 (Ubuntu 11.3.0-1ubuntu1~22.04)
+- Visual Studio 2022 Developer Command Prompt v17.14.16
+- Google Chrome Version 141.0.7390.55
+- Firefox 143.0.4 (64 bit)
+- Node.js v22.13.1
+
+|                    | Average  | Std. dev. |
+| ------------------ | -------- | --------- |
+| **Native Clang**   | 1080.68  | 17.33     |
+| Native VS 2022     | 1562.88  | 38.25     |
+| Native G++         | 1657.80  | 29.43     |
+| **Node C++**       | 1044.26  | 25.55     |
+| **Node AS**        | 4586.70  | 94.88     |
+| **Node JS**        | 10138.06 | 171.95    |
+| Chrome C++         | 1164.12  | 27.94     |
+| Chrome C++ Worker  | 1174.84  | 27.00     |
+| Chrome AS          | 3878.84  | 108.32    |
+| Chrome AS Worker   | 3965.92  | 83.73     |
+| Chrome JS          | 2446.82  | 33.28     |
+| Chrome JS Worker   | 2514.10  | 49.27     |
+| Firefox C++        | 1252.76  | 29.29     |
+| Firefox C++ Worker | 1218.48  | 25.03     |
+| Firefox AS         | 2359.20  | 57.92     |
+| Firefox AS Worker  | 2454.66  | 71.07     |
+| Firefox JS         | 7829.22  | 145.52    |
+| Firefox JS Worker  | 6226.98  | 52.23     |
 
 ## Apple M1
 
@@ -38,7 +50,7 @@ the highest levels of compiler optimizations
 - 16 GB
 - macOS Sequoia 15.3.2 (24D81)
 
-|                    | Mushroom |
+|                    | Average  |
 | ------------------ | -------- |
 | **Native Clang**   |   757.66 |
 | **Node C++**       |  1027.08 |

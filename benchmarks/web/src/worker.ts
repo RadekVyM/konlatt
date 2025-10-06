@@ -1,7 +1,7 @@
 import { RUNS_COUNT } from "./constants";
 
-self.onmessage = async (event: MessageEvent<"cpp" | "as">) => {
-    const { benchAs, benchCpp } = await import("./bench");
+self.onmessage = async (event: MessageEvent<"cpp" | "as" | "js">) => {
+    const { benchAs, benchCpp, benchJs } = await import("./bench");
 
     switch (event.data) {
         case "cpp":
@@ -9,6 +9,9 @@ self.onmessage = async (event: MessageEvent<"cpp" | "as">) => {
             break;
         case "as":
             await benchAs(RUNS_COUNT, (message) => self.postMessage(message));
+            break;
+        case "js":
+            await benchJs(RUNS_COUNT, (message) => self.postMessage(message));
             break;
     }
 
