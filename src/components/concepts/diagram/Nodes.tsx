@@ -1,15 +1,16 @@
-import { useLayoutEffect, useRef } from "react";
-import { InstancedMesh, Matrix4, Mesh } from "three";
+import { useLayoutEffect, useMemo, useRef } from "react";
+import { DoubleSide, InstancedMesh, LatheGeometry, Matrix4, Mesh, Object3D, Vector2 } from "three";
 import { ThreeEvent, useThree } from "@react-three/fiber";
 import { DIM_NODE_COLOR_DARK, DIM_NODE_COLOR_LIGHT, NODE_COLOR_DARK, NODE_COLOR_LIGHT, PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT } from "../../../constants/diagram";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
-import { setNodesTransformMatrices, themedColor } from "./utils";
+import { setNodesTransformMatrices, setupNodeTransform, themedColor } from "./utils";
 import useGlobalsStore from "../../../stores/useGlobalsStore";
 import { ConceptLatticeLayout } from "../../../types/ConceptLatticeLayout";
 import { Point } from "../../../types/Point";
 import { CameraType } from "../../../types/CameraType";
 import { isRightClick } from "../../../utils/html";
 import { createRange } from "../../../utils/array";
+import { Theme } from "../../../types/Theme";
 
 const HOVERED_MESH_NAME = "hovered_mesh";
 
@@ -24,6 +25,8 @@ export default function Nodes() {
     const selectedConceptIndex = useDiagramStore((state) => state.selectedConceptIndex);
     const conceptsToMoveIndexes = useDiagramStore((state) => state.conceptsToMoveIndexes);
     const visibleConceptIndexes = useDiagramStore((state) => state.visibleConceptIndexes);
+    const lowerConeOnlyConceptIndex = useDiagramStore((state) => state.lowerConeOnlyConceptIndex);
+    const upperConeOnlyConceptIndex = useDiagramStore((state) => state.upperConeOnlyConceptIndex);
     const filteredConceptIndexes = useDiagramStore((state) => state.filteredConceptIndexes);
     const displayHighlightedSublatticeOnly = useDiagramStore((state) => state.displayHighlightedSublatticeOnly);
     const cameraType = useDiagramStore((state) => state.cameraType);
@@ -41,14 +44,11 @@ export default function Nodes() {
 
         for (let layoutIndex = 0; layoutIndex < layout.length; layoutIndex++) {
             const conceptIndex = layoutToConceptIndexesMapping.get(layoutIndex);
-            const isSelected = conceptIndex === selectedConceptIndex;
-            const isFilteredOut = conceptIndex !== undefined && filteredConceptIndexes && !filteredConceptIndexes.has(conceptIndex);
-
-            const color = isSelected ?
-                themedColor(PRIMARY_COLOR_LIGHT, PRIMARY_COLOR_DARK, currentTheme) :
-                isFilteredOut ?
-                    themedColor(DIM_NODE_COLOR_LIGHT, DIM_NODE_COLOR_DARK, currentTheme) :
-                    themedColor(NODE_COLOR_LIGHT, NODE_COLOR_DARK, currentTheme);
+            const color = getNodeColor(
+                conceptIndex,
+                selectedConceptIndex,
+                filteredConceptIndexes,
+                currentTheme);
 
             instancedMeshRef.current?.setColorAt(layoutIndex, color);
         }
@@ -56,7 +56,7 @@ export default function Nodes() {
             instancedMeshRef.current.instanceColor.needsUpdate = true;
             invalidate();
         }
-    }, [layout, selectedConceptIndex, filteredConceptIndexes, currentTheme]);
+    }, [layout, selectedConceptIndex, filteredConceptIndexes, lowerConeOnlyConceptIndex, upperConeOnlyConceptIndex, currentTheme]);
 
     useLayoutEffect(() => {
         if (!instancedMeshRef.current || !layout || !diagramOffsets) {
@@ -69,6 +69,8 @@ export default function Nodes() {
             instancedMeshRef.current,
             layoutIndexes,
             visibleConceptIndexes,
+            lowerConeOnlyConceptIndex,
+            upperConeOnlyConceptIndex,
             displayHighlightedSublatticeOnly,
             layout,
             diagramOffsets,
@@ -79,7 +81,18 @@ export default function Nodes() {
             rotationDegrees);
 
         invalidate();
-    }, [layout, cameraType, diagramOffsets, visibleConceptIndexes, displayHighlightedSublatticeOnly, horizontalScale, verticalScale, rotationDegrees]);
+    }, [
+        layout,
+        cameraType,
+        diagramOffsets,
+        visibleConceptIndexes,
+        lowerConeOnlyConceptIndex,
+        upperConeOnlyConceptIndex,
+        displayHighlightedSublatticeOnly,
+        horizontalScale,
+        verticalScale,
+        rotationDegrees,
+    ]);
 
     useLayoutEffect(() => {
         if (!instancedMeshRef.current || !layout || !diagramOffsets || conceptsToMoveIndexes.size === 0) {
@@ -94,6 +107,8 @@ export default function Nodes() {
             instancedMeshRef.current,
             layoutIndexes,
             visibleConceptIndexes,
+            lowerConeOnlyConceptIndex,
+            upperConeOnlyConceptIndex,
             displayHighlightedSublatticeOnly,
             layout,
             diagramOffsets,
@@ -104,7 +119,20 @@ export default function Nodes() {
             rotationDegrees);
 
         invalidate();
-    }, [conceptsToMoveIndexes, dragOffset, layout, cameraType, diagramOffsets, visibleConceptIndexes, displayHighlightedSublatticeOnly, horizontalScale, verticalScale, rotationDegrees]);
+    }, [
+        conceptsToMoveIndexes,
+        dragOffset,
+        layout,
+        cameraType,
+        diagramOffsets,
+        visibleConceptIndexes,
+        lowerConeOnlyConceptIndex,
+        upperConeOnlyConceptIndex,
+        displayHighlightedSublatticeOnly,
+        horizontalScale,
+        verticalScale,
+        rotationDegrees,
+    ]);
 
     function onClick(e: ThreeEvent<MouseEvent>) {
         if (isRightClick(e)) {
@@ -212,14 +240,227 @@ export default function Nodes() {
                     transparent
                     color={themedColor(PRIMARY_COLOR_LIGHT, PRIMARY_COLOR_DARK, currentTheme)} />
             </mesh>
+
+            <ConeHemispheres />
         </>
     );
+}
+
+function ConeHemispheres() {
+    const radius = 0.1;
+    const widthSegments = 10;
+    const lowerSphereRef = useRef<Mesh>(null);
+    const upperSphereRef = useRef<Mesh>(null);
+    const geometry = useHemisphereGeometry(radius, widthSegments, 5);
+    const currentTheme = useGlobalsStore((state) => state.currentTheme);
+    const layout = useDiagramStore((state) => state.layout);
+    const diagramOffsets = useDiagramStore((state) => state.diagramOffsets);
+    const dragOffset = useDiagramStore((state) => state.dragOffset);
+    const conceptsToMoveIndexes = useDiagramStore((state) => state.conceptsToMoveIndexes);
+    const cameraType = useDiagramStore((state) => state.cameraType);
+    const selectedConceptIndex = useDiagramStore((state) => state.selectedConceptIndex);
+    const filteredConceptIndexes = useDiagramStore((state) => state.filteredConceptIndexes);
+    const horizontalScale = useDiagramStore((state) => state.horizontalScale);
+    const verticalScale = useDiagramStore((state) => state.verticalScale);
+    const rotationDegrees = useDiagramStore((state) => state.rotationDegrees);
+    const lowerConeOnlyConceptIndex = useDiagramStore((state) => state.lowerConeOnlyConceptIndex);
+    const upperConeOnlyConceptIndex = useDiagramStore((state) => state.upperConeOnlyConceptIndex);
+    const invalidate = useThree((state) => state.invalidate);
+
+    const lowerColor = getNodeColor(lowerConeOnlyConceptIndex, selectedConceptIndex, filteredConceptIndexes, currentTheme);
+    const upperColor = getNodeColor(upperConeOnlyConceptIndex, selectedConceptIndex, filteredConceptIndexes, currentTheme);
+
+    useLayoutEffect(() => {
+        if (!lowerSphereRef.current || !upperSphereRef.current || !layout || !diagramOffsets) {
+            return;
+        }
+
+        lowerSphereRef.current.visible = lowerConeOnlyConceptIndex !== null;
+        upperSphereRef.current.visible = upperConeOnlyConceptIndex !== null;
+
+        if (!lowerSphereRef.current.visible && !upperSphereRef.current.visible) {
+            return;
+        }
+
+        const temp = new Object3D();
+
+        transformHemisphere(
+            lowerSphereRef,
+            lowerConeOnlyConceptIndex,
+            layout,
+            temp,
+            diagramOffsets,
+            dragOffset,
+            conceptsToMoveIndexes,
+            cameraType,
+            horizontalScale,
+            verticalScale,
+            rotationDegrees);
+
+        transformHemisphere(
+            upperSphereRef,
+            upperConeOnlyConceptIndex,
+            layout,
+            temp,
+            diagramOffsets,
+            dragOffset,
+            conceptsToMoveIndexes,
+            cameraType,
+            horizontalScale,
+            verticalScale,
+            rotationDegrees);
+
+        invalidate();
+    }, [
+        layout,
+        diagramOffsets,
+        dragOffset,
+        conceptsToMoveIndexes,
+        cameraType,
+        horizontalScale,
+        verticalScale,
+        rotationDegrees,
+        lowerConeOnlyConceptIndex,
+        upperConeOnlyConceptIndex,
+    ]);
+
+    return (
+        <>
+            <mesh
+                ref={lowerSphereRef}
+                visible={false}
+                geometry={geometry}
+                rotation-x={Math.PI}>
+                <meshBasicMaterial
+                    color={lowerColor}
+                    side={DoubleSide} />
+            </mesh>
+            <mesh
+                ref={upperSphereRef}
+                visible={false}
+                geometry={geometry}>
+                <meshBasicMaterial
+                    color={upperColor}
+                    side={DoubleSide} />
+            </mesh>
+        </>
+    );
+}
+
+function useHemisphereGeometry(radius: number, widthSegments: number, heightSegments: number) {
+    return useMemo(() => {
+        const roundingRadius = radius * 0.3;
+        const roundingHeight = roundingRadius * 0.5;
+        const points = new Array<Vector2>();
+
+        for (let i = 0; i <= heightSegments; i++) {
+            // Angle goes from 90 degrees (top) down to 0 degrees (side)
+            const angle = (Math.PI / 2) * (1 - i / heightSegments); 
+            
+            const x = radius * Math.cos(angle);
+            const y = radius * Math.sin(angle);
+
+            // Ignore points below the rounding height
+            if (y > roundingHeight) {
+                points.push(new Vector2(x, y));
+            }
+        }
+
+        const roundingSegmentsCount = 3;
+        const roundingCenterX = radius - roundingRadius;
+
+        for (let i = 0; i <= roundingSegmentsCount; i++) {
+            const angle = (Math.PI / 2) * (i / roundingSegmentsCount); 
+            
+            const x = roundingCenterX + roundingRadius * Math.cos(angle);
+            const y = roundingHeight - roundingRadius * Math.sin(angle); 
+
+            if (x <= radius) {
+                points.push(new Vector2(x, y));
+            }
+        }
+
+        points.push(new Vector2(0, roundingHeight - roundingRadius)); 
+
+        return new LatheGeometry(points, widthSegments);
+    }, [radius, widthSegments]);
+}
+
+function transformHemisphere(
+    sphereRef: React.RefObject<Mesh | null>,
+    conceptIndex: number | null,
+    layout: ConceptLatticeLayout,
+    temp: Object3D,
+    diagramOffsets: Array<Point>,
+    dragOffset: Point,
+    conceptsToMoveIndexes: Set<number>,
+    cameraType: CameraType,
+    horizontalScale: number,
+    verticalScale: number,
+    rotationDegrees: number,
+) {
+    if (conceptIndex === null || !sphereRef.current) {
+        return;
+    }
+
+    const conceptToLayoutIndexesMapping = useDiagramStore.getState().conceptToLayoutIndexesMapping;
+    // Be careful here...
+    const layoutIndex = conceptToLayoutIndexesMapping.get(conceptIndex)!;
+
+    if (layoutIndex < layout.length) {
+        setupNodeTransform(
+            temp,
+            layout,
+            layoutIndex,
+            diagramOffsets,
+            conceptsToMoveIndexes.size !== 0 && conceptsToMoveIndexes.has(conceptIndex) ?
+                dragOffset :
+                [0, 0, 0],
+            1,
+            cameraType,
+            horizontalScale,
+            verticalScale,
+            rotationDegrees);
+
+        sphereRef.current.position.setFromMatrixPosition(temp.matrix);
+        sphereRef.current.visible = true;
+    }
+}
+
+function getNodeColor(
+    conceptIndex: number | null | undefined,
+    selectedConceptIndex: number | null,
+    filteredConceptIndexes: Set<number> | null,
+    currentTheme: Theme,
+    forceDimColor?: boolean,
+) {
+    const dimColor = themedColor(DIM_NODE_COLOR_LIGHT, DIM_NODE_COLOR_DARK, currentTheme);
+
+    if (forceDimColor) {
+        return dimColor;
+    }
+
+    const isSelected = conceptIndex === selectedConceptIndex;
+    const isFilteredOut = conceptIndex !== undefined &&
+        conceptIndex !== null &&
+        filteredConceptIndexes &&
+        !filteredConceptIndexes.has(conceptIndex);
+
+    const color = isSelected ?
+        themedColor(PRIMARY_COLOR_LIGHT, PRIMARY_COLOR_DARK, currentTheme) :
+        isFilteredOut ?
+            dimColor :
+            themedColor(NODE_COLOR_LIGHT, NODE_COLOR_DARK, currentTheme);
+
+    return color;
 }
 
 function setNodesTransformMatricesHelper(
     instancedMesh: InstancedMesh,
     layoutIndexes: Array<number>,
     visibleConceptIndexes: Set<number> | null,
+    lowerConeOnlyConceptIndex: number | null,
+    upperConeOnlyConceptIndex: number | null,
     displayHighlightedSublatticeOnly: boolean,
     layout: ConceptLatticeLayout,
     diagramOffsets: Array<Point>,
@@ -229,7 +470,12 @@ function setNodesTransformMatricesHelper(
     verticalScale: number,
     rotationDegrees: number,
 ) {
-    const { highlightedLayoutIndexes, dimLayoutIndexes } = separateNodes(layoutIndexes, visibleConceptIndexes, displayHighlightedSublatticeOnly)
+    const { highlightedLayoutIndexes, dimLayoutIndexes, coneLayoutIndexes } = separateNodes(
+        layoutIndexes,
+        visibleConceptIndexes,
+        lowerConeOnlyConceptIndex,
+        upperConeOnlyConceptIndex,
+        displayHighlightedSublatticeOnly);
 
     setNodesTransformMatrices(
         instancedMesh,
@@ -253,20 +499,39 @@ function setNodesTransformMatricesHelper(
         verticalScale,
         rotationDegrees,
         0.5);
+    setNodesTransformMatrices(
+        instancedMesh,
+        coneLayoutIndexes,
+        layout,
+        diagramOffsets,
+        dragOffset,
+        cameraType,
+        horizontalScale,
+        verticalScale,
+        rotationDegrees,
+        0.68);
 }
 
 function separateNodes(
     layoutIndexes: Array<number>,
     visibleConceptIndexes: Set<number> | null,
+    lowerConeOnlyConceptIndex: number | null,
+    upperConeOnlyConceptIndex: number | null,
     displayHighlightedSublatticeOnly: boolean,
 ) {
     const highlightedLayoutIndexes = new Array<number>();
     const dimLayoutIndexes = new Array<number>();
+    const coneLayoutIndexes = new Array<number>();
     const layoutToConceptIndexesMapping = useDiagramStore.getState().layoutToConceptIndexesMapping;
 
     for (const layoutIndex of layoutIndexes) {
         // Be careful here...
         const conceptIndex = layoutToConceptIndexesMapping.get(layoutIndex)!;
+
+        if (conceptIndex === lowerConeOnlyConceptIndex || conceptIndex === upperConeOnlyConceptIndex) {
+            coneLayoutIndexes.push(layoutIndex);
+            continue;
+        }
 
         if (displayHighlightedSublatticeOnly || visibleConceptIndexes === null || visibleConceptIndexes?.has(conceptIndex)) {
             highlightedLayoutIndexes.push(layoutIndex);
@@ -279,5 +544,6 @@ function separateNodes(
     return {
         highlightedLayoutIndexes,
         dimLayoutIndexes,
+        coneLayoutIndexes,
     };
 }

@@ -27,12 +27,12 @@ export default function NumberInput({ className, inputClassName, id, label, mini
                 type="number"
                 value={document.activeElement === inputRef.current ?
                     value :
-                    value?.toLocaleString(undefined, { minimumFractionDigits: minimumFractionDigits || 0 })}
+                    formatNumber(value, minimumFractionDigits)}
                 onChange={(event) => onChange && onChange(parseFloat(event.target.value) || 0)}
                 onFocus={(event) => event.target.select()}
                 onBlur={() => {
                     if (inputRef.current?.value) {
-                        inputRef.current.value = parseFloat(inputRef.current.value).toLocaleString(undefined, { minimumFractionDigits: minimumFractionDigits || 0 });
+                        inputRef.current.value = formatNumber(parseFloat(inputRef.current.value), minimumFractionDigits) || "";
                     }
                 }}
                 size={1}
@@ -42,4 +42,13 @@ export default function NumberInput({ className, inputClassName, id, label, mini
                 {...rest} />
         </div>
     );
+}
+
+function formatNumber(num?: number, minimumFractionDigits?: number) {
+    return num?.toLocaleString(
+        undefined,
+        {
+            minimumFractionDigits: minimumFractionDigits || 0,
+            useGrouping: false,
+        });
 }

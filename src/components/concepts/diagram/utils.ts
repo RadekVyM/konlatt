@@ -25,10 +25,17 @@ export function setNodesTransformMatrices(
             continue;
         }
 
-        const node = layout[layoutIndex];
-        const offset = getPoint(diagramOffsets, layoutIndex);
-
-        setupTransform(temp, createPoint(node.x, node.y, node.z), offset, dragOffset, scale, cameraType, horizontalScale, verticalScale, rotationDegrees);
+        setupNodeTransform(
+            temp,
+            layout,
+            layoutIndex,
+            diagramOffsets,
+            dragOffset,
+            scale,
+            cameraType,
+            horizontalScale,
+            verticalScale,
+            rotationDegrees);
 
         instancedMesh.setMatrixAt(layoutIndex, temp.matrix);
     }
@@ -41,6 +48,24 @@ export function setNodesTransformMatrices(
     // or https://discourse.threejs.org/t/raycast-fails-after-modifying-the-instance-matrices/53791
     instancedMesh.computeBoundingSphere();
     instancedMesh.computeBoundingBox();
+}
+
+export function setupNodeTransform(
+    temp: Object3D,
+    layout: ConceptLatticeLayout,
+    layoutIndex: number,
+    diagramOffsets: Array<Point>,
+    dragOffset: Point,
+    scale: number,
+    cameraType: CameraType,
+    horizontalScale: number,
+    verticalScale: number,
+    rotationDegrees: number,
+) {
+    const node = layout[layoutIndex];
+    const offset = getPoint(diagramOffsets, layoutIndex);
+
+    setupTransform(temp, createPoint(node.x, node.y, node.z), offset, dragOffset, scale, cameraType, horizontalScale, verticalScale, rotationDegrees);
 }
 
 export function setupTransform(
