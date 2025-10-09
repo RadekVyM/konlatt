@@ -19,6 +19,7 @@ export default function ListFilter<T extends ItemType>(props: {
     selectedItems: Set<number>,
     searchPlaceholder: string,
     className?: string,
+    header?: React.ReactNode,
     setSelectedItems: React.Dispatch<React.SetStateAction<Set<number>>>,
 }) {
     const observerTargetRef = useRef<HTMLDivElement>(null);
@@ -31,6 +32,8 @@ export default function ListFilter<T extends ItemType>(props: {
 
     return (
         <>
+            {props.header}
+
             <div
                 className="px-5 py-1">
                 <SearchInput

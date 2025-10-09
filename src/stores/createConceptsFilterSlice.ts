@@ -12,6 +12,8 @@ type ConceptsFilterSliceState = {
     sortDirection: SortDirection,
     filteredConceptIndexes: Set<number> | null,
     filteredConcepts: FormalConcepts | null,
+    strictSelectedObjects: boolean,
+    strictSelectedAttributes: boolean,
     selectedFilterObjects: ReadonlySet<number>,
     selectedFilterAttributes: ReadonlySet<number>,
     minObjectsCount: number | null,
@@ -25,6 +27,8 @@ type ConceptsFilterSliceActions = {
     setSortType: (objecsortTypetsSortType: ConceptSortType) => void,
     setSortDirection: (sortDirection: SortDirection) => void,
     setSelectedFilters: (
+        strictSelectedObjects: boolean,
+        strictSelectedAttributes: boolean,
         selectedFilterObjects: ReadonlySet<number>,
         selectedFilterAttributes: ReadonlySet<number>,
         minObjectsCount: number | null,
@@ -43,6 +47,8 @@ export const initialState: ConceptsFilterSliceState = {
     sortDirection: "asc",
     filteredConceptIndexes: null,
     filteredConcepts: null,
+    strictSelectedObjects: false,
+    strictSelectedAttributes: false,
     selectedFilterObjects: new Set(),
     selectedFilterAttributes: new Set(),
     minObjectsCount: null,
@@ -56,6 +62,8 @@ export default function createConceptsFilterSlice(set: (partial: ConceptsFilterS
         ...initialState,
         setDebouncedSearchInput: (debouncedSearchInput) => set((old) => withFilteredConceptIndexes({ debouncedSearchInput }, old)),
         setSelectedFilters: (
+            strictSelectedObjects,
+            strictSelectedAttributes,
             selectedFilterObjects,
             selectedFilterAttributes,
             minObjectsCount,
@@ -63,7 +71,16 @@ export default function createConceptsFilterSlice(set: (partial: ConceptsFilterS
             minAttributesCount,
             maxAttributesCount,
         ) => set((old) =>
-            withFilteredConceptIndexes({ selectedFilterObjects, selectedFilterAttributes, minObjectsCount, maxObjectsCount, minAttributesCount, maxAttributesCount }, old)),
+            withFilteredConceptIndexes({
+                strictSelectedObjects,
+                strictSelectedAttributes,
+                selectedFilterObjects,
+                selectedFilterAttributes,
+                minObjectsCount,
+                maxObjectsCount,
+                minAttributesCount,
+                maxAttributesCount
+            }, old)),
         setSortDirection: (sortDirection) => set({ sortDirection }),
         setSortType: (sortType) => set({ sortType }),
     };
@@ -73,6 +90,12 @@ function withFilteredConceptIndexes(newState: Partial<ConceptsFilterSlice>, oldS
     const debouncedSearchInput = newState.debouncedSearchInput !== undefined ?
         newState.debouncedSearchInput :
         oldState.debouncedSearchInput;
+    const strictSelectedObjects = newState.strictSelectedObjects !== undefined ?
+        newState.strictSelectedObjects :
+        oldState.strictSelectedObjects;
+    const strictSelectedAttributes = newState.strictSelectedAttributes !== undefined ?
+        newState.strictSelectedAttributes :
+        oldState.strictSelectedAttributes;
     const selectedFilterObjects = newState.selectedFilterObjects !== undefined ?
         newState.selectedFilterObjects :
         oldState.selectedFilterObjects;
@@ -123,6 +146,8 @@ function withFilteredConceptIndexes(newState: Partial<ConceptsFilterSlice>, oldS
                 concept,
                 lowerSearchTerms,
                 context,
+                strictSelectedObjects,
+                strictSelectedAttributes,
                 selectedFilterObjects,
                 selectedFilterAttributes,
                 minObjectsCount,
@@ -148,6 +173,8 @@ function conceptFilter(
     concept: FormalConcept,
     searchTerms: Array<string>,
     context: FormalContext,
+    strictSelectedObjects: boolean,
+    strictSelectedAttributes: boolean,
     selectedFilterObjects: ReadonlySet<number>,
     selectedFilterAttributes: ReadonlySet<number>,
     minObjectsCount: number | null,
@@ -162,62 +189,38 @@ function conceptFilter(
         return false;
     }
 
-    // The concept has to contain one of the selected objects AND
-    // one of the selected attributes AND
+    // The concept has to contain
+    // (all the selected objects if strict filtering is enabled, else one of the selected objects OR) AND
+    // (all the selected attributes if strict filtering is enabled, else one of the selected attributes) AND
     // all the search terms
 
-    let hasObject = selectedFilterObjects.size === 0;
-    let hasAttribute = selectedFilterAttributes.size === 0;
+    selectedFilterObjects = new Set(selectedFilterObjects);
+    selectedFilterAttributes = new Set(selectedFilterAttributes);
 
-    for (const object of concept.objects) {
-        if (hasObject && searchTerms.length === 0) {
-            break;
-        }
+    if (selectedFilterObjects.size > 0) {
+        const selectedObjects = concept.objects.filter((obj) => selectedFilterObjects.has(obj));
+        const hasObjects = strictSelectedObjects ?
+            selectedObjects.length === selectedFilterObjects.size :
+            selectedObjects.length > 0;
 
-        if (selectedFilterObjects.size !== 0 && selectedFilterObjects.has(object)) {
-            hasObject = true;
-
-            if (searchTerms.length === 0) {
-                break;
-            }
-        }
-
-        for (let i = 0; i < searchTerms.length; i++) {
-            const term = searchTerms[i];
-
-            if (context.objects[object].toLowerCase().includes(term)) {
-                searchTerms = searchTerms.filter((_t, ti) => ti !== i);
-                i--;
-            }
+        if (!hasObjects) {
+            return false;
         }
     }
 
-    if (!hasObject) {
-        return false;
-    }
+    if (selectedFilterAttributes.size > 0) {
+        const selectedAttributes = concept.attributes.filter((attr) => selectedFilterAttributes.has(attr));
+        const hasAttributes = strictSelectedAttributes ?
+            selectedAttributes.length === selectedFilterAttributes.size :
+            selectedAttributes.length > 0;
 
-    for (const attribute of concept.attributes) {
-        if (hasAttribute && searchTerms.length === 0) {
-            break;
-        }
-
-        if (selectedFilterAttributes.size !== 0 && selectedFilterAttributes.has(attribute)) {
-            hasAttribute = true;
-
-            if (searchTerms.length === 0) {
-                break;
-            }
-        }
-
-        for (let i = 0; i < searchTerms.length; i++) {
-            const term = searchTerms[i];
-
-            if (context.attributes[attribute].toLowerCase().includes(term)) {
-                searchTerms = searchTerms.filter((_t, ti) => ti !== i);
-                i--;
-            }
+        if (!hasAttributes) {
+            return false;
         }
     }
 
-    return hasObject && hasAttribute && searchTerms.length === 0;
+    const hasSearchTerms = searchTerms.length === 0 || searchTerms.every((term) => context.objects.some((obj) =>
+        obj.toLocaleLowerCase().includes(term)) || context.attributes.some((attr) => attr.toLocaleLowerCase().includes(term)));
+
+    return hasSearchTerms;
 }

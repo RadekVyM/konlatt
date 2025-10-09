@@ -77,6 +77,8 @@ function Concepts(props: {
     const sortDirection = useDiagramStore((state) => state.sortDirection);
     const setSortType = useDiagramStore((state) => state.setSortType);
     const setSortDirection = useDiagramStore((state) => state.setSortDirection);
+    const strictSelectedObjects = useDiagramStore((state) => state.strictSelectedObjects);
+    const strictSelectedAttributes = useDiagramStore((state) => state.strictSelectedAttributes);
     const selectedFilterObjects = useDiagramStore((state) => state.selectedFilterObjects);
     const selectedFilterAttributes = useDiagramStore((state) => state.selectedFilterAttributes);
     const minObjectsCount = useDiagramStore((state) => state.minObjectsCount);
@@ -100,6 +102,8 @@ function Concepts(props: {
             onSortTypeChange={setSortType}
             onSortDirectionChange={setSortDirection}
             visibleConceptIndexes={visibleConceptIndexes}
+            strictSelectedObjects={strictSelectedObjects}
+            strictSelectedAttributes={strictSelectedAttributes}
             selectedFilterObjects={selectedFilterObjects}
             selectedFilterAttributes={selectedFilterAttributes}
             minObjectsCount={minObjectsCount}

@@ -26,6 +26,8 @@ function Concepts() {
     const sortDirection = useExplorerStore((state) => state.sortDirection);
     const setSortType = useExplorerStore((state) => state.setSortType);
     const setSortDirection = useExplorerStore((state) => state.setSortDirection);
+    const strictSelectedObjects = useExplorerStore((state) => state.strictSelectedObjects);
+    const strictSelectedAttributes = useExplorerStore((state) => state.strictSelectedAttributes);
     const selectedFilterObjects = useExplorerStore((state) => state.selectedFilterObjects);
     const selectedFilterAttributes = useExplorerStore((state) => state.selectedFilterAttributes);
     const minObjectsCount = useExplorerStore((state) => state.minObjectsCount);
@@ -48,6 +50,8 @@ function Concepts() {
             onSortTypeChange={setSortType}
             onSortDirectionChange={setSortDirection}
             visibleConceptIndexes={null}
+            strictSelectedObjects={strictSelectedObjects}
+            strictSelectedAttributes={strictSelectedAttributes}
             selectedFilterObjects={selectedFilterObjects}
             selectedFilterAttributes={selectedFilterAttributes}
             minObjectsCount={minObjectsCount}

@@ -36,6 +36,8 @@ export default function Concepts(props: {
     storedSearchInput: string,
     sortType: ConceptSortType,
     sortDirection: SortDirection,
+    strictSelectedObjects: boolean,
+    strictSelectedAttributes: boolean,
     selectedFilterObjects: ReadonlySet<number>,
     selectedFilterAttributes: ReadonlySet<number>,
     minObjectsCount: number | null,
@@ -47,6 +49,8 @@ export default function Concepts(props: {
     setSelectedConceptIndex: React.Dispatch<React.SetStateAction<number | null>>,
     updateSearchInput: (debouncedSearchInput: string) => void,
     onSelectedFiltersChange: (
+        strictSelectedObjects: boolean,
+        strictSelectedAttributes: boolean,
         selectedObjects: ReadonlySet<number>,
         selectedAttributes: ReadonlySet<number>,
         minObjectsCount: number | null,
@@ -71,6 +75,8 @@ export default function Concepts(props: {
                 sortDirection={props.sortDirection}
                 onSortTypeChange={props.onSortTypeChange}
                 onSortDirectionChange={props.onSortDirectionChange}
+                strictSelectedObjects={props.strictSelectedObjects}
+                strictSelectedAttributes={props.strictSelectedAttributes}
                 selectedFilterObjects={props.selectedFilterObjects}
                 selectedFilterAttributes={props.selectedFilterAttributes}
                 minObjectsCount={props.minObjectsCount}
@@ -98,6 +104,8 @@ function ConceptsList(props: {
     storedSearchInput: string,
     sortType: ConceptSortType,
     sortDirection: SortDirection,
+    strictSelectedObjects: boolean,
+    strictSelectedAttributes: boolean,
     selectedFilterObjects: ReadonlySet<number>,
     selectedFilterAttributes: ReadonlySet<number>,
     minObjectsCount: number | null,
@@ -109,6 +117,8 @@ function ConceptsList(props: {
     setSelectedConceptIndex: (index: number | null) => void,
     updateSearchInput: (debouncedSearchInput: string) => void,
     onSelectedFiltersChange: (
+        strictSelectedObjects: boolean,
+        strictSelectedAttributes: boolean,
         selectedObjects: ReadonlySet<number>,
         selectedAttributes: ReadonlySet<number>,
         minObjectsCount: number | null,
@@ -154,6 +164,8 @@ function ConceptsList(props: {
                     sortDirection={props.sortDirection}
                     onSortTypeChange={props.onSortTypeChange}
                     onSortDirectionChange={props.onSortDirectionChange}
+                    strictSelectedObjects={props.strictSelectedObjects}
+                    strictSelectedAttributes={props.strictSelectedAttributes}
                     selectedFilterObjects={props.selectedFilterObjects}
                     selectedFilterAttributes={props.selectedFilterAttributes}
                     minObjectsCount={props.minObjectsCount}
@@ -183,6 +195,8 @@ function Search(props: {
     sortType: ConceptSortType,
     sortDirection: SortDirection,
     searchInput: string,
+    strictSelectedObjects: boolean,
+    strictSelectedAttributes: boolean,
     selectedFilterObjects: ReadonlySet<number>,
     selectedFilterAttributes: ReadonlySet<number>,
     minObjectsCount: number | null,
@@ -193,6 +207,8 @@ function Search(props: {
     onSortTypeChange: (key: ConceptSortType) => void,
     onSortDirectionChange: (key: SortDirection) => void,
     onSelectedFiltersChange: (
+        strictSelectedObjects: boolean,
+        strictSelectedAttributes: boolean,
         selectedObjects: ReadonlySet<number>,
         selectedAttributes: ReadonlySet<number>,
         minObjectsCount: number | null,
@@ -247,6 +263,8 @@ function Search(props: {
 
             <ConceptsFilterDialog
                 state={filterDialogState}
+                strictSelectedObjects={props.strictSelectedObjects}
+                strictSelectedAttributes={props.strictSelectedAttributes}
                 selectedObjects={props.selectedFilterObjects}
                 selectedAttributes={props.selectedFilterAttributes}
                 minObjectsCount={props.minObjectsCount}

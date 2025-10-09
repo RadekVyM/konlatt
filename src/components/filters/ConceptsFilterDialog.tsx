@@ -7,6 +7,7 @@ import HorizontalScroller from "../HorizontalScroller";
 import Button from "../inputs/Button";
 import RangeFilter from "./RangeFilter";
 import { FormalContext, getAttributeObjects, getObjectAttributes } from "../../types/FormalContext";
+import CheckBox from "../inputs/CheckBox";
 
 type FilterType = "objects" | "attributes" | "objects-count" | "attributes-count"
 
@@ -31,6 +32,8 @@ const FILTERS: ReadonlyArray<{ title: string, id: FilterType }> = [
 
 export default function ConceptsFilterDialog(props: {
     state: DialogState,
+    strictSelectedObjects: boolean,
+    strictSelectedAttributes: boolean,
     selectedObjects: ReadonlySet<number>,
     selectedAttributes: ReadonlySet<number>,
     minObjectsCount: number | null,
@@ -38,6 +41,8 @@ export default function ConceptsFilterDialog(props: {
     minAttributesCount: number | null,
     maxAttributesCount: number | null,
     onApply: (
+        strictSelectedObjects: boolean,
+        strictSelectedAttributes: boolean,
         selectedObjects: ReadonlySet<number>,
         selectedAttributes: ReadonlySet<number>,
         minObjectsCount: number | null,
@@ -54,6 +59,8 @@ export default function ConceptsFilterDialog(props: {
     const [maxObjectsCount, setMaxObjectsCount] = useSetupState(props.maxObjectsCount, props.state.isOpen);
     const [minAttributesCount, setMinAttributesCount] = useSetupState(props.minAttributesCount, props.state.isOpen);
     const [maxAttributesCount, setMaxAttributesCount] = useSetupState(props.maxAttributesCount, props.state.isOpen);
+    const [strictSelectedObjects, setStrictSelectedObjects] = useSetupState(props.strictSelectedObjects, props.state.isOpen);
+    const [strictSelectedAttributes, setStrictSelectedAttributes] = useSetupState(props.strictSelectedAttributes, props.state.isOpen);
     const [selectedObjects, setSelectedObjects] = useSetupState<Set<number>>(new Set(props.selectedObjects), props.state.isOpen);
     const [selectedAttributes, setSelectedAttributes] = useSetupState<Set<number>>(new Set(props.selectedAttributes), props.state.isOpen);
     const selectableObjects = context ? getSelectableItems(context, getAttributeObjects, selectedAttributes) : null;
@@ -70,6 +77,8 @@ export default function ConceptsFilterDialog(props: {
         <FilterDialog
             state={props.state}
             onApplyClick={() => props.onApply(
+                strictSelectedObjects,
+                strictSelectedAttributes,
                 selectedObjects,
                 selectedAttributes,
                 minObjectsCount === 0 ? null : minObjectsCount,
@@ -105,7 +114,11 @@ export default function ConceptsFilterDialog(props: {
                         objects :
                         objects.filter((o) => selectableObjects.has(o.index))}
                     selectedItems={selectedObjects}
-                    setSelectedItems={setSelectedObjects} />}
+                    setSelectedItems={setSelectedObjects}
+                    header={
+                        <StrictCheckBox
+                            checked={strictSelectedObjects}
+                            onChange={setStrictSelectedObjects} />} />}
             {selectedFilter === "attributes" &&
                 <ListFilter
                     searchPlaceholder="Search attributes..."
@@ -113,7 +126,11 @@ export default function ConceptsFilterDialog(props: {
                         attributes :
                         attributes.filter((a) => selectableAttributes.has(a.index))}
                     selectedItems={selectedAttributes}
-                    setSelectedItems={setSelectedAttributes} />}
+                    setSelectedItems={setSelectedAttributes}
+                    header={
+                        <StrictCheckBox
+                            checked={strictSelectedAttributes}
+                            onChange={setStrictSelectedAttributes} />} />}
             {selectedFilter === "objects-count" &&
                 <RangeFilter
                     id="objects-count-range"
@@ -131,6 +148,20 @@ export default function ConceptsFilterDialog(props: {
                     onMaxChange={setMaxAttributesCount}
                     maxCount={attributes.length} />}
         </FilterDialog>
+    );
+}
+
+function StrictCheckBox(props: {
+    checked: boolean,
+    onChange: (value: boolean) => void,
+}) {
+    return (
+        <CheckBox
+            className="mx-6.5 mb-2"
+            checked={props.checked}
+            onChange={(e) => props.onChange(e.currentTarget.checked)}>
+            Use strict filtering
+        </CheckBox>
     );
 }
 

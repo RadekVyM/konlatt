@@ -1,0 +1,26 @@
+@reference "../../css/index.css";
+@reference "../../css/colors.css";
+@reference "../../css/animations.css";
+
+@layer components {
+    .checkbox {
+        input[type="checkbox"] + * {
+            margin-bottom: 0.5px;
+            @apply bg-surface text-surface border-outline;
+        }
+        
+        input[type="checkbox"]:checked + * {
+            @apply bg-primary text-on-primary border-primary;
+        }
+    }
+
+    .checkbox:hover {
+        input[type="checkbox"] + * {
+            @apply bg-surface-dim-container text-surface-dim-container;
+        }
+        
+        input[type="checkbox"]:checked + * {
+            @apply bg-primary-dim;
+        }
+    }
+}
