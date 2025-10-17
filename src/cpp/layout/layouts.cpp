@@ -1,6 +1,6 @@
 #include "../types/TimedResult.h"
 #include "../utils.h"
-#include "layeredLayout.h"
+#include "layered/layeredLayout.h"
 #include "freeseLayout.h"
 #include "reDrawLayout.h"
 #include "layouts.h"

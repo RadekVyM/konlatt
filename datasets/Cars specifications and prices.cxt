@@ -1,0 +1,48 @@
+B
+
+9
+25
+
+Maruti Alto K10
+Maruti Brezza
+Mahindra Thar
+Mahindra XUV700
+Mahindra Scorpio-N
+Toyota Fortuner
+Hyundai Creta
+Tata Punch
+Mahindra Bolero
+FuelType=Diesel
+FuelType=Petrol
+SeatCap=5
+SeatCap=7
+SeatCap=4
+Transmission=Manual
+Transmission=Automatic
+Body=SUV
+Body=HatchBack
+StartPrice<=700000
+StartPrice>700000
+StartPrice>1000000
+StartPrice>1200000
+Reviews<=70
+Reviews>70
+Reviews>100
+Reviews>300
+EndPrice<=800000
+EndPrice>800000
+EndPrice>1100000
+EndPrice>2000000
+TankCap<=40
+TankCap>40
+TankCap>50
+TankCap>58
+.XX...X.XX...X...X...X...
+.XX...XX..X...X..X....X..
+X...X.XX....X..X...X...X.
+X..X..XX....X...X..X....X
+X..X..XX...X...X...X...X.
+X..X..XX....X.X.....X...X
+X.X...XX...X....X.X...X..
+.XX...XX.X......XX...X...
+X..X.X.X..X....X..X.....X

@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <unordered_set>
-#include "../types/TimedResult.h"
+#include "../../types/TimedResult.h"
 
 void computeLayeredLayout(
     TimedResult<std::vector<float>>& result,

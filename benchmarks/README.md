@@ -32,16 +32,16 @@ the highest levels of compiler optimizations
 | **Node AS**        |  4586.70 |     94.88 |
 | **Node JS**        | 10138.06 |    171.95 |
 | Chrome C++         |  1164.12 |     27.94 |
-| Chrome C++ Worker  |  1174.84 |     27.00 |
 | Chrome AS          |  3878.84 |    108.32 |
-| Chrome AS Worker   |  3965.92 |     83.73 |
-| Chrome JS          |  2446.82 |     33.28 |
-| Chrome JS Worker   |  2514.10 |     49.27 |
+| **Chrome JS**      |  2446.82 |     33.28 |
 | Firefox C++        |  1252.76 |     29.29 |
-| Firefox C++ Worker |  1218.48 |     25.03 |
 | Firefox AS         |  2359.20 |     57.92 |
-| Firefox AS Worker  |  2454.66 |     71.07 |
 | Firefox JS         |  7829.22 |    145.52 |
+| Chrome C++ Worker  |  1174.84 |     27.00 |
+| Chrome AS Worker   |  3965.92 |     83.73 |
+| Chrome JS Worker   |  2514.10 |     49.27 |
+| Firefox C++ Worker |  1218.48 |     25.03 |
+| Firefox AS Worker  |  2454.66 |     71.07 |
 | Firefox JS Worker  |  6226.98 |     52.23 |
 
 ## Apple M1
@@ -65,20 +65,20 @@ the highest levels of compiler optimizations
 | **Node AS**        |  3626.58 |      7.42 |
 | **Node JS**        |  8729.52 |     61.94 |
 | Chrome C++         |   904.48 |      5.37 |
-| Chrome C++ Worker  |   905.12 |      4.32 |
 | Chrome AS          |  3024.68 |      3.55 |
-| Chrome AS Worker   |  3027.38 |      4.04 |
-| Chrome JS          |  1855.84 |     12.43 |
-| Chrome JS Worker   |  1847.64 |     14.27 |
+| **Chrome JS**      |  1855.84 |     12.43 |
 | Firefox C++        |   924.48 |      9.34 |
-| Firefox C++ Worker |   929.18 |      4.57 |
 | Firefox AS         |  2102.68 |      7.95 |
-| Firefox AS Worker  |  2127.88 |     23.58 |
 | Firefox JS         |  5138.22 |     28.56 |
-| Firefox JS Worker  |  5136.94 |     37.14 |
 | Safari C++         |   924.94 |      8.74 |
-| Safari C++ Worker  |   923.10 |     10.34 |
 | Safari AS          |  1541.74 |      2.97 |
-| Safari AS Worker   |  1538.12 |      2.92 |
 | Safari JS          |  1315.36 |      7.30 |
-| Safari Js Worker   |  1320.26 |      7.39 |
+| Chrome C++ Worker  |   905.12 |      4.32 |
+| Chrome AS Worker   |  3027.38 |      4.04 |
+| Chrome JS Worker   |  1847.64 |     14.27 |
+| Firefox C++ Worker |   929.18 |      4.57 |
+| Firefox AS Worker  |  2127.88 |     23.58 |
+| Firefox JS Worker  |  5136.94 |     37.14 |
+| Safari C++ Worker  |   923.10 |     10.34 |
+| Safari AS Worker   |  1538.12 |      2.92 |
+| Safari JS Worker   |  1320.26 |      7.39 |

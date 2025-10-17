@@ -1,11 +1,6 @@
-#include "../utils.h"
-#include "../types/TimedResult.h"
-#include "utils.h"
-#include "layers.h"
-#include "layeredLayout.h"
+#include "../../utils.h"
 
 #include <stdio.h>
-#include <iostream>
 #include <vector>
 #include <memory>
 #include <unordered_set>
@@ -56,8 +51,6 @@ void addDummiesToLayers(
                     (ratio * (horizontalPositions[to] - horizontalPositions[from])) + horizontalPositions[from]);
                 std::vector<int>& targetLayer = layersWithDummies[fromLayer + i];
 
-                // TODO: this part is weird and causes problems
-                // different behavior of C++ datastructures (probably) causes problems overall
                 if (newDummyHorizontalPosition + 1 > targetLayer.size()) {
                     targetLayer.push_back(newDummy);
                 }
@@ -188,144 +181,4 @@ std::unique_ptr<std::tuple<
     }
 
     return result;
-}
-
-std::unique_ptr<std::vector<std::vector<int>>> reduceCrossingsUsingAverage(
-    int conceptsCount,
-    std::vector<std::vector<int>>& layers,
-    std::vector<int>& horizontalPositions,
-    std::vector<std::unordered_set<int>>& firstMapping,
-    std::vector<std::unordered_set<int>>& secondMapping,
-    bool topToBottom,
-    bool useBoth
-) {
-    auto reducedLayers = std::make_unique<std::vector<std::vector<int>>>();
-    std::vector<float> averages;
-    int first = topToBottom ? 0 : layers.size() - 1;
-    int second = topToBottom ? 1 : layers.size() - 2;
-    int increase = topToBottom ? 1 : -1;
-
-    averages.resize(horizontalPositions.size());
-    reducedLayers->resize(layers.size());
-
-    (*reducedLayers)[first].insert((*reducedLayers)[first].begin(), layers[first].begin(), layers[first].end());
-    if (layers.size() > 1) {
-        (*reducedLayers)[second].insert((*reducedLayers)[second].begin(), layers[second].begin(), layers[second].end());
-    }
-
-    for (int i = second; i < layers.size() && i >= 0; i += increase) {
-        std::vector<int>& layer = layers[i];
-
-        for (int node : layer) {
-            int sum = 0;
-            int count = 0;
-
-            // TODO: redundant code
-            for (int subconcept : firstMapping[node]) {
-                sum += horizontalPositions[subconcept];
-            }
-
-            count += firstMapping[node].size();
-
-            if (useBoth) {
-                for (int subconcept : secondMapping[node]) {
-                    sum += horizontalPositions[subconcept];
-                }
-
-                count += secondMapping[node].size();
-            }
-
-            averages[node] = (float)sum / count;
-        }
-
-        auto& reducedLayer = (*reducedLayers)[i] = std::vector<int>(layer.begin(), layer.end());
-        int offset = horizontalPositions[layer[0]];
-
-        // Future self, be aware of the strict weak ordering! You are welcome!
-        std::sort(reducedLayer.begin(), reducedLayer.end(), [&](int a, int b) {
-            return averages[a] < averages[b];
-        });
-
-        for (int j = 0; j < reducedLayer.size(); j++) {
-            horizontalPositions[reducedLayer[j]] = j + offset;
-        }
-    }
-
-    return reducedLayers;
-}
-
-void createLayout(
-    TimedResult<std::vector<float>>& result,
-    int conceptsCount,
-    std::vector<std::vector<int>>& layers
-) {
-    result.value.resize(conceptsCount * COORDS_COUNT);
-    float top = (float)(layers.size() - 1) / -2;
-
-    for (int i = 0; i < layers.size(); i++) {
-        std::vector<int>& layer = layers[i];
-        float left = (float)(layer.size() - 1) / -2;
-
-        for (int node : layer) {
-            if (node < conceptsCount) {
-                setX(result.value, node, left);
-                setY(result.value, node, -top);
-                setZ(result.value, node, 0);
-            }
-            left += 1;
-        }
-
-        top += 1;
-    }
-}
-
-void computeLayeredLayout(
-    TimedResult<std::vector<float>>& result,
-    int supremum,
-    int conceptsCount,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping
-) {
-    long long startTime = nowMills();
-
-    auto layersResult = assignNodesToLayersByLongestPath(supremum, subconceptsMapping);
-    auto& [layersMapping, layers] = *layersResult;
-
-    auto dummiesResult = addDummies(
-        conceptsCount,
-        subconceptsMapping,
-        superconceptsMapping,
-        layers,
-        layersMapping);
-    auto& [layersWithDummies, horizontalCoords] = *dummiesResult;
-
-    auto orderedLayers = reduceCrossingsUsingAverage(
-        conceptsCount,
-        layersWithDummies,
-        horizontalCoords,
-        superconceptsMapping,
-        subconceptsMapping,
-        true,
-        false);
-    orderedLayers = reduceCrossingsUsingAverage(
-        conceptsCount,
-        *orderedLayers,
-        horizontalCoords,
-        subconceptsMapping,
-        superconceptsMapping,
-        false,
-        false);
-    orderedLayers = reduceCrossingsUsingAverage(
-        conceptsCount,
-        *orderedLayers,
-        horizontalCoords,
-        superconceptsMapping,
-        subconceptsMapping,
-        true,
-        true);
-
-    long long endTime = nowMills();
-
-    createLayout(result, conceptsCount, *orderedLayers);
-    result.time = (int)endTime - startTime;
 }
