@@ -25,31 +25,25 @@ import { convertToXml } from "../../services/export/concepts/xml";
 const { context: CONTEXT, concepts: CONCEPTS, lattice: LATTICE } = parseJson(`{
 	"name": "Inner planets",
 	"objects": ["Mercury", "Venus", "Earth", "Mars"],
-	"attributes": ["Is_Terrestrial", "Has_Moons", "Is_Habitable", "Has_Atmosphere"],
-
+	"attributes": ["Is_Terrestrial", "Has_Moons", "Is_Habitable", "Has_Dense_Atmosphere"],
 	"concepts": [
-
 		{
 			"objects": [0, 1, 2, 3],
 			"attributes": [0]
 		},
-
 		{
 			"objects": [2, 3],
 			"attributes": [0, 1]
 		},
-
 		{
 			"objects": [1, 2],
 			"attributes": [0, 3]
 		},
-
 		{
 			"objects": [2],
 			"attributes": [0, 1, 2, 3]
 		}
 	],
-
 	"lattice": [
 		[1, 0],
 		[2, 0],

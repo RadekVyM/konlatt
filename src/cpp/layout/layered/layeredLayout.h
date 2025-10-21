@@ -6,11 +6,10 @@
 #include "../../types/TimedResult.h"
 
 void computeLayeredLayout(
-    TimedResult<std::vector<float>>& result,
+    TimedResult<std::vector<float>> &result,
     int supremum,
     int conceptsCount,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping
-);
+    std::vector<std::unordered_set<int>> &subconceptsMapping,
+    std::vector<std::unordered_set<int>> &superconceptsMapping);
 
 #endif

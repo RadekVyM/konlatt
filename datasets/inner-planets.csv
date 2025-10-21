@@ -1,0 +1,9 @@
+Mercury,Is_Terrestrial
+Venus,Is_Terrestrial
+Venus,Has_Dense_Atmosphere
+Earth,Is_Terrestrial
+Earth,Has_Moons
+Earth,Is_Habitable
+Earth,Has_Dense_Atmosphere
+Mars,Is_Terrestrial
+Mars,Has_Moons

@@ -1,7 +1,7 @@
 {
 	"name": "Inner planets",
 	"objects": ["Mercury", "Venus", "Earth", "Mars"],
-	"attributes": ["Is_Terrestrial", "Has_Moons", "Is_Habitable", "Has_Atmosphere"],
+	"attributes": ["Is_Terrestrial", "Has_Moons", "Is_Habitable", "Has_Dense_Atmosphere"],
 	"relation": [
 		[0, 0],
 		[1, 0],

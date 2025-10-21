@@ -1,5 +1,6 @@
 import { CsvSeparator } from "../../types/CsvSeparator";
 import { FORMAL_CONTEXT_CELL_SIZE, FormalContext } from "../../types/FormalContext";
+import { fillWith } from "../../utils/array";
 import { readLine } from "../../utils/string";
 import { INVALID_FILE_MESSAGE } from "./constants";
 import { formalContextSetAttribute } from "./utils";
@@ -15,7 +16,7 @@ export default function parseCsv(content: string, separator: CsvSeparator): Form
         const line = readLine(content, lineStart);
         lineStart = line.nextStart;
 
-        const pair = line.line.split(separator);
+        const pair = line.line.split(separator).map((v) => v.replace("\r", ""));
 
         if (pair.length !== 2) {
             throw new Error(`${INVALID_FILE_MESSAGE} Invalid separator.`);
@@ -38,6 +39,8 @@ export default function parseCsv(content: string, separator: CsvSeparator): Form
 
     const cellsPerObjectCount = Math.ceil(attributes.size / FORMAL_CONTEXT_CELL_SIZE);
     const context = new Array<number>(objects.size * cellsPerObjectCount);
+
+    fillWith(context, 0);
 
     for (const pair of pairs) {
         formalContextSetAttribute(context, cellsPerObjectCount, pair[0], pair[1]);
