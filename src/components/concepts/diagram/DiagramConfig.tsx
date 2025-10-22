@@ -122,9 +122,11 @@ function NodesLinksSection() {
 
 function LayoutSection() {
     const layoutMethod = useDiagramStore((state) => state.layoutMethod);
+    const placementLayered = useDiagramStore((state) => state.placementLayered);
     const parallelizeReDraw = useDiagramStore((state) => state.parallelizeReDraw);
     const targetDimensionReDraw = useDiagramStore((state) => state.targetDimensionReDraw);
     const setLayoutMethod = useDiagramStore((state) => state.setLayoutMethod);
+    const setPlacementLayered = useDiagramStore((state) => state.setPlacementLayered);
     const setParallelizeReDraw = useDiagramStore((state) => state.setParallelizeReDraw);
     const setTargetDimensionReDraw = useDiagramStore((state) => state.setTargetDimensionReDraw);
 
@@ -144,6 +146,20 @@ function LayoutSection() {
                     selectedKey={layoutMethod}
                     onKeySelectionChange={setLayoutMethod} />
             </div>
+
+            {layoutMethod === "layered" &&
+                <div>
+                    <label className="text-sm mb-1 block">Horizontal placement</label>
+
+                    <ComboBox<"bk" | "simple">
+                        id="diagram-layout-layered-placement"
+                        items={[
+                            { key: "simple", label: "Evenly spaced and centered" },
+                            { key: "bk", label: "Brandes and Köpf" },
+                        ]}
+                        selectedKey={placementLayered}
+                        onKeySelectionChange={setPlacementLayered} />
+                </div>}
 
             {layoutMethod === "redraw" &&
                 <>

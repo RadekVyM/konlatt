@@ -36,7 +36,7 @@ export function createDiagramLayoutStateId(state: DiagramLayoutState) {
 
     switch (state.layoutMethod) {
         case "layered":
-            layoutMethodSegment = ``;
+            layoutMethodSegment = `${state.placementLayered}`;
             break;
         case "freese":
             layoutMethodSegment = ``;

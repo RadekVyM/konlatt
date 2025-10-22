@@ -13,7 +13,8 @@ void computeLayeredLayoutJs(
     TimedResult<std::vector<float>>& result,
     int supremum,
     int conceptsCount,
-    emscripten::val const & superconceptsMappingTypedArray
+    emscripten::val const & superconceptsMappingTypedArray,
+    std::string placement
 );
 
 void computeFreeseLayoutJs(

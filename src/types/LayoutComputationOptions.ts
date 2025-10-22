@@ -5,4 +5,5 @@ export type LayoutComputationOptions = {
     targetDimensionReDraw: 2 | 3,
     parallelizeReDraw: boolean,
     seedReDraw: string,
+    placementLayered: "bk" | "simple",
 }

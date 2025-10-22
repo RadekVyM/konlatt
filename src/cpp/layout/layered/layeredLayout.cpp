@@ -124,7 +124,8 @@ void computeLayeredLayout(
     int supremum,
     int conceptsCount,
     std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping
+    std::vector<std::unordered_set<int>>& superconceptsMapping,
+    std::string placement
 ) {
     long long startTime = nowMills();
 
@@ -170,7 +171,7 @@ void computeLayeredLayout(
         subconceptsMapping,
         superconceptsMapping,
         *orderedLayers,
-        bkPlacement);
+        placement == "bk" ? bkPlacement : simplePlacement);
 
     result.time = (int)endTime - startTime;
 }

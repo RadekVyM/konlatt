@@ -54,6 +54,7 @@ type DiagramOptionsSliceActions = {
     setDisplayHighlightedSublatticeOnly: React.Dispatch<React.SetStateAction<boolean>>,
     setUpperConeOnlyConceptIndex: (upperConeOnlyConceptIndex: number | null, withOtherReset?: boolean) => void,
     setLowerConeOnlyConceptIndex: (lowerConeOnlyConceptIndex: number | null, withOtherReset?: boolean) => void,
+    setPlacementLayered: (placement: "bk" | "simple") => void,
     setParallelizeReDraw: React.Dispatch<React.SetStateAction<boolean>>,
     setTargetDimensionReDraw: React.Dispatch<React.SetStateAction<2 | 3>>,
     setSeedReDraw: (seedReDraw: string) => void,
@@ -84,6 +85,7 @@ export function initialState(): DiagramOptionsSliceState {
         upperConeOnlyConceptIndex: null,
         lowerConeOnlyConceptIndex: null,
         visibleConceptIndexes: null,
+        placementLayered: "simple",
         parallelizeReDraw: true,
         targetDimensionReDraw: 2,
         seedReDraw: generateRandomSeed(MAX_SEED_LENGTH_REDRAW),
@@ -154,6 +156,7 @@ export default function createDiagramOptionsSlice(set: (partial: DiagramStore | 
                     useDataStructuresStore.getState().lattice),
             },
             old)),
+        setPlacementLayered: (placementLayered) => set((old) => withLayout({ placementLayered }, old)),
         setParallelizeReDraw: (parallelizeReDraw) => set((old) => withLayout(
             {
                 parallelizeReDraw: typeof parallelizeReDraw === "function" ?

@@ -54,7 +54,7 @@ function ToggleButton(props: {
             disabled={props.disabled}>
             <span
                 id={`${id}-label`}
-                className="flex-1 text-start">
+                className="flex-1 text-start line-clamp-1">
                 {selectedItemLabels[0]}
             </span>
             <LuChevronDown

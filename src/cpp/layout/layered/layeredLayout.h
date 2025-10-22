@@ -10,6 +10,7 @@ void computeLayeredLayout(
     int supremum,
     int conceptsCount,
     std::vector<std::unordered_set<int>> &subconceptsMapping,
-    std::vector<std::unordered_set<int>> &superconceptsMapping);
+    std::vector<std::unordered_set<int>> &superconceptsMapping,
+    std::string placement);
 
 #endif

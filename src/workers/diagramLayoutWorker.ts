@@ -22,9 +22,18 @@ async function computeLayout(request: CompleteLayoutComputationRequest) {
 
     switch (request.options.layoutMethod) {
         case "layered":
-            return await computeLayeredLayout(request.conceptsCount, request.supremum, request.subconceptsMappingArrayBuffer);
+            return await computeLayeredLayout(
+                request.conceptsCount,
+                request.supremum,
+                request.subconceptsMappingArrayBuffer,
+                request.options.placementLayered);
         case "freese":
-            return await computeFreeseLayout(request.conceptsCount, request.supremum, request.infimum, request.subconceptsMappingArrayBuffer, postProgressMessage);
+            return await computeFreeseLayout(
+                request.conceptsCount,
+                request.supremum,
+                request.infimum,
+                request.subconceptsMappingArrayBuffer,
+                postProgressMessage);
         case "redraw":
             return await computeReDrawLayout(
                 request.conceptsCount,

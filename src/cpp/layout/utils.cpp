@@ -115,7 +115,6 @@ std::unique_ptr<std::unordered_set<int>> getComparableConcepts(
     return comparableConcepts;
 }
 
-
 void tryTriggerProgress(
     double totalIterationsCount,
     double currentIteration,

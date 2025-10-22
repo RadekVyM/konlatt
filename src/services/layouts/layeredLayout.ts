@@ -6,6 +6,7 @@ export async function computeLayeredLayout(
     conceptsCount: number,
     supremum: number,
     subconceptsMappingArrayBuffer: Int32Array,
+    placement: "bk" | "simple"
 ): Promise<{
     layout: Array<Point>,
     computationTime: number,
@@ -13,7 +14,7 @@ export async function computeLayeredLayout(
     const module = await Module();
     const result = new module.FloatArrayTimedResult();
 
-    module.computeLayeredLayout(result, supremum, conceptsCount, subconceptsMappingArrayBuffer);
+    module.computeLayeredLayout(result, supremum, conceptsCount, subconceptsMappingArrayBuffer, placement);
     const layout = cppFloatArrayToPoints(result.value, conceptsCount, true);
     const computationTime = result.time;
 

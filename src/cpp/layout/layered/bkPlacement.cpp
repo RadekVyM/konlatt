@@ -7,14 +7,17 @@
 #include "placement.h"
 
 #include <vector>
+#include <array>
 #include <unordered_map>
 #include <unordered_set>
 #include <optional>
 #include <algorithm>
 #include <functional>
+#include <algorithm>
 
 #define UNDEFINED_FLOAT std::numeric_limits<float>::min()
 #define FLOAT_MAX std::numeric_limits<float>::max()
+#define FLOAT_MIN std::numeric_limits<float>::min()
 
 using Conflicts = std::unordered_map<int, std::unordered_set<int>>;
 using NodesList = std::vector<int>;
@@ -136,6 +139,53 @@ void markConflicts(
     }
 }
 
+bool isAlignmentUp(int alignment) {
+    return alignment > 1;
+}
+
+bool isAlignmentLeft(int alignment) {
+    return alignment % 2 == 1;
+}
+
+std::vector<int> findMediansDestructive(
+    std::vector<int>& nodes,
+    std::vector<int>& horizontalOrder,
+    bool left
+) {
+    if (nodes.empty() || horizontalOrder.empty()) {
+        throw std::out_of_range("Cannot find median of an empty vector");
+    }
+
+    int lowerMedianIndex = (nodes.size() - 1) / 2;
+    int upperMedianIndex = nodes.size() / 2;
+
+    auto comparer = [&](int a, int b) { 
+        return left ?
+            horizontalOrder[b] < horizontalOrder[a] :
+            horizontalOrder[a] < horizontalOrder[b];
+    };
+
+    std::nth_element(
+        nodes.begin(), 
+        nodes.begin() + lowerMedianIndex, 
+        nodes.end(),
+        comparer);
+    int lowerMedian = nodes[lowerMedianIndex];
+
+    if (nodes.size() % 2 == 1) {
+        return { lowerMedian };
+    }
+
+    std::nth_element(
+        nodes.begin(), 
+        nodes.begin() + upperMedianIndex, 
+        nodes.end(),
+        comparer);
+    int upperMedian = nodes[upperMedianIndex];
+
+    return { lowerMedian, upperMedian };
+}
+
 void verticalAlignment(
     std::vector<std::vector<int>>& layers,
     std::vector<std::unordered_set<int>>& subconceptsMapping,
@@ -177,20 +227,8 @@ void verticalAlignment(
 
             auto& neighborsSet = neighborsMapping[node];
             auto neighbors = std::vector<int>(neighborsSet.begin(), neighborsSet.end());
-            // Future self, be aware of the strict weak ordering! You are welcome!
-            std::sort(neighbors.begin(), neighbors.end(), [&](int a, int b) {
-                return left ?
-                    horizontalOrder[b] < horizontalOrder[a] :
-                    horizontalOrder[a] < horizontalOrder[b];
-            });
 
-            double medianPosition = (neighbors.size() - 1) / 2;
-            int lowerMedianPosition = (int)std::floor(medianPosition);
-            int upperMedianPosition = (int)std::ceil(medianPosition);
-
-            for (int i = lowerMedianPosition; i <= upperMedianPosition; i++) {
-                int median = neighbors[i];
-
+            for (int median : findMediansDestructive(neighbors, horizontalOrder, left)) {
                 if (alignedNodes[node] == node &&
                     previousMedianOrder < horizontalOrder[median] &&
                     !hasConflict(conflicts, node, median)) {
@@ -299,6 +337,89 @@ void horizontalCompaction(
     }
 }
 
+std::pair<int, float> getMinWidthCoords(
+    std::array<std::vector<float>, 4>& horizontalCoords
+) {
+    int alignmentIndex = -1;
+    float minWidth = FLOAT_MAX;
+
+    for (int i = 0; i < horizontalCoords.size(); i++) {
+        std::vector<float>& coords = horizontalCoords[i];
+        float min = FLOAT_MAX;
+        float max = FLOAT_MIN;
+
+        for (int node = 0; node < coords.size(); node++) {
+            min = std::min(min, coords[node]);
+            max = std::max(max, coords[node]);
+        }
+
+        float width = max - min;
+
+        if (width < minWidth) {
+            alignmentIndex = i;
+            minWidth = width;
+        }
+    }
+
+    return { alignmentIndex, minWidth };
+}
+
+void alignHorizontalCoords(
+    std::array<std::vector<float>, 4>& horizontalCoords,
+    int minWidthIndex
+) {
+    auto& minWidthCoords = horizontalCoords[minWidthIndex];
+
+    if (minWidthCoords.size() == 0) {
+        return;
+    }
+
+    float minAlignmentCoord = *std::min_element(minWidthCoords.begin(), minWidthCoords.end());
+    float maxAlignmentCoord = *std::max_element(minWidthCoords.begin(), minWidthCoords.end());
+
+    for (int i = 0; i < horizontalCoords.size(); i++) {
+        if (minWidthIndex == i) {
+            continue;
+        }
+
+        auto& coords = horizontalCoords[i];
+        float delta = isAlignmentLeft(i) ?
+            maxAlignmentCoord - *std::max_element(coords.begin(), coords.end()) :
+            minAlignmentCoord - *std::min_element(coords.begin(), coords.end());
+
+        if (delta) {
+            for (int node = 0; node < coords.size(); node++) {
+                coords[node] += delta;
+            }
+        }
+    }
+}
+
+void balance(std::array<std::vector<float>, 4>& horizontalCoords) {
+    for (int node = 0; node < horizontalCoords[0].size(); node++) {
+        std::array<float, 4> coords = {
+            horizontalCoords[0][node],
+            horizontalCoords[1][node],
+            horizontalCoords[2][node],
+            horizontalCoords[3][node]
+        };
+
+        std::nth_element(
+            coords.begin(), 
+            coords.begin() + 1, 
+            coords.end());
+        float lowerMedian = coords[1];
+
+        std::nth_element(
+            coords.begin(), 
+            coords.begin() + 2, 
+            coords.end());
+        float upperMedian = coords[2];
+
+        horizontalCoords[0][node] = (lowerMedian + upperMedian) / 2;
+    }
+}
+
 /**
  * Places the nodes using Brandes and Köpf, "Fast and Simple Horizontal Coordinate Assignment."
  * 
@@ -324,37 +445,53 @@ void bkPlacement(
         horizontalOrder,
         conflicts);
 
-    // Linked list of references to lower nodes in node's block
-    NodesList alignedNodes;
-    // Linked list of references to roots of the node blocks
-    NodesList roots;
-    verticalAlignment(
-        layers,
-        subconceptsMapping,
-        superconceptsMapping,
-        conceptsCount,
-        horizontalOrder,
-        conflicts,
-        alignedNodes,
-        roots);
+    std::array<std::vector<float>, 4> horizontalCoords;
 
-    std::vector<float> horizontalCoords;
-    horizontalCompaction(
-        alignedNodes,
-        roots,
-        horizontalOrder,
-        predecessors,
-        horizontalCoords,
-        delta);
+    for (int i = 0; i < 4; i++) {
+        bool up = isAlignmentUp(i);
+        bool left = isAlignmentLeft(i);
 
+        // Linked list of references to lower nodes in node's block
+        NodesList alignedNodes;
+        // Linked list of references to roots of the node blocks
+        NodesList roots;
+        verticalAlignment(
+            layers,
+            subconceptsMapping,
+            superconceptsMapping,
+            conceptsCount,
+            horizontalOrder,
+            conflicts,
+            alignedNodes,
+            roots,
+            up,
+            left);
+
+        horizontalCompaction(
+            alignedNodes,
+            roots,
+            horizontalOrder,
+            predecessors,
+            horizontalCoords[i],
+            delta);
+    }
+
+    auto [minWidthIndex, minWidth] = getMinWidthCoords(horizontalCoords);
+    alignHorizontalCoords(horizontalCoords, minWidthIndex);
+    balance(horizontalCoords);
+
+    auto& finalHorizontalCoords = horizontalCoords[0];
     float top = (float)(layers.size() - 1) / -2;
+    float minCoord = *std::min_element(finalHorizontalCoords.begin(), finalHorizontalCoords.end());
+    float maxCoord = *std::max_element(finalHorizontalCoords.begin(), finalHorizontalCoords.end());
+    float horizontalOffset = -minCoord - ((maxCoord - minCoord) / 2);
 
     for (int i = 0; i < layers.size(); i++) {
         std::vector<int>& layer = layers[i];
 
         for (int node : layer) {
             if (node < conceptsCount) {
-                setX(result, node, horizontalCoords[node]);
+                setX(result, node, finalHorizontalCoords[node] + horizontalOffset);
                 setY(result, node, -top);
                 setZ(result, node, 0);
             }

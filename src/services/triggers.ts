@@ -202,6 +202,7 @@ function enqueueLayoutComputation(workerQueue: LatticeWorkerQueue, state: Diagra
             parallelizeReDraw: state.parallelizeReDraw,
             targetDimensionReDraw: state.targetDimensionReDraw,
             seedReDraw: state.seedReDraw,
+            placementLayered: state.placementLayered,
         },
     };
 

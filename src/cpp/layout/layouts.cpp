@@ -66,7 +66,8 @@ void computeLayeredLayoutJs(
     TimedResult<std::vector<float>>& result,
     int supremum,
     int conceptsCount,
-    const emscripten::val& subconceptsMappingTypedArray
+    const emscripten::val& subconceptsMappingTypedArray,
+    std::string placement
 ) {
     auto mappings = convertToCppMappings(conceptsCount, subconceptsMappingTypedArray);
     auto& [subconceptsMapping, superconceptsMapping] = *mappings;
@@ -76,7 +77,8 @@ void computeLayeredLayoutJs(
         supremum,
         conceptsCount,
         subconceptsMapping,
-        superconceptsMapping);
+        superconceptsMapping,
+        placement);
 }
 
 void computeFreeseLayoutJs(
