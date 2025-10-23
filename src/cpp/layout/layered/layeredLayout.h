@@ -11,6 +11,7 @@ void computeLayeredLayout(
     int conceptsCount,
     std::vector<std::unordered_set<int>> &subconceptsMapping,
     std::vector<std::unordered_set<int>> &superconceptsMapping,
-    std::string placement);
+    std::string placement,
+    std::function<void(double)> onProgress);
 
 #endif

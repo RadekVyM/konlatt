@@ -6,7 +6,7 @@ struct TimedResult {
     T value;
     int time;
 
-    TimedResult(T c_value, int c_time) : value(c_value), time(c_time) {}
+    TimedResult(T value, int time) : value(value), time(time) {}
     TimedResult() {}
 };
 

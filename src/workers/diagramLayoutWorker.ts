@@ -26,7 +26,8 @@ async function computeLayout(request: CompleteLayoutComputationRequest) {
                 request.conceptsCount,
                 request.supremum,
                 request.subconceptsMappingArrayBuffer,
-                request.options.placementLayered);
+                request.options.placementLayered,
+                postProgressMessage);
         case "freese":
             return await computeFreeseLayout(
                 request.conceptsCount,

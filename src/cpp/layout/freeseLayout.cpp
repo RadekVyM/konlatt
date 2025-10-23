@@ -5,6 +5,7 @@
 
 #include "../utils.h"
 #include "../types/TimedResult.h"
+#include "../types/ProgressData.h"
 #include "utils.h"
 #include "layers.h"
 #include "freeseLayout.h"
@@ -262,8 +263,6 @@ void update(
 
 void multiUpdate(
     int updatesCount,
-    int previousUpdatesCount,
-    int totalUpdatesCount,
     std::vector<float>& layout,
     std::vector<ForcePoint>& forces,
     float attractionFactor,
@@ -271,17 +270,17 @@ void multiUpdate(
     int conceptsCount,
     std::vector<std::unordered_set<int>>& subconceptsMapping,
     std::vector<std::unordered_set<int>>& superconceptsMapping,
-    std::function<void(double)> onProgress
+    ProgressData& progress
 ) {
-    double previousRecordedIteration = previousUpdatesCount;
+    progress.beginBlock(updatesCount);
 
     for (int i = 0; i < updatesCount; i++) {
         update(layout, forces, attractionFactor, repulsionFactor, conceptsCount, subconceptsMapping, superconceptsMapping);
 
-        tryTriggerProgress(totalUpdatesCount, previousUpdatesCount + i + 1, previousRecordedIteration, onProgress);
+        progress.progress(i + 1);
     }
 
-    tryTriggerBlockProgress(totalUpdatesCount, previousUpdatesCount + updatesCount, previousRecordedIteration, onProgress);
+    progress.finishBlock();
 }
 
 void computeFreeseLayout(
@@ -294,6 +293,8 @@ void computeFreeseLayout(
     std::function<void(double)> onProgress
 ) {
     long long startTime = nowMills();
+
+    auto progress = ProgressData(3, onProgress);
 
     auto ranksResult = assignRanksToNodes(conceptsCount, supremum, infimum, subconceptsMapping, superconceptsMapping);
     auto& [ranksMapping, rankCounts] = *ranksResult;
@@ -311,8 +312,6 @@ void computeFreeseLayout(
 
     multiUpdate(
         singleIterationUpdatesCount,
-        0,
-        totalUpdatesCount,
         result.value,
         *forces,
         attractionFactor * 0.5,
@@ -320,12 +319,10 @@ void computeFreeseLayout(
         conceptsCount,
         subconceptsMapping,
         superconceptsMapping,
-        onProgress);
+        progress);
 
     multiUpdate(
         singleIterationUpdatesCount,
-        singleIterationUpdatesCount,
-        totalUpdatesCount,
         result.value,
         *forces,
         attractionFactor * 3,
@@ -333,12 +330,10 @@ void computeFreeseLayout(
         conceptsCount,
         subconceptsMapping,
         superconceptsMapping,
-        onProgress);
+        progress);
 
     multiUpdate(
         singleIterationUpdatesCount,
-        singleIterationUpdatesCount * 2,
-        totalUpdatesCount,
         result.value,
         *forces,
         attractionFactor * 0.75,
@@ -346,7 +341,7 @@ void computeFreeseLayout(
         conceptsCount,
         subconceptsMapping,
         superconceptsMapping,
-        onProgress);
+        progress);
 
     normalizeDistances(result.value, conceptsCount, supremum, infimum, ranksMapping, rankCounts);
 

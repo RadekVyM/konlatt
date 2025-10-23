@@ -5,6 +5,7 @@
 
 #include "../utils.h"
 #include "../types/TimedResult.h"
+#include "../types/ProgressData.h"
 #include "utils.h"
 #include "layers.h"
 #include "reDrawLayout.h"
@@ -335,11 +336,9 @@ void multiNodeStep(
     int dimension,
     std::vector<std::unordered_set<int>>& subconceptsMapping,
     std::vector<std::unordered_set<int>>& superconceptsMapping,
-    int totalIterationsCount,
-    int previousIterationsCount,
-    std::function<void(double)> onProgress
+    ProgressData& progress
 ) {
-    double previousRecordedIteration = previousIterationsCount;
+    progress.beginBlock(ITERATIONS_COUNT);
 
     for (int i = 0; i < ITERATIONS_COUNT; i++) {
         resetForces(forces, conceptsCount, dimension);
@@ -352,14 +351,14 @@ void multiNodeStep(
             subconceptsMapping,
             superconceptsMapping);
 
-        tryTriggerProgress(totalIterationsCount, previousIterationsCount + i + 1, previousRecordedIteration, onProgress);
+        progress.progress(i + 1);
 
         if (totalForce < EPSILON) {
             break;
         }
     }
 
-    tryTriggerBlockProgress(totalIterationsCount, previousIterationsCount + ITERATIONS_COUNT, previousRecordedIteration, onProgress);
+    progress.finishBlock();
 }
 
 std::vector<float> calculateLineForce(
@@ -478,11 +477,9 @@ void multiLineStep(
     int dimension,
     std::vector<std::unordered_set<int>>& subconceptsMapping,
     std::vector<std::unordered_set<int>>& superconceptsMapping,
-    int totalIterationsCount,
-    int previousIterationsCount,
-    std::function<void(double)> onProgress
+    ProgressData& progress
 ) {
-    double previousRecordedIteration = previousIterationsCount;
+    progress.beginBlock(ITERATIONS_COUNT);
 
     for (int i = 0; i < ITERATIONS_COUNT; i++) {
         resetForces(forces, conceptsCount, dimension);
@@ -495,14 +492,14 @@ void multiLineStep(
             subconceptsMapping,
             superconceptsMapping);
 
-        tryTriggerProgress(totalIterationsCount, previousIterationsCount + i + 1, previousRecordedIteration, onProgress);
+        progress.progress(i + 1);
 
         if (totalForce < EPSILON) {
             break;
         }
     }
 
-    tryTriggerBlockProgress(totalIterationsCount, previousIterationsCount + ITERATIONS_COUNT, previousRecordedIteration, onProgress);
+    progress.finishBlock();
 }
 
 void round(
@@ -513,9 +510,7 @@ void round(
     std::vector<std::unordered_set<int>>& subconceptsMapping,
     std::vector<std::unordered_set<int>>& superconceptsMapping,
     bool parallelize,
-    int totalIterationsCount,
-    int previousIterationsCount,
-    std::function<void(double)> onProgress
+    ProgressData& progress
 ) {
     multiNodeStep(
         layout,
@@ -524,9 +519,7 @@ void round(
         dimension,
         subconceptsMapping,
         superconceptsMapping,
-        totalIterationsCount,
-        previousIterationsCount,
-        onProgress);
+        progress);
     correctOffset(layout, conceptsCount, dimension);
 
     if (parallelize) {
@@ -537,9 +530,7 @@ void round(
             dimension,
             subconceptsMapping,
             superconceptsMapping,
-            totalIterationsCount,
-            previousIterationsCount + ITERATIONS_COUNT,
-            onProgress);
+            progress);
         correctOffset(layout, conceptsCount, dimension);
     }
 }
@@ -702,7 +693,9 @@ void computeReDrawLayout(
 ) {
     long long startTime = nowMills();
 
-    int totalIterationsCount = (INITIAL_DIMENSION - targetDimension + 1) * ITERATIONS_COUNT * (parallelize ? 2 : 1);
+    auto progress = ProgressData(
+        (INITIAL_DIMENSION - targetDimension + 1) * (parallelize ? 2 : 1),
+        onProgress);
 
     initializeLayout(result.value, conceptsCount, INITIAL_DIMENSION, infimum, superconceptsMapping, seed);
     std::vector<float> forces;
@@ -716,9 +709,7 @@ void computeReDrawLayout(
             subconceptsMapping,
             superconceptsMapping,
             parallelize,
-            totalIterationsCount,
-            (INITIAL_DIMENSION - dimension) * ITERATIONS_COUNT * (parallelize ? 2 : 1),
-            onProgress);
+            progress);
 
         if (dimension != targetDimension) {
             reduceDimension(result.value, conceptsCount, dimension);

@@ -4,6 +4,7 @@
 // Strongly inspired by https://github.com/dagrejs/dagre/blob/master/lib/position/bk.js
 
 #include "../utils.h"
+#include "../../types/ProgressData.h"
 #include "placement.h"
 
 #include <vector>
@@ -92,11 +93,17 @@ void markConflicts(
     std::vector<std::unordered_set<int>>& superconceptsMapping,
     int conceptsCount,
     std::vector<int>& horizontalOrder,
-    Conflicts& conflicts
+    Conflicts& conflicts,
+    ProgressData& progress
 ) {
+    progress.beginBlock(horizontalOrder.size());
+
     if (layers.size() <= 2) {
+        progress.finishBlock();
         return;
     }
+
+    int iteration = 0;
 
     for (int layerIndex = 1; layerIndex < layers.size(); layerIndex++) {
         auto& layer = layers[layerIndex];
@@ -104,11 +111,14 @@ void markConflicts(
         int startScanIndex = 0;
 
         for (int nodeIndex = 0; nodeIndex < layer.size(); nodeIndex++) {
+            iteration++;
             int node = layer[nodeIndex];
             auto otherInnerSegmentNode = findOtherInnerSegmentNode(node, superconceptsMapping, conceptsCount);
             int otherInnerSegmentNodeOrder = otherInnerSegmentNode ?
                 horizontalOrder[otherInnerSegmentNode.value()] :
                 layers[layerIndex - 1].size();
+
+            progress.progress(iteration);
 
             if (!otherInnerSegmentNode && nodeIndex != layer.size() - 1) {
                 continue;
@@ -137,6 +147,8 @@ void markConflicts(
             lastOtherInnerSegmentNodeOrder = otherInnerSegmentNodeOrder;
         }
     }
+
+    progress.finishBlock();
 }
 
 bool isAlignmentUp(int alignment) {
@@ -159,15 +171,15 @@ std::vector<int> findMediansDestructive(
     int lowerMedianIndex = (nodes.size() - 1) / 2;
     int upperMedianIndex = nodes.size() / 2;
 
-    auto comparer = [&](int a, int b) { 
+    auto comparer = [&](int a, int b) {
         return left ?
             horizontalOrder[b] < horizontalOrder[a] :
             horizontalOrder[a] < horizontalOrder[b];
     };
 
     std::nth_element(
-        nodes.begin(), 
-        nodes.begin() + lowerMedianIndex, 
+        nodes.begin(),
+        nodes.begin() + lowerMedianIndex,
         nodes.end(),
         comparer);
     int lowerMedian = nodes[lowerMedianIndex];
@@ -177,8 +189,8 @@ std::vector<int> findMediansDestructive(
     }
 
     std::nth_element(
-        nodes.begin(), 
-        nodes.begin() + upperMedianIndex, 
+        nodes.begin(),
+        nodes.begin() + upperMedianIndex,
         nodes.end(),
         comparer);
     int upperMedian = nodes[upperMedianIndex];
@@ -195,10 +207,14 @@ void verticalAlignment(
     Conflicts& conflicts,
     NodesList& alignedNodes,
     NodesList& roots,
-    bool up = false,
-    bool left = false
+    bool up,
+    bool left,
+    ProgressData& progress
 ) {
     int nodesCount = horizontalOrder.size();
+
+    progress.beginBlock(nodesCount);
+
     alignedNodes.resize(nodesCount);
     roots.resize(nodesCount);
 
@@ -208,6 +224,7 @@ void verticalAlignment(
     }
 
     if (layers.size() <= 2) {
+        progress.finishBlock();
         return;
     }
 
@@ -215,14 +232,17 @@ void verticalAlignment(
     int layerIncrease = up ? -1 : 1;
     auto& neighborsMapping = up ? subconceptsMapping : superconceptsMapping;
 
+    int iteration = 0;
+
     for (int layerIndex = startLayerIndex; layerIndex < layers.size() && layerIndex >= 0; layerIndex += layerIncrease) {
         auto& layer = layers[layerIndex];
         int startNodeIndex = left ? layer.size() - 1 : 0;
         int nodeIncrease = left ? -1 : 1;
-
-        int previousMedianOrder = -1;
-
+        
+        int previousMedianOrder = left ? INT32_MAX : INT32_MIN;
+        
         for (int nodeIndex = startNodeIndex; nodeIndex < layer.size() && nodeIndex >= 0; nodeIndex += nodeIncrease) {
+            iteration++;
             int node = layer[nodeIndex];
 
             auto& neighborsSet = neighborsMapping[node];
@@ -230,15 +250,22 @@ void verticalAlignment(
 
             for (int median : findMediansDestructive(neighbors, horizontalOrder, left)) {
                 if (alignedNodes[node] == node &&
-                    previousMedianOrder < horizontalOrder[median] &&
-                    !hasConflict(conflicts, node, median)) {
+                    (left ?
+                        previousMedianOrder > horizontalOrder[median] :
+                        previousMedianOrder < horizontalOrder[median]) &&
+                    !hasConflict(conflicts, node, median)
+                ) {
                     alignedNodes[median] = node;
                     alignedNodes[node] = roots[node] = roots[median];
                     previousMedianOrder = horizontalOrder[median];
                 }
             }
+
+            progress.progress(iteration);
         }
     }
+
+    progress.finishBlock();
 }
 
 void placeBlock(
@@ -298,9 +325,13 @@ void horizontalCompaction(
     std::vector<int>& horizontalOrder,
     NodesList& predecessors,
     std::vector<float>& horizontalCoords,
-    float delta
+    float delta,
+    ProgressData& progress
 ) {
     int nodesCount = horizontalOrder.size();
+
+    progress.beginBlock(nodesCount);
+
     NodesList sink;
     std::vector<float> shift;
 
@@ -325,6 +356,8 @@ void horizontalCompaction(
                 horizontalCoords,
                 delta);
         }
+
+        progress.progress(node + 1);
     }
 
     for (int node = 0; node < nodesCount; node++) {
@@ -335,6 +368,8 @@ void horizontalCompaction(
             horizontalCoords[node] = horizontalCoords[node] + nodeShift;
         }
     }
+
+    progress.finishBlock();
 }
 
 std::pair<int, float> getMinWidthCoords(
@@ -366,11 +401,15 @@ std::pair<int, float> getMinWidthCoords(
 
 void alignHorizontalCoords(
     std::array<std::vector<float>, 4>& horizontalCoords,
-    int minWidthIndex
+    int minWidthIndex,
+    ProgressData& progress
 ) {
+    progress.beginBlock(4);
+
     auto& minWidthCoords = horizontalCoords[minWidthIndex];
 
     if (minWidthCoords.size() == 0) {
+        progress.finishBlock();
         return;
     }
 
@@ -378,6 +417,8 @@ void alignHorizontalCoords(
     float maxAlignmentCoord = *std::max_element(minWidthCoords.begin(), minWidthCoords.end());
 
     for (int i = 0; i < horizontalCoords.size(); i++) {
+        progress.progress(i + 1);
+
         if (minWidthIndex == i) {
             continue;
         }
@@ -393,9 +434,16 @@ void alignHorizontalCoords(
             }
         }
     }
+
+    progress.finishBlock();
 }
 
-void balance(std::array<std::vector<float>, 4>& horizontalCoords) {
+void balance(
+    std::array<std::vector<float>, 4>& horizontalCoords,
+    ProgressData& progress
+) {
+    progress.beginBlock(horizontalCoords[0].size());
+
     for (int node = 0; node < horizontalCoords[0].size(); node++) {
         std::array<float, 4> coords = {
             horizontalCoords[0][node],
@@ -417,7 +465,11 @@ void balance(std::array<std::vector<float>, 4>& horizontalCoords) {
         float upperMedian = coords[2];
 
         horizontalCoords[0][node] = (lowerMedian + upperMedian) / 2;
+
+        progress.progress(node + 1);
     }
+
+    progress.finishBlock();
 }
 
 /**
@@ -430,7 +482,8 @@ void bkPlacement(
     std::vector<std::vector<int>>& layers,
     std::vector<std::unordered_set<int>>& subconceptsMapping,
     std::vector<std::unordered_set<int>>& superconceptsMapping,
-    int conceptsCount
+    int conceptsCount,
+    ProgressData& progress
 ) {
     float delta = 1;
     auto horizontalOrder = std::vector<int>(subconceptsMapping.size());
@@ -443,7 +496,8 @@ void bkPlacement(
         superconceptsMapping,
         conceptsCount,
         horizontalOrder,
-        conflicts);
+        conflicts,
+        progress);
 
     std::array<std::vector<float>, 4> horizontalCoords;
 
@@ -465,7 +519,8 @@ void bkPlacement(
             alignedNodes,
             roots,
             up,
-            left);
+            left,
+            progress);
 
         horizontalCompaction(
             alignedNodes,
@@ -473,12 +528,13 @@ void bkPlacement(
             horizontalOrder,
             predecessors,
             horizontalCoords[i],
-            delta);
+            delta,
+            progress);
     }
 
     auto [minWidthIndex, minWidth] = getMinWidthCoords(horizontalCoords);
-    alignHorizontalCoords(horizontalCoords, minWidthIndex);
-    balance(horizontalCoords);
+    alignHorizontalCoords(horizontalCoords, minWidthIndex, progress);
+    balance(horizontalCoords, progress);
 
     auto& finalHorizontalCoords = horizontalCoords[0];
     float top = (float)(layers.size() - 1) / -2;

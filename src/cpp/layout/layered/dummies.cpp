@@ -1,4 +1,5 @@
 #include "../../utils.h"
+#include "../../types/ProgressData.h"
 
 #include <stdio.h>
 #include <vector>
@@ -26,8 +27,11 @@ void addDummiesToLayers(
     std::unordered_map<int, std::vector<int>>& dummySubconceptsMapping,
     std::unordered_map<int, std::vector<int>>& subconceptsToRemove,
     std::unordered_map<int, std::vector<int>>& dummySuperconceptsMapping,
-    std::unordered_map<int, std::vector<int>>& superconceptsToRemove
+    std::unordered_map<int, std::vector<int>>& superconceptsToRemove,
+    ProgressData& progress
 ) {
+    progress.beginBlock(subconceptsMapping.size());
+
     int newDummy = conceptsCount;
 
     for (int from = 0; from < subconceptsMapping.size(); from++) {
@@ -77,7 +81,11 @@ void addDummiesToLayers(
             addSubconceptToMapping(subconceptsToRemove, from, to);
             addSubconceptToMapping(superconceptsToRemove, to, from);
         }
+
+        progress.progress(from + 1);
     }
+
+    progress.finishBlock();
 }
 
 void mergeMappings(
@@ -110,7 +118,8 @@ std::unique_ptr<std::tuple<
     std::vector<std::unordered_set<int>>& subconceptsMapping,
     std::vector<std::unordered_set<int>>& superconceptsMapping,
     std::vector<std::unordered_set<int>>& layers,
-    const std::vector<int>& layersMapping
+    const std::vector<int>& layersMapping,
+    ProgressData& progress
 ) {
     auto result = std::make_unique<std::tuple<
         std::vector<std::vector<int>>,
@@ -152,7 +161,8 @@ std::unique_ptr<std::tuple<
         dummySubconceptsMapping,
         subconceptsToRemove,
         dummySuperconceptsMapping,
-        superconceptsToRemove);
+        superconceptsToRemove,
+        progress);
 
     // Add dummies to the cover relation mappings
     subconceptsMapping.resize(horizontalPositions.size());

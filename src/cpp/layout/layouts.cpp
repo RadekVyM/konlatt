@@ -68,9 +68,20 @@ void computeLayeredLayoutJs(
     int conceptsCount,
     const emscripten::val& subconceptsMappingTypedArray,
     std::string placement
+#ifdef __EMSCRIPTEN__
+    , OnProgressCallback onProgress
+#endif
 ) {
     auto mappings = convertToCppMappings(conceptsCount, subconceptsMappingTypedArray);
     auto& [subconceptsMapping, superconceptsMapping] = *mappings;
+
+    auto onProgressCallback = [&onProgress](double value) {
+#ifdef __EMSCRIPTEN__
+        if (!onProgress.isUndefined()) {
+            onProgress(value);
+        }
+#endif
+    };
 
     computeLayeredLayout(
         result,
@@ -78,7 +89,8 @@ void computeLayeredLayoutJs(
         conceptsCount,
         subconceptsMapping,
         superconceptsMapping,
-        placement);
+        placement,
+        onProgressCallback);
 }
 
 void computeFreeseLayoutJs(

@@ -1,4 +1,5 @@
 #include "../utils.h"
+#include "../../types/ProgressData.h"
 #include "placement.h"
 
 #include <vector>
@@ -14,7 +15,8 @@ void simplePlacement(
     std::vector<std::vector<int>>& layers,
     std::vector<std::unordered_set<int>>& subconceptsMapping,
     std::vector<std::unordered_set<int>>& superconceptsMapping,
-    int conceptsCount
+    int conceptsCount,
+    ProgressData& progress
 ) {
     float top = (float)(layers.size() - 1) / -2;
 

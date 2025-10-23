@@ -15,6 +15,9 @@ void computeLayeredLayoutJs(
     int conceptsCount,
     emscripten::val const & superconceptsMappingTypedArray,
     std::string placement
+#ifdef __EMSCRIPTEN__
+    , OnProgressCallback onProgress
+#endif
 );
 
 void computeFreeseLayoutJs(
