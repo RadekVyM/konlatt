@@ -5,6 +5,7 @@ export default function Container(props: {
     children?: React.ReactNode,
     className?: string,
     style?: React.CSSProperties,
+    ref?: React.Ref<HTMLElement>,
     onPointerDown?: React.PointerEventHandler<HTMLElement>,
     onPointerUp?: React.PointerEventHandler<HTMLElement>,
     onPointerMove?: React.PointerEventHandler<HTMLElement>,
@@ -16,6 +17,7 @@ export default function Container(props: {
     return (
         <As
             {...props}
+            ref={props.ref as any}
             className={cn(
                 "bg-surface-container text-on-surface-container shadow border border-outline-variant rounded-lg",
                 props.className)}

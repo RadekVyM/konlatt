@@ -10,6 +10,7 @@ import NodesMultiselectionBox from "./NodesMultiselectionBox";
 import { isRightClick } from "../../../utils/html";
 import Grid from "./Grid";
 import CameraController from "./CameraController";
+import Gizmo from "./Gizmo";
 
 export default function DiagramCanvas(props: {
     className?: string,
@@ -40,6 +41,8 @@ export default function DiagramCanvas(props: {
             <Content />
 
             <NodesMultiselectionBox />
+
+            <Gizmo />
         </Canvas>
     );
 }

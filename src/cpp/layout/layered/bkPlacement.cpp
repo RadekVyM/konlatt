@@ -238,9 +238,9 @@ void verticalAlignment(
         auto& layer = layers[layerIndex];
         int startNodeIndex = left ? layer.size() - 1 : 0;
         int nodeIncrease = left ? -1 : 1;
-        
+
         int previousMedianOrder = left ? INT32_MAX : INT32_MIN;
-        
+
         for (int nodeIndex = startNodeIndex; nodeIndex < layer.size() && nodeIndex >= 0; nodeIndex += nodeIncrease) {
             iteration++;
             int node = layer[nodeIndex];
