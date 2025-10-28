@@ -1,12 +1,13 @@
 import Module from "../../cpp";
 import { cppFloatArrayToPoints } from "../../utils/cpp";
 import { Point } from "../../types/Point";
+import { LayeredLayoutPlacement } from "../../types/LayeredLayoutPlacement";
 
 export async function computeLayeredLayout(
     conceptsCount: number,
     supremum: number,
     subconceptsMappingArrayBuffer: Int32Array,
-    placement: "bk" | "simple",
+    placement: LayeredLayoutPlacement,
     onProgress: (progress: number) => void,
 ): Promise<{
     layout: Array<Point>,

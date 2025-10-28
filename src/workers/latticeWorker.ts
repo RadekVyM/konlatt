@@ -182,7 +182,7 @@ async function calculateLayout(
         };
         worker.onerror = (event) => {
             workerInstances.delete(jobId);
-            reject(event.error);
+            reject(event.message);
         };
     }), "Diagram layout computation failed");
 }

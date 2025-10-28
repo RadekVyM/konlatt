@@ -155,6 +155,7 @@ function enqueueConceptComputation(workerQueue: LatticeWorkerQueue) {
                         isError: true,
                         endTime: new Date().getTime()
                     });
+                useProjectStore.getState().setProgressMessage(null);
 
                 toast(message || "Concept computation failed");
             },
@@ -186,6 +187,7 @@ function enqueueLatticeComputation(workerQueue: LatticeWorkerQueue) {
                         isError: true,
                         endTime: new Date().getTime()
                     });
+                useProjectStore.getState().setProgressMessage(null);
 
                 toast(message || "Lattice computation failed");
             },
@@ -232,8 +234,9 @@ function enqueueLayoutComputation(workerQueue: LatticeWorkerQueue, state: Diagra
                         title: "Failed diagram layout computation",
                         isDone: true,
                         isError: true,
-                        endTime: new Date().getTime()
+                        endTime: new Date().getTime(),
                     });
+                useProjectStore.getState().setProgressMessage(null);
 
                 toast(message || "Layout computation failed");
             },

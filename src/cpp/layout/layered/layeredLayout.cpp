@@ -16,6 +16,15 @@
 #include <algorithm>
 #include <functional>
 
+using PlacementDelegate = std::function<void(
+    std::vector<float>&,
+    std::vector<std::vector<int>>&,
+    std::vector<std::unordered_set<int>>&,
+    std::vector<std::unordered_set<int>>&,
+    int,
+    ProgressData&
+)>;
+
 void calculateAveragePositionsOfLayer(
     std::vector<int>& layer,
     std::vector<float>& averages,
@@ -154,17 +163,20 @@ void createLayout(
     std::vector<std::unordered_set<int>>& superconceptsMapping,
     std::vector<std::vector<int>>& layers,
     ProgressData& progress,
-    std::function<void(
-        std::vector<float>&,
-        std::vector<std::vector<int>>&,
-        std::vector<std::unordered_set<int>>&,
-        std::vector<std::unordered_set<int>>&,
-        int,
-        ProgressData&
-    )> placement
+    PlacementDelegate placement
 ) {
     result.value.resize(conceptsCount * COORDS_COUNT);
     placement(result.value, layers, subconceptsMapping, superconceptsMapping, conceptsCount, progress);
+}
+
+PlacementDelegate getPlacementFunc(std::string placement) {
+    if (placement == "bk") {
+        return bkPlacement;
+    }
+    if (placement == "ellipse") {
+        return ellipsePlacement;
+    }
+    return simplePlacement;
 }
 
 void computeLayeredLayout(
@@ -211,7 +223,7 @@ void computeLayeredLayout(
         superconceptsMapping,
         *orderedLayers,
         progress,
-        placement == "bk" ? bkPlacement : simplePlacement);
+        getPlacementFunc(placement));
 
     result.time = (int)endTime - startTime;
 }

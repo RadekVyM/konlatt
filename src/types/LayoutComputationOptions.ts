@@ -1,3 +1,4 @@
+import { LayeredLayoutPlacement } from "./LayeredLayoutPlacement";
 import { LayoutMethod } from "./LayoutMethod";
 
 export type LayoutComputationOptions = {
@@ -5,5 +6,5 @@ export type LayoutComputationOptions = {
     targetDimensionReDraw: 2 | 3,
     parallelizeReDraw: boolean,
     seedReDraw: string,
-    placementLayered: "bk" | "simple",
+    placementLayered: LayeredLayoutPlacement,
 }

@@ -14,11 +14,6 @@
 #include <optional>
 #include <algorithm>
 #include <functional>
-#include <algorithm>
-
-#define UNDEFINED_FLOAT std::numeric_limits<float>::min()
-#define FLOAT_MAX std::numeric_limits<float>::max()
-#define FLOAT_MIN std::numeric_limits<float>::min()
 
 using Conflicts = std::unordered_map<int, std::unordered_set<int>>;
 using NodesList = std::vector<int>;

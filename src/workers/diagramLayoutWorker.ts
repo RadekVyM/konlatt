@@ -1,9 +1,22 @@
 import { LayoutWorkerProgressResponse, LayoutWorkerResultResponse } from "../types/LayoutWorkerResponse";
+import { Point } from "../types/Point";
 import { CompleteLayoutComputationRequest } from "../types/WorkerRequest";
 import { hashString } from "../utils/string";
 
 self.onmessage = async (event: MessageEvent<CompleteLayoutComputationRequest>) => {
-    const result = await computeLayout(event.data);
+    let result: {
+        layout: Array<Point>,
+        computationTime: number,
+    };
+
+    try {
+        result = await computeLayout(event.data);
+    }
+    catch (e) {
+        self.reportError(e);
+        self.close();
+        return;
+    }
 
     const response: LayoutWorkerResultResponse = {
         type: "result",

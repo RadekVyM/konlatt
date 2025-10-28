@@ -20,6 +20,7 @@
 #include "layout/layered/dummies.cpp"
 #include "layout/layered/simplePlacement.cpp"
 #include "layout/layered/bkPlacement.cpp"
+#include "layout/layered/ellipsePlacement.cpp"
 #include "layout/layered/layeredLayout.cpp"
 #include "layout/freeseLayout.cpp"
 #include "layout/reDrawLayout.cpp"

@@ -12,6 +12,7 @@ import { cn } from "../../../utils/tailwind";
 import Button from "../../inputs/Button";
 import { LuRefreshCcw } from "react-icons/lu";
 import AngleSlider from "./AngleSlider";
+import { LayeredLayoutPlacement } from "../../../types/LayeredLayoutPlacement";
 
 const INPUT_DELAY = 500;
 
@@ -151,10 +152,11 @@ function LayoutSection() {
                 <div>
                     <label className="text-sm mb-1 block">Horizontal placement</label>
 
-                    <ComboBox<"bk" | "simple">
+                    <ComboBox<LayeredLayoutPlacement>
                         id="diagram-layout-layered-placement"
                         items={[
                             { key: "simple", label: "Evenly spaced and centered" },
+                            { key: "ellipse", label: "Evenly spaced in an ellipse" },
                             { key: "bk", label: "Brandes and Köpf" },
                         ]}
                         selectedKey={placementLayered}

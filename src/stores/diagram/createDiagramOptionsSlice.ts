@@ -2,6 +2,7 @@ import { MAX_SEED_LENGTH_REDRAW } from "../../constants/diagram";
 import { calculateConeConceptIndexes } from "../../services/lattice";
 import { CameraType } from "../../types/CameraType";
 import { DiagramLayoutState } from "../../types/DiagramLayoutState";
+import { LayeredLayoutPlacement } from "../../types/LayeredLayoutPlacement";
 import { LayoutMethod } from "../../types/LayoutMethod";
 import { w } from "../../utils/stores";
 import { generateRandomSeed } from "../../utils/string";
@@ -54,7 +55,7 @@ type DiagramOptionsSliceActions = {
     setDisplayHighlightedSublatticeOnly: React.Dispatch<React.SetStateAction<boolean>>,
     setUpperConeOnlyConceptIndex: (upperConeOnlyConceptIndex: number | null, withOtherReset?: boolean) => void,
     setLowerConeOnlyConceptIndex: (lowerConeOnlyConceptIndex: number | null, withOtherReset?: boolean) => void,
-    setPlacementLayered: (placement: "bk" | "simple") => void,
+    setPlacementLayered: (placement: LayeredLayoutPlacement) => void,
     setParallelizeReDraw: React.Dispatch<React.SetStateAction<boolean>>,
     setTargetDimensionReDraw: React.Dispatch<React.SetStateAction<2 | 3>>,
     setSeedReDraw: (seedReDraw: string) => void,
