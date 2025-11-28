@@ -349,14 +349,14 @@ function ConeHemispheres() {
 
 function useHemisphereGeometry(radius: number, widthSegments: number, heightSegments: number) {
     return useMemo(() => {
-        const roundingRadius = radius * 0.3;
+        const roundingRadius = radius * 0.2;
         const roundingHeight = roundingRadius * 0.5;
         const points = new Array<Vector2>();
 
         for (let i = 0; i <= heightSegments; i++) {
             // Angle goes from 90 degrees (top) down to 0 degrees (side)
             const angle = (Math.PI / 2) * (1 - i / heightSegments); 
-            
+
             const x = radius * Math.cos(angle);
             const y = radius * Math.sin(angle);
 
@@ -371,7 +371,7 @@ function useHemisphereGeometry(radius: number, widthSegments: number, heightSegm
 
         for (let i = 0; i <= roundingSegmentsCount; i++) {
             const angle = (Math.PI / 2) * (i / roundingSegmentsCount); 
-            
+
             const x = roundingCenterX + roundingRadius * Math.cos(angle);
             const y = roundingHeight - roundingRadius * Math.sin(angle); 
 

@@ -10,6 +10,8 @@ import { ConceptLatticeLayout } from "../../../types/ConceptLatticeLayout";
 import useGlobalsStore from "../../../stores/useGlobalsStore";
 import { useThree } from "@react-three/fiber";
 import { transformedPoint } from "../../../utils/layout";
+import { Link } from "../../../types/Link";
+import useLinks from "./useLinks";
 
 // https://codesandbox.io/p/sandbox/react-three-fiber-poc-segments-with-instancedmesh-and-hightlight-drag-2vcl9i
 const LINE_BASE_SEGMENT = new Shape();
@@ -20,14 +22,6 @@ LINE_BASE_SEGMENT.lineTo(0, -0.5);
 LINE_BASE_SEGMENT.lineTo(0, 0.5);
 
 const TUBE_LINE_CURVE = new LineCurve3(new Vector3(0, 0, 0), new Vector3(1, 0, 0));
-
-type Link = {
-    conceptIndex: number,
-    subconceptIndex: number,
-    linkId: number,
-    isVisible: boolean,
-    isHighlighted: boolean,
-}
 
 export default function Links() {
     const instancedMeshRef = useRef<InstancedMesh>(null);
@@ -65,41 +59,7 @@ export default function Links() {
 
     const useFlatLinks = flatLinksEnabled || cameraType === "2d";
 
-    const prepLinks = useMemo(() => {
-        const links = new Array<Link>();
-
-        if (!layout || !subconceptsMapping) {
-            return links;
-        }
-
-        let i = 0;
-
-        for (const node of layout) {
-            for (const subconceptIndex of subconceptsMapping[node.conceptIndex]) {
-                const isNotVisible = visibleConceptIndexes && !visibleConceptIndexes.has(subconceptIndex);
-
-                if (displayHighlightedSublatticeOnly && isNotVisible) {
-                    continue;
-                }
-
-                const isVisible = !!visibleConceptIndexes && visibleConceptIndexes.has(node.conceptIndex) && visibleConceptIndexes.has(subconceptIndex);
-                const isFiltered = !!filteredConceptIndexes && filteredConceptIndexes.has(node.conceptIndex) && filteredConceptIndexes.has(subconceptIndex);
-
-                const finalIsVisible = noInvisibleConcepts ? isFiltered : isVisible && (!displayHighlightedSublatticeOnly || isFiltered);
-
-                links.push({
-                    conceptIndex: node.conceptIndex,
-                    subconceptIndex,
-                    linkId: i,
-                    isVisible: finalIsVisible,
-                    isHighlighted: finalIsVisible,
-                });
-                i++;
-            }
-        }
-
-        return links;
-    }, [subconceptsMapping, visibleConceptIndexes, filteredConceptIndexes, displayHighlightedSublatticeOnly, layout, noInvisibleConcepts]);
+    const prepLinks = useLinks();
 
     // This is here to reduce CPU to GPU trafic when hoveredConceptIndex changes
     // and hoveredLinksHighlightingEnabled is false

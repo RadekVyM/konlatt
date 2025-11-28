@@ -10,10 +10,12 @@ import { TransformWrapper, TransformComponent, useControls, useTransformComponen
 import ZoomBar from "../ZoomBar";
 import Button from "../inputs/Button";
 import { LuFocus } from "react-icons/lu";
+import useLinks from "../concepts/diagram/useLinks";
+import { Link } from "../../types/Link";
 
 const DEFAULT_OPTIONS: ExportDiagramOptions = {
-    scale: 30,
-    nodeRadius: 3,
+    scale: 80,
+    nodeRadius: 8,
 } as const;
 
 /*
@@ -34,9 +36,8 @@ export default function ExportDiagramCanvas(props: {
     const horizontalScale = useDiagramStore((state) => state.horizontalScale);
     const verticalScale = useDiagramStore((state) => state.verticalScale);
     const rotationDegrees = useDiagramStore((state) => state.rotationDegrees);
-    // const conceptToLayoutIndexesMapping = useDiagramStore((state) => state.conceptToLayoutIndexesMapping);
-
     const transformedLayout = useTransformedLayout(layout, diagramOffsets, horizontalScale, verticalScale, rotationDegrees, "2d");
+    const links = useLinks();
 
     const options = DEFAULT_OPTIONS;
     const canvasDimensions = useCanvasDimensions(transformedLayout, options);
@@ -53,9 +54,18 @@ export default function ExportDiagramCanvas(props: {
 
         context.save();
         context.translate(canvasDimensions.centerX, canvasDimensions.centerY);
-        drawDiagram(context, transformedLayout, options);
+        drawLinks(context, transformedLayout, links, options);
+        drawNodes(context, transformedLayout, options);
         context.restore();
-    }, [transformedLayout, options, canvasDimensions?.width, canvasDimensions?.height, canvasDimensions?.centerX, canvasDimensions?.centerY]);
+    }, [
+        transformedLayout,
+        links,
+        options,
+        canvasDimensions?.width,
+        canvasDimensions?.height,
+        canvasDimensions?.centerX,
+        canvasDimensions?.centerY,
+    ]);
 
     return (
         <TransformWrapper
@@ -72,7 +82,7 @@ export default function ExportDiagramCanvas(props: {
                 <canvas
                     ref={canvasRef}
                     style={{
-                        imageRendering: "pixelated",
+                        // imageRendering: "pixelated",
                     }}
                     role="img"
                     width={canvasDimensions?.width}
@@ -165,15 +175,11 @@ function useCanvasDimensions(
     };
 }
 
-function drawDiagram(
+function drawNodes(
     context: CanvasRenderingContext2D,
     layout: Array<Point>,
     options: ExportDiagramOptions,
 ) {
-    if (options === null) {
-        return;
-    }
-
     for (let i = 0; i < layout.length; i++) {
         const point = layout[i];
         const x = point[0] * options.scale;
@@ -182,5 +188,26 @@ function drawDiagram(
         context.beginPath();
         context.arc(x, y, options.nodeRadius, 0, 2 * Math.PI);
         context.fill();
+    }
+}
+
+function drawLinks(
+    context: CanvasRenderingContext2D,
+    layout: Array<Point>,
+    links: Array<Link>,
+    options: ExportDiagramOptions,
+) {
+    const conceptToLayoutIndexesMapping = useDiagramStore.getState().conceptToLayoutIndexesMapping;
+
+    for (const link of links) {
+        const fromIndex = conceptToLayoutIndexesMapping.get(link.conceptIndex)!;
+        const toIndex = conceptToLayoutIndexesMapping.get(link.subconceptIndex)!;
+        const from = layout[fromIndex];
+        const to = layout[toIndex];
+
+        context.beginPath();
+        context.moveTo(from[0] * options.scale, -from[1] * options.scale);
+        context.lineTo(to[0] * options.scale, -to[1] * options.scale);
+        context.stroke();
     }
 }
