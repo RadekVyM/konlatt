@@ -4,6 +4,7 @@ import FormatsButton from "../formats/FormatsButton";
 import FullscreenNavDialog from "../FullscreenNavDialog";
 import { ExportItem } from "./types/ExportItem";
 import { SelectedFormatStoreType } from "../../stores/export/types/SelectedFormatStoreType";
+import InputLabel from "../inputs/InputLabel";
 
 export default function ExportDialog<TKey extends string>(props: {
     route: string,
@@ -37,10 +38,9 @@ export default function ExportDialog<TKey extends string>(props: {
                     className="flex flex-col gap-3">
                     <div
                         className="px-4 pt-4">
-                        <label
-                            className="text-sm mb-1 block">
+                        <InputLabel>
                             File format
-                        </label>
+                        </InputLabel>
 
                         <div
                             className="w-full flex gap-2">

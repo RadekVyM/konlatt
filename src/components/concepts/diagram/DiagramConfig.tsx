@@ -13,6 +13,8 @@ import Button from "../../inputs/Button";
 import { LuRefreshCcw } from "react-icons/lu";
 import AngleSlider from "./AngleSlider";
 import { LayeredLayoutPlacement } from "../../../types/LayeredLayoutPlacement";
+import InputLabel from "../../inputs/InputLabel";
+import ConfigSection from "../../layouts/ConfigSection";
 
 const INPUT_DELAY = 500;
 
@@ -50,7 +52,7 @@ function DisplaySection() {
     const setCameraType = useDiagramStore((state) => state.setCameraType);
 
     return (
-        <Section>
+        <ConfigSection>
             <ToggleSwitch
                 checked={cameraType === "3d"}
                 onChange={(e) => setCameraType(e.currentTarget.checked ? "3d" : "2d")}>
@@ -66,7 +68,7 @@ function DisplaySection() {
                 onChange={(e) => setHoveredConceptDetailEnabled(e.currentTarget.checked)}>
                 Show concept detail on hover
             </ToggleSwitch>
-        </Section>
+        </ConfigSection>
     );
 }
 
@@ -85,7 +87,7 @@ function NodesLinksSection() {
     const setFlatLinksEnabled = useDiagramStore((state) => state.setFlatLinksEnabled);
 
     return (
-        <Section
+        <ConfigSection
             heading="Nodes and links">
             <ToggleSwitch
                 checked={labelsEnabled}
@@ -117,7 +119,7 @@ function NodesLinksSection() {
                 onChange={(e) => setHoveredLinksHighlightingEnabled(e.currentTarget.checked)}>
                 Highlight links on hover
             </ToggleSwitch>
-        </Section>
+        </ConfigSection>
     );
 }
 
@@ -132,10 +134,10 @@ function LayoutSection() {
     const setTargetDimensionReDraw = useDiagramStore((state) => state.setTargetDimensionReDraw);
 
     return (
-        <Section
+        <ConfigSection
             heading="Layout">
             <div>
-                <label className="text-sm mb-1 block">Layout method</label>
+                <InputLabel>Layout method</InputLabel>
 
                 <ComboBox<LayoutMethod>
                     id="diagram-layout-method"
@@ -150,7 +152,7 @@ function LayoutSection() {
 
             {layoutMethod === "layered" &&
                 <div>
-                    <label className="text-sm mb-1 block">Horizontal placement</label>
+                    <InputLabel>Horizontal placement</InputLabel>
 
                     <ComboBox<LayeredLayoutPlacement>
                         id="diagram-layout-layered-placement"
@@ -184,7 +186,7 @@ function LayoutSection() {
             <ScaleInputs />
 
             <RotationInput />
-        </Section>
+        </ConfigSection>
     );
 }
 
@@ -195,7 +197,7 @@ function PerformanceSection() {
     const setMovementRegressionEnabled = useDiagramStore((state) => state.setMovementRegressionEnabled);
 
     return (
-        <Section
+        <ConfigSection
             heading="Performance">
             <ToggleSwitch
                 checked={antialiasEnabled}
@@ -207,24 +209,7 @@ function PerformanceSection() {
                 onChange={(e) => setMovementRegressionEnabled(e.currentTarget.checked)}>
                 Movement regression
             </ToggleSwitch>
-        </Section>
-    );
-}
-
-function Section(props: {
-    heading?: React.ReactNode,
-    children?: React.ReactNode,
-}) {
-    return (
-        <section
-            className="mb-5 flex flex-col gap-2">
-            {props.heading &&
-                <h3
-                    className="font-semibold">
-                    {props.heading}
-                </h3>}
-            {props.children}
-        </section>
+        </ConfigSection>
     );
 }
 
@@ -311,11 +296,11 @@ function SeedReDrawInput(props: {
     return (
         <div
             className={cn("grid grid-rows-[auto_auto] grid-cols-[1fr_auto] gap-x-2", props.className)}>
-            <label
+            <InputLabel
                 htmlFor={props.id}
-                className="text-sm col-start-1 -col-end-1 w-fit">
+                className="col-start-1 -col-end-1 w-fit">
                 Seed
-            </label>
+            </InputLabel>
             <Input
                 ref={inputRef}
                 id={props.id}

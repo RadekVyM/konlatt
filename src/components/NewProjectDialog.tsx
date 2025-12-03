@@ -17,6 +17,7 @@ import { LuCheck } from "react-icons/lu";
 import { ImportFormat } from "../types/ImportFormat";
 import CsvSeparatorSelect from "./CsvSeparatorSelect";
 import { CsvSeparator } from "../types/CsvSeparator";
+import InputLabel from "./inputs/InputLabel";
 
 const DEFAULT_FILE_FORMAT: ImportFormat = "burmeister";
 const FILE_TYPES: Array<{ key: ImportFormat, label: string, idealExtension: string }> = [
@@ -122,7 +123,7 @@ export default function NewProjectDialog(props: {
                                 {selectedFile?.name || "Choose file"}
                             </FileSelection>
 
-                            <label className="text-sm mb-1 block">File format</label>
+                            <InputLabel>File format</InputLabel>
 
                             <div
                                 className="flex gap-2">
@@ -139,7 +140,7 @@ export default function NewProjectDialog(props: {
 
                             {selectedFileFormat === "csv" &&
                                 <>
-                                    <label className="text-sm mb-1 mt-3 block">Separator</label>
+                                    <InputLabel className="mt-3">Separator</InputLabel>
 
                                     <CsvSeparatorSelect
                                         id={`import-csv-separator`}

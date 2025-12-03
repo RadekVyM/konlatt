@@ -1,12 +1,14 @@
-import { useRef } from "react";
+import React, { useRef } from "react";
 import { cn } from "../../utils/tailwind";
 import Input from "./Input";
+import InputLabel from "./InputLabel";
 
-export default function NumberInput({ className, inputClassName, id, label, minimumFractionDigits, value, onChange, ...rest }: {
+export default function NumberInput({ className, inputClassName, id, label, minimumFractionDigits, children, value, onChange, ...rest }: {
     className?: string,
     inputClassName?: string,
     label?: string,
     minimumFractionDigits?: number,
+    children?: React.ReactNode,
     value?: number,
     onChange?: (value: number) => void,    
 } & Omit<React.InputHTMLAttributes<HTMLInputElement>, "type" | "value" | "onChange">) {
@@ -14,13 +16,12 @@ export default function NumberInput({ className, inputClassName, id, label, mini
 
     return (
         <div
-            className={className}>
+            className={cn("relative", className)}>
             {label &&
-                <label
-                    htmlFor={id}
-                    className="text-sm">
+                <InputLabel
+                    htmlFor={id}>
                     {label}
-                </label>}
+                </InputLabel>}
             <Input
                 ref={inputRef}
                 id={id}
@@ -40,6 +41,7 @@ export default function NumberInput({ className, inputClassName, id, label, mini
                     "w-full",
                     inputClassName)}
                 {...rest} />
+            {children}
         </div>
     );
 }

@@ -2,6 +2,7 @@ import useExportContextStore from "../../stores/export/useExportContextStore";
 import useDataStructuresStore from "../../stores/useDataStructuresStore";
 import { ContextExportFormat } from "../../types/export/ContextExportFormat";
 import CsvSeparatorSelect from "../CsvSeparatorSelect";
+import InputLabel from "../inputs/InputLabel";
 import createDownloadButtonsComponent from "./createDownloadButtonsComponent";
 import createTextResultPreviewerComponent from "./createTextResultPreviewerComponent";
 import ExportButton from "./ExportButton";
@@ -60,10 +61,9 @@ function CsvOptions() {
     return (
         <div
             className="px-4">
-            <label
-                className="text-sm mb-1 block">
+            <InputLabel>
                 Separator
-            </label>
+            </InputLabel>
 
             <CsvSeparatorSelect
                 id={`export-csv-separator`}
