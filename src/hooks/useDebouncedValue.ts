@@ -7,7 +7,7 @@ export default function useDebouncedValue<T>(value: T, delay: number): T {
 
     useEffect(() => {
         if (initialRunRef.current) {
-            setDebouncedValue(value);
+            setDebouncedValue(() => value);
 
             return;
         }
@@ -18,7 +18,7 @@ export default function useDebouncedValue<T>(value: T, delay: number): T {
         }
 
         timeoutRef.current = setTimeout(() => {
-            setDebouncedValue(value);
+            setDebouncedValue(() => value);
             timeoutRef.current = null;
         }, delay);
     }, [value, delay]);

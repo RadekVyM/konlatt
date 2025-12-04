@@ -4,7 +4,7 @@ import useDataStructuresStore from "../../../stores/useDataStructuresStore";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 
 export default function useLinks() {
-    const subconceptsMapping = useDataStructuresStore((state) => state.lattice?.subconceptsMapping);
+    const lattice = useDataStructuresStore((state) => state.lattice);
     const layout = useDiagramStore((state) => state.layout);
     const visibleConceptIndexes = useDiagramStore((state) => state.visibleConceptIndexes);
     const filteredConceptIndexes = useDiagramStore((state) => state.filteredConceptIndexes);
@@ -14,14 +14,14 @@ export default function useLinks() {
     return useMemo(() => {
         const links = new Array<Link>();
 
-        if (!layout || !subconceptsMapping) {
+        if (!layout || !lattice?.subconceptsMapping) {
             return links;
         }
 
         let i = 0;
 
         for (const node of layout) {
-            for (const subconceptIndex of subconceptsMapping[node.conceptIndex]) {
+            for (const subconceptIndex of lattice.subconceptsMapping[node.conceptIndex]) {
                 const isNotVisible = visibleConceptIndexes && !visibleConceptIndexes.has(subconceptIndex);
 
                 if (displayHighlightedSublatticeOnly && isNotVisible) {
@@ -45,5 +45,7 @@ export default function useLinks() {
         }
 
         return links;
-    }, [subconceptsMapping, visibleConceptIndexes, filteredConceptIndexes, displayHighlightedSublatticeOnly, layout, noInvisibleConcepts]);
+        // The last false in the deps array is needed to make it stable when lattice, layout... are null
+        // I have no idea why this is, it is super weird
+    }, [lattice, visibleConceptIndexes, filteredConceptIndexes, layout, displayHighlightedSublatticeOnly, noInvisibleConcepts, false]);
 }

@@ -5,7 +5,8 @@ import useOnClickOutside from "../../hooks/useOnClickOutside";
 
 export type DropDownMenuItem<KeyT> = {
     key: KeyT,
-    label: string
+    label: string,
+    disabled?: boolean,
 }
 
 export type DropDownMenuGroup<KeyT extends string> = {
@@ -97,13 +98,15 @@ export default function DropDownMenu<KeyT extends string>(props: {
                                 role="option"
                                 aria-selected={group.selectedKey === item.key}
                                 className={cn(
-                                    group.selectedKey === item.key ? "bg-surface-dim-container text-on-surface-dim-container" : "",
+                                    group.selectedKey === item.key ? "bg-surface-dim-container" : "",
+                                    item.disabled ? "text-on-surface-muted" : "text-on-surface-dim-container",
                                     "flex rounded-md transition-colors",
-                                    "focus-within:outline-2",
-                                    "focus-within:bg-surface-dim-container focus-within:text-on-surface-dim-container",
-                                    "hover:bg-surface-light-dim-container hover:text-on-surface-dim-container")}
+                                    !item.disabled && [
+                                        "focus-within:outline-2",
+                                        "focus-within:bg-surface-dim-container focus-within:text-on-surface-dim-container",
+                                        "hover:bg-surface-light-dim-container hover:text-on-surface-dim-container"])}
                                 onPointerDown={() => {
-                                    if (props.disabled) {
+                                    if (props.disabled || item.disabled) {
                                         return;
                                     }
 
@@ -111,7 +114,7 @@ export default function DropDownMenu<KeyT extends string>(props: {
                                     closePopover();
                                 }}
                                 onKeyUp={(e) => {
-                                    if (props.disabled) {
+                                    if (props.disabled || item.disabled) {
                                         return;
                                     }
 
@@ -128,13 +131,13 @@ export default function DropDownMenu<KeyT extends string>(props: {
                                     value={item.key}
                                     checked={group.selectedKey === item.key}
                                     onChange={() => {
-                                        if (props.disabled) {
+                                        if (props.disabled || item.disabled) {
                                             return;
                                         }
 
                                         //props.onKeySelectionChange(e.currentTarget.value as KeyT);
                                     }}
-                                    disabled={props.disabled} />
+                                    disabled={props.disabled || item.disabled} />
                                 <label
                                     className="flex-1 py-0.5 px-2 cursor-pointer w-max"
                                     htmlFor={`${id}-${item.key}`}>

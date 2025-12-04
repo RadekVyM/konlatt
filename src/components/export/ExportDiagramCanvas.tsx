@@ -1,8 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { cn } from "../../utils/tailwind";
 import useDiagramStore from "../../stores/diagram/useDiagramStore";
-import { transformedPoint } from "../../utils/layout";
-import { createPoint, Point } from "../../types/Point";
+import { Point } from "../../types/Point";
 import { TransformWrapper, TransformComponent, useControls, useTransformComponent } from "react-zoom-pan-pinch";
 import ZoomBar from "../ZoomBar";
 import Button from "../inputs/Button";
@@ -10,6 +9,8 @@ import { LuFocus } from "react-icons/lu";
 import useLinks from "../concepts/diagram/useLinks";
 import useExportDiagramStore from "../../stores/export/useExportDiagramStore";
 import { hsvaToHexa } from "../../utils/colors";
+import useDebouncedValue from "../../hooks/useDebouncedValue";
+import { layoutRect, transformedLayoutForExport } from "../../utils/export";
 
 type CanvasDimensions = {
     width: number,
@@ -18,6 +19,8 @@ type CanvasDimensions = {
     centerY: number,
     scale: number,
 }
+
+const DEBOUNCE_DELAY = 500;
 
 /*
 I tried to use transferControlToOffscreen() and do all the drawing in a worker.
@@ -34,8 +37,9 @@ export default function ExportDiagramCanvas(props: {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const transformedLayout = useTransformedLayout();
     const canvasDimensions = useCanvasDimensions(transformedLayout);
+    const debouncedCanvasDimensions = useDebouncedValue(canvasDimensions, DEBOUNCE_DELAY);
 
-    useDrawing(canvasRef, canvasDimensions, transformedLayout);
+    useDrawing(canvasRef, canvasDimensions, debouncedCanvasDimensions, transformedLayout);
 
     return (
         <TransformWrapper
@@ -55,8 +59,8 @@ export default function ExportDiagramCanvas(props: {
                         // imageRendering: "pixelated",
                     }}
                     role="img"
-                    width={canvasDimensions?.width}
-                    height={canvasDimensions?.height} />
+                    width={debouncedCanvasDimensions?.width}
+                    height={debouncedCanvasDimensions?.height} />
             </TransformComponent>
 
             <Controls
@@ -89,40 +93,55 @@ function Controls(props: {
     );
 }
 
+type DrawFunc = (context: CanvasRenderingContext2D) => void
+
 function useDrawing(
     canvasRef: React.RefObject<HTMLCanvasElement | null>,
     canvasDimensions: CanvasDimensions | null,
+    debouncedCanvasDimensions: CanvasDimensions | null,
     layout: Array<Point> | null,
 ) {
     const drawBackground = useDrawBackground();
     const drawNodes = useDrawNodes(layout, canvasDimensions?.scale || 0);
     const drawLinks = useDrawLinks(layout, canvasDimensions?.scale || 0);
 
+    // This is a quite hacky solution and may cause bugs
+    const drawBackgroundDebounced = useDebouncedValue<DrawFunc | undefined>(drawBackground, DEBOUNCE_DELAY);
+    const drawNodesDebounced = useDebouncedValue<DrawFunc | undefined>(drawNodes, DEBOUNCE_DELAY);
+    const drawLinksDebounced = useDebouncedValue<DrawFunc | undefined>(drawLinks, DEBOUNCE_DELAY);
+
     useEffect(() => {
         const canvas = canvasRef.current;
         const context = canvasRef.current?.getContext("2d");
 
-        if (!canvas || !context || !canvasDimensions) {
+        if (
+            !canvas ||
+            !context ||
+            !debouncedCanvasDimensions ||
+            !drawBackgroundDebounced ||
+            !drawNodesDebounced ||
+            !drawLinksDebounced
+        ) {
             return;
         }
 
         context.clearRect(0, 0, canvas.width, canvas.height);
         
-        drawBackground(context);
+        drawBackgroundDebounced(context);
 
         context.save();
-        context.translate(canvasDimensions.centerX, canvasDimensions.centerY);
-        drawLinks(context);
-        drawNodes(context);
+        context.translate(debouncedCanvasDimensions.centerX, debouncedCanvasDimensions.centerY);
+        drawLinksDebounced(context);
+        drawNodesDebounced(context);
         context.restore();
     }, [
-        drawBackground,
-        drawNodes,
-        drawLinks,
-        canvasDimensions?.width,
-        canvasDimensions?.height,
-        canvasDimensions?.centerX,
-        canvasDimensions?.centerY,
+        drawBackgroundDebounced,
+        drawNodesDebounced,
+        drawLinksDebounced,
+        debouncedCanvasDimensions?.centerX,
+        debouncedCanvasDimensions?.centerY,
+        debouncedCanvasDimensions?.width,
+        debouncedCanvasDimensions?.height,
     ]);
 }
 
@@ -133,69 +152,77 @@ function useTransformedLayout() {
     const verticalScale = useDiagramStore((state) => state.verticalScale);
     const rotationDegrees = useDiagramStore((state) => state.rotationDegrees);
 
-    if (!layout || !diagramOffsets) {
-        return null;
-    }
-
-    return layout.map((point, i) => transformedPoint(
-        createPoint(point.x, point.y, point.z),
-        diagramOffsets[i],
-        [0, 0, 0],
-        horizontalScale,
-        verticalScale,
-        rotationDegrees,
-        "2d"));
+    return transformedLayoutForExport(layout, diagramOffsets, horizontalScale, verticalScale, rotationDegrees);
 }
 
-function useCanvasDimensions(
-    layout: Array<Point> | null,
-) : CanvasDimensions | null {
+function useCanvasDimensions(layout: Array<Point> | null) : CanvasDimensions | null {
     const nodeRadius = useExportDiagramStore((state) => state.nodeRadius);
+    const maxWidth = useExportDiagramStore((state) => state.maxWidth);
+    const maxHeight = useExportDiagramStore((state) => state.maxHeight);
+    const minPaddingLeft = useExportDiagramStore((state) => state.minPaddingLeft);
+    const minPaddingRight = useExportDiagramStore((state) => state.minPaddingRight);
+    const minPaddingTop = useExportDiagramStore((state) => state.minPaddingTop);
+    const minPaddingBottom = useExportDiagramStore((state) => state.minPaddingBottom);
 
-    const scale = 80;
+    return useMemo(() => {
+        if (!layout) {
+            return null;
+        }
 
-    if (!layout) {
-        return null;
-    }
+        const rect = layoutRect(layout);
 
-    let minX = Number.MAX_SAFE_INTEGER;
-    let maxX = Number.MIN_SAFE_INTEGER;
-    let minY = Number.MAX_SAFE_INTEGER;
-    let maxY = Number.MIN_SAFE_INTEGER;
+        const diagramWidth = rect.width;
+        const diagramHeight = rect.height;
 
-    for (const point of layout) {
-        minX = Math.min(minX, point[0]);
-        maxX = Math.max(maxX, point[0]);
-        minY = Math.min(minY, point[1]);
-        maxY = Math.max(maxY, point[1]);
-    }
+        const nodeDiameter = 2 * nodeRadius;
+        const horizontalPadding = minPaddingLeft + minPaddingRight + nodeDiameter;
+        const verticalPadding = minPaddingTop + minPaddingBottom + nodeDiameter;
+        const maxDiagramWidth = Math.max(maxWidth - horizontalPadding, 0);
+        const maxDiagramHeight = Math.max(maxHeight - verticalPadding, 0);
 
-    const nodeDiameter = 2 * nodeRadius;
-    const width = (maxX - minX) * scale + nodeDiameter;
-    const height = (maxY - minY) * scale + nodeDiameter;
-    const centerX = -minX * scale + nodeRadius;
-    const centerY = -minY * scale + nodeRadius;
+        const maxRatio = maxDiagramHeight === 0 ? Number.MAX_VALUE : maxDiagramWidth / maxDiagramHeight;
+        const diagramRatio = diagramHeight === 0 ? Number.MAX_VALUE : diagramWidth / diagramHeight;
 
-    return {
-        width,
-        height,
-        centerX,
-        centerY: height - centerY,
-        scale,
-    };
+        const isZeroSizeDiagram = diagramWidth === 0 && diagramHeight === 0;
+        const width = isZeroSizeDiagram ?
+            0 :
+            Math.ceil(diagramRatio > maxRatio ? maxDiagramWidth : diagramRatio * maxDiagramHeight);
+        const height = isZeroSizeDiagram ?
+            0 :
+            Math.ceil(diagramRatio > maxRatio ? maxDiagramWidth / diagramRatio : maxDiagramHeight);
+
+        const scale = isZeroSizeDiagram ?
+            1 :
+            diagramWidth === 0 ?
+                height / diagramHeight :
+                diagramHeight === 0 ?
+                    width / diagramWidth : 
+                    Math.min(width / diagramWidth, height / diagramHeight);
+        const centerX = -rect.left * scale + nodeRadius + minPaddingLeft;
+        const centerY = -rect.top * scale + nodeRadius + minPaddingBottom;
+
+        const finalWidth = Math.min(width + horizontalPadding, maxWidth);
+        const finalHeight = Math.min(height + verticalPadding, maxHeight);
+
+        return {
+            width: finalWidth,
+            height: finalHeight,
+            centerX,
+            centerY: finalHeight - centerY,
+            scale,
+        };
+    }, [layout, nodeRadius, maxWidth, maxHeight, minPaddingLeft, minPaddingRight, minPaddingTop, minPaddingBottom]);
 }
 
 function useDrawBackground() {
     const backgroundColor = useExportDiagramStore((state) => state.backgroundColor);
 
-    function drawBackground(context: CanvasRenderingContext2D) {
+    return useCallback((context: CanvasRenderingContext2D) => {
         context.save();
         context.fillStyle = hsvaToHexa(backgroundColor);
         context.fillRect(0, 0, context.canvas.width, context.canvas.height);
         context.restore();
-    }
-
-    return drawBackground;
+    }, [backgroundColor]);
 }
 
 function useDrawNodes(
@@ -204,14 +231,15 @@ function useDrawNodes(
 ) {
     const nodeRadius = useExportDiagramStore((state) => state.nodeRadius);
     const defaultNodeColor = useExportDiagramStore((state) => state.defaultNodeColor);
+    const defaultNodeColorHexa = hsvaToHexa(defaultNodeColor);
 
-    function drawNodes(context: CanvasRenderingContext2D) {
+    return useCallback((context: CanvasRenderingContext2D) => {
         if (!layout) {
             return;
         }
 
         context.save();
-        context.fillStyle = hsvaToHexa(defaultNodeColor);
+        context.fillStyle = defaultNodeColorHexa;
 
         for (let i = 0; i < layout.length; i++) {
             const point = layout[i];
@@ -224,9 +252,7 @@ function useDrawNodes(
         }
 
         context.restore();
-    }
-
-    return drawNodes;
+    }, [nodeRadius, defaultNodeColorHexa, scale]);
 }
 
 function useDrawLinks(
@@ -237,9 +263,7 @@ function useDrawLinks(
     const linkThickness = useExportDiagramStore((state) => state.linkThickness);
     const defaultLinkColor = useExportDiagramStore((state) => state.defaultLinkColor);
 
-    function drawLinks(
-        context: CanvasRenderingContext2D,
-    ) {
+    return useCallback((context: CanvasRenderingContext2D) => {
         if (!layout) {
             return;
         }
@@ -263,7 +287,5 @@ function useDrawLinks(
         }
 
         context.restore();
-    }
-
-    return drawLinks;
+    }, [links, linkThickness, defaultLinkColor, scale]);
 }
