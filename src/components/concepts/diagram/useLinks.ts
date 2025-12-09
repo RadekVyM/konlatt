@@ -1,7 +1,7 @@
 import { useMemo } from "react";
-import { Link } from "../../../types/Link";
 import useDataStructuresStore from "../../../stores/useDataStructuresStore";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
+import { getLinks } from "../../../utils/links";
 
 export default function useLinks() {
     const lattice = useDataStructuresStore((state) => state.lattice);
@@ -12,39 +12,7 @@ export default function useLinks() {
     const noInvisibleConcepts = !visibleConceptIndexes || visibleConceptIndexes.size === 0;
 
     return useMemo(() => {
-        const links = new Array<Link>();
-
-        if (!layout || !lattice?.subconceptsMapping) {
-            return links;
-        }
-
-        let i = 0;
-
-        for (const node of layout) {
-            for (const subconceptIndex of lattice.subconceptsMapping[node.conceptIndex]) {
-                const isNotVisible = visibleConceptIndexes && !visibleConceptIndexes.has(subconceptIndex);
-
-                if (displayHighlightedSublatticeOnly && isNotVisible) {
-                    continue;
-                }
-
-                const isVisible = !!visibleConceptIndexes && visibleConceptIndexes.has(node.conceptIndex) && visibleConceptIndexes.has(subconceptIndex);
-                const isFiltered = !!filteredConceptIndexes && filteredConceptIndexes.has(node.conceptIndex) && filteredConceptIndexes.has(subconceptIndex);
-
-                const finalIsVisible = noInvisibleConcepts ? isFiltered : isVisible && (!displayHighlightedSublatticeOnly || isFiltered);
-
-                links.push({
-                    conceptIndex: node.conceptIndex,
-                    subconceptIndex,
-                    linkId: i,
-                    isVisible: finalIsVisible,
-                    isHighlighted: finalIsVisible,
-                });
-                i++;
-            }
-        }
-
-        return links;
+        return getLinks(layout, lattice, visibleConceptIndexes, filteredConceptIndexes, displayHighlightedSublatticeOnly);
         // The last false in the deps array is needed to make it stable when lattice, layout... are null
         // I have no idea why this is, it is super weird
     }, [lattice, visibleConceptIndexes, filteredConceptIndexes, layout, displayHighlightedSublatticeOnly, noInvisibleConcepts, false]);

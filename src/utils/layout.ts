@@ -34,3 +34,29 @@ export function rotatePoint(point: Point, rotationDegrees: number) {
         point[1],
         (-point[0] * Math.sin(rotationRadians)) + (point[2] * Math.cos(rotationRadians)));
 }
+
+export function layoutRect(layout: Array<Point>) {
+    let left = Number.MAX_SAFE_INTEGER;
+    let right = Number.MIN_SAFE_INTEGER;
+    let top = Number.MAX_SAFE_INTEGER;
+    let bottom = Number.MIN_SAFE_INTEGER;
+
+    for (const point of layout) {
+        left = Math.min(left, point[0]);
+        right = Math.max(right, point[0]);
+        top = Math.min(top, point[1]);
+        bottom = Math.max(bottom, point[1]);
+    }
+
+    const width = right - left;
+    const height = bottom - top;
+
+    return {
+        left,
+        right,
+        top,
+        bottom,
+        width,
+        height,
+    };
+}

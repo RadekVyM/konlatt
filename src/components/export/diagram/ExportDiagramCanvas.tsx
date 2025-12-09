@@ -10,7 +10,8 @@ import useLinks from "../../concepts/diagram/useLinks";
 import useExportDiagramStore from "../../../stores/export/useExportDiagramStore";
 import { hsvaToHexa } from "../../../utils/colors";
 import useDebouncedValue from "../../../hooks/useDebouncedValue";
-import { layoutRect, transformedLayoutForExport } from "../../../utils/export";
+import { transformedLayoutForExport } from "../../../utils/export";
+import { layoutRect } from "../../../utils/layout";
 
 type CanvasDimensions = {
     width: number,

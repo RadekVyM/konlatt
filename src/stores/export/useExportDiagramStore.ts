@@ -4,8 +4,14 @@ import { DiagramExportFormat } from "../../types/export/DiagramExportFormat";
 import { createHsvaColor, HsvaColor } from "../../types/HsvaColor";
 import { MAX_CANVAS_AREA, MAX_CANVAS_HEIGHT, MAX_CANVAS_WIDTH } from "../../constants/diagramExport";
 import useDiagramStore from "../diagram/useDiagramStore";
-import { layoutRect, transformedLayoutForExport } from "../../utils/export";
+import { transformedLayoutForExport } from "../../utils/export";
 import createTextResultStoreBaseSlice, { TextResultExportStore } from "./createTextResultStoreBaseSlice";
+import { convertToTikz } from "../../services/export/diagram/tikz";
+import { convertToSvg } from "../../services/export/diagram/svg";
+import { sumLengths } from "../../utils/array";
+import useDataStructuresStore from "../useDataStructuresStore";
+import { layoutRect } from "../../utils/layout";
+import { getLinks } from "../../utils/links";
 
 type ExportDiagramStoreState = {
     maxWidth: number,
@@ -134,8 +140,60 @@ const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
 
 export default useExportDiagramStore;
 
-function withResult(newState: Partial<ExportDiagramStore>, _oldState: ExportDiagramStore): Partial<ExportDiagramStore> {
-    return newState;
+function withResult(newState: Partial<ExportDiagramStore>, oldState: ExportDiagramStore): Partial<ExportDiagramStore> {
+    const selectedFormat = newState.selectedFormat !== undefined ? newState.selectedFormat : oldState.selectedFormat;
+    
+    if (selectedFormat === "jpg" || selectedFormat === "png") {
+        return {
+            ...newState,
+            result: null,
+            collapseRegions: null,
+            charactersCount: undefined,
+        };
+    }
+    
+    const diagramStore = useDiagramStore.getState();
+    const dataStructuresStore = useDataStructuresStore.getState();
+
+    const links = getLinks(
+        diagramStore.layout,
+        dataStructuresStore.lattice,
+        diagramStore.visibleConceptIndexes,
+        diagramStore.filteredConceptIndexes,
+        diagramStore.displayHighlightedSublatticeOnly);
+
+    let result: Array<string> | null = null;
+    let collapseRegions: Map<number, number> | null = null;
+
+    switch (selectedFormat) {
+        case "tikz":
+            ({ lines: result, collapseRegions: collapseRegions } = convertToTikz(
+                diagramStore.layout,
+                diagramStore.diagramOffsets,
+                diagramStore.horizontalScale,
+                diagramStore.verticalScale,
+                diagramStore.rotationDegrees,
+                links,
+                diagramStore.conceptToLayoutIndexesMapping));
+            break;
+        case "svg":
+            ({ lines: result, collapseRegions: collapseRegions } = convertToSvg(
+                diagramStore.layout,
+                diagramStore.diagramOffsets,
+                diagramStore.horizontalScale,
+                diagramStore.verticalScale,
+                diagramStore.rotationDegrees,
+                links,
+                diagramStore.conceptToLayoutIndexesMapping));
+            break;
+    }
+
+    return {
+        ...newState,
+        result,
+        collapseRegions,
+        charactersCount: sumLengths(result),
+    };
 }
 
 function withValidDimensions(

@@ -11,6 +11,13 @@ import DownloadButtons from "../DownloadButtons";
 import PictureOptions from "./PictureOptions";
 import createDownloadButtonsComponent from "../createDownloadButtonsComponent";
 import { CANVAS_ID } from "../../../constants/diagramExport";
+import createTextResultPreviewerComponent from "../createTextResultPreviewerComponent";
+
+const TextPreviewer = createTextResultPreviewerComponent(useExportDiagramStore);
+
+const SvgDownloadButtons = createDownloadButtonsComponent(useExportDiagramStore, "exported-diagram.svg");
+
+const TikzDownloadButtons = createDownloadButtonsComponent(useExportDiagramStore, "exported-diagram.tikz", "\n");
 
 const ITEMS: Array<ExportItem<DiagramExportFormat>> = [
     {
@@ -30,14 +37,14 @@ const ITEMS: Array<ExportItem<DiagramExportFormat>> = [
     {
         key: "svg",
         label: "SVG",
-        content: () => <p>Hello SVG</p>,
+        content: () => <TextPreviewer />,
         buttons: () => <SvgDownloadButtons />,
         options: () => <PictureOptions />
     },
     {
         key: "tikz",
         label: "TikZ",
-        content: () => <p>Hello TikZ</p>,
+        content: () => <TextPreviewer />,
         buttons: () => <TikzDownloadButtons />,
     },
 ];
@@ -61,10 +68,6 @@ function RasterContent() {
             id={CANVAS_ID} />
     );
 }
-
-const SvgDownloadButtons = createDownloadButtonsComponent(useExportDiagramStore, "exported-diagram.svg");
-
-const TikzDownloadButtons = createDownloadButtonsComponent(useExportDiagramStore, "exported-diagram.tikz");
 
 function RasterDownloadButtons() {
     const copySuccessful = false;
