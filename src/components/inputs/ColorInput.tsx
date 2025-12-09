@@ -11,11 +11,13 @@ import { cn } from "../../utils/tailwind";
 import Input from "./Input";
 import { LuCheck, LuClipboard, LuCopy } from "react-icons/lu";
 
-export default function ColorInput(props: {
+export type ColorInputProps = {
     className?: string,
     color: HsvaColor,
     onChange: (color: HsvaColor) => void,
-}) {
+}
+
+export default function ColorInput(props: ColorInputProps) {
     const dialogState = useDialog();
     const lastValidColorRef = useRef<HsvaColor>(null);
     const inputFocusedRef = useRef<boolean>(false);

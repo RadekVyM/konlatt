@@ -1,10 +1,11 @@
 import { create } from "zustand";
-import createSelectedFormatSlice, { SelectedFormatSlice } from "./createSelectedFormatSlice";
+import createSelectedFormatSlice from "./createSelectedFormatSlice";
 import { DiagramExportFormat } from "../../types/export/DiagramExportFormat";
 import { createHsvaColor, HsvaColor } from "../../types/HsvaColor";
 import { MAX_CANVAS_AREA, MAX_CANVAS_HEIGHT, MAX_CANVAS_WIDTH } from "../../constants/diagramExport";
 import useDiagramStore from "../diagram/useDiagramStore";
 import { layoutRect, transformedLayoutForExport } from "../../utils/export";
+import createTextResultStoreBaseSlice, { TextResultExportStore } from "./createTextResultStoreBaseSlice";
 
 type ExportDiagramStoreState = {
     maxWidth: number,
@@ -39,7 +40,7 @@ type ExportDiagramStoreActions = {
     reset: () => void,
 }
 
-type ExportDiagramStore = ExportDiagramStoreState & ExportDiagramStoreActions & SelectedFormatSlice<DiagramExportFormat>
+type ExportDiagramStore = TextResultExportStore<DiagramExportFormat> & ExportDiagramStoreState & ExportDiagramStoreActions
 
 const initialState: ExportDiagramStoreState = {
     maxWidth: 1920,
@@ -93,7 +94,7 @@ const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
             diagramStore.horizontalScale,
             diagramStore.verticalScale,
             diagramStore.rotationDegrees);
-        
+
         if (!transformedLayout) {
             return {};
         }
@@ -124,12 +125,18 @@ const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
     setDefaultLinkColor: (defaultLinkColor) => set({ defaultLinkColor }),
     setNodeRadius: (nodeRadius) => set({ nodeRadius }),
     setLinkThickness: (linkThickness) => set({ linkThickness }),
-    reset: () => set(() => ({
-        ...initialState,
-    })),
+    ...createTextResultStoreBaseSlice<DiagramExportFormat, ExportDiagramStore>(
+        "png",
+        { ...initialState },
+        set,
+        withResult),
 }));
 
 export default useExportDiagramStore;
+
+function withResult(newState: Partial<ExportDiagramStore>, _oldState: ExportDiagramStore): Partial<ExportDiagramStore> {
+    return newState;
+}
 
 function withValidDimensions(
     newState: Partial<ExportDiagramStore>,

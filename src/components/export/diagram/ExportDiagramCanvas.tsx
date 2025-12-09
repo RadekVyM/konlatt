@@ -1,16 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { cn } from "../../utils/tailwind";
-import useDiagramStore from "../../stores/diagram/useDiagramStore";
-import { Point } from "../../types/Point";
+import { cn } from "../../../utils/tailwind";
+import useDiagramStore from "../../../stores/diagram/useDiagramStore";
+import { Point } from "../../../types/Point";
 import { TransformWrapper, TransformComponent, useControls, useTransformComponent } from "react-zoom-pan-pinch";
-import ZoomBar from "../ZoomBar";
-import Button from "../inputs/Button";
+import ZoomBar from "../../ZoomBar";
+import Button from "../../inputs/Button";
 import { LuFocus } from "react-icons/lu";
-import useLinks from "../concepts/diagram/useLinks";
-import useExportDiagramStore from "../../stores/export/useExportDiagramStore";
-import { hsvaToHexa } from "../../utils/colors";
-import useDebouncedValue from "../../hooks/useDebouncedValue";
-import { layoutRect, transformedLayoutForExport } from "../../utils/export";
+import useLinks from "../../concepts/diagram/useLinks";
+import useExportDiagramStore from "../../../stores/export/useExportDiagramStore";
+import { hsvaToHexa } from "../../../utils/colors";
+import useDebouncedValue from "../../../hooks/useDebouncedValue";
+import { layoutRect, transformedLayoutForExport } from "../../../utils/export";
 
 type CanvasDimensions = {
     width: number,
@@ -20,7 +20,7 @@ type CanvasDimensions = {
     scale: number,
 }
 
-const DEBOUNCE_DELAY = 500;
+const DEBOUNCE_DELAY = 200;
 
 /*
 I tried to use transferControlToOffscreen() and do all the drawing in a worker.
@@ -32,6 +32,7 @@ So I do everything in the main thread...
 */
 
 export default function ExportDiagramCanvas(props: {
+    id: string,
     className?: string,
 }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -47,7 +48,7 @@ export default function ExportDiagramCanvas(props: {
             disablePadding
             minScale={0.1}>
             <TransformComponent
-                wrapperClass={cn("checkered", props.className)}
+                wrapperClass={cn("export-diagram-canvas-wrapper checkered", props.className)}
                 wrapperStyle={{
                     width: "100%",
                     height: "100%",
@@ -55,6 +56,7 @@ export default function ExportDiagramCanvas(props: {
                 contentClass="drop-shadow-xl">
                 <canvas
                     ref={canvasRef}
+                    id={props.id}
                     style={{
                         // imageRendering: "pixelated",
                     }}
@@ -65,6 +67,10 @@ export default function ExportDiagramCanvas(props: {
 
             <Controls
                 className="absolute bottom-0 right-0" />
+
+            <Centering
+                canvasRef={canvasRef}
+                canvasDimensions={debouncedCanvasDimensions} />
         </TransformWrapper>
     );
 }
@@ -91,6 +97,21 @@ function Controls(props: {
             </Button>
         </div>
     );
+}
+
+function Centering(props: {
+    canvasDimensions: CanvasDimensions | null,
+    canvasRef: React.RefObject<HTMLCanvasElement | null>,
+}) {
+    const format = useExportDiagramStore((state) => state.selectedFormat);
+    const scale = useTransformComponent(({ state }) => state.scale);
+    const { centerView } = useControls();
+
+    useEffect(() => {
+        setTimeout(() => centerView(scale), 100);
+    }, [format, props.canvasDimensions?.width, props.canvasDimensions?.height]);
+
+    return undefined;
 }
 
 type DrawFunc = (context: CanvasRenderingContext2D) => void

@@ -5,6 +5,8 @@ export const MAX_CANVAS_HEIGHT = 32767;
 export const MAX_CANVAS_WIDTH = 32767;
 export const MAX_CANVAS_AREA = 16384 * 16384;
 
+export const CANVAS_ID = "export-diagram-canvas";
+
 // 300 DPI
 export const EXPORT_DIMENSIONS_TEMPLATES: ReadonlyArray<DiagramExportDimensionsTemplate> = [
     {

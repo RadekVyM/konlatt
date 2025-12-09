@@ -8,7 +8,7 @@ import { FullscreenState } from "../../../types/FullscreenState";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import useDataStructuresStore from "../../../stores/useDataStructuresStore";
 import { ZoomActionsContext } from "../../../contexts/ZoomActionsContext";
-import ExportDiagramButton from "../../export/ExportDiagramButton";
+import ExportDiagramButton from "../../export/diagram/ExportDiagramButton";
 import ZoomBar from "../../ZoomBar";
 import DiagramLoadingSpinner from "./DiagramLoadingSpinner";
 

@@ -1,1 +1,1 @@
-export type DiagramExportFormat = "svg"
+export type DiagramExportFormat = "tikz" | "png" | "jpg" | "svg"

@@ -1,8 +1,8 @@
-import { LuCheck, LuCopy, LuDownload } from "react-icons/lu";
+import { LuCheck, LuCopy } from "react-icons/lu";
 import { TextResultStoreType } from "../../stores/export/types/TextResultStoreType";
-import Button from "../inputs/Button";
 import { useRef, useState } from "react";
 import CheckBox from "../inputs/CheckBox";
+import DownloadButtons from "./DownloadButtons";
 
 const COPY_ENABLED_THRESHOLD = 15_000_000;
 const COPY_SUCCESSFUL_TIMEOUT_LENGTH = 1500;
@@ -68,24 +68,12 @@ export default function createDownloadButtonsComponent(useTextResultStore: TextR
                     Include formatting
                 </CheckBox>
 
-                <Button
-                    variant="container"
-                    size="lg"
-                    className="w-full justify-center row-start-2"
-                    disabled={!result || disabledComputation || copyDisabled}
-                    onClick={onCopyClick}>
-                    {copySuccessful ? <LuCheck /> : <LuCopy />}
-                    Copy
-                </Button>
-                <Button
-                    variant="primary"
-                    size="lg"
-                    className="w-full justify-center row-start-2"
-                    disabled={!result || disabledComputation}
-                    onClick={onDownloadClick}>
-                    <LuDownload />
-                    Download
-                </Button>
+                <DownloadButtons
+                    onCopyClick={onCopyClick}
+                    copyDisabled={!result || disabledComputation || copyDisabled}
+                    copyButtonIcon={copySuccessful ? LuCheck : LuCopy}
+                    downloadDisabled={!result || disabledComputation}
+                    onDownloadClick={onDownloadClick} />
             </div>
         );
     };

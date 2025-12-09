@@ -35,7 +35,8 @@ export default function ExportDialog<TKey extends string>(props: {
                     grid grid-rows-[4fr_5fr] md:grid-rows-1 md:grid-cols-[minmax(18rem,2fr)_5fr] xl:grid-cols-[1fr_2.5fr_1fr] gap-2
                     pt-2 -mx-2 px-2 -mb-2 pb-2">
                 <Container
-                    className="flex flex-col gap-3">
+                    as="section"
+                    className="flex flex-col gap-3 overflow-hidden">
                     <div
                         className="px-4 pt-4">
                         <InputLabel>
@@ -59,7 +60,7 @@ export default function ExportDialog<TKey extends string>(props: {
                     </div>
 
                     <div
-                        className="flex-1">
+                        className="flex-1 overflow-y-auto thin-scrollbar">
                         {selectedItem?.options?.()}
                     </div>
 

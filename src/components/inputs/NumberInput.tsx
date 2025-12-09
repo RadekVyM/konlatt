@@ -3,7 +3,7 @@ import { cn } from "../../utils/tailwind";
 import Input from "./Input";
 import InputLabel from "./InputLabel";
 
-export default function NumberInput({ className, inputClassName, id, label, minimumFractionDigits, children, value, onChange, ...rest }: {
+export type NumberInputProps = {
     className?: string,
     inputClassName?: string,
     label?: string,
@@ -11,7 +11,19 @@ export default function NumberInput({ className, inputClassName, id, label, mini
     children?: React.ReactNode,
     value?: number,
     onChange?: (value: number) => void,    
-} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "type" | "value" | "onChange">) {
+} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "type" | "value" | "onChange">
+
+export default function NumberInput({
+    className,
+    inputClassName,
+    id,
+    label,
+    minimumFractionDigits,
+    children,
+    value,
+    onChange,
+    ...rest
+}: NumberInputProps) {
     const inputRef = useRef<HTMLInputElement>(null);
 
     return (

@@ -1,47 +1,20 @@
 import { LuLock, LuLockOpen, LuScaling } from "react-icons/lu";
-import useDiagramStore from "../../stores/diagram/useDiagramStore";
-import useExportDiagramStore from "../../stores/export/useExportDiagramStore";
-import { DiagramExportFormat } from "../../types/export/DiagramExportFormat";
-import Button from "../inputs/Button";
-import ComboBox from "../inputs/ComboBox";
-import InputLabel from "../inputs/InputLabel";
-import NumberInput from "../inputs/NumberInput";
-import ConfigSection from "../layouts/ConfigSection";
-import ExportButton from "./ExportButton";
-import ExportDiagramCanvas from "./ExportDiagramCanvas";
-import { ExportButtonProps } from "./types/ExportButtonProps";
-import { ExportItem } from "./types/ExportItem";
-import ColorInput from "../inputs/ColorInput";
-import "./aspect-ratio-bridge-clip.css";
-import { cn } from "../../utils/tailwind";
-import { DiagramExportDimensionsTemplateKey } from "../../types/export/DiagramExportDimensionsTemplate";
-import { DropDownMenuItem } from "../inputs/DropDownMenu";
-import { EXPORT_DIMENSIONS_TEMPLATES } from "../../constants/diagramExport";
+import { EXPORT_DIMENSIONS_TEMPLATES } from "../../../constants/diagramExport";
+import useExportDiagramStore from "../../../stores/export/useExportDiagramStore";
+import { DiagramExportDimensionsTemplateKey } from "../../../types/export/DiagramExportDimensionsTemplate";
+import { cn } from "../../../utils/tailwind";
+import Button from "../../inputs/Button";
+import ComboBox from "../../inputs/ComboBox";
+import { DropDownMenuItem } from "../../inputs/DropDownMenu";
+import InputLabel from "../../inputs/InputLabel";
+import ConfigSection from "../../layouts/ConfigSection";
+import DebouncedColorInput from "../../inputs/DebouncedColorInput";
+import DebouncedNumberInput from "../../inputs/DebouncedNumberInput";
+import DebouncedPrefixedNumberInput from "../../inputs/DebouncedPrefixedNumberInput";
 
-const ITEMS: Array<ExportItem<DiagramExportFormat>> = [
-    {
-        key: "svg",
-        label: "SVG",
-        buttons: () => <></>,
-        options: () => <PictureOptions />
-    },
-];
+const DEBOUNCE_DELAY = 300;
 
-export default function ExportDiagramButton(props: ExportButtonProps) {
-    const layout = useDiagramStore((state) => state.layout);
-
-    return (
-        <ExportButton<DiagramExportFormat>
-            {...props}
-            disabled={!layout}
-            items={ITEMS}
-            isHighlighted
-            useSelectedFormatStore={useExportDiagramStore}
-            content={<ExportDiagramCanvas />} />
-    );
-}
-
-function PictureOptions() {
+export default function PictureOptions() {
     return (
         <>
             <LayoutSection />
@@ -70,7 +43,8 @@ function AppearanceSection() {
                 <InputLabel>
                     Background
                 </InputLabel>
-                <ColorInput
+                <DebouncedColorInput
+                    delay={DEBOUNCE_DELAY}
                     color={backgroundColor}
                     onChange={setBackgroundColor} />
             </div>
@@ -78,7 +52,8 @@ function AppearanceSection() {
                 <InputLabel>
                     Default node color
                 </InputLabel>
-                <ColorInput
+                <DebouncedColorInput
+                    delay={DEBOUNCE_DELAY}
                     color={defaultNodeColor}
                     onChange={setDefaultNodeColor} />
             </div>
@@ -86,16 +61,19 @@ function AppearanceSection() {
                 <InputLabel>
                     Default link color
                 </InputLabel>
-                <ColorInput
+                <DebouncedColorInput
+                    delay={DEBOUNCE_DELAY}
                     color={defaultLinkColor}
                     onChange={setDefaultLinkColor} />
             </div>
-            <NumberInput
+            <DebouncedNumberInput
+                delay={DEBOUNCE_DELAY}
                 label="Node radius"
                 value={nodeRadius}
                 onChange={setNodeRadius}
                 min={1} />
-            <NumberInput
+            <DebouncedNumberInput
+                delay={DEBOUNCE_DELAY}
                 label="Link thickness"
                 value={linkThickness}
                 onChange={setLinkThickness}
@@ -108,7 +86,7 @@ function LayoutSection() {
     return (
         <ConfigSection
             heading="Layout"
-            className="mx-4">
+            className="mx-4 pt-2">
             <TemplateSelection />
 
             <MaxDimensions />
@@ -143,8 +121,6 @@ function TemplateSelection() {
                 onKeySelectionChange={(key) => {
                     const template = EXPORT_DIMENSIONS_TEMPLATES.find((template) => template.key === key);
 
-                    console.log(template)
-
                     if (template) {
                         setDimensions(template.largerSize, template.smallerSize);
                     }
@@ -171,12 +147,14 @@ function MaxDimensions() {
                     <div
                         className="col-2 row-1 -ml-2.5 w-3 h-4 bg-surface-light-dim-container self-center aspect-ratio-bridge-clip">
                     </div>}
-                <PrefixedNumberInput
+                <DebouncedPrefixedNumberInput
+                    delay={DEBOUNCE_DELAY}
                     className="col-1 row-1"
                     prefix="W"
                     value={maxWidth}
                     onChange={setMaxWidth} />
-                <PrefixedNumberInput
+                <DebouncedPrefixedNumberInput
+                    delay={DEBOUNCE_DELAY}
                     className="col-2 row-1"
                     prefix="H"
                     value={maxHeight}
@@ -216,48 +194,31 @@ function Padding() {
             <InputLabel>Minimum padding</InputLabel>
             <div
                 className="grid grid-cols-[1fr_1fr] gap-2">
-                <PrefixedNumberInput
+                <DebouncedPrefixedNumberInput
+                    delay={DEBOUNCE_DELAY}
                     className="col-1 row-1"
                     prefix="L"
                     value={minPaddingLeft}
                     onChange={setMinPaddingLeft} />
-                <PrefixedNumberInput
+                <DebouncedPrefixedNumberInput
+                    delay={DEBOUNCE_DELAY}
                     className="col-2 row-1"
                     prefix="R"
                     value={minPaddingRight}
                     onChange={setMinPaddingRight} />
-                <PrefixedNumberInput
+                <DebouncedPrefixedNumberInput
+                    delay={DEBOUNCE_DELAY}
                     className="col-1 row-2"
                     prefix="T"
                     value={minPaddingTop}
                     onChange={setMinPaddingTop} />
-                <PrefixedNumberInput
+                <DebouncedPrefixedNumberInput
+                    delay={DEBOUNCE_DELAY}
                     className="col-2 row-2"
                     prefix="B"
                     value={minPaddingBottom}
                     onChange={setMinPaddingBottom} />
             </div>
         </div>
-    );
-}
-
-function PrefixedNumberInput(props: {
-    className?: string,
-    prefix: string,
-    value: number,
-    onChange: (value: number) => void,
-}) {
-    return (
-        <NumberInput
-            className={props.className}
-            min={0}
-            inputClassName="pl-7"
-            value={props.value}
-            onChange={props.onChange}>
-            <span
-                className="absolute left-2 top-1/2 -translate-y-1/2 text-sm text-on-surface-container-muted pointer-events-none">
-                {props.prefix}
-            </span>
-        </NumberInput>
     );
 }
