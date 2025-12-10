@@ -68,6 +68,21 @@ export function unescapeXml(str: string) {
         .replace(/&apos;/g, "'");
 }
 
+export function escapeTikz(str: string) {
+    return str
+        .replace(/\\/g, "\\textbackslash{}")
+        .replace(/&/g, "\\&")
+        .replace(/%/g, "\\%")
+        .replace(/\$/g, "\\$")
+        .replace(/#/g, "\\#")
+        .replace(/_/g, "\\_")
+        .replace(/{/g, "\\{")
+        .replace(/}/g, "\\}")
+        .replace(/\n/g, "\\\\")
+        .replace(/\^/g, "\\textasciicircum{}")
+        .replace(/~/g, "\\textasciitilde{}");
+}
+
 export function withoutExtension(str: string) {
     const split = str.split(".");
 

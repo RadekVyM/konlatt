@@ -46,9 +46,11 @@ export default function DiagramConfig() {
 function DisplaySection() {
     const displayHighlightedSublatticeOnly = useDiagramStore((state) => state.displayHighlightedSublatticeOnly);
     const hoveredConceptDetailEnabled = useDiagramStore((state) => state.hoveredConceptDetailEnabled);
+    const recalculateLabelingOfSublatticeOnly = useDiagramStore((state) => state.recalculateLabelingOfSublatticeOnly);
     const cameraType = useDiagramStore((state) => state.cameraType);
     const setDisplayHighlightedSublatticeOnly = useDiagramStore((state) => state.setDisplayHighlightedSublatticeOnly);
     const setHoveredConceptDetailEnabled = useDiagramStore((state) => state.setHoveredConceptDetailEnabled);
+    const setRecalculateLabelingOfSublatticeOnly = useDiagramStore((state) => state.setRecalculateLabelingOfSublatticeOnly);
     const setCameraType = useDiagramStore((state) => state.setCameraType);
 
     return (
@@ -67,6 +69,11 @@ function DisplaySection() {
                 checked={hoveredConceptDetailEnabled}
                 onChange={(e) => setHoveredConceptDetailEnabled(e.currentTarget.checked)}>
                 Show concept detail on hover
+            </ToggleSwitch>
+            <ToggleSwitch
+                checked={recalculateLabelingOfSublatticeOnly}
+                onChange={(e) => setRecalculateLabelingOfSublatticeOnly(e.currentTarget.checked)}>
+                Recalculate labeling of sublattices
             </ToggleSwitch>
         </ConfigSection>
     );

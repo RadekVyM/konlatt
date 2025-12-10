@@ -219,8 +219,10 @@ function conceptFilter(
         }
     }
 
-    const hasSearchTerms = searchTerms.length === 0 || searchTerms.every((term) => context.objects.some((obj) =>
-        obj.toLocaleLowerCase().includes(term)) || context.attributes.some((attr) => attr.toLocaleLowerCase().includes(term)));
+    const hasSearchTerms = searchTerms.length === 0 ||
+        searchTerms.every((term) =>
+            concept.objects.some((obj) => context.objects[obj].toLocaleLowerCase().includes(term)) ||
+            concept.attributes.some((attr) => context.attributes[attr].toLocaleLowerCase().includes(term)));
 
     return hasSearchTerms;
 }

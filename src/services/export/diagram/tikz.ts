@@ -1,8 +1,10 @@
+import { ConceptLabel } from "../../../types/ConceptLabel";
 import { ConceptLatticeLayout } from "../../../types/ConceptLatticeLayout";
 import { Link } from "../../../types/Link";
 import { Point } from "../../../types/Point";
 import { transformedLayoutForExport } from "../../../utils/export";
 import { layoutRect } from "../../../utils/layout";
+import { escapeTikz } from "../../../utils/string";
 import { CollapseRegions, createCollapseRegions } from "../CollapseRegions";
 
 const SCALE = 50;
@@ -15,6 +17,8 @@ export function convertToTikz(
     rotationDegrees: number,
     links: Array<Link>,
     conceptToLayoutIndexesMapping: Map<number, number>,
+    attributeLabels: Array<ConceptLabel>,
+    objectLabels: Array<ConceptLabel>,
 ) {
     const lines = new Array<string>();
     const collapseRegions = createCollapseRegions();
@@ -45,6 +49,16 @@ export function convertToTikz(
 
     pushNodes(lines, collapseRegions, transformedLayout);
 
+    lines.push("");
+    collapseRegions.nextRegionStart++;
+
+    pushObjectLabels(lines, collapseRegions, conceptToLayoutIndexesMapping, objectLabels);
+
+    lines.push("");
+    collapseRegions.nextRegionStart++;
+
+    pushAttributeLabels(lines, collapseRegions, conceptToLayoutIndexesMapping, attributeLabels);
+
     pushEndPicture(lines);
     return { lines, collapseRegions: collapseRegions.collapseRegions };
 }
@@ -53,12 +67,12 @@ function pushStartPictureWithOptions(
     lines: Array<string>,
     collapseRegions: CollapseRegions,
 ) {
+    const startCount = lines.length;
+
     lines.push("\\begin{tikzpicture}[");
-    lines.push("\t/tikz/xScale/.store in=\\xScale,");
-    lines.push("\t/tikz/yScale/.store in=\\yScale,");
     lines.push(`\tdeclare function={`);
-    lines.push(`\t\txpos(\\n) = \\xScale * \\n pt;`);
-    lines.push(`\t\typos(\\n) = \\yScale * \\n pt;`);
+    lines.push(`\t\txpos(\\n) = ${SCALE} * \\n pt;`);
+    lines.push(`\t\typos(\\n) = ${SCALE} * \\n pt;`);
     lines.push(`\t},`);
     lines.push(`\tdefaultNode/.style={`);
     lines.push(`\t\tcircle,`);
@@ -66,10 +80,29 @@ function pushStartPictureWithOptions(
     lines.push(`\t\tminimum size=8pt,`);
     lines.push(`\t\tinner sep=0pt`);
     lines.push(`\t},`);
-    lines.push(`\txScale=${SCALE},`);
-    lines.push(`\tyScale=${SCALE}`);
+    lines.push(`\tdefaultLink/.style={`);
+    lines.push(`\t\tdraw=gray`);
+    lines.push(`\t},`);
+    lines.push(`\tobjectLabel/.style={`);
+    lines.push(`\t\tbelow,`);
+    lines.push(`\t\tyshift=-1pt,`);
+    lines.push(`\t\talign=center,`);
+    lines.push(`\t\tfont=\\tiny,`);
+    lines.push(`\t\tfill=white,`);
+    lines.push(`\t\tdraw=gray,`);
+    lines.push(`\t\trounded corners`);
+    lines.push(`\t},`);
+    lines.push(`\tattributeLabel/.style={`);
+    lines.push(`\t\tabove,`);
+    lines.push(`\t\tyshift=1pt,`);
+    lines.push(`\t\talign=center,`);
+    lines.push(`\t\tfont=\\tiny,`);
+    lines.push(`\t\tfill=white,`);
+    lines.push(`\t\tdraw=gray,`);
+    lines.push(`\t\trounded corners`);
+    lines.push(`\t}`);
     lines.push("]");
-    collapseRegions.nextRegionStart += 16;
+    collapseRegions.nextRegionStart += lines.length - startCount;
 }
 
 function pushEndPicture(lines: Array<string>) {
@@ -83,6 +116,10 @@ function pushLinks(
     layout: Array<Point>,
     conceptToLayoutIndexesMapping: Map<number, number>,
 ) {
+    if (links.length === 0) {
+        return;
+    }
+
     let linksCount = 0;
 
     for (const link of links) {
@@ -96,12 +133,14 @@ function pushLinks(
         const from = layout[fromIndex];
         const to = layout[toIndex];
 
-        lines.push(`\t\\draw[-] (${pointToTikz(from)}) -- (${pointToTikz(to)});`);
+        lines.push(`\t\\draw[defaultLink] (${pointToTikz(from)}) -- (${pointToTikz(to)});`);
 
         linksCount++;
     }
 
-    collapseRegions.collapseRegions.set(collapseRegions.nextRegionStart, collapseRegions.nextRegionStart + linksCount);
+    if (linksCount > 1) {
+        collapseRegions.collapseRegions.set(collapseRegions.nextRegionStart, collapseRegions.nextRegionStart + linksCount);
+    }
     collapseRegions.nextRegionStart += linksCount;
 }
 
@@ -110,6 +149,10 @@ function pushNodes(
     collapseRegions: CollapseRegions,
     layout: Array<Point>,
 ) {
+    if (layout.length === 0) {
+        return;
+    }
+
     let linesCount = 0;
 
     for (let layoutIndex = 0; layoutIndex < layout.length; layoutIndex++) {
@@ -120,10 +163,67 @@ function pushNodes(
         linesCount++;
     }
 
-    collapseRegions.collapseRegions.set(collapseRegions.nextRegionStart, collapseRegions.nextRegionStart + linesCount);
+    if (linesCount > 1) {
+        collapseRegions.collapseRegions.set(collapseRegions.nextRegionStart, collapseRegions.nextRegionStart + linesCount);
+    }
+    collapseRegions.nextRegionStart += linesCount;
+}
+
+function pushAttributeLabels(
+    lines: Array<string>,
+    collapseRegions: CollapseRegions,
+    conceptToLayoutIndexesMapping: Map<number, number>,
+    attributeLabels: Array<ConceptLabel>,
+) {
+    if (attributeLabels.length === 0) {
+        return;
+    }
+
+    let linesCount = 0;
+
+    for (const label of attributeLabels) {
+        const layoutIndex = conceptToLayoutIndexesMapping.get(label.conceptIndex);
+
+        lines.push(`\t\\node[attributeLabel] at (${layoutIndex}.north) {${escapeTikz(label.text)}};`);
+
+        linesCount++;
+    }
+
+    if (linesCount > 1) {
+        collapseRegions.collapseRegions.set(collapseRegions.nextRegionStart, collapseRegions.nextRegionStart + linesCount);
+    }
+    collapseRegions.nextRegionStart += linesCount;
+}
+
+function pushObjectLabels(
+    lines: Array<string>,
+    collapseRegions: CollapseRegions,
+    conceptToLayoutIndexesMapping: Map<number, number>,
+    objectLabels: Array<ConceptLabel>,
+) {
+    if (objectLabels.length === 0) {
+        return;
+    }
+
+    let linesCount = 0;
+
+    for (const label of objectLabels) {
+        const layoutIndex = conceptToLayoutIndexesMapping.get(label.conceptIndex);
+
+        lines.push(`\t\\node[objectLabel] at (${layoutIndex}.south) {${escapeTikz(label.text)}};`);
+
+        linesCount++;
+    }
+
+    if (linesCount > 1) {
+        collapseRegions.collapseRegions.set(collapseRegions.nextRegionStart, collapseRegions.nextRegionStart + linesCount);
+    }
     collapseRegions.nextRegionStart += linesCount;
 }
 
 function pointToTikz(point: Point) {
-    return `{xpos(${point[0].toLocaleString("us", { maximumFractionDigits: 3 })})}, {ypos(${point[1].toLocaleString("us", { maximumFractionDigits: 3 })})}`;
+    const x = point[0].toLocaleString("us", { maximumFractionDigits: 3 });
+    const y = point[1].toLocaleString("us", { maximumFractionDigits: 3 });
+
+    return `{xpos(${x})}, {ypos(${y})}`;
 }

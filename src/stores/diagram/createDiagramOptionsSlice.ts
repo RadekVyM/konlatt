@@ -11,6 +11,7 @@ import { DiagramStore } from "./useDiagramStore";
 import withCameraControlsEnabled from "./withCameraControlsEnabled";
 import withConceptsToMoveBox from "./withConceptsToMoveBox";
 import withDefaultLayoutBox from "./withDefaultLayoutBox";
+import withDiagramLabeling from "./withDiagramLabeling";
 import withLayout from "./withLayout";
 
 type DiagramOptionsSliceState = {
@@ -19,6 +20,7 @@ type DiagramOptionsSliceState = {
     horizontalScale: number,
     verticalScale: number,
     rotationDegrees: number,
+    recalculateLabelingOfSublatticeOnly: boolean,
     movementRegressionEnabled: boolean,
     linksVisibleEnabled: boolean,
     hoveredConceptDetailEnabled: boolean,
@@ -53,6 +55,7 @@ type DiagramOptionsSliceActions = {
     setGridWhileEditingEnabled: React.Dispatch<React.SetStateAction<boolean>>,
     setMultiselectEnabled: React.Dispatch<React.SetStateAction<boolean>>,
     setDisplayHighlightedSublatticeOnly: React.Dispatch<React.SetStateAction<boolean>>,
+    setRecalculateLabelingOfSublatticeOnly: React.Dispatch<React.SetStateAction<boolean>>,
     setUpperConeOnlyConceptIndex: (upperConeOnlyConceptIndex: number | null, withOtherReset?: boolean) => void,
     setLowerConeOnlyConceptIndex: (lowerConeOnlyConceptIndex: number | null, withOtherReset?: boolean) => void,
     setPlacementLayered: (placement: LayeredLayoutPlacement) => void,
@@ -70,6 +73,7 @@ export function initialState(): DiagramOptionsSliceState {
         horizontalScale: 1,
         verticalScale: 1,
         rotationDegrees: 0,
+        recalculateLabelingOfSublatticeOnly: false,
         movementRegressionEnabled: false,
         linksVisibleEnabled: true,
         hoveredConceptDetailEnabled: true,
@@ -130,14 +134,21 @@ export default function createDiagramOptionsSlice(set: (partial: DiagramStore | 
                 multiselectEnabled(old.multiselectEnabled) :
                 multiselectEnabled) && old.editingEnabled
         }, old)),
-        setDisplayHighlightedSublatticeOnly: (displayHighlightedSublatticeOnly) => set((old) => withLayout(
+        setRecalculateLabelingOfSublatticeOnly: (recalculateLabelingOfSublatticeOnly) => set((old) => withDiagramLabeling(
+            {
+                recalculateLabelingOfSublatticeOnly: typeof recalculateLabelingOfSublatticeOnly === "function" ?
+                    recalculateLabelingOfSublatticeOnly(old.recalculateLabelingOfSublatticeOnly) :
+                    recalculateLabelingOfSublatticeOnly
+            },
+            old)),
+        setDisplayHighlightedSublatticeOnly: (displayHighlightedSublatticeOnly) => set((old) => w(
             {
                 displayHighlightedSublatticeOnly: typeof displayHighlightedSublatticeOnly === "function" ?
                     displayHighlightedSublatticeOnly(old.displayHighlightedSublatticeOnly) :
                     displayHighlightedSublatticeOnly
             },
-            old)),
-        setUpperConeOnlyConceptIndex: (upperConeOnlyConceptIndex, withOtherReset) => set((old) => withLayout(
+            old, withLayout, withDiagramLabeling)),
+        setUpperConeOnlyConceptIndex: (upperConeOnlyConceptIndex, withOtherReset) => set((old) => w(
             {
                 upperConeOnlyConceptIndex,
                 lowerConeOnlyConceptIndex: withOtherReset ? null : old.lowerConeOnlyConceptIndex,
@@ -146,8 +157,8 @@ export default function createDiagramOptionsSlice(set: (partial: DiagramStore | 
                     withOtherReset ? null : old.lowerConeOnlyConceptIndex,
                     useDataStructuresStore.getState().lattice),
             },
-            old)),
-        setLowerConeOnlyConceptIndex: (lowerConeOnlyConceptIndex, withOtherReset) => set((old) => withLayout(
+            old, withLayout, withDiagramLabeling)),
+        setLowerConeOnlyConceptIndex: (lowerConeOnlyConceptIndex, withOtherReset) => set((old) => w(
             {
                 lowerConeOnlyConceptIndex,
                 upperConeOnlyConceptIndex: withOtherReset ? null : old.upperConeOnlyConceptIndex,
@@ -156,7 +167,7 @@ export default function createDiagramOptionsSlice(set: (partial: DiagramStore | 
                     lowerConeOnlyConceptIndex,
                     useDataStructuresStore.getState().lattice),
             },
-            old)),
+            old, withLayout, withDiagramLabeling)),
         setPlacementLayered: (placementLayered) => set((old) => withLayout({ placementLayered }, old)),
         setParallelizeReDraw: (parallelizeReDraw) => set((old) => withLayout(
             {

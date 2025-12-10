@@ -60,6 +60,7 @@ export async function triggerInitialization(
         useExportDiagramStore.getState().reset();
         useExportObjectsStore.getState().reset();
         useExportObjectStore.getState().reset();
+        useExportDiagramStore.getState().reset();
 
         useDataStructuresStore.getState().setContext(response.context);
 

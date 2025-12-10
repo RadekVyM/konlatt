@@ -85,16 +85,24 @@ export function reverseMapping(mapping: Array<Set<number>>) {
     return reversedMapping;
 }
 
-export function getObjectsLabeling(concepts: FormalConcepts, superconceptsMapping: ReadonlyArray<Set<number>>): ConceptLatticeLabeling {
+export function getObjectsLabeling(
+    concepts: FormalConcepts,
+    superconceptsMapping: ReadonlyArray<Set<number>>,
+    visibleConceptIndexes?: Set<number>,
+): ConceptLatticeLabeling {
     const infimum = getInfimum(concepts);
 
-    return getLabeling(concepts, infimum, superconceptsMapping, (concept) => concept.objects);
+    return getLabeling(concepts, infimum, superconceptsMapping, (concept) => concept.objects, visibleConceptIndexes);
 }
 
-export function getAttributesLabeling(concepts: FormalConcepts, subconceptsMapping: ReadonlyArray<Set<number>>): ConceptLatticeLabeling {
+export function getAttributesLabeling(
+    concepts: FormalConcepts,
+    subconceptsMapping: ReadonlyArray<Set<number>>,
+    visibleConceptIndexes?: Set<number>,
+): ConceptLatticeLabeling {
     const supremum = getSupremum(concepts);
 
-    return getLabeling(concepts, supremum, subconceptsMapping, (concept) => concept.attributes);
+    return getLabeling(concepts, supremum, subconceptsMapping, (concept) => concept.attributes, visibleConceptIndexes);
 }
 
 
@@ -204,7 +212,8 @@ function getLabeling(
     concepts: FormalConcepts,
     startConcept: FormalConcept,
     coverRelation: ReadonlyArray<Set<number>>,
-    conceptItems: (concept: FormalConcept) => ReadonlyArray<number>
+    conceptItems: (concept: FormalConcept) => ReadonlyArray<number>,
+    visibleConceptIndexes?: Set<number>,
 ): ConceptLatticeLabeling {
     const labeling = new Map<number, ReadonlyArray<number>>();
     const alreadyAppeared = new Set<number>();
@@ -212,6 +221,10 @@ function getLabeling(
 
     for (const layer of layers) {
         for (const conceptIndex of layer) {
+            if (visibleConceptIndexes && !visibleConceptIndexes.has(conceptIndex)) {
+                continue;
+            }
+
             const concept = concepts[conceptIndex];
             const labels = new Array<number>();
 

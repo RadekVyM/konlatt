@@ -11,7 +11,7 @@ import { convertToSvg } from "../../services/export/diagram/svg";
 import { sumLengths } from "../../utils/array";
 import useDataStructuresStore from "../useDataStructuresStore";
 import { layoutRect } from "../../utils/layout";
-import { getLinks } from "../../utils/links";
+import { createLabels, getLinks, sortedLabelsByPosition } from "../../utils/diagram";
 
 type ExportDiagramStoreState = {
     maxWidth: number,
@@ -142,7 +142,7 @@ export default useExportDiagramStore;
 
 function withResult(newState: Partial<ExportDiagramStore>, oldState: ExportDiagramStore): Partial<ExportDiagramStore> {
     const selectedFormat = newState.selectedFormat !== undefined ? newState.selectedFormat : oldState.selectedFormat;
-    
+
     if (selectedFormat === "jpg" || selectedFormat === "png") {
         return {
             ...newState,
@@ -151,7 +151,7 @@ function withResult(newState: Partial<ExportDiagramStore>, oldState: ExportDiagr
             charactersCount: undefined,
         };
     }
-    
+
     const diagramStore = useDiagramStore.getState();
     const dataStructuresStore = useDataStructuresStore.getState();
 
@@ -161,6 +161,31 @@ function withResult(newState: Partial<ExportDiagramStore>, oldState: ExportDiagr
         diagramStore.visibleConceptIndexes,
         diagramStore.filteredConceptIndexes,
         diagramStore.displayHighlightedSublatticeOnly);
+
+    const attributeLabels = sortedLabelsByPosition(createLabels(
+        "attribute",
+        dataStructuresStore.context?.attributes,
+        diagramStore.attributesLabeling,
+        diagramStore.layout,
+        diagramStore.conceptToLayoutIndexesMapping,
+        "2d",
+        diagramStore.horizontalScale,
+        diagramStore.verticalScale,
+        diagramStore.rotationDegrees,
+        diagramStore.diagramOffsets,
+        "top"));
+    const objectLabels = sortedLabelsByPosition(createLabels(
+        "object",
+        dataStructuresStore.context?.objects,
+        diagramStore.objectsLabeling,
+        diagramStore.layout,
+        diagramStore.conceptToLayoutIndexesMapping,
+        "2d",
+        diagramStore.horizontalScale,
+        diagramStore.verticalScale,
+        diagramStore.rotationDegrees,
+        diagramStore.diagramOffsets,
+        "bottom"));
 
     let result: Array<string> | null = null;
     let collapseRegions: Map<number, number> | null = null;
@@ -174,7 +199,9 @@ function withResult(newState: Partial<ExportDiagramStore>, oldState: ExportDiagr
                 diagramStore.verticalScale,
                 diagramStore.rotationDegrees,
                 links,
-                diagramStore.conceptToLayoutIndexesMapping));
+                diagramStore.conceptToLayoutIndexesMapping,
+                attributeLabels,
+                objectLabels));
             break;
         case "svg":
             ({ lines: result, collapseRegions: collapseRegions } = convertToSvg(

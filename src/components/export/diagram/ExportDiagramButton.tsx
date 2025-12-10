@@ -58,7 +58,10 @@ export default function ExportDiagramButton(props: ExportButtonProps) {
             disabled={!layout}
             items={ITEMS}
             isHighlighted
-            useSelectedFormatStore={useExportDiagramStore} />
+            useSelectedFormatStore={useExportDiagramStore}
+            onShowing={useExportDiagramStore.getState().resetResult}
+            onShown={useExportDiagramStore.getState().triggerResultComputation}
+            onHiding={useExportDiagramStore.getState().resetResult} />
     );
 }
 

@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import useDataStructuresStore from "../../../stores/useDataStructuresStore";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
-import { getLinks } from "../../../utils/links";
+import { getLinks } from "../../../utils/diagram";
 
 export default function useLinks() {
     const lattice = useDataStructuresStore((state) => state.lattice);

@@ -11,6 +11,7 @@ import { createConceptLayoutIndexesMappings, createDefaultDiagramOffsets, create
 import { withCanUndoRedo } from "./withCanUndoRedo";
 import withConceptsToMoveBox from "./withConceptsToMoveBox";
 import withDefaultLayoutBox from "./withDefaultLayoutBox";
+import withDiagramLabeling from "./withDiagramLabeling";
 
 type DiagramLayoutSliceState = {
     layout: ConceptLatticeLayout | null,
@@ -73,7 +74,7 @@ export default function createDiagramLayoutSlice(set: (partial: DiagramStore | P
                     new Map(),
                 conceptsToMoveIndexes: new Set(),
                 currentZoomLevel: 1,
-            }, old, withConceptsToMoveBox, withDefaultLayoutBox, withCanUndoRedo);
+            }, old, withConceptsToMoveBox, withDefaultLayoutBox, withCanUndoRedo, withDiagramLabeling);
         }),
         setCurrentLayoutJobId: (currentLayoutJobId, layoutState) => set(() => ({
             currentLayoutJobId,
