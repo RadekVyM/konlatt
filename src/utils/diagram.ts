@@ -1,6 +1,6 @@
 import { getPoint } from "../components/concepts/diagram/utils";
 import { CameraType } from "../types/CameraType";
-import { ConceptLabel } from "../types/ConceptLabel";
+import { ConceptLabel, PositionedConceptLabel } from "../types/ConceptLabel";
 import { ConceptLattice } from "../types/ConceptLattice";
 import { ConceptLatticeLabeling } from "../types/ConceptLatticeLabeling";
 import { ConceptLatticeLayout } from "../types/ConceptLatticeLayout";
@@ -53,8 +53,39 @@ export function getLinks(
 
 export function createLabels(
     idPrefix: string,
-    labels: ReadonlyArray<string> | undefined,
-    labeling: ConceptLatticeLabeling | null,
+    itemLabels: ReadonlyArray<string> | undefined,
+    latticeLabeling: ConceptLatticeLabeling | null,
+    placement: "top" | "bottom",
+    lineSeparator: string = "\n",
+) {
+    const newLabels = new Array<ConceptLabel>();
+
+    if (!itemLabels || !latticeLabeling) {
+        return newLabels;
+    }
+
+    for (const [conceptIndex, labelIndexes] of latticeLabeling) {
+        if (labelIndexes.length === 0) {
+            continue;
+        }
+
+        const text = createLabelText(labelIndexes, itemLabels, lineSeparator);
+
+        newLabels.push({
+            id: `${idPrefix}-${conceptIndex}`,
+            text,
+            conceptIndex,
+            placement,
+        });
+    }
+
+    return newLabels;
+}
+
+export function createLabelsWithPositions(
+    idPrefix: string,
+    itemLabels: ReadonlyArray<string> | undefined,
+    latticeLabeling: ConceptLatticeLabeling | null,
     layout: ConceptLatticeLayout | null,
     conceptToLayoutIndexesMapping: Map<number, number>,
     cameraType: CameraType,
@@ -65,17 +96,18 @@ export function createLabels(
     placement: "top" | "bottom",
     lineSeparator: string = "\n",
 ) {
-    const newLabels = new Array<ConceptLabel>();
+    const labels = createLabels(idPrefix, itemLabels, latticeLabeling, placement, lineSeparator);
+    const newLabels = new Array<PositionedConceptLabel>();
     const zOffset = cameraType === "2d" ? 0.002 : 0;
 
-    if (!labels || !labeling || !layout || !diagramOffsets || conceptToLayoutIndexesMapping.size !== layout.length) {
-        return newLabels;
+    if (!layout || !diagramOffsets || conceptToLayoutIndexesMapping.size !== layout.length) {
+        return [];
     }
 
-    for (const [conceptIndex, labelIndexes] of labeling) {
-        const layoutIndex = conceptToLayoutIndexesMapping.get(conceptIndex);
+    for (const label of labels) {
+        const layoutIndex = conceptToLayoutIndexesMapping.get(label.conceptIndex);
 
-        if (labelIndexes.length === 0 || layoutIndex === undefined || layoutIndex >= layout.length) {
+        if (layoutIndex === undefined || layoutIndex >= layout.length) {
             continue;
         }
 
@@ -91,21 +123,16 @@ export function createLabels(
             cameraType,
             zOffset);
 
-        const text = createLabelText(labelIndexes, labels, lineSeparator);
-
         newLabels.push({
-            id: `${idPrefix}-${conceptIndex}`,
+            ...label,
             position,
-            text,
-            conceptIndex,
-            placement,
         });
     }
 
     return newLabels;
 }
 
-export function sortedLabelsByPosition(labels: Array<ConceptLabel>) {
+export function sortedLabelsByPosition(labels: Array<PositionedConceptLabel>) {
     labels = [...labels];
 
     labels.sort((a, b) => {

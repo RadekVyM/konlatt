@@ -1,53 +1,23 @@
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import useGlobalsStore from "../../../stores/useGlobalsStore";
-import useDataStructuresStore from "../../../stores/useDataStructuresStore";
 import { useEffect, useMemo } from "react";
-import { Point } from "../../../types/Point";
 import { themedColor } from "./utils";
-import { ConceptLatticeLabeling } from "../../../types/ConceptLatticeLabeling";
-import { ConceptLatticeLayout } from "../../../types/ConceptLatticeLayout";
-import { CameraType } from "../../../types/CameraType";
 import { Billboard, Html, Text } from "@react-three/drei";
 import { LABEL_COLOR_DARK, LABEL_COLOR_LIGHT } from "../../../constants/diagram";
 import { ConceptLabel } from "../../../types/ConceptLabel";
-import { createLabels } from "../../../utils/diagram";
 import { useThree } from "@react-three/fiber";
+import { createLabelsWithPositions } from "../../../utils/diagram";
+import { Point } from "../../../types/Point";
+import { ConceptLatticeLabeling } from "../../../types/ConceptLatticeLabeling";
+import { ConceptLatticeLayout } from "../../../types/ConceptLatticeLayout";
+import { CameraType } from "../../../types/CameraType";
+import useDataStructuresStore from "../../../stores/useDataStructuresStore";
 
 export default function Labels() {
     const invalidate = useThree((state) => state.invalidate);
-    const context = useDataStructuresStore((state) => state.context);
-    const attributesLabeling = useDiagramStore((state) => state.attributesLabeling);
-    const objectsLabeling = useDiagramStore((state) => state.objectsLabeling);
-    const layout = useDiagramStore((state) => state.layout);
-    const diagramOffsets = useDiagramStore((state) => state.diagramOffsets);
-    const cameraType = useDiagramStore((state) => state.cameraType);
-    const horizontalScale = useDiagramStore((state) => state.horizontalScale);
-    const verticalScale = useDiagramStore((state) => state.verticalScale);
-    const rotationDegrees = useDiagramStore((state) => state.rotationDegrees);
-    const lablesEnabled = useDiagramStore((state) => state.labelsEnabled);
+    const labelsEnabled = useDiagramStore((state) => state.labelsEnabled);
 
-    const attributeLabels = useLabels(
-        "atribute",
-        context?.attributes,
-        attributesLabeling,
-        layout,
-        cameraType,
-        horizontalScale,
-        verticalScale,
-        rotationDegrees,
-        diagramOffsets,
-        "top");
-    const objectLabels = useLabels(
-        "object",
-        context?.objects,
-        objectsLabeling,
-        layout,
-        cameraType,
-        horizontalScale,
-        verticalScale,
-        rotationDegrees,
-        diagramOffsets,
-        "bottom");
+    const { attributeLabels, objectLabels } = useLabels();
 
     useEffect(() => {
         invalidate();
@@ -55,7 +25,7 @@ export default function Labels() {
 
     return (
         <group
-            visible={lablesEnabled}>
+            visible={labelsEnabled}>
             {attributeLabels.map((label) => <Label {...label} key={label.id} />)}
             {objectLabels.map((label) => <Label {...label} key={label.id} />)}
         </group>
@@ -118,7 +88,47 @@ function LabelHtml(props: {
     );
 }
 
-function useLabels(
+function useLabels() {
+    const context = useDataStructuresStore((state) => state.context);
+    const attributesLabeling = useDiagramStore((state) => state.attributesLabeling);
+    const objectsLabeling = useDiagramStore((state) => state.objectsLabeling);
+    const layout = useDiagramStore((state) => state.layout);
+    const diagramOffsets = useDiagramStore((state) => state.diagramOffsets);
+    const cameraType = useDiagramStore((state) => state.cameraType);
+    const horizontalScale = useDiagramStore((state) => state.horizontalScale);
+    const verticalScale = useDiagramStore((state) => state.verticalScale);
+    const rotationDegrees = useDiagramStore((state) => state.rotationDegrees);
+
+    const attributeLabels = useLabelsInternal(
+        "attribute",
+        context?.attributes,
+        attributesLabeling,
+        layout,
+        cameraType,
+        horizontalScale,
+        verticalScale,
+        rotationDegrees,
+        diagramOffsets,
+        "top");
+    const objectLabels = useLabelsInternal(
+        "object",
+        context?.objects,
+        objectsLabeling,
+        layout,
+        cameraType,
+        horizontalScale,
+        verticalScale,
+        rotationDegrees,
+        diagramOffsets,
+        "bottom");
+
+    return {
+        attributeLabels,
+        objectLabels,
+    };
+}
+
+function useLabelsInternal(
     keyPrefix: string,
     labels: ReadonlyArray<string> | undefined,
     labeling: ConceptLatticeLabeling | null,
@@ -133,7 +143,7 @@ function useLabels(
     return useMemo(() => {
         const conceptToLayoutIndexesMapping = useDiagramStore.getState().conceptToLayoutIndexesMapping;
 
-        return createLabels(
+        return createLabelsWithPositions(
             keyPrefix,
             labels,
             labeling,

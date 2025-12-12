@@ -1,0 +1,1 @@
+export type TextBackgroundType = "none" | "outline" | "box"

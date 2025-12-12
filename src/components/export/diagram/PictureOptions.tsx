@@ -11,6 +11,7 @@ import ConfigSection from "../../layouts/ConfigSection";
 import DebouncedColorInput from "../../inputs/DebouncedColorInput";
 import DebouncedNumberInput from "../../inputs/DebouncedNumberInput";
 import DebouncedPrefixedNumberInput from "../../inputs/DebouncedPrefixedNumberInput";
+import { TextBackgroundType } from "../../../types/export/TextBackgroundType";
 
 const DEBOUNCE_DELAY = 300;
 
@@ -20,6 +21,8 @@ export default function PictureOptions() {
             <LayoutSection />
 
             <AppearanceSection />
+
+            <TextSection />
         </>);
 }
 
@@ -41,7 +44,7 @@ function AppearanceSection() {
             className="mx-4">
             <div>
                 <InputLabel>
-                    Background
+                    Background color
                 </InputLabel>
                 <DebouncedColorInput
                     delay={DEBOUNCE_DELAY}
@@ -66,18 +69,21 @@ function AppearanceSection() {
                     color={defaultLinkColor}
                     onChange={setDefaultLinkColor} />
             </div>
-            <DebouncedNumberInput
-                delay={DEBOUNCE_DELAY}
-                label="Node radius"
-                value={nodeRadius}
-                onChange={setNodeRadius}
-                min={1} />
-            <DebouncedNumberInput
-                delay={DEBOUNCE_DELAY}
-                label="Link thickness"
-                value={linkThickness}
-                onChange={setLinkThickness}
-                min={1} />
+            <div
+                className="grid grid-cols-2 gap-2">
+                <DebouncedNumberInput
+                    delay={DEBOUNCE_DELAY}
+                    label="Node radius"
+                    value={nodeRadius}
+                    onChange={setNodeRadius}
+                    min={1} />
+                <DebouncedNumberInput
+                    delay={DEBOUNCE_DELAY}
+                    label="Link thickness"
+                    value={linkThickness}
+                    onChange={setLinkThickness}
+                    min={1} />
+            </div>
         </ConfigSection>
     );
 }
@@ -220,5 +226,77 @@ function Padding() {
                     onChange={setMinPaddingBottom} />
             </div>
         </div>
+    );
+}
+
+function TextSection() {
+    const textSize = useExportDiagramStore((state) => state.textSize);
+    const textOffset = useExportDiagramStore((state) => state.textOffset);
+    const textColor = useExportDiagramStore((state) => state.textColor);
+    const textBackgroundColor = useExportDiagramStore((state) => state.textBackgroundColor);
+    const textOutlineColor = useExportDiagramStore((state) => state.textOutlineColor);
+    const textBackgroundType = useExportDiagramStore((state) => state.textBackgroundType);
+    const setTextSize = useExportDiagramStore((state) => state.setTextSize);
+    const setTextOffset = useExportDiagramStore((state) => state.setTextOffset);
+    const setTextColor = useExportDiagramStore((state) => state.setTextColor);
+    const setTextBackgroundColor = useExportDiagramStore((state) => state.setTextBackgroundColor);
+    const setTextOutlineColor = useExportDiagramStore((state) => state.setTextOutlineColor);
+    const setTextBackgroundType = useExportDiagramStore((state) => state.setTextBackgroundType);
+
+    return (
+        <ConfigSection
+            heading="Labels"
+            className="mx-4">
+            <div>
+                <InputLabel>Variant</InputLabel>
+                <ComboBox<TextBackgroundType>
+                    id="export-text-background-type"
+                    items={[
+                        { key: "none", label: "Default" },
+                        { key: "outline", label: "Outlined" },
+                        { key: "box", label: "Boxed" },
+                    ]}
+                    selectedKey={textBackgroundType}
+                    onKeySelectionChange={setTextBackgroundType} />
+            </div>
+
+            <div
+                className="grid grid-cols-2 gap-2">
+                <DebouncedNumberInput
+                    delay={DEBOUNCE_DELAY}
+                    label="Size"
+                    value={textSize}
+                    onChange={setTextSize} />
+                <DebouncedNumberInput
+                    delay={DEBOUNCE_DELAY}
+                    label="Offset"
+                    value={textOffset}
+                    onChange={setTextOffset} />
+            </div>
+
+            <div>
+                <InputLabel>Color</InputLabel>
+                <DebouncedColorInput
+                    delay={DEBOUNCE_DELAY}
+                    color={textColor}
+                    onChange={setTextColor} />
+            </div>
+            {textBackgroundType !== "none" &&
+                <div>
+                    <InputLabel>{textBackgroundType === "outline" ? "Outline color" : "Background color"}</InputLabel>
+                    <DebouncedColorInput
+                        delay={DEBOUNCE_DELAY}
+                        color={textBackgroundColor}
+                        onChange={setTextBackgroundColor} />
+                </div>}
+            {textBackgroundType === "box" &&
+                <div>
+                    <InputLabel>Outline color</InputLabel>
+                    <DebouncedColorInput
+                        delay={DEBOUNCE_DELAY}
+                        color={textOutlineColor}
+                        onChange={setTextOutlineColor} />
+                </div>}
+        </ConfigSection>
     );
 }

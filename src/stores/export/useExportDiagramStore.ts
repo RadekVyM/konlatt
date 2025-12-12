@@ -11,7 +11,8 @@ import { convertToSvg } from "../../services/export/diagram/svg";
 import { sumLengths } from "../../utils/array";
 import useDataStructuresStore from "../useDataStructuresStore";
 import { layoutRect } from "../../utils/layout";
-import { createLabels, getLinks, sortedLabelsByPosition } from "../../utils/diagram";
+import { createLabelsWithPositions, getLinks, sortedLabelsByPosition } from "../../utils/diagram";
+import { TextBackgroundType } from "../../types/export/TextBackgroundType";
 
 type ExportDiagramStoreState = {
     maxWidth: number,
@@ -27,6 +28,12 @@ type ExportDiagramStoreState = {
     defaultLinkColor: HsvaColor,
     nodeRadius: number,
     linkThickness: number,
+    textSize: number,
+    textOffset: number,
+    textColor: HsvaColor,
+    textBackgroundColor: HsvaColor,
+    textOutlineColor: HsvaColor,
+    textBackgroundType: TextBackgroundType,
 }
 
 type ExportDiagramStoreActions = {
@@ -43,6 +50,12 @@ type ExportDiagramStoreActions = {
     setNodeRadius: (nodeRadius: number) => void,
     setLinkThickness: (linkThickness: number) => void,
     setDimensions: (largerSize: number, smallerSize: number) => void,
+    setTextSize: (textSize: number) => void,
+    setTextOffset: (textOffset: number) => void,
+    setTextColor: (textColor: HsvaColor) => void,
+    setTextBackgroundColor: (textBackgroundColor: HsvaColor) => void,
+    setTextOutlineColor: (textOutlineColor: HsvaColor) => void,
+    setTextBackgroundType: (textBackgroundType: TextBackgroundType) => void,
     reset: () => void,
 }
 
@@ -62,6 +75,12 @@ const initialState: ExportDiagramStoreState = {
     backgroundColor: createHsvaColor(0, 0, 1, 0),
     defaultNodeColor: createHsvaColor(0, 0, 0, 1),
     defaultLinkColor: createHsvaColor(0, 0, 0.5, 1),
+    textSize: 12,
+    textOffset: 5,
+    textColor: createHsvaColor(0, 0, 0, 1),
+    textBackgroundColor: createHsvaColor(0, 0, 1, 1),
+    textOutlineColor: createHsvaColor(0, 0, 0.8, 1),
+    textBackgroundType: "none",
 };
 
 const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
@@ -131,6 +150,12 @@ const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
     setDefaultLinkColor: (defaultLinkColor) => set({ defaultLinkColor }),
     setNodeRadius: (nodeRadius) => set({ nodeRadius }),
     setLinkThickness: (linkThickness) => set({ linkThickness }),
+    setTextSize: (textSize: number) => set({ textSize }),
+    setTextOffset: (textOffset: number) => set({ textOffset }),
+    setTextColor: (textColor: HsvaColor) => set({ textColor }),
+    setTextBackgroundColor: (textBackgroundColor: HsvaColor) => set({ textBackgroundColor }),
+    setTextOutlineColor: (textOutlineColor: HsvaColor) => set({ textOutlineColor }),
+    setTextBackgroundType: (textBackgroundType: TextBackgroundType) => set({ textBackgroundType }),
     ...createTextResultStoreBaseSlice<DiagramExportFormat, ExportDiagramStore>(
         "png",
         { ...initialState },
@@ -162,7 +187,7 @@ function withResult(newState: Partial<ExportDiagramStore>, oldState: ExportDiagr
         diagramStore.filteredConceptIndexes,
         diagramStore.displayHighlightedSublatticeOnly);
 
-    const attributeLabels = sortedLabelsByPosition(createLabels(
+    const attributeLabels = sortedLabelsByPosition(createLabelsWithPositions(
         "attribute",
         dataStructuresStore.context?.attributes,
         diagramStore.attributesLabeling,
@@ -174,7 +199,7 @@ function withResult(newState: Partial<ExportDiagramStore>, oldState: ExportDiagr
         diagramStore.rotationDegrees,
         diagramStore.diagramOffsets,
         "top"));
-    const objectLabels = sortedLabelsByPosition(createLabels(
+    const objectLabels = sortedLabelsByPosition(createLabelsWithPositions(
         "object",
         dataStructuresStore.context?.objects,
         diagramStore.objectsLabeling,

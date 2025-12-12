@@ -12,6 +12,9 @@ import { hsvaToHexa } from "../../../utils/colors";
 import useDebouncedValue from "../../../hooks/useDebouncedValue";
 import { transformedLayoutForExport } from "../../../utils/export";
 import { layoutRect } from "../../../utils/layout";
+import { createLabels } from "../../../utils/diagram";
+import useDataStructuresStore from "../../../stores/useDataStructuresStore";
+import { ConceptLabel } from "../../../types/ConceptLabel";
 
 type CanvasDimensions = {
     width: number,
@@ -126,11 +129,13 @@ function useDrawing(
     const drawBackground = useDrawBackground();
     const drawNodes = useDrawNodes(layout, canvasDimensions?.scale || 0);
     const drawLinks = useDrawLinks(layout, canvasDimensions?.scale || 0);
+    const drawLabels = useDrawLabels(layout, canvasDimensions?.scale || 0);
 
     // This is a quite hacky solution and may cause bugs
     const drawBackgroundDebounced = useDebouncedValue<DrawFunc | undefined>(drawBackground, DEBOUNCE_DELAY);
     const drawNodesDebounced = useDebouncedValue<DrawFunc | undefined>(drawNodes, DEBOUNCE_DELAY);
     const drawLinksDebounced = useDebouncedValue<DrawFunc | undefined>(drawLinks, DEBOUNCE_DELAY);
+    const drawLabelsDebounced = useDebouncedValue<DrawFunc | undefined>(drawLabels, DEBOUNCE_DELAY);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -142,7 +147,8 @@ function useDrawing(
             !debouncedCanvasDimensions ||
             !drawBackgroundDebounced ||
             !drawNodesDebounced ||
-            !drawLinksDebounced
+            !drawLinksDebounced ||
+            !drawLabelsDebounced
         ) {
             return;
         }
@@ -155,11 +161,13 @@ function useDrawing(
         context.translate(debouncedCanvasDimensions.centerX, debouncedCanvasDimensions.centerY);
         drawLinksDebounced(context);
         drawNodesDebounced(context);
+        drawLabelsDebounced(context);
         context.restore();
     }, [
         drawBackgroundDebounced,
         drawNodesDebounced,
         drawLinksDebounced,
+        drawLabelsDebounced,
         debouncedCanvasDimensions?.centerX,
         debouncedCanvasDimensions?.centerY,
         debouncedCanvasDimensions?.width,
@@ -310,4 +318,80 @@ function useDrawLinks(
 
         context.restore();
     }, [links, linkThickness, defaultLinkColor, scale]);
+}
+
+function useDrawLabels(
+    layout: Array<Point> | null,
+    scale: number,
+) {
+    const { attributeLabels, objectLabels } = useLabels();
+    const nodeRadius = useExportDiagramStore((state) => state.nodeRadius);
+    const textSize = useExportDiagramStore((state) => state.textSize);
+    const textOffset = useExportDiagramStore((state) => state.textOffset);
+
+    return useCallback((context: CanvasRenderingContext2D) => {
+        if (!layout) {
+            return;
+        }
+
+        drawLabels(context, layout, scale, attributeLabels, nodeRadius, textSize, textOffset);
+        drawLabels(context, layout, scale, objectLabels, nodeRadius, textSize, textOffset);
+    }, [layout, scale, attributeLabels, objectLabels, nodeRadius, textSize, textOffset]);
+}
+
+function drawLabels(
+    context: CanvasRenderingContext2D,
+    layout: Array<Point>,
+    scale: number,
+    labels: Array<ConceptLabel>,
+    nodeRadius: number,
+    textSize: number,
+    textOffset: number,
+) {
+    const conceptToLayoutIndexesMapping = useDiagramStore.getState().conceptToLayoutIndexesMapping;
+
+    context.font = `${textSize}px`;
+    context.textAlign = "center";
+
+    for (const label of labels) {
+        const layoutIndex = conceptToLayoutIndexesMapping.get(label.conceptIndex);
+
+        if (layoutIndex === undefined || layoutIndex >= layout.length) {
+            console.error(`Layout indexe should not be ${layoutIndex}`);
+            continue;
+        }
+
+        const point = layout[label.conceptIndex];
+        const x = point[0] * scale;
+        const y = -point[1] * scale;
+        const yOffset = (nodeRadius + textOffset) *  (label.placement === "bottom" ? 1 : -1);
+
+        context.textBaseline = label.placement === "bottom" ? "hanging" : "bottom";
+        context.fillText(label.text, x, y + yOffset);
+    }
+}
+
+function useLabels() {
+    const context = useDataStructuresStore((state) => state.context);
+    const attributesLabeling = useDiagramStore((state) => state.attributesLabeling);
+    const objectsLabeling = useDiagramStore((state) => state.objectsLabeling);
+
+    return useMemo(() => {
+        const attributeLabels = createLabels(
+            "atribute",
+            context?.attributes,
+            attributesLabeling,
+            "top");
+
+        const objectLabels = createLabels(
+            "object",
+            context?.objects,
+            objectsLabeling,
+            "bottom");
+
+        return {
+            attributeLabels,
+            objectLabels,
+        };
+    }, [context?.attributes, context?.objects, attributesLabeling, objectsLabeling]);
 }
