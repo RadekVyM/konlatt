@@ -38,18 +38,18 @@ export function rotatePoint(point: Point, rotationDegrees: number) {
 export function layoutRect(layout: Array<Point>) {
     let left = Number.MAX_SAFE_INTEGER;
     let right = Number.MIN_SAFE_INTEGER;
-    let top = Number.MAX_SAFE_INTEGER;
-    let bottom = Number.MIN_SAFE_INTEGER;
+    let top = Number.MIN_SAFE_INTEGER;
+    let bottom = Number.MAX_SAFE_INTEGER;
 
     for (const point of layout) {
         left = Math.min(left, point[0]);
         right = Math.max(right, point[0]);
-        top = Math.min(top, point[1]);
-        bottom = Math.max(bottom, point[1]);
+        top = Math.max(top, point[1]);
+        bottom = Math.min(bottom, point[1]);
     }
 
     const width = right - left;
-    const height = bottom - top;
+    const height = top - bottom;
 
     return {
         left,

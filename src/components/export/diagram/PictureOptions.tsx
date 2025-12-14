@@ -12,6 +12,7 @@ import DebouncedColorInput from "../../inputs/DebouncedColorInput";
 import DebouncedNumberInput from "../../inputs/DebouncedNumberInput";
 import DebouncedPrefixedNumberInput from "../../inputs/DebouncedPrefixedNumberInput";
 import { TextBackgroundType } from "../../../types/export/TextBackgroundType";
+import { Font } from "../../../types/export/Font";
 
 const DEBOUNCE_DELAY = 300;
 
@@ -157,12 +158,14 @@ function MaxDimensions() {
                     delay={DEBOUNCE_DELAY}
                     className="col-1 row-1"
                     prefix="W"
+                    min={0}
                     value={maxWidth}
                     onChange={setMaxWidth} />
                 <DebouncedPrefixedNumberInput
                     delay={DEBOUNCE_DELAY}
                     className="col-2 row-1"
                     prefix="H"
+                    min={0}
                     value={maxHeight}
                     onChange={setMaxHeight} />
                 <Button
@@ -204,24 +207,28 @@ function Padding() {
                     delay={DEBOUNCE_DELAY}
                     className="col-1 row-1"
                     prefix="L"
+                    min={0}
                     value={minPaddingLeft}
                     onChange={setMinPaddingLeft} />
                 <DebouncedPrefixedNumberInput
                     delay={DEBOUNCE_DELAY}
                     className="col-2 row-1"
                     prefix="R"
+                    min={0}
                     value={minPaddingRight}
                     onChange={setMinPaddingRight} />
                 <DebouncedPrefixedNumberInput
                     delay={DEBOUNCE_DELAY}
                     className="col-1 row-2"
                     prefix="T"
+                    min={0}
                     value={minPaddingTop}
                     onChange={setMinPaddingTop} />
                 <DebouncedPrefixedNumberInput
                     delay={DEBOUNCE_DELAY}
                     className="col-2 row-2"
                     prefix="B"
+                    min={0}
                     value={minPaddingBottom}
                     onChange={setMinPaddingBottom} />
             </div>
@@ -230,18 +237,24 @@ function Padding() {
 }
 
 function TextSection() {
+    const font = useExportDiagramStore((state) => state.font);
     const textSize = useExportDiagramStore((state) => state.textSize);
     const textOffset = useExportDiagramStore((state) => state.textOffset);
     const textColor = useExportDiagramStore((state) => state.textColor);
     const textBackgroundColor = useExportDiagramStore((state) => state.textBackgroundColor);
     const textOutlineColor = useExportDiagramStore((state) => state.textOutlineColor);
     const textBackgroundType = useExportDiagramStore((state) => state.textBackgroundType);
+    const maxLabelLineLength = useExportDiagramStore((state) => state.maxLabelLineLength);
+    const maxLabelLineCount = useExportDiagramStore((state) => state.maxLabelLineCount);
+    const setFont = useExportDiagramStore((state) => state.setFont);
     const setTextSize = useExportDiagramStore((state) => state.setTextSize);
     const setTextOffset = useExportDiagramStore((state) => state.setTextOffset);
     const setTextColor = useExportDiagramStore((state) => state.setTextColor);
     const setTextBackgroundColor = useExportDiagramStore((state) => state.setTextBackgroundColor);
     const setTextOutlineColor = useExportDiagramStore((state) => state.setTextOutlineColor);
     const setTextBackgroundType = useExportDiagramStore((state) => state.setTextBackgroundType);
+    const setMaxLabelLineLength = useExportDiagramStore((state) => state.setMaxLabelLineLength);
+    const setMaxLabelLineCount = useExportDiagramStore((state) => state.setMaxLabelLineCount);
 
     return (
         <ConfigSection
@@ -260,16 +273,49 @@ function TextSection() {
                     onKeySelectionChange={setTextBackgroundType} />
             </div>
 
+            <div>
+                <InputLabel>Font</InputLabel>
+                <ComboBox<Font>
+                    id="export-text-font"
+                    items={[
+                        { key: "sans-serif", label: "Sans Serif" },
+                        { key: "serif", label: "Serif" },
+                        { key: "monospace", label: "Monospace" },
+                        { key: "cursive", label: "Cursive" },
+                        { key: "fantasy", label: "Fantasy" },
+                    ]}
+                    selectedKey={font}
+                    onKeySelectionChange={setFont} />
+            </div>
+
             <div
                 className="grid grid-cols-2 gap-2">
                 <DebouncedNumberInput
                     delay={DEBOUNCE_DELAY}
-                    label="Size"
+                    label="Maximum line length"
+                    min={1}
+                    value={maxLabelLineLength}
+                    onChange={setMaxLabelLineLength} />
+                <DebouncedNumberInput
+                    delay={DEBOUNCE_DELAY}
+                    label="Maximum lines count"
+                    min={1}
+                    value={maxLabelLineCount}
+                    onChange={setMaxLabelLineCount} />
+            </div>
+
+            <div
+                className="grid grid-cols-2 gap-2">
+                <DebouncedNumberInput
+                    delay={DEBOUNCE_DELAY}
+                    label="Font size"
+                    min={1}
                     value={textSize}
                     onChange={setTextSize} />
                 <DebouncedNumberInput
                     delay={DEBOUNCE_DELAY}
                     label="Offset"
+                    min={0}
                     value={textOffset}
                     onChange={setTextOffset} />
             </div>

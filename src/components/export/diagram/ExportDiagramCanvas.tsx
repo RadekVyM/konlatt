@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { cn } from "../../../utils/tailwind";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import { Point } from "../../../types/Point";
@@ -11,18 +11,12 @@ import useExportDiagramStore from "../../../stores/export/useExportDiagramStore"
 import { hsvaToHexa } from "../../../utils/colors";
 import useDebouncedValue from "../../../hooks/useDebouncedValue";
 import { transformedLayoutForExport } from "../../../utils/export";
-import { layoutRect } from "../../../utils/layout";
-import { createLabels } from "../../../utils/diagram";
-import useDataStructuresStore from "../../../stores/useDataStructuresStore";
-import { ConceptLabel } from "../../../types/ConceptLabel";
-
-type CanvasDimensions = {
-    width: number,
-    height: number,
-    centerX: number,
-    centerY: number,
-    scale: number,
-}
+import useLabelGroups, { LabelGroup } from "./useLabelGroups";
+import useCanvasDimensions, { CanvasDimensions } from "./useCanvasDimensions";
+import { outlineWidth } from "./utils";
+import { TextBackgroundType } from "../../../types/export/TextBackgroundType";
+import { HsvaColor } from "../../../types/HsvaColor";
+import { Font } from "../../../types/export/Font";
 
 const DEBOUNCE_DELAY = 200;
 
@@ -40,24 +34,25 @@ export default function ExportDiagramCanvas(props: {
     className?: string,
 }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const labelGroups = useLabelGroups();
     const transformedLayout = useTransformedLayout();
-    const canvasDimensions = useCanvasDimensions(transformedLayout);
+    const canvasDimensions = useCanvasDimensions(transformedLayout, labelGroups);
     const debouncedCanvasDimensions = useDebouncedValue(canvasDimensions, DEBOUNCE_DELAY);
 
-    useDrawing(canvasRef, canvasDimensions, debouncedCanvasDimensions, transformedLayout);
+    useDrawing(canvasRef, canvasDimensions, debouncedCanvasDimensions, transformedLayout, labelGroups);
 
     return (
         <TransformWrapper
             centerOnInit
             disablePadding
-            minScale={0.1}>
+            minScale={0.05}>
             <TransformComponent
                 wrapperClass={cn("export-diagram-canvas-wrapper checkered", props.className)}
                 wrapperStyle={{
                     width: "100%",
                     height: "100%",
                 }}
-                contentClass="drop-shadow-xl">
+                contentClass="border border-dashed border-outline border-2">
                 <canvas
                     ref={canvasRef}
                     id={props.id}
@@ -125,11 +120,12 @@ function useDrawing(
     canvasDimensions: CanvasDimensions | null,
     debouncedCanvasDimensions: CanvasDimensions | null,
     layout: Array<Point> | null,
+    labelGroups: Array<LabelGroup>,
 ) {
     const drawBackground = useDrawBackground();
     const drawNodes = useDrawNodes(layout, canvasDimensions?.scale || 0);
     const drawLinks = useDrawLinks(layout, canvasDimensions?.scale || 0);
-    const drawLabels = useDrawLabels(layout, canvasDimensions?.scale || 0);
+    const drawLabels = useDrawLabels(layout, canvasDimensions?.scale || 0, labelGroups);
 
     // This is a quite hacky solution and may cause bugs
     const drawBackgroundDebounced = useDebouncedValue<DrawFunc | undefined>(drawBackground, DEBOUNCE_DELAY);
@@ -183,65 +179,6 @@ function useTransformedLayout() {
     const rotationDegrees = useDiagramStore((state) => state.rotationDegrees);
 
     return transformedLayoutForExport(layout, diagramOffsets, horizontalScale, verticalScale, rotationDegrees);
-}
-
-function useCanvasDimensions(layout: Array<Point> | null) : CanvasDimensions | null {
-    const nodeRadius = useExportDiagramStore((state) => state.nodeRadius);
-    const maxWidth = useExportDiagramStore((state) => state.maxWidth);
-    const maxHeight = useExportDiagramStore((state) => state.maxHeight);
-    const minPaddingLeft = useExportDiagramStore((state) => state.minPaddingLeft);
-    const minPaddingRight = useExportDiagramStore((state) => state.minPaddingRight);
-    const minPaddingTop = useExportDiagramStore((state) => state.minPaddingTop);
-    const minPaddingBottom = useExportDiagramStore((state) => state.minPaddingBottom);
-
-    return useMemo(() => {
-        if (!layout) {
-            return null;
-        }
-
-        const rect = layoutRect(layout);
-
-        const diagramWidth = rect.width;
-        const diagramHeight = rect.height;
-
-        const nodeDiameter = 2 * nodeRadius;
-        const horizontalPadding = minPaddingLeft + minPaddingRight + nodeDiameter;
-        const verticalPadding = minPaddingTop + minPaddingBottom + nodeDiameter;
-        const maxDiagramWidth = Math.max(maxWidth - horizontalPadding, 0);
-        const maxDiagramHeight = Math.max(maxHeight - verticalPadding, 0);
-
-        const maxRatio = maxDiagramHeight === 0 ? Number.MAX_VALUE : maxDiagramWidth / maxDiagramHeight;
-        const diagramRatio = diagramHeight === 0 ? Number.MAX_VALUE : diagramWidth / diagramHeight;
-
-        const isZeroSizeDiagram = diagramWidth === 0 && diagramHeight === 0;
-        const width = isZeroSizeDiagram ?
-            0 :
-            Math.ceil(diagramRatio > maxRatio ? maxDiagramWidth : diagramRatio * maxDiagramHeight);
-        const height = isZeroSizeDiagram ?
-            0 :
-            Math.ceil(diagramRatio > maxRatio ? maxDiagramWidth / diagramRatio : maxDiagramHeight);
-
-        const scale = isZeroSizeDiagram ?
-            1 :
-            diagramWidth === 0 ?
-                height / diagramHeight :
-                diagramHeight === 0 ?
-                    width / diagramWidth : 
-                    Math.min(width / diagramWidth, height / diagramHeight);
-        const centerX = -rect.left * scale + nodeRadius + minPaddingLeft;
-        const centerY = -rect.top * scale + nodeRadius + minPaddingBottom;
-
-        const finalWidth = Math.min(width + horizontalPadding, maxWidth);
-        const finalHeight = Math.min(height + verticalPadding, maxHeight);
-
-        return {
-            width: finalWidth,
-            height: finalHeight,
-            centerX,
-            centerY: finalHeight - centerY,
-            scale,
-        };
-    }, [layout, nodeRadius, maxWidth, maxHeight, minPaddingLeft, minPaddingRight, minPaddingTop, minPaddingBottom]);
 }
 
 function useDrawBackground() {
@@ -323,75 +260,93 @@ function useDrawLinks(
 function useDrawLabels(
     layout: Array<Point> | null,
     scale: number,
+    labelGroups: Array<LabelGroup>,
 ) {
-    const { attributeLabels, objectLabels } = useLabels();
-    const nodeRadius = useExportDiagramStore((state) => state.nodeRadius);
+    const font = useExportDiagramStore((state) => state.font);
     const textSize = useExportDiagramStore((state) => state.textSize);
-    const textOffset = useExportDiagramStore((state) => state.textOffset);
+    const textColor = useExportDiagramStore((state) => state.textColor);
+    const textBackgroundColor = useExportDiagramStore((state) => state.textBackgroundColor);
+    const textOutlineColor = useExportDiagramStore((state) => state.textOutlineColor);
+    const textBackgroundType = useExportDiagramStore((state) => state.textBackgroundType);
 
     return useCallback((context: CanvasRenderingContext2D) => {
         if (!layout) {
             return;
         }
 
-        drawLabels(context, layout, scale, attributeLabels, nodeRadius, textSize, textOffset);
-        drawLabels(context, layout, scale, objectLabels, nodeRadius, textSize, textOffset);
-    }, [layout, scale, attributeLabels, objectLabels, nodeRadius, textSize, textOffset]);
+        drawLabels(context, layout, scale, labelGroups, font, textBackgroundType, textSize, textColor, textBackgroundColor, textOutlineColor);
+        drawLabels(context, layout, scale, labelGroups, font, textBackgroundType, textSize, textColor, textBackgroundColor, textOutlineColor);
+    }, [layout, scale, labelGroups, font, textSize, textColor, textBackgroundColor, textOutlineColor, textBackgroundType]);
 }
 
 function drawLabels(
     context: CanvasRenderingContext2D,
     layout: Array<Point>,
     scale: number,
-    labels: Array<ConceptLabel>,
-    nodeRadius: number,
+    labelGroups: Array<LabelGroup>,
+    font: Font,
+    textBackgroundType: TextBackgroundType,
     textSize: number,
-    textOffset: number,
+    textColor: HsvaColor,
+    textBackgroundColor: HsvaColor,
+    textOutlineColor: HsvaColor,
 ) {
     const conceptToLayoutIndexesMapping = useDiagramStore.getState().conceptToLayoutIndexesMapping;
+    const textColorHexa = hsvaToHexa(textColor);
+    const textBackgroundColorHexa = hsvaToHexa(textBackgroundColor);
+    const textOutlineColorHexa = hsvaToHexa(textOutlineColor);
+    const textOutlineWidth = outlineWidth(textSize);
 
-    context.font = `${textSize}px`;
-    context.textAlign = "center";
+    context.lineCap = "round";
+    context.lineJoin = "round";
+    context.textBaseline = "hanging";
 
-    for (const label of labels) {
-        const layoutIndex = conceptToLayoutIndexesMapping.get(label.conceptIndex);
+    context.font = `${textSize}px ${font}`;
+
+    for (const group of labelGroups) {
+        const layoutIndex = conceptToLayoutIndexesMapping.get(group.conceptIndex);
 
         if (layoutIndex === undefined || layoutIndex >= layout.length) {
-            console.error(`Layout indexe should not be ${layoutIndex}`);
+            console.error(`Layout index should not be ${layoutIndex}`);
             continue;
         }
 
-        const point = layout[label.conceptIndex];
-        const x = point[0] * scale;
-        const y = -point[1] * scale;
-        const yOffset = (nodeRadius + textOffset) *  (label.placement === "bottom" ? 1 : -1);
+        const point = layout[layoutIndex];
+        const nodeX = point[0] * scale;
+        const nodeY = -point[1] * scale;
 
-        context.textBaseline = label.placement === "bottom" ? "hanging" : "bottom";
-        context.fillText(label.text, x, y + yOffset);
+        if (textBackgroundType === "box") {
+            context.fillStyle = textBackgroundColorHexa;
+            context.strokeStyle = textOutlineColorHexa;
+            context.lineWidth = 1;
+
+            const outlineMargin = context.lineWidth / 2;
+            const outlineMarginDoubled = outlineMargin * 2;
+
+            const x = nodeX + group.relativeRect.x + outlineMargin;
+            const y = nodeY + group.relativeRect.y + outlineMargin;
+            const width = group.relativeRect.width - outlineMarginDoubled;
+            const height = group.relativeRect.height - outlineMarginDoubled;
+
+            context.beginPath();
+            context.roundRect(x, y, width, height, textSize / 4);
+            context.fill();
+            context.stroke();
+        }
+
+        context.fillStyle = textColorHexa;
+
+        for (const label of group.labels) {
+            const x = nodeX + group.relativeRect.x + label.relativeRect.x;
+            const y = nodeY + group.relativeRect.y + label.relativeRect.y;
+
+            if (textBackgroundType === "outline") {
+                context.strokeStyle = textBackgroundColorHexa;
+                context.lineWidth = textOutlineWidth;
+
+                context.strokeText(label.text, x, y);
+            }
+            context.fillText(label.text, x, y);
+        }
     }
-}
-
-function useLabels() {
-    const context = useDataStructuresStore((state) => state.context);
-    const attributesLabeling = useDiagramStore((state) => state.attributesLabeling);
-    const objectsLabeling = useDiagramStore((state) => state.objectsLabeling);
-
-    return useMemo(() => {
-        const attributeLabels = createLabels(
-            "atribute",
-            context?.attributes,
-            attributesLabeling,
-            "top");
-
-        const objectLabels = createLabels(
-            "object",
-            context?.objects,
-            objectsLabeling,
-            "bottom");
-
-        return {
-            attributeLabels,
-            objectLabels,
-        };
-    }, [context?.attributes, context?.objects, attributesLabeling, objectsLabeling]);
 }

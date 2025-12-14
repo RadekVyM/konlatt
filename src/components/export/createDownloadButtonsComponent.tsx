@@ -1,17 +1,17 @@
 import { LuCheck, LuCopy } from "react-icons/lu";
 import { TextResultStoreType } from "../../stores/export/types/TextResultStoreType";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import CheckBox from "../inputs/CheckBox";
 import DownloadButtons from "./DownloadButtons";
+import { downloadBlob } from "../../utils/export";
+import useCopySuccessful from "../../hooks/useCopySuccesful";
 
 const COPY_ENABLED_THRESHOLD = 15_000_000;
-const COPY_SUCCESSFUL_TIMEOUT_LENGTH = 1500;
 
 export default function createDownloadButtonsComponent(useTextResultStore: TextResultStoreType, fileName: string, joinCharacter: "" | "\n" = "") {
     const component = () => {
-        const copySuccessfulTimeoutRef = useRef<number>(null);
         const [includeFormatting, setIncludeFormatting] = useState<boolean>(false);
-        const [copySuccessful, setCopySuccessful] = useState<boolean>(false);
+        const [copySuccessful, setCopySuccessful] = useCopySuccessful();
         const result = useTextResultStore((state) => state.result);
         const disabledComputation = useTextResultStore((state) => state.disabledComputation);
         const charactersCount = useTextResultStore((state) => state.charactersCount);
@@ -25,16 +25,10 @@ export default function createDownloadButtonsComponent(useTextResultStore: TextR
 
             try {
                 setCopySuccessful(false);
-                if (copySuccessfulTimeoutRef.current !== null) {
-                    clearTimeout(copySuccessfulTimeoutRef.current);
-                }
 
                 await navigator.clipboard.writeText(createFinalString(result, joinCharacter, includeFormatting));
 
                 setCopySuccessful(true);
-                copySuccessfulTimeoutRef.current = setTimeout(() => {
-                    setCopySuccessful(false);
-                }, COPY_SUCCESSFUL_TIMEOUT_LENGTH);
             } catch (err) {
                 console.error("Failed to copy text: ", err);
             }
@@ -46,16 +40,7 @@ export default function createDownloadButtonsComponent(useTextResultStore: TextR
             }
 
             const blob = new Blob([createFinalString(result, joinCharacter, includeFormatting)], { type: "text/plain" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-
-            document.body.appendChild(a);
-            a.click();
-
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            downloadBlob(blob, fileName);
         }
 
         return (

@@ -13,6 +13,7 @@ import useDataStructuresStore from "../useDataStructuresStore";
 import { layoutRect } from "../../utils/layout";
 import { createLabelsWithPositions, getLinks, sortedLabelsByPosition } from "../../utils/diagram";
 import { TextBackgroundType } from "../../types/export/TextBackgroundType";
+import { Font } from "../../types/export/Font";
 
 type ExportDiagramStoreState = {
     maxWidth: number,
@@ -28,6 +29,9 @@ type ExportDiagramStoreState = {
     defaultLinkColor: HsvaColor,
     nodeRadius: number,
     linkThickness: number,
+    maxLabelLineLength: number,
+    maxLabelLineCount: number,
+    font: Font,
     textSize: number,
     textOffset: number,
     textColor: HsvaColor,
@@ -50,6 +54,9 @@ type ExportDiagramStoreActions = {
     setNodeRadius: (nodeRadius: number) => void,
     setLinkThickness: (linkThickness: number) => void,
     setDimensions: (largerSize: number, smallerSize: number) => void,
+    setMaxLabelLineLength: (maxLabelLineLength: number) => void,
+    setMaxLabelLineCount: (maxLabelLineCount: number) => void,
+    setFont: (font: Font) => void,
     setTextSize: (textSize: number) => void,
     setTextOffset: (textOffset: number) => void,
     setTextColor: (textColor: HsvaColor) => void,
@@ -75,6 +82,9 @@ const initialState: ExportDiagramStoreState = {
     backgroundColor: createHsvaColor(0, 0, 1, 0),
     defaultNodeColor: createHsvaColor(0, 0, 0, 1),
     defaultLinkColor: createHsvaColor(0, 0, 0.5, 1),
+    maxLabelLineLength: 25,
+    maxLabelLineCount: 3,
+    font: "sans-serif",
     textSize: 12,
     textOffset: 5,
     textColor: createHsvaColor(0, 0, 0, 1),
@@ -87,6 +97,8 @@ const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
     ...initialState,
     ...createSelectedFormatSlice<DiagramExportFormat, ExportDiagramStore>("svg", set),
     setMaxWidth: (maxWidth) => set((old) => {
+        maxWidth = Math.max(maxWidth, 0);
+
         if (!old.lockedAspectRatio || old.maxWidth === 0) {
             return withValidDimensions({ maxWidth }, old);
         }
@@ -99,6 +111,8 @@ const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
         }, old);
     }),
     setMaxHeight: (maxHeight) => set((old) => {
+        maxHeight = Math.max(maxHeight, 0);
+
         if (!old.lockedAspectRatio || old.maxHeight === 0) {
             return withValidDimensions({ maxHeight }, old);
         }
@@ -111,6 +125,9 @@ const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
         }, old);
     }),
     setDimensions: (largerSize, smallerSize) => set(() => {
+        largerSize = Math.max(largerSize, 0);
+        smallerSize = Math.max(smallerSize, 0);
+
         const diagramStore = useDiagramStore.getState();
 
         const transformedLayout = transformedLayoutForExport(
@@ -131,10 +148,10 @@ const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
             maxHeight: width > height ? smallerSize : largerSize,
         };
     }),
-    setMinPaddingLeft: (minPaddingLeft: number) => set({ minPaddingLeft }),
-    setMinPaddingRight: (minPaddingRight: number) => set({ minPaddingRight }),
-    setMinPaddingTop: (minPaddingTop: number) => set({ minPaddingTop }),
-    setMinPaddingBottom: (minPaddingBottom: number) => set({ minPaddingBottom }),
+    setMinPaddingLeft: (minPaddingLeft) => set({ minPaddingLeft: Math.max(minPaddingLeft, 0) }),
+    setMinPaddingRight: (minPaddingRight) => set({ minPaddingRight: Math.max(minPaddingRight, 0) }),
+    setMinPaddingTop: (minPaddingTop) => set({ minPaddingTop: Math.max(minPaddingTop, 0) }),
+    setMinPaddingBottom: (minPaddingBottom) => set({ minPaddingBottom: Math.max(minPaddingBottom, 0) }),
     setMaxDimensionsLockedAspecRatio: (maxDimensionsLockedAspecRatio) => set((old) => {
         const value = (typeof maxDimensionsLockedAspecRatio === "function" ?
             maxDimensionsLockedAspecRatio(old.maxDimensionsLockedAspecRatio) :
@@ -150,12 +167,15 @@ const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
     setDefaultLinkColor: (defaultLinkColor) => set({ defaultLinkColor }),
     setNodeRadius: (nodeRadius) => set({ nodeRadius }),
     setLinkThickness: (linkThickness) => set({ linkThickness }),
-    setTextSize: (textSize: number) => set({ textSize }),
-    setTextOffset: (textOffset: number) => set({ textOffset }),
-    setTextColor: (textColor: HsvaColor) => set({ textColor }),
-    setTextBackgroundColor: (textBackgroundColor: HsvaColor) => set({ textBackgroundColor }),
-    setTextOutlineColor: (textOutlineColor: HsvaColor) => set({ textOutlineColor }),
-    setTextBackgroundType: (textBackgroundType: TextBackgroundType) => set({ textBackgroundType }),
+    setMaxLabelLineLength: (maxLabelLineLength) => set({ maxLabelLineLength: Math.max(maxLabelLineLength, 1) }),
+    setMaxLabelLineCount: (maxLabelLineCount) => set({ maxLabelLineCount: Math.max(maxLabelLineCount, 1) }),
+    setFont: (font) => set({ font }),
+    setTextSize: (textSize) => set({ textSize: Math.max(textSize, 1) }),
+    setTextOffset: (textOffset) => set({ textOffset: Math.max(textOffset, 0) }),
+    setTextColor: (textColor) => set({ textColor }),
+    setTextBackgroundColor: (textBackgroundColor) => set({ textBackgroundColor }),
+    setTextOutlineColor: (textOutlineColor) => set({ textOutlineColor }),
+    setTextBackgroundType: (textBackgroundType) => set({ textBackgroundType }),
     ...createTextResultStoreBaseSlice<DiagramExportFormat, ExportDiagramStore>(
         "png",
         { ...initialState },

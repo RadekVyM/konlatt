@@ -37,7 +37,7 @@ export function convertToTikz(
 
     for (const point of transformedLayout) {
         point[0] -= rect.left;
-        point[1] -= rect.top;
+        point[1] -= rect.bottom;
     }
 
     pushStartPictureWithOptions(lines, collapseRegions);

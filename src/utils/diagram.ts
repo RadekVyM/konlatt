@@ -4,6 +4,7 @@ import { ConceptLabel, PositionedConceptLabel } from "../types/ConceptLabel";
 import { ConceptLattice } from "../types/ConceptLattice";
 import { ConceptLatticeLabeling } from "../types/ConceptLatticeLabeling";
 import { ConceptLatticeLayout } from "../types/ConceptLatticeLayout";
+import { LabelOptions } from "../types/LabelOptions";
 import { Link } from "../types/Link";
 import { createPoint, Point } from "../types/Point";
 import { transformedPoint } from "./layout";
@@ -56,7 +57,7 @@ export function createLabels(
     itemLabels: ReadonlyArray<string> | undefined,
     latticeLabeling: ConceptLatticeLabeling | null,
     placement: "top" | "bottom",
-    lineSeparator: string = "\n",
+    options?: LabelOptions,
 ) {
     const newLabels = new Array<ConceptLabel>();
 
@@ -69,7 +70,7 @@ export function createLabels(
             continue;
         }
 
-        const text = createLabelText(labelIndexes, itemLabels, lineSeparator);
+        const text = createLabelText(labelIndexes, itemLabels, options);
 
         newLabels.push({
             id: `${idPrefix}-${conceptIndex}`,
@@ -94,9 +95,9 @@ export function createLabelsWithPositions(
     rotationDegrees: number,
     diagramOffsets: Array<Point> | null,
     placement: "top" | "bottom",
-    lineSeparator: string = "\n",
+    options?: LabelOptions,
 ) {
-    const labels = createLabels(idPrefix, itemLabels, latticeLabeling, placement, lineSeparator);
+    const labels = createLabels(idPrefix, itemLabels, latticeLabeling, placement, options);
     const newLabels = new Array<PositionedConceptLabel>();
     const zOffset = cameraType === "2d" ? 0.002 : 0;
 
@@ -148,9 +149,17 @@ export function sortedLabelsByPosition(labels: Array<PositionedConceptLabel>) {
     return labels;
 }
 
-function createLabelText(labelIndexes: ReadonlyArray<number>, labels: ReadonlyArray<string>, lineSeparator: string = "\n") {
-    const maxLineLength = 25;
-    const maxLinesCount = 3;
+function createLabelText(labelIndexes: ReadonlyArray<number>, labels: ReadonlyArray<string>, options?: LabelOptions) {
+    const defaultOptions = {
+        lineSeparator: "\n",
+        maxLineLength: 25,
+        maxLinesCount: 3,
+    };
+    const { 
+        maxLineLength,
+        maxLinesCount,
+        lineSeparator,
+    } = { ...defaultOptions, ...options };
     const textSegments = new Array<string>();
     let lineLength = 0;
     let currentLine = 1;

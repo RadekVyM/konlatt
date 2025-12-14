@@ -12,6 +12,9 @@ import PictureOptions from "./PictureOptions";
 import createDownloadButtonsComponent from "../createDownloadButtonsComponent";
 import { CANVAS_ID } from "../../../constants/diagramExport";
 import createTextResultPreviewerComponent from "../createTextResultPreviewerComponent";
+import { downloadBlob } from "../../../utils/export";
+import useCopySuccessful from "../../../hooks/useCopySuccesful";
+import toast from "../../toast";
 
 const TextPreviewer = createTextResultPreviewerComponent(useExportDiagramStore);
 
@@ -24,14 +27,14 @@ const ITEMS: Array<ExportItem<DiagramExportFormat>> = [
         key: "png",
         label: "PNG",
         content: RasterContent,
-        buttons: () => <RasterDownloadButtons />,
+        buttons: () => <RasterDownloadButtons fileName="exported-diagram.png" />,
         options: () => <PictureOptions />
     },
     {
         key: "jpg",
         label: "JPEG",
         content: RasterContent,
-        buttons: () => <RasterDownloadButtons />,
+        buttons: () => <RasterDownloadButtons fileName="exported-diagram.jpg" />,
         options: () => <PictureOptions />
     },
     {
@@ -72,17 +75,49 @@ function RasterContent() {
     );
 }
 
-function RasterDownloadButtons() {
-    const copySuccessful = false;
+function RasterDownloadButtons(props: {
+    fileName: string,
+}) {
+    const [copySuccessful, setCopySuccessful] = useCopySuccessful();
+    const selectedFormat = useExportDiagramStore((state) => state.selectedFormat);
+    const type = selectedFormatToMimeType(selectedFormat);
 
-    function onCopyClick() { }
+    async function onCopyClick() {
+        setCopySuccessful(false);
 
-    function onDownloadClick() {
-        const canvas = document.querySelector<HTMLCanvasElement>(`#${CANVAS_ID}`);
+        // Clipboard support of "image/jpeg" is poor
+        const blob = await getCanvasImageBlob("image/png");
 
-        if (!canvas) {
+        if (!blob) {
+            toast("Failed to generate the image.");
+            setCopySuccessful(false);
             return;
         }
+
+        try {
+            const item = new ClipboardItem({
+                [blob.type]: blob,
+            });
+
+            await navigator.clipboard.write([item]);
+
+            setCopySuccessful(true);
+        }
+        catch (error) {
+            toast("Failed to copy the image to clipboard.");
+            console.error("Failed to copy image to clipboard:", error);
+        }
+    }
+
+    async function onDownloadClick() {
+        const blob = await getCanvasImageBlob(type);
+
+        if (!blob) {
+            toast("Failed to generate the image.");
+            return;
+        }
+
+        downloadBlob(blob, props.fileName);
     }
 
     return (
@@ -90,9 +125,31 @@ function RasterDownloadButtons() {
             className="grid grid-cols-2 gap-x-2 px-4 pb-4">
             <DownloadButtons
                 onCopyClick={onCopyClick}
-                copyDisabled
                 copyButtonIcon={copySuccessful ? LuCheck : LuCopy}
                 onDownloadClick={onDownloadClick} />
         </div>
     )
+}
+
+async function getCanvasImageBlob(type: string): Promise<Blob | null> {
+    const canvas = document.querySelector<HTMLCanvasElement>(`#${CANVAS_ID}`);
+
+    if (!canvas) {
+        return null;
+    }
+
+    return await new Promise((resolve) => canvas.toBlob(resolve, type));
+}
+
+function selectedFormatToMimeType(selectedFormat: DiagramExportFormat) {
+    switch (selectedFormat) {
+        case "jpg":
+            return "image/jpeg";
+        case "png":
+            return "image/png";
+        case "svg":
+            return "image/svg+xml";
+        case "tikz":
+            return "text/plain";
+    }
 }
