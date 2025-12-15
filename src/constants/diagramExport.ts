@@ -51,4 +51,34 @@ export const EXPORT_DIMENSIONS_TEMPLATES: ReadonlyArray<DiagramExportDimensionsT
         largerSize: 1748,
         smallerSize: 1240,
     },
+    {
+        key: "hd",
+        title: "HD",
+        largerSize: 1280,
+        smallerSize: 720,
+    },
+    {
+        key: "fullhd",
+        title: "Full HD",
+        largerSize: 1920,
+        smallerSize: 1080,
+    },
+    {
+        key: "quadhd",
+        title: "Quad HD",
+        largerSize: 2560,
+        smallerSize: 1440,
+    },
+    {
+        key: "4kultrahd",
+        title: "4K Ultra HD",
+        largerSize: 3840,
+        smallerSize: 2160,
+    },
+    {
+        key: "8kultrahd",
+        title: "8K Ultra HD",
+        largerSize: 7680,
+        smallerSize: 4320,
+    },
 ];

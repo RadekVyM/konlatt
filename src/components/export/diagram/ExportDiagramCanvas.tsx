@@ -7,16 +7,15 @@ import ZoomBar from "../../ZoomBar";
 import Button from "../../inputs/Button";
 import { LuFocus } from "react-icons/lu";
 import useLinks from "../../concepts/diagram/useLinks";
-import useExportDiagramStore from "../../../stores/export/useExportDiagramStore";
+import useExportDiagramStore from "../../../stores/export/diagram/useExportDiagramStore";
 import { hsvaToHexa } from "../../../utils/colors";
 import useDebouncedValue from "../../../hooks/useDebouncedValue";
-import { transformedLayoutForExport } from "../../../utils/export";
-import useLabelGroups, { LabelGroup } from "./useLabelGroups";
-import useCanvasDimensions, { CanvasDimensions } from "./useCanvasDimensions";
-import { outlineWidth } from "./utils";
+import { outlineWidth } from "../../../utils/export";
 import { TextBackgroundType } from "../../../types/export/TextBackgroundType";
 import { HsvaColor } from "../../../types/HsvaColor";
 import { Font } from "../../../types/export/Font";
+import { LabelGroup } from "../../../types/export/LabelGroup";
+import { CanvasDimensions } from "../../../types/export/CanvasDimensions";
 
 const DEBOUNCE_DELAY = 200;
 
@@ -34,12 +33,10 @@ export default function ExportDiagramCanvas(props: {
     className?: string,
 }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const labelGroups = useLabelGroups();
-    const transformedLayout = useTransformedLayout();
-    const canvasDimensions = useCanvasDimensions(transformedLayout, labelGroups);
+    const canvasDimensions = useExportDiagramStore((state) => state.canvasDimensions);
     const debouncedCanvasDimensions = useDebouncedValue(canvasDimensions, DEBOUNCE_DELAY);
 
-    useDrawing(canvasRef, canvasDimensions, debouncedCanvasDimensions, transformedLayout, labelGroups);
+    useDrawing(canvasRef, canvasDimensions, debouncedCanvasDimensions);
 
     return (
         <TransformWrapper
@@ -119,13 +116,11 @@ function useDrawing(
     canvasRef: React.RefObject<HTMLCanvasElement | null>,
     canvasDimensions: CanvasDimensions | null,
     debouncedCanvasDimensions: CanvasDimensions | null,
-    layout: Array<Point> | null,
-    labelGroups: Array<LabelGroup>,
 ) {
     const drawBackground = useDrawBackground();
-    const drawNodes = useDrawNodes(layout, canvasDimensions?.scale || 0);
-    const drawLinks = useDrawLinks(layout, canvasDimensions?.scale || 0);
-    const drawLabels = useDrawLabels(layout, canvasDimensions?.scale || 0, labelGroups);
+    const drawNodes = useDrawNodes(canvasDimensions?.scale || 0);
+    const drawLinks = useDrawLinks(canvasDimensions?.scale || 0);
+    const drawLabels = useDrawLabels(canvasDimensions?.scale || 0);
 
     // This is a quite hacky solution and may cause bugs
     const drawBackgroundDebounced = useDebouncedValue<DrawFunc | undefined>(drawBackground, DEBOUNCE_DELAY);
@@ -171,16 +166,6 @@ function useDrawing(
     ]);
 }
 
-function useTransformedLayout() {
-    const layout = useDiagramStore((state) => state.layout);
-    const diagramOffsets = useDiagramStore((state) => state.diagramOffsets);
-    const horizontalScale = useDiagramStore((state) => state.horizontalScale);
-    const verticalScale = useDiagramStore((state) => state.verticalScale);
-    const rotationDegrees = useDiagramStore((state) => state.rotationDegrees);
-
-    return transformedLayoutForExport(layout, diagramOffsets, horizontalScale, verticalScale, rotationDegrees);
-}
-
 function useDrawBackground() {
     const backgroundColor = useExportDiagramStore((state) => state.backgroundColor);
 
@@ -193,9 +178,9 @@ function useDrawBackground() {
 }
 
 function useDrawNodes(
-    layout: Array<Point> | null,
     scale: number,
 ) {
+    const layout = useExportDiagramStore((state) => state.transformedLayout);
     const nodeRadius = useExportDiagramStore((state) => state.nodeRadius);
     const defaultNodeColor = useExportDiagramStore((state) => state.defaultNodeColor);
     const defaultNodeColorHexa = hsvaToHexa(defaultNodeColor);
@@ -219,14 +204,14 @@ function useDrawNodes(
         }
 
         context.restore();
-    }, [nodeRadius, defaultNodeColorHexa, scale]);
+    }, [layout, nodeRadius, defaultNodeColorHexa, scale]);
 }
 
 function useDrawLinks(
-    layout: Array<Point> | null,
     scale: number,
 ) {
     const links = useLinks();
+    const layout = useExportDiagramStore((state) => state.transformedLayout);
     const linkThickness = useExportDiagramStore((state) => state.linkThickness);
     const defaultLinkColor = useExportDiagramStore((state) => state.defaultLinkColor);
 
@@ -254,14 +239,14 @@ function useDrawLinks(
         }
 
         context.restore();
-    }, [links, linkThickness, defaultLinkColor, scale]);
+    }, [layout, links, linkThickness, defaultLinkColor, scale]);
 }
 
 function useDrawLabels(
-    layout: Array<Point> | null,
     scale: number,
-    labelGroups: Array<LabelGroup>,
 ) {
+    const layout = useExportDiagramStore((state) => state.transformedLayout);
+    const labelGroups = useExportDiagramStore((state) => state.positionedLabelGroups);
     const font = useExportDiagramStore((state) => state.font);
     const textSize = useExportDiagramStore((state) => state.textSize);
     const textColor = useExportDiagramStore((state) => state.textColor);
@@ -275,8 +260,7 @@ function useDrawLabels(
         }
 
         drawLabels(context, layout, scale, labelGroups, font, textBackgroundType, textSize, textColor, textBackgroundColor, textOutlineColor);
-        drawLabels(context, layout, scale, labelGroups, font, textBackgroundType, textSize, textColor, textBackgroundColor, textOutlineColor);
-    }, [layout, scale, labelGroups, font, textSize, textColor, textBackgroundColor, textOutlineColor, textBackgroundType]);
+    }, [layout, scale, labelGroups, font, textBackgroundType, textSize, textColor, textBackgroundColor, textOutlineColor]);
 }
 
 function drawLabels(

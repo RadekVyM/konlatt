@@ -10,6 +10,7 @@ import ColorSlider from "./ColorSlider";
 import { cn } from "../../utils/tailwind";
 import Input from "./Input";
 import { LuCheck, LuClipboard, LuCopy } from "react-icons/lu";
+import toast from "../toast";
 
 export type ColorInputProps = {
     className?: string,
@@ -36,14 +37,16 @@ export default function ColorInput(props: ColorInputProps) {
         const value = hsvaToHexa(props.color);
 
         if (!navigator?.clipboard) {
-            console.log("Clipboard not supported");
+            console.error("Clipboard not supported");
+            toast("Clipboard not supported");
             return;
         }
 
         try {
             await navigator.clipboard.writeText(value);
         } catch (error) {
-            console.log("Copy failed", error);
+            console.error("Copy failed", error);
+            toast("Copy failed");
             return;
         }
 

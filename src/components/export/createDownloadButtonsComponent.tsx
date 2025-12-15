@@ -45,7 +45,7 @@ export default function createDownloadButtonsComponent(useTextResultStore: TextR
 
         return (
             <div
-                className="grid grid-rows-[auto_auto] grid-cols-2 gap-x-2 gap-y-4 p-4">
+                className="grid grid-rows-[auto_auto] grid-cols-2 gap-x-2 gap-y-4 px-4 pb-4">
                 <CheckBox
                     className="col-start-1 col-end-3"
                     checked={includeFormatting}

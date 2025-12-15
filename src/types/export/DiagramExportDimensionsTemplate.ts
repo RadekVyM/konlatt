@@ -5,4 +5,17 @@ export type DiagramExportDimensionsTemplate = {
     smallerSize: number,
 }
 
-export type DiagramExportDimensionsTemplateKey = "custom" | "a0" | "a1" | "a2" | "a3" | "a4" | "a5" | "a6"
+export type DiagramExportDimensionsTemplateKey =
+    "custom" |
+    "a0" |
+    "a1" |
+    "a2" |
+    "a3" |
+    "a4" |
+    "a5" |
+    "a6" |
+    "hd" |
+    "fullhd" |
+    "quadhd" |
+    "4kultrahd" |
+    "8kultrahd"

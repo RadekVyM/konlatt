@@ -133,14 +133,25 @@ export function createLabelsWithPositions(
     return newLabels;
 }
 
-export function sortedLabelsByPosition(labels: Array<PositionedConceptLabel>) {
+export function sortedLabelsByPosition(labels: Array<ConceptLabel>, layout: Array<Point>, conceptToLayoutIndexesMapping: Map<number, number>) {
     labels = [...labels];
 
     labels.sort((a, b) => {
-        const diff = a.position[1] - b.position[1];
+        const aLayoutIndex = conceptToLayoutIndexesMapping.get(a.conceptIndex);
+        const bLayoutIndex = conceptToLayoutIndexesMapping.get(b.conceptIndex);
+
+        if (aLayoutIndex === undefined || bLayoutIndex === undefined) {
+            console.error(`One of the layout indexes should not be: ${aLayoutIndex} or ${bLayoutIndex}`);
+            return 0;
+        }
+
+        const aPoint = layout[aLayoutIndex];
+        const bPoint = layout[bLayoutIndex];
+
+        const diff = aPoint[1] - bPoint[1];
 
         if (diff === 0) {
-            return a.position[0] - b.position[0];
+            return aPoint[0] - bPoint[0];
         }
 
         return diff;

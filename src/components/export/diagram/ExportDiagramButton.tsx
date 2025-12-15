@@ -1,6 +1,6 @@
 import { LuCheck, LuCopy } from "react-icons/lu";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
-import useExportDiagramStore from "../../../stores/export/useExportDiagramStore";
+import useExportDiagramStore from "../../../stores/export/diagram/useExportDiagramStore";
 import { DiagramExportFormat } from "../../../types/export/DiagramExportFormat";
 import ExportButton from "../ExportButton";
 import ExportDiagramCanvas from "./ExportDiagramCanvas";
@@ -63,7 +63,10 @@ export default function ExportDiagramButton(props: ExportButtonProps) {
             isHighlighted
             useSelectedFormatStore={useExportDiagramStore}
             onShowing={useExportDiagramStore.getState().resetResult}
-            onShown={useExportDiagramStore.getState().triggerResultComputation}
+            onShown={() => {
+                useExportDiagramStore.getState().onDialogShown();
+                useExportDiagramStore.getState().triggerResultComputation();
+            }}
             onHiding={useExportDiagramStore.getState().resetResult} />
     );
 }

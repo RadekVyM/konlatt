@@ -11,7 +11,7 @@ import useExportAttributeStore from "../stores/export/useExportAttributeStore";
 import useExportConceptsStore from "../stores/export/useExportConceptsStore";
 import useExportConceptStore from "../stores/export/useExportConceptStore";
 import useExportContextStore from "../stores/export/useExportContextStore";
-import useExportDiagramStore from "../stores/export/useExportDiagramStore";
+import useExportDiagramStore from "../stores/export/diagram/useExportDiagramStore";
 import useExportObjectsStore from "../stores/export/useExportObjectsStore";
 import useExportObjectStore from "../stores/export/useExportObjectStore";
 import LatticeWorkerQueue from "../workers/LatticeWorkerQueue";

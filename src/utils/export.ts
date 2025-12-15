@@ -35,3 +35,7 @@ export function downloadBlob(blob: Blob, fileName: string) {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 }
+
+export function outlineWidth(textSize: number) {
+    return textSize / 5;
+}

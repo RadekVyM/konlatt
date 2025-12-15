@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useDebouncedSetter from "../../hooks/useDebouncedSetter";
 import PrefixedNumberInput, { PrefixedNumberInputProps } from "./PrefixedNumberInput";
 
@@ -7,7 +7,17 @@ export default function DebouncedPrefixedNumberInput(props: {
 } & PrefixedNumberInputProps) {
     const [value, setValue] = useState(props.value);
 
-    useDebouncedSetter(value, props.onChange, props.delay);
+    useDebouncedSetter(value, () => {
+        if (value !== undefined && value !== props.value) {
+            props.onChange?.(value);
+        }
+    }, props.delay);
+
+    useEffect(() => {
+        if (value !== props.value) {
+            setValue(props.value);
+        }
+    }, [props.value]);
 
     return (
         <PrefixedNumberInput

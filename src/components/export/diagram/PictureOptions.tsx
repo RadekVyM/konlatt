@@ -1,6 +1,6 @@
-import { LuLock, LuLockOpen, LuScaling } from "react-icons/lu";
+import { LuLock, LuLockOpen } from "react-icons/lu";
 import { EXPORT_DIMENSIONS_TEMPLATES } from "../../../constants/diagramExport";
-import useExportDiagramStore from "../../../stores/export/useExportDiagramStore";
+import useExportDiagramStore from "../../../stores/export/diagram/useExportDiagramStore";
 import { DiagramExportDimensionsTemplateKey } from "../../../types/export/DiagramExportDimensionsTemplate";
 import { cn } from "../../../utils/tailwind";
 import Button from "../../inputs/Button";
@@ -73,12 +73,14 @@ function AppearanceSection() {
             <div
                 className="grid grid-cols-2 gap-2">
                 <DebouncedNumberInput
+                    id="export-diagram-node-radius"
                     delay={DEBOUNCE_DELAY}
                     label="Node radius"
                     value={nodeRadius}
                     onChange={setNodeRadius}
                     min={1} />
                 <DebouncedNumberInput
+                    id="export-diagram-link-thickness"
                     delay={DEBOUNCE_DELAY}
                     label="Link thickness"
                     value={linkThickness}
@@ -149,12 +151,13 @@ function MaxDimensions() {
         <div>
             <InputLabel>Maximum size</InputLabel>
             <div
-                className="grid grid-cols-[1fr_1fr_auto_auto] gap-x-2">
+                className="grid grid-cols-[1fr_1fr_auto] gap-x-2">
                 {maxDimensionsLockedAspecRatio &&
                     <div
                         className="col-2 row-1 -ml-2.5 w-3 h-4 bg-surface-light-dim-container self-center aspect-ratio-bridge-clip">
                     </div>}
                 <DebouncedPrefixedNumberInput
+                    id="export-diagram-max-width"
                     delay={DEBOUNCE_DELAY}
                     className="col-1 row-1"
                     prefix="W"
@@ -162,6 +165,7 @@ function MaxDimensions() {
                     value={maxWidth}
                     onChange={setMaxWidth} />
                 <DebouncedPrefixedNumberInput
+                    id="export-diagram-max-height"
                     delay={DEBOUNCE_DELAY}
                     className="col-2 row-1"
                     prefix="H"
@@ -175,13 +179,6 @@ function MaxDimensions() {
                     title={maxDimensionsLockedAspecRatio ? "Unlock the aspect ratio" : "Lock the aspect ratio"}
                     onClick={() => setMaxDimensionsLockedAspecRatio((old) => !old)}>
                     {maxDimensionsLockedAspecRatio ? <LuLock /> : <LuLockOpen />}
-                </Button>
-                <Button
-                    variant="icon-secondary"
-                    size="sm"
-                    className="h-full w-full row-1"
-                    title="Adjust to diagram">
-                    <LuScaling />
                 </Button>
             </div>
         </div>
@@ -204,6 +201,7 @@ function Padding() {
             <div
                 className="grid grid-cols-[1fr_1fr] gap-2">
                 <DebouncedPrefixedNumberInput
+                    id="export-diagram-padding-left"
                     delay={DEBOUNCE_DELAY}
                     className="col-1 row-1"
                     prefix="L"
@@ -211,6 +209,7 @@ function Padding() {
                     value={minPaddingLeft}
                     onChange={setMinPaddingLeft} />
                 <DebouncedPrefixedNumberInput
+                    id="export-diagram-padding-right"
                     delay={DEBOUNCE_DELAY}
                     className="col-2 row-1"
                     prefix="R"
@@ -218,6 +217,7 @@ function Padding() {
                     value={minPaddingRight}
                     onChange={setMinPaddingRight} />
                 <DebouncedPrefixedNumberInput
+                    id="export-diagram-padding-top"
                     delay={DEBOUNCE_DELAY}
                     className="col-1 row-2"
                     prefix="T"
@@ -225,6 +225,7 @@ function Padding() {
                     value={minPaddingTop}
                     onChange={setMinPaddingTop} />
                 <DebouncedPrefixedNumberInput
+                    id="export-diagram-padding-bottom"
                     delay={DEBOUNCE_DELAY}
                     className="col-2 row-2"
                     prefix="B"
@@ -291,12 +292,14 @@ function TextSection() {
             <div
                 className="grid grid-cols-2 gap-2">
                 <DebouncedNumberInput
+                    id="export-diagram-text-line-length"
                     delay={DEBOUNCE_DELAY}
                     label="Maximum line length"
                     min={1}
                     value={maxLabelLineLength}
                     onChange={setMaxLabelLineLength} />
                 <DebouncedNumberInput
+                    id="export-diagram-text-line-count"
                     delay={DEBOUNCE_DELAY}
                     label="Maximum lines count"
                     min={1}
@@ -307,12 +310,14 @@ function TextSection() {
             <div
                 className="grid grid-cols-2 gap-2">
                 <DebouncedNumberInput
+                    id="export-diagram-text-font-size"
                     delay={DEBOUNCE_DELAY}
                     label="Font size"
                     min={1}
                     value={textSize}
                     onChange={setTextSize} />
                 <DebouncedNumberInput
+                    id="export-diagram-text-offset"
                     delay={DEBOUNCE_DELAY}
                     label="Offset"
                     min={0}

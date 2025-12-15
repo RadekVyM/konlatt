@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ColorInput, { ColorInputProps } from "./ColorInput";
 import useDebouncedSetter from "../../hooks/useDebouncedSetter";
 
@@ -7,7 +7,17 @@ export default function DebouncedColorInput(props: {
 } & ColorInputProps) {
     const [color, setColor] = useState(props.color);
 
-    useDebouncedSetter(color, props.onChange, props.delay);
+    useDebouncedSetter(color, () => {
+        if (color !== undefined && color !== props.color) {
+            props.onChange?.(color);
+        }
+    }, props.delay);
+
+    useEffect(() => {
+        if (color !== props.color) {
+            setColor(props.color);
+        }
+    }, [props.color]);
 
     return (
         <ColorInput
