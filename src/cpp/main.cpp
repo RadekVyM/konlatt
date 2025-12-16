@@ -17,6 +17,7 @@
 #include "conceptsCover.cpp"
 #include "layout/utils.cpp"
 #include "layout/layers.cpp"
+#include "layout/layered/crossCount.cpp"
 #include "layout/layered/dummies.cpp"
 #include "layout/layered/simplePlacement.cpp"
 #include "layout/layered/bkPlacement.cpp"

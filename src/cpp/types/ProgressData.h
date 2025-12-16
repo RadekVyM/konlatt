@@ -40,6 +40,11 @@ struct ProgressData {
             onProgress((double)currentBlock / totalBlocks);
         }
     }
+    
+    void finishBlocks(int count) {
+        currentBlock += count;
+        onProgress((double)currentBlock / totalBlocks);
+    }
 };
 
 #endif

@@ -6,6 +6,7 @@
 #include "dummies.h"
 #include "layeredLayout.h"
 #include "placement.h"
+#include "crossCount.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -15,6 +16,7 @@
 #include <unordered_map>
 #include <algorithm>
 #include <functional>
+#include <exception>
 
 using PlacementDelegate = std::function<void(
     std::vector<float>&,
@@ -24,6 +26,8 @@ using PlacementDelegate = std::function<void(
     int,
     ProgressData&
 )>;
+
+#define MAX_ITERATIONS_COUNT 5
 
 void calculateAveragePositionsOfLayer(
     std::vector<int>& layer,
@@ -156,6 +160,73 @@ std::unique_ptr<std::vector<std::vector<int>>> reduceCrossingsUsingAverage(
     return orderedLayers;
 }
 
+std::unique_ptr<std::vector<std::vector<int>>> reduceCrossings(
+    std::vector<std::vector<int>>& layersWithDummies,
+    std::vector<int>& horizontalPositions,
+    std::vector<std::unordered_set<int>>& subconceptsMapping,
+    std::vector<std::unordered_set<int>>& superconceptsMapping,
+    ProgressData& progress
+) {
+    CrossCountDataStructures crossCountDataStructures;
+
+    auto bestOrderedLayers = reduceCrossingsUsingAverage(
+        layersWithDummies,
+        horizontalPositions,
+        subconceptsMapping,
+        superconceptsMapping,
+        progress);
+
+    int iteration = 0;
+
+    try {
+        long long bestCount = crossCount(*bestOrderedLayers, horizontalPositions, subconceptsMapping, crossCountDataStructures);
+        long long lastCount = bestCount;
+        std::unique_ptr<std::vector<std::vector<int>>> lastOrderedLayers = nullptr;
+
+        for (int i = 0; i < MAX_ITERATIONS_COUNT; i++) {
+            if (bestCount == 0) {
+                break;
+            }
+
+            lastOrderedLayers = std::move(reduceCrossingsUsingAverage(
+                lastOrderedLayers == nullptr ? *bestOrderedLayers : *lastOrderedLayers,
+                horizontalPositions,
+                subconceptsMapping,
+                superconceptsMapping,
+                progress));
+
+            long long newCount = crossCount(*lastOrderedLayers, horizontalPositions, subconceptsMapping, crossCountDataStructures);
+
+            iteration++;
+
+            if (newCount == lastCount || newCount < 0) {
+                break;
+            }
+
+            lastCount = newCount;
+
+            if (newCount < bestCount) {
+                bestCount = newCount;
+                bestOrderedLayers = std::move(lastOrderedLayers);
+            }
+        }
+    }
+    // If an exception occurs during subsequent crossing reduction attempts,
+    // ignore it, do not be greedy and take the first result.
+    catch (const std::exception& e) {
+        std::cerr << "An exception occurred during layered diagram computation: " << e.what() << std::endl;
+    }
+    catch (...) {
+        std::cerr << "An exception occurred during layered diagram computation." << std::endl;
+    }
+
+    if (iteration < MAX_ITERATIONS_COUNT) {
+        progress.finishBlocks((MAX_ITERATIONS_COUNT - iteration) * 3);
+    }
+
+    return bestOrderedLayers;
+}
+
 void createLayout(
     TimedResult<std::vector<float>>& result,
     int conceptsCount,
@@ -191,7 +262,7 @@ void computeLayeredLayout(
     long long startTime = nowMills();
 
     auto progress = ProgressData(
-        1 + 3 + (placement == "bk" ? (1 + (2 * 4) + 1 + 1) : 0),
+        1 + (3 * (MAX_ITERATIONS_COUNT + 1)) + (placement == "bk" ? (1 + (2 * 4) + 1 + 1) : 0),
         onProgress);
 
     // The layers are ordered from top to bottom – the first layer is at the top
@@ -207,14 +278,12 @@ void computeLayeredLayout(
         progress);
     auto& [layersWithDummies, horizontalPositions] = *dummiesResult;
 
-    auto orderedLayers = reduceCrossingsUsingAverage(
+    auto orderedLayers = reduceCrossings(
         layersWithDummies,
         horizontalPositions,
         subconceptsMapping,
         superconceptsMapping,
         progress);
-
-    long long endTime = nowMills();
 
     createLayout(
         result,
@@ -224,6 +293,8 @@ void computeLayeredLayout(
         *orderedLayers,
         progress,
         getPlacementFunc(placement));
+
+    long long endTime = nowMills();
 
     result.time = (int)endTime - startTime;
 }
