@@ -13,8 +13,8 @@ import DebouncedNumberInput from "../../inputs/DebouncedNumberInput";
 import DebouncedPrefixedNumberInput from "../../inputs/DebouncedPrefixedNumberInput";
 import { TextBackgroundType } from "../../../types/export/TextBackgroundType";
 import { Font } from "../../../types/export/Font";
-
-const DEBOUNCE_DELAY = 300;
+import { DEBOUNCE_DELAY } from "./constants";
+import LabelLineInputs from "./LabelLineInputs";
 
 export default function PictureOptions() {
     return (
@@ -245,8 +245,6 @@ function TextSection() {
     const textBackgroundColor = useExportDiagramStore((state) => state.textBackgroundColor);
     const textOutlineColor = useExportDiagramStore((state) => state.textOutlineColor);
     const textBackgroundType = useExportDiagramStore((state) => state.textBackgroundType);
-    const maxLabelLineLength = useExportDiagramStore((state) => state.maxLabelLineLength);
-    const maxLabelLineCount = useExportDiagramStore((state) => state.maxLabelLineCount);
     const setFont = useExportDiagramStore((state) => state.setFont);
     const setTextSize = useExportDiagramStore((state) => state.setTextSize);
     const setTextOffset = useExportDiagramStore((state) => state.setTextOffset);
@@ -254,8 +252,6 @@ function TextSection() {
     const setTextBackgroundColor = useExportDiagramStore((state) => state.setTextBackgroundColor);
     const setTextOutlineColor = useExportDiagramStore((state) => state.setTextOutlineColor);
     const setTextBackgroundType = useExportDiagramStore((state) => state.setTextBackgroundType);
-    const setMaxLabelLineLength = useExportDiagramStore((state) => state.setMaxLabelLineLength);
-    const setMaxLabelLineCount = useExportDiagramStore((state) => state.setMaxLabelLineCount);
 
     return (
         <ConfigSection
@@ -289,23 +285,7 @@ function TextSection() {
                     onKeySelectionChange={setFont} />
             </div>
 
-            <div
-                className="grid grid-cols-2 gap-2">
-                <DebouncedNumberInput
-                    id="export-diagram-text-line-length"
-                    delay={DEBOUNCE_DELAY}
-                    label="Maximum line length"
-                    min={1}
-                    value={maxLabelLineLength}
-                    onChange={setMaxLabelLineLength} />
-                <DebouncedNumberInput
-                    id="export-diagram-text-line-count"
-                    delay={DEBOUNCE_DELAY}
-                    label="Maximum lines count"
-                    min={1}
-                    value={maxLabelLineCount}
-                    onChange={setMaxLabelLineCount} />
-            </div>
+            <LabelLineInputs />
 
             <div
                 className="grid grid-cols-2 gap-2">

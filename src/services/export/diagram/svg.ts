@@ -7,6 +7,7 @@ import { Link } from "../../../types/Link";
 import { Point } from "../../../types/Point";
 import { hsvaToHexa } from "../../../utils/colors";
 import { outlineWidth } from "../../../utils/export";
+import { escapeXml } from "../../../utils/string";
 import { CollapseRegions, createCollapseRegions } from "../CollapseRegions";
 import { INDENTATION } from "../constants";
 
@@ -245,7 +246,7 @@ function pushLabels(
             const x = nodeX + group.relativeRect.x + label.relativeRect.x;
             const y = nodeY + group.relativeRect.y + label.relativeRect.y;
 
-            lines.push(`${indentation}<text x="${x}" y="${y}">${label.text}</text>`);
+            lines.push(`${indentation}<text x="${x}" y="${y}">${escapeXml(label.text)}</text>`);
         }
     }
     

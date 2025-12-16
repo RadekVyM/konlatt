@@ -8,9 +8,14 @@ import useCopySuccessful from "../../hooks/useCopySuccesful";
 
 const COPY_ENABLED_THRESHOLD = 15_000_000;
 
-export default function createDownloadButtonsComponent(useTextResultStore: TextResultStoreType, fileName: string, joinCharacter: "" | "\n" = "") {
+export default function createDownloadButtonsComponent(
+    useTextResultStore: TextResultStoreType,
+    fileName: string,
+    joinCharacter: "" | "\n" = "",
+    includeFormattingDefault: boolean = false,
+) {
     const component = () => {
-        const [includeFormatting, setIncludeFormatting] = useState<boolean>(false);
+        const [includeFormatting, setIncludeFormatting] = useState<boolean>(includeFormattingDefault);
         const [copySuccessful, setCopySuccessful] = useCopySuccessful();
         const result = useTextResultStore((state) => state.result);
         const disabledComputation = useTextResultStore((state) => state.disabledComputation);
