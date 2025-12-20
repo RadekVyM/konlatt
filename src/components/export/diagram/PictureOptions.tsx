@@ -275,11 +275,9 @@ function TextSection() {
                 <ComboBox<Font>
                     id="export-text-font"
                     items={[
-                        { key: "sans-serif", label: "Sans Serif" },
-                        { key: "serif", label: "Serif" },
-                        { key: "monospace", label: "Monospace" },
-                        { key: "cursive", label: "Cursive" },
-                        { key: "fantasy", label: "Fantasy" },
+                        { key: "Arial", label: "Arial" },
+                        { key: "Times New Roman", label: "Times New Roman" },
+                        { key: "Courier New", label: "Courier New" },
                     ]}
                     selectedKey={font}
                     onKeySelectionChange={setFont} />

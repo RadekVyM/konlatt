@@ -46,7 +46,7 @@ export const initialState: LabelsSliceState = {
     measuringCanvas: new OffscreenCanvas(10, 10),
     maxLabelLineLength: 25,
     maxLabelLineCount: 3,
-    font: "sans-serif",
+    font: "Arial",
     textSize: 15,
     textOffset: 5,
     textColor: createHsvaColor(0, 0, 0, 1),

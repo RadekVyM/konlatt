@@ -1,1 +1,1 @@
-export type Font = "serif" | "sans-serif" | "monospace" | "cursive" | "fantasy"
+export type Font = "Arial" | "Times New Roman" | "Courier New"

@@ -39,7 +39,7 @@ export function convertToSvg(
     pushHead(lines, collapseRegions);
 
     if (!transformedLayout || !canvasDimensions) {
-        lines.push(`<svg version="1.1" xmlns="http://www.w3.org/2000/svg"></svg>`);
+        lines.push(`<svg xmlns="http://www.w3.org/2000/svg"></svg>`);
         return { lines, collapseRegions: null };
     }
 
@@ -74,10 +74,9 @@ export function convertToSvg(
 }
 
 function pushHead(lines: Array<string>, collapseRegions: CollapseRegions) {
-    lines.push(`<?xml version="1.0" standalone="no"?>`);
-    lines.push(`<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">`);
+    lines.push(`<?xml version="1.0" encoding="UTF-8"?>`);
     
-    collapseRegions.nextRegionStart += 2;
+    collapseRegions.nextRegionStart += 1;
 }
 
 function pushStyles(lines: Array<string>, collapseRegions: CollapseRegions, options: Options) {
@@ -95,7 +94,7 @@ function pushStyles(lines: Array<string>, collapseRegions: CollapseRegions, opti
     ]);
 
     pushCssRule(lines, "text", `${INDENTATION}${INDENTATION}`, [
-        ["alignment-baseline", "hanging"],
+        ["dominant-baseline", "hanging"],
         ["font", `${options.textSize}px ${options.font}`],
         ["fill", hsvaToHexa(options.textColor)],
         options.textBackgroundType === "outline" ? ["stroke", hsvaToHexa(options.textBackgroundColor)] : undefined,
@@ -140,7 +139,7 @@ function pushBackground(
     collapseRegions: CollapseRegions,
     options: Options,
 ) {
-    lines.push(`${INDENTATION}<rect width="100%" height="100%" fill="${hsvaToHexa(options.backgroundColor)}"/>`);
+    lines.push(`${INDENTATION}<rect width="100%" height="100%" fill="${hsvaToHexa(options.backgroundColor)}" />`);
     collapseRegions.nextRegionStart++;
 }
 
