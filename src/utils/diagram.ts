@@ -1,7 +1,6 @@
 import { getPoint } from "../components/concepts/diagram/utils";
 import { CameraType } from "../types/CameraType";
 import { ConceptLabel, PositionedConceptLabel } from "../types/ConceptLabel";
-import { ConceptLattice } from "../types/ConceptLattice";
 import { ConceptLatticeLabeling } from "../types/ConceptLatticeLabeling";
 import { ConceptLatticeLayout } from "../types/ConceptLatticeLayout";
 import { LabelOptions } from "../types/LabelOptions";
@@ -10,8 +9,8 @@ import { createPoint, Point } from "../types/Point";
 import { transformedPoint } from "./layout";
 
 export function getLinks(
-    layout: ConceptLatticeLayout | null,
-    lattice: ConceptLattice | null,
+    concepts: Array<{ conceptIndex: number }> | null,
+    subconceptsMapping: ReadonlyArray<Set<number>> | null,
     visibleConceptIndexes: Set<number> | null,
     filteredConceptIndexes: Set<number> | null,
     displayHighlightedSublatticeOnly: boolean,
@@ -19,27 +18,27 @@ export function getLinks(
     const links = new Array<Link>();
     const noInvisibleConcepts = !visibleConceptIndexes || visibleConceptIndexes.size === 0;
 
-    if (!layout || !lattice?.subconceptsMapping) {
+    if (!concepts || !subconceptsMapping) {
         return links;
     }
 
     let i = 0;
 
-    for (const node of layout) {
-        for (const subconceptIndex of lattice.subconceptsMapping[node.conceptIndex]) {
+    for (const concept of concepts) {
+        for (const subconceptIndex of subconceptsMapping[concept.conceptIndex]) {
             const isNotVisible = visibleConceptIndexes && !visibleConceptIndexes.has(subconceptIndex);
 
             if (displayHighlightedSublatticeOnly && isNotVisible) {
                 continue;
             }
 
-            const isVisible = !!visibleConceptIndexes && visibleConceptIndexes.has(node.conceptIndex) && visibleConceptIndexes.has(subconceptIndex);
-            const isFiltered = !!filteredConceptIndexes && filteredConceptIndexes.has(node.conceptIndex) && filteredConceptIndexes.has(subconceptIndex);
+            const isVisible = !!visibleConceptIndexes && visibleConceptIndexes.has(concept.conceptIndex) && visibleConceptIndexes.has(subconceptIndex);
+            const isFiltered = !!filteredConceptIndexes && filteredConceptIndexes.has(concept.conceptIndex) && filteredConceptIndexes.has(subconceptIndex);
 
             const finalIsVisible = noInvisibleConcepts ? isFiltered : isVisible && (!displayHighlightedSublatticeOnly || isFiltered);
 
             links.push({
-                conceptIndex: node.conceptIndex,
+                conceptIndex: concept.conceptIndex,
                 subconceptIndex,
                 linkId: i,
                 isVisible: finalIsVisible,

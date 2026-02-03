@@ -1,12 +1,13 @@
 import { MAX_CANVAS_AREA, MAX_CANVAS_HEIGHT, MAX_CANVAS_WIDTH } from "../../../constants/diagramExport";
+import { withFallback } from "../../../utils/stores";
 import { ExportDiagramStore } from "./useExportDiagramStore";
 
 export default function withValidDimensions(
     newState: Partial<ExportDiagramStore>,
     oldState: ExportDiagramStore,
 ): Partial<ExportDiagramStore> {
-    const maxWidth = newState.maxWidth === undefined ? oldState.maxWidth : newState.maxWidth;
-    const maxHeight = newState.maxHeight === undefined ? oldState.maxHeight : newState.maxHeight;
+    const maxWidth = withFallback(newState.maxWidth, oldState.maxWidth);
+    const maxHeight = withFallback(newState.maxHeight, oldState.maxHeight);
 
     if (maxWidth > MAX_CANVAS_WIDTH ||
         maxHeight > MAX_CANVAS_HEIGHT) {

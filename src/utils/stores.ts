@@ -22,3 +22,7 @@ export function w<T>(
 
     return result;
 }
+
+export function withFallback<T>(value: T | undefined, fallback: T): T {
+    return value === undefined ? fallback : value;
+}

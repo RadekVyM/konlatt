@@ -6,7 +6,6 @@ import { TransformWrapper, TransformComponent, useControls, useTransformComponen
 import ZoomBar from "../../ZoomBar";
 import Button from "../../inputs/Button";
 import { LuFocus } from "react-icons/lu";
-import useLinks from "../../concepts/diagram/useLinks";
 import useExportDiagramStore from "../../../stores/export/diagram/useExportDiagramStore";
 import { hsvaToHexa } from "../../../utils/colors";
 import useDebouncedValue from "../../../hooks/useDebouncedValue";
@@ -210,13 +209,13 @@ function useDrawNodes(
 function useDrawLinks(
     scale: number,
 ) {
-    const links = useLinks();
+    const links = useExportDiagramStore((state) => state.links);
     const layout = useExportDiagramStore((state) => state.transformedLayout);
     const linkThickness = useExportDiagramStore((state) => state.linkThickness);
     const defaultLinkColor = useExportDiagramStore((state) => state.defaultLinkColor);
 
     return useCallback((context: CanvasRenderingContext2D) => {
-        if (!layout) {
+        if (!layout || !links) {
             return;
         }
 

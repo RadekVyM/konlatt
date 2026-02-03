@@ -12,7 +12,12 @@ export default function useLinks() {
     const noInvisibleConcepts = !visibleConceptIndexes || visibleConceptIndexes.size === 0;
 
     return useMemo(() => {
-        return getLinks(layout, lattice, visibleConceptIndexes, filteredConceptIndexes, displayHighlightedSublatticeOnly);
+        return getLinks(
+            layout,
+            lattice?.subconceptsMapping || null,
+            visibleConceptIndexes,
+            filteredConceptIndexes,
+            displayHighlightedSublatticeOnly);
         // The last false in the deps array is needed to make it stable when lattice, layout... are null
         // I have no idea why this is, it is super weird
     }, [lattice, visibleConceptIndexes, filteredConceptIndexes, layout, displayHighlightedSublatticeOnly, noInvisibleConcepts, false]);

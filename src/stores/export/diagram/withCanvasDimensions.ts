@@ -2,6 +2,7 @@ import { CanvasDimensions } from "../../../types/export/CanvasDimensions";
 import { LabelGroup } from "../../../types/export/LabelGroup";
 import { Point } from "../../../types/Point";
 import { layoutRect } from "../../../utils/layout";
+import { withFallback } from "../../../utils/stores";
 import useDiagramStore from "../../diagram/useDiagramStore";
 import { ExportDiagramStore } from "./useExportDiagramStore";
 
@@ -9,15 +10,15 @@ export default function withCanvasDimensions(
     newState: Partial<ExportDiagramStore>,
     oldState: ExportDiagramStore,
 ): Partial<ExportDiagramStore> {
-    const transformedLayout = newState.transformedLayout !== undefined ? newState.transformedLayout : oldState.transformedLayout;
-    const positionedLabelGroups = newState.positionedLabelGroups !== undefined ? newState.positionedLabelGroups : oldState.positionedLabelGroups;
-    const nodeRadius = newState.nodeRadius !== undefined ? newState.nodeRadius : oldState.nodeRadius;
-    const minPaddingLeft = newState.minPaddingLeft !== undefined ? newState.minPaddingLeft : oldState.minPaddingLeft;
-    const minPaddingRight = newState.minPaddingRight !== undefined ? newState.minPaddingRight : oldState.minPaddingRight;
-    const minPaddingTop = newState.minPaddingTop !== undefined ? newState.minPaddingTop : oldState.minPaddingTop;
-    const minPaddingBottom = newState.minPaddingBottom !== undefined ? newState.minPaddingBottom : oldState.minPaddingBottom;
-    const maxWidth = newState.maxWidth !== undefined ? newState.maxWidth : oldState.maxWidth;
-    const maxHeight = newState.maxHeight !== undefined ? newState.maxHeight : oldState.maxHeight;
+    const transformedLayout = withFallback(newState.transformedLayout, oldState.transformedLayout);
+    const positionedLabelGroups = withFallback(newState.positionedLabelGroups, oldState.positionedLabelGroups);
+    const nodeRadius = withFallback(newState.nodeRadius, oldState.nodeRadius);
+    const minPaddingLeft = withFallback(newState.minPaddingLeft, oldState.minPaddingLeft);
+    const minPaddingRight = withFallback(newState.minPaddingRight, oldState.minPaddingRight);
+    const minPaddingTop = withFallback(newState.minPaddingTop, oldState.minPaddingTop);
+    const minPaddingBottom = withFallback(newState.minPaddingBottom, oldState.minPaddingBottom);
+    const maxWidth = withFallback(newState.maxWidth, oldState.maxWidth);
+    const maxHeight = withFallback(newState.maxHeight, oldState.maxHeight);
 
     if (!transformedLayout) {
         return { ...newState, canvasDimensions: null };

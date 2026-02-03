@@ -14,9 +14,12 @@ import withTransformedLayout from "./withTransformedLayout";
 import { CanvasDimensions } from "../../../types/export/CanvasDimensions";
 import withCanvasDimensions from "./withCanvasDimensions";
 import withTextResult from "./withTextResult";
+import { Link } from "../../../types/Link";
+import withLinks from "./withLinks";
 
 type ExportDiagramStoreState = {
     transformedLayout: Array<Point> | null,
+    links: Array<Link> | null,
     canvasDimensions: CanvasDimensions | null,
     maxWidth: number,
     maxHeight: number,
@@ -55,6 +58,7 @@ export type ExportDiagramStore = TextResultExportStore<DiagramExportFormat> & Ex
 
 const initialState: ExportDiagramStoreState = {
     transformedLayout: null,
+    links: null,
     canvasDimensions: null,
     maxWidth: 1280,
     maxHeight: 1280,
@@ -138,7 +142,7 @@ const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
     setDefaultLinkColor: (defaultLinkColor) => set((old) => w({ defaultLinkColor }, old, withTextResult)),
     setNodeRadius: (nodeRadius) => set((old) => w({ nodeRadius }, old, withPositionedLabelGroups, withTextResult)),
     setLinkThickness: (linkThickness) => set((old) => w({ linkThickness }, old, withTextResult)),
-    onDialogShown: () => set((old) => w({}, old, withTransformedLayout, withLabels, withTextResult)),
+    onDialogShown: () => set((old) => w({}, old, withTransformedLayout, withLinks, withLabels, withTextResult)),
     ...createTextResultStoreBaseSlice<DiagramExportFormat, ExportDiagramStore>(
         "png",
         {

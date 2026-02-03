@@ -85,7 +85,7 @@ export default function StatusSection(props: {
                         </small>}
                 </div>
                 <LuChevronDown
-                    className={cn("text-on-surface-muted transition-transform", isOpen && "rotate-180 translate-y-[-1px]")} />
+                    className={cn("text-on-surface-muted transition-transform", isOpen && "rotate-180 -translate-y-px")} />
             </Button>
 
             <section
@@ -99,7 +99,7 @@ export default function StatusSection(props: {
                 className="not-draggable-region in-focus-visible:outline-2
                     bg-surface-container shadow-shade drop-shadow-2xl
                     border border-outline-variant rounded-lg
-                    -translate-x-1/2 -translate-y-[1px] w-full max-w-80
+                    -translate-x-1/2 -translate-y-px w-full max-w-80
                     slide-down-popover-transition">
                 <ul
                     className="text-start grid auto-rows-auto grid-flow-row gap-1.5 p-2 overflow-auto thin-scrollbar max-h-64">

@@ -1,4 +1,5 @@
 import { outlineWidth } from "../../../utils/export";
+import { withFallback } from "../../../utils/stores";
 import { ExportDiagramStore } from "./useExportDiagramStore";
 import withCanvasDimensions from "./withCanvasDimensions";
 
@@ -6,12 +7,12 @@ export default function withPositionedLabelGroups(
     newState: Partial<ExportDiagramStore>,
     oldState: ExportDiagramStore,
 ): Partial<ExportDiagramStore> {
-    const measuredLabelGroups = newState.measuredLabelGroups !== undefined ? newState.measuredLabelGroups : oldState.measuredLabelGroups;
-    const measuredBottomLabelPadding = newState.measuredBottomLabelPadding !== undefined ? newState.measuredBottomLabelPadding : oldState.measuredBottomLabelPadding;
-    const textBackgroundType = newState.textBackgroundType !== undefined ? newState.textBackgroundType : oldState.textBackgroundType;
-    const textSize = newState.textSize !== undefined ? newState.textSize : oldState.textSize;
-    const nodeRadius = newState.nodeRadius !== undefined ? newState.nodeRadius : oldState.nodeRadius;
-    const textOffset = newState.textOffset !== undefined ? newState.textOffset : oldState.textOffset;
+    const measuredLabelGroups = withFallback(newState.measuredLabelGroups, oldState.measuredLabelGroups);
+    const measuredBottomLabelPadding = withFallback(newState.measuredBottomLabelPadding, oldState.measuredBottomLabelPadding);
+    const textBackgroundType = withFallback(newState.textBackgroundType, oldState.textBackgroundType);
+    const textSize = withFallback(newState.textSize, oldState.textSize);
+    const nodeRadius = withFallback(newState.nodeRadius, oldState.nodeRadius);
+    const textOffset = withFallback(newState.textOffset, oldState.textOffset);
 
     const horizontalPadding = textBackgroundType === "outline" ?
         outlineWidth(textSize) :
