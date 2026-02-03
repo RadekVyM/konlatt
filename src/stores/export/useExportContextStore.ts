@@ -10,6 +10,7 @@ import { CsvSeparator } from "../../types/CsvSeparator";
 import { convertToXml } from "../../services/export/context/xml";
 import { sumLengths } from "../../utils/array";
 import createCsvSlice, { CsvSlice, initialState as csvSliceInitialState } from "./createCsvSlice";
+import { withFallback } from "../../utils/stores";
 
 type ExportContextStoreState = {
     csvSeparator: CsvSeparator,
@@ -38,8 +39,8 @@ const useExportContextStore = create<ExportContextStore>((set) => ({
 export default useExportContextStore;
 
 function withResult(newState: Partial<ExportContextStore>, oldState: ExportContextStore): Partial<ExportContextStore> {
-    const selectedFormat = newState.selectedFormat !== undefined ? newState.selectedFormat : oldState.selectedFormat;
-    const csvSeparator = newState.csvSeparator !== undefined ? newState.csvSeparator : oldState.csvSeparator;
+    const selectedFormat = withFallback(newState.selectedFormat, oldState.selectedFormat);
+    const csvSeparator = withFallback(newState.csvSeparator, oldState.csvSeparator);
     const context = useDataStructuresStore.getState().context;
 
     if (!context) {

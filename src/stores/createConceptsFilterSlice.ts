@@ -3,6 +3,7 @@ import { FormalContext } from "../types/FormalContext";
 import { SortDirection } from "../types/SortDirection";
 import { ConceptSortType } from "../types/SortType";
 import { toSearchTerms } from "../utils/search";
+import { withFallback } from "../utils/stores";
 import useDataStructuresStore from "./useDataStructuresStore";
 
 type ConceptsFilterSliceState = {
@@ -87,33 +88,15 @@ export default function createConceptsFilterSlice(set: (partial: ConceptsFilterS
 }
 
 function withFilteredConceptIndexes(newState: Partial<ConceptsFilterSlice>, oldState: ConceptsFilterSlice): Partial<ConceptsFilterSlice> {
-    const debouncedSearchInput = newState.debouncedSearchInput !== undefined ?
-        newState.debouncedSearchInput :
-        oldState.debouncedSearchInput;
-    const strictSelectedObjects = newState.strictSelectedObjects !== undefined ?
-        newState.strictSelectedObjects :
-        oldState.strictSelectedObjects;
-    const strictSelectedAttributes = newState.strictSelectedAttributes !== undefined ?
-        newState.strictSelectedAttributes :
-        oldState.strictSelectedAttributes;
-    const selectedFilterObjects = newState.selectedFilterObjects !== undefined ?
-        newState.selectedFilterObjects :
-        oldState.selectedFilterObjects;
-    const selectedFilterAttributes = newState.selectedFilterAttributes !== undefined ?
-        newState.selectedFilterAttributes :
-        oldState.selectedFilterAttributes;
-    const minObjectsCount = newState.minObjectsCount !== undefined ?
-        newState.minObjectsCount :
-        oldState.minObjectsCount;
-    const maxObjectsCount = newState.maxObjectsCount !== undefined ?
-        newState.maxObjectsCount :
-        oldState.maxObjectsCount;
-    const minAttributesCount = newState.minAttributesCount !== undefined ?
-        newState.minAttributesCount :
-        oldState.minAttributesCount;
-    const maxAttributesCount = newState.maxAttributesCount !== undefined ?
-        newState.maxAttributesCount :
-        oldState.maxAttributesCount;
+    const debouncedSearchInput = withFallback(newState.debouncedSearchInput, oldState.debouncedSearchInput);
+    const strictSelectedObjects = withFallback(newState.strictSelectedObjects, oldState.strictSelectedObjects);
+    const strictSelectedAttributes = withFallback(newState.strictSelectedAttributes, oldState.strictSelectedAttributes);
+    const selectedFilterObjects = withFallback(newState.selectedFilterObjects, oldState.selectedFilterObjects);
+    const selectedFilterAttributes = withFallback(newState.selectedFilterAttributes, oldState.selectedFilterAttributes);
+    const minObjectsCount = withFallback(newState.minObjectsCount, oldState.minObjectsCount);
+    const maxObjectsCount = withFallback(newState.maxObjectsCount, oldState.maxObjectsCount);
+    const minAttributesCount = withFallback(newState.minAttributesCount, oldState.minAttributesCount);
+    const maxAttributesCount = withFallback(newState.maxAttributesCount, oldState.maxAttributesCount);
     const searchTerms = toSearchTerms(debouncedSearchInput);
 
     if (

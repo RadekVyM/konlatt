@@ -5,7 +5,7 @@ import { DiagramOffsetMementos } from "../../types/DiagramOffsetMementos";
 import { createNodeOffsetMemento } from "../../types/NodeOffsetMemento";
 import { createPoint, Point } from "../../types/Point";
 import { rotatePoint } from "../../utils/layout";
-import { w } from "../../utils/stores";
+import { w, withFallback } from "../../utils/stores";
 import { DiagramStore } from "./useDiagramStore";
 import { createConceptLayoutIndexesMappings, createDefaultDiagramOffsets, createDiagramLayoutStateId, createEmptyDiagramOffsetMementos } from "./utils";
 import { withCanUndoRedo } from "./withCanUndoRedo";
@@ -163,8 +163,8 @@ function withNodeOffsetsUpdated(
     newState: Partial<DiagramStore>,
     oldState: DiagramStore,
 ): Partial<DiagramStore> {
-    const diagramOffsets = newState.diagramOffsets !== undefined ? newState.diagramOffsets : oldState.diagramOffsets;
-    const diagramOffsetMementos = newState.diagramOffsetMementos !== undefined ? newState.diagramOffsetMementos : oldState.diagramOffsetMementos;
+    const diagramOffsets = withFallback(newState.diagramOffsets, oldState.diagramOffsets);
+    const diagramOffsetMementos = withFallback(newState.diagramOffsetMementos, oldState.diagramOffsetMementos);
     const stateId = createDiagramLayoutStateId(oldState);
     const cacheItem = oldState.layoutCache.get(stateId);
 

@@ -1,9 +1,10 @@
 import { createPoint, Point } from "../../types/Point";
+import { withFallback } from "../../utils/stores";
 import { DiagramStore } from "./useDiagramStore";
 
 export default function withDragOffsetSnapping(newState: Partial<DiagramStore>, oldState: DiagramStore): Partial<DiagramStore> {
-    const dragOffset = newState.dragOffset === undefined ? oldState.dragOffset : newState.dragOffset;
-    const conceptsToMoveBox = newState.conceptsToMoveBox === undefined ? oldState.conceptsToMoveBox : newState.conceptsToMoveBox;
+    const dragOffset = withFallback(newState.dragOffset, oldState.dragOffset);
+    const conceptsToMoveBox = withFallback(newState.conceptsToMoveBox, oldState.conceptsToMoveBox);
 
     if (conceptsToMoveBox === null || (dragOffset[0] === 0 && dragOffset[1] === 0 && dragOffset[2] === 0)) {
         return {

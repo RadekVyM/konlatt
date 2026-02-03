@@ -1,10 +1,11 @@
+import { withFallback } from "../../utils/stores";
 import { DiagramStore } from "./useDiagramStore";
 
 export function withCanUndoRedo(
     newState: Partial<DiagramStore>,
     oldState: DiagramStore,
 ): Partial<DiagramStore> {
-    const diagramOffsetMementos = newState.diagramOffsetMementos !== undefined ? newState.diagramOffsetMementos : oldState.diagramOffsetMementos;
+    const diagramOffsetMementos = withFallback(newState.diagramOffsetMementos, oldState.diagramOffsetMementos);
 
     return {
         ...newState,

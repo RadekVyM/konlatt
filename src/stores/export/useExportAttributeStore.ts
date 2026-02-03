@@ -8,6 +8,7 @@ import { convertToCsv } from "../../services/export/context-item/csv";
 import { convertToXml } from "../../services/export/context-item/xml";
 import { convertToJson } from "../../services/export/context-item/json";
 import { sumLengths } from "../../utils/array";
+import { withFallback } from "../../utils/stores";
 
 type ExportAttributeStore = TextResultExportStore<ContextItemExportFormat>
 
@@ -22,7 +23,7 @@ const useExportAttributeStore = create<ExportAttributeStore>((set) => ({
 export default useExportAttributeStore;
 
 function withResult(newState: Partial<ExportAttributeStore>, oldState: ExportAttributeStore) {
-    const selectedFormat = newState.selectedFormat !== undefined ? newState.selectedFormat : oldState.selectedFormat;
+    const selectedFormat = withFallback(newState.selectedFormat, oldState.selectedFormat);
     const context = useDataStructuresStore.getState().context;
     const selectedAttribute = useContextStore.getState().selectedAttribute;
 

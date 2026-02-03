@@ -6,7 +6,7 @@ import createTextResultStoreBaseSlice, { TextResultExportStore } from "./createT
 import { convertToXml } from "../../services/export/concepts/xml";
 import { sumLengths } from "../../utils/array";
 import useProjectStore from "../useProjectStore";
-import { w } from "../../utils/stores";
+import { w, withFallback } from "../../utils/stores";
 import { FormalContext } from "../../types/FormalContext";
 import { FormalConcept, FormalConcepts } from "../../types/FormalConcepts";
 import useDiagramStore from "../diagram/useDiagramStore";
@@ -54,11 +54,11 @@ const useExportConceptsStore = create<ExportConceptsStore>((set) => ({
 export default useExportConceptsStore;
 
 function withTooLarge(newState: Partial<ExportConceptsStore>, oldState: ExportConceptsStore): Partial<ExportConceptsStore> {
-    const selectedFormat = newState.selectedFormat !== undefined ? newState.selectedFormat : oldState.selectedFormat;
-    const includeLattice = newState.includeLattice !== undefined ? newState.includeLattice : oldState.includeLattice;
-    const includeHighlightedConceptsOnly = newState.includeHighlightedConceptsOnly !== undefined ?
-        newState.includeHighlightedConceptsOnly :
-        oldState.includeHighlightedConceptsOnly;
+    const selectedFormat = withFallback(newState.selectedFormat, oldState.selectedFormat);
+    const includeLattice = withFallback(newState.includeLattice, oldState.includeLattice);
+    const includeHighlightedConceptsOnly = withFallback(
+        newState.includeHighlightedConceptsOnly,
+        oldState.includeHighlightedConceptsOnly);
     const context = useDataStructuresStore.getState().context;
     const concepts = useDataStructuresStore.getState().concepts;
     const lattice = useDataStructuresStore.getState().lattice;

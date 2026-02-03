@@ -6,6 +6,7 @@ import createTextResultStoreBaseSlice, { TextResultExportStore } from "./createT
 import { sumLengths } from "../../utils/array";
 import { convertToXml } from "../../services/export/concept/xml";
 import createSelectedConceptSlice, { SelectedConceptSlice, initialState as initialSelectedConceptSliceState } from "../createSelectedConceptSlice";
+import { withFallback } from "../../utils/stores";
 
 type ExportConceptStore = TextResultExportStore<ConceptExportFormat> & SelectedConceptSlice
 
@@ -21,8 +22,8 @@ const useExportConceptStore = create<ExportConceptStore>((set) => ({
 export default useExportConceptStore;
 
 function withResult(newState: Partial<ExportConceptStore>, oldState: ExportConceptStore) {
-    const selectedFormat = newState.selectedFormat !== undefined ? newState.selectedFormat : oldState.selectedFormat;
-    const selectedConceptIndex = newState.selectedConceptIndex !== undefined ? newState.selectedConceptIndex : oldState.selectedConceptIndex;
+    const selectedFormat = withFallback(newState.selectedFormat, oldState.selectedFormat);
+    const selectedConceptIndex = withFallback(newState.selectedConceptIndex, oldState.selectedConceptIndex);
     const context = useDataStructuresStore.getState().context;
     const concepts = useDataStructuresStore.getState().concepts;
 

@@ -6,6 +6,7 @@ import createTextResultStoreBaseSlice, { TextResultExportStore } from "./createT
 import { convertToCsv } from "../../services/export/context-items/csv";
 import { convertToXml } from "../../services/export/context-items/xml";
 import { sumLengths } from "../../utils/array";
+import { withFallback } from "../../utils/stores";
 
 type ExportObjectsStore = TextResultExportStore<ContextItemExportFormat>
 
@@ -20,7 +21,7 @@ const useExportObjectsStore = create<ExportObjectsStore>((set) => ({
 export default useExportObjectsStore;
 
 function withResult(newState: Partial<ExportObjectsStore>, oldState: ExportObjectsStore) {
-    const selectedFormat = newState.selectedFormat !== undefined ? newState.selectedFormat : oldState.selectedFormat;
+    const selectedFormat = withFallback(newState.selectedFormat, oldState.selectedFormat);
     const context = useDataStructuresStore.getState().context;
 
     if (!context) {

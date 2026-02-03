@@ -1,22 +1,31 @@
+import { withFallback } from "../../utils/stores";
 import { DiagramStore } from "./useDiagramStore";
 import { calculateLayoutBox } from "./utils";
 import withDragOffsetSnapping from "./withDragOffsetSnapping";
 
 export default function withConceptsToMoveBox(newState: Partial<DiagramStore>, oldState: DiagramStore): Partial<DiagramStore> {
-    const layout = newState.layout === undefined ? oldState.layout : newState.layout;
-    const diagramOffsets = newState.diagramOffsets === undefined ? oldState.diagramOffsets : newState.diagramOffsets;
-    const conceptsToMoveIndexes = newState.conceptsToMoveIndexes === undefined ? oldState.conceptsToMoveIndexes : newState.conceptsToMoveIndexes;
-    const conceptToLayoutIndexesMapping = newState.conceptToLayoutIndexesMapping === undefined ? oldState.conceptToLayoutIndexesMapping : newState.conceptToLayoutIndexesMapping;
-    const cameraType = newState.cameraType === undefined ? oldState.cameraType : newState.cameraType;
-    const horizontalScale = newState.horizontalScale === undefined ? oldState.horizontalScale : newState.horizontalScale;
-    const verticalScale = newState.verticalScale === undefined ? oldState.verticalScale : newState.verticalScale;
-    const rotationDegrees = newState.rotationDegrees === undefined ? oldState.rotationDegrees : newState.rotationDegrees;
+    const layout = withFallback(newState.layout, oldState.layout);
+    const diagramOffsets = withFallback(newState.diagramOffsets, oldState.diagramOffsets);
+    const conceptsToMoveIndexes = withFallback(newState.conceptsToMoveIndexes, oldState.conceptsToMoveIndexes);
+    const conceptToLayoutIndexesMapping = withFallback(newState.conceptToLayoutIndexesMapping, oldState.conceptToLayoutIndexesMapping);
+    const cameraType = withFallback(newState.cameraType, oldState.cameraType);
+    const horizontalScale = withFallback(newState.horizontalScale, oldState.horizontalScale);
+    const verticalScale = withFallback(newState.verticalScale, oldState.verticalScale);
+    const rotationDegrees = withFallback(newState.rotationDegrees, oldState.rotationDegrees);
 
     if (!layout || !diagramOffsets || layout.length !== conceptToLayoutIndexesMapping.size) {
         return withDragOffsetSnapping({ ...newState, conceptsToMoveBox: null }, oldState);
     }
 
-    const conceptsToMoveBox = calculateLayoutBox(conceptsToMoveIndexes, layout, diagramOffsets, conceptToLayoutIndexesMapping, cameraType, horizontalScale, verticalScale, rotationDegrees);
+    const conceptsToMoveBox = calculateLayoutBox(
+        conceptsToMoveIndexes,
+        layout,
+        diagramOffsets,
+        conceptToLayoutIndexesMapping,
+        cameraType,
+        horizontalScale,
+        verticalScale,
+        rotationDegrees);
 
     return withDragOffsetSnapping({
         ...newState,

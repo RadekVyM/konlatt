@@ -1,13 +1,14 @@
+import { withFallback } from "../../utils/stores";
 import { DiagramStore } from "./useDiagramStore";
 import { calculateLayoutBox, createDefaultDiagramOffsets } from "./utils";
 
 export default function withDefaultLayoutBox(newState: Partial<DiagramStore>, oldState: DiagramStore): Partial<DiagramStore> {
-    const layout = newState.layout === undefined ? oldState.layout : newState.layout;
-    const conceptToLayoutIndexesMapping = newState.conceptToLayoutIndexesMapping === undefined ? oldState.conceptToLayoutIndexesMapping : newState.conceptToLayoutIndexesMapping;
-    const cameraType = newState.cameraType === undefined ? oldState.cameraType : newState.cameraType;
-    const horizontalScale = newState.horizontalScale === undefined ? oldState.horizontalScale : newState.horizontalScale;
-    const verticalScale = newState.verticalScale === undefined ? oldState.verticalScale : newState.verticalScale;
-    const rotationDegrees = newState.rotationDegrees === undefined ? oldState.rotationDegrees : newState.rotationDegrees;
+    const layout = withFallback(newState.layout, oldState.layout);
+    const conceptToLayoutIndexesMapping = withFallback(newState.conceptToLayoutIndexesMapping, oldState.conceptToLayoutIndexesMapping);
+    const cameraType = withFallback(newState.cameraType, oldState.cameraType);
+    const horizontalScale = withFallback(newState.horizontalScale, oldState.horizontalScale);
+    const verticalScale = withFallback(newState.verticalScale, oldState.verticalScale);
+    const rotationDegrees = withFallback(newState.rotationDegrees, oldState.rotationDegrees);
 
     if (!layout || layout.length !== conceptToLayoutIndexesMapping.size) {
         return { ...newState, defaultLayoutBox: null };
@@ -15,7 +16,15 @@ export default function withDefaultLayoutBox(newState: Partial<DiagramStore>, ol
 
     const conceptIndexes = layout.map((p) => p.conceptIndex);
     const diagramOffsets = createDefaultDiagramOffsets(layout.length);
-    const defaultLayoutBox = calculateLayoutBox(conceptIndexes, layout, diagramOffsets, conceptToLayoutIndexesMapping, cameraType, horizontalScale, verticalScale, rotationDegrees);
+    const defaultLayoutBox = calculateLayoutBox(
+        conceptIndexes,
+        layout,
+        diagramOffsets,
+        conceptToLayoutIndexesMapping,
+        cameraType,
+        horizontalScale,
+        verticalScale,
+        rotationDegrees);
 
     return { ...newState, defaultLayoutBox };
 }

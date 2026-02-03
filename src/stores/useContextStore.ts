@@ -4,6 +4,7 @@ import { searchStringFilter, toSearchTerms } from "../utils/search";
 import { ItemSortType } from "../types/SortType";
 import { SortDirection } from "../types/SortDirection";
 import { FormalContext, getAttributeObjects } from "../types/FormalContext";
+import { withFallback } from "../utils/stores";
 
 type ContextStoreState = {
     debouncedObjectsSearchInput: string,
@@ -77,12 +78,8 @@ const useContextStore = create<ContextStore>((set) => ({
 export default useContextStore;
 
 function withFilteredObjects(newState: Partial<ContextStore>, oldState: ContextStore): Partial<ContextStore> {
-    const debouncedObjectsSearchInput = newState.debouncedObjectsSearchInput !== undefined ?
-        newState.debouncedObjectsSearchInput :
-        oldState.debouncedObjectsSearchInput;
-    const selectedFilterAttributes = newState.selectedFilterAttributes !== undefined ?
-        newState.selectedFilterAttributes :
-        oldState.selectedFilterAttributes;
+    const debouncedObjectsSearchInput = withFallback(newState.debouncedObjectsSearchInput, oldState.debouncedObjectsSearchInput);
+    const selectedFilterAttributes = withFallback(newState.selectedFilterAttributes, oldState.selectedFilterAttributes);
     const objectsSearchTerms = toSearchTerms(debouncedObjectsSearchInput);
     const context = useDataStructuresStore.getState().context;
 
@@ -104,12 +101,8 @@ function withFilteredObjects(newState: Partial<ContextStore>, oldState: ContextS
 }
 
 function withFilteredAttributes(newState: Partial<ContextStore>, oldState: ContextStore): Partial<ContextStore> {
-    const debouncedAttributesSearchInput = newState.debouncedAttributesSearchInput !== undefined ?
-        newState.debouncedAttributesSearchInput :
-        oldState.debouncedAttributesSearchInput;
-    const selectedFilterObjects = newState.selectedFilterObjects !== undefined ?
-        newState.selectedFilterObjects :
-        oldState.selectedFilterObjects;
+    const debouncedAttributesSearchInput = withFallback(newState.debouncedAttributesSearchInput, oldState.debouncedAttributesSearchInput);
+    const selectedFilterObjects = withFallback(newState.selectedFilterObjects, oldState.selectedFilterObjects);
     const attributesSearchTerms = toSearchTerms(debouncedAttributesSearchInput);
     const context = useDataStructuresStore.getState().context;
 
