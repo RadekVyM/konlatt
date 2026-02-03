@@ -6,7 +6,7 @@ import { HsvaColor } from "../../../types/HsvaColor";
 import { Link } from "../../../types/Link";
 import { Point } from "../../../types/Point";
 import { hsvaToHexa } from "../../../utils/colors";
-import { outlineWidth } from "../../../utils/export";
+import { labelOutlineWidth } from "../../../utils/drawing";
 import { escapeXml } from "../../../utils/string";
 import { CollapseRegions, createCollapseRegions } from "../CollapseRegions";
 import { INDENTATION } from "../constants";
@@ -66,7 +66,7 @@ export function convertToSvg(
     lines.push("");
     collapseRegions.nextRegionStart++;
 
-    pushLabels(lines, collapseRegions, INDENTATION, transformedLayout, conceptToLayoutIndexesMapping, canvasDimensions, labelGroups, options);
+    pushLabels(lines, collapseRegions, INDENTATION, transformedLayout, canvasDimensions, labelGroups, options);
 
     lines.push(`</svg>`);
 
@@ -98,7 +98,7 @@ function pushStyles(lines: Array<string>, collapseRegions: CollapseRegions, opti
         ["font", `${options.textSize}px ${options.font}`],
         ["fill", hsvaToHexa(options.textColor)],
         options.textBackgroundType === "outline" ? ["stroke", hsvaToHexa(options.textBackgroundColor)] : undefined,
-        options.textBackgroundType === "outline" ? ["stroke-width", outlineWidth(options.textSize)] : undefined,
+        options.textBackgroundType === "outline" ? ["stroke-width", labelOutlineWidth(options.textSize)] : undefined,
         options.textBackgroundType === "outline" ? ["paint-order", "stroke fill"] : undefined,
         options.textBackgroundType === "outline" ? ["stroke-linecap", "round"] : undefined,
         options.textBackgroundType === "outline" ? ["stroke-linejoin", "round"] : undefined,
@@ -211,7 +211,6 @@ function pushLabels(
     collapseRegions: CollapseRegions,
     indentation: string,
     layout: Array<Point>,
-    conceptToLayoutIndexesMapping: Map<number, number>,
     canvasDimensions: CanvasDimensions,
     labelGroups: Array<LabelGroup>,
     options: Options,
@@ -219,11 +218,10 @@ function pushLabels(
     const startLinesCount = lines.length;
 
     for (const group of labelGroups) {
+        const layoutIndex = group.layoutIndex;
 
-        const layoutIndex = conceptToLayoutIndexesMapping.get(group.conceptIndex);
-
-        if (layoutIndex === undefined || layoutIndex >= layout.length) {
-            console.error(`Layout index should not be ${layoutIndex}`);
+        if (layoutIndex >= layout.length) {
+            console.error(`Layout index of the label group should not be ${layoutIndex}`);
             continue;
         }
 

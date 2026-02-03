@@ -1,6 +1,6 @@
 import useProjectStore from "../stores/useProjectStore";
-import { ConceptComputationRequest, ContextParsingRequest, LatticeComputationRequest, LayoutComputationRequest } from "../types/WorkerRequest";
-import { ConceptComputationResponse, ContextParsingResponse, LatticeComputationResponse, LayoutComputationResponse } from "../types/WorkerResponse";
+import { ConceptComputationRequest, ContextParsingRequest, LatticeComputationRequest, LayoutComputationRequest } from "../types/workers/MainWorkerRequest";
+import { ConceptComputationResponse, ContextParsingResponse, LatticeComputationResponse, LayoutComputationResponse } from "../types/workers/MainWorkerResponse";
 import useDiagramStore from "../stores/diagram/useDiagramStore";
 import useDataStructuresStore from "../stores/useDataStructuresStore";
 import useExplorerStore from "../stores/useExplorerStore";

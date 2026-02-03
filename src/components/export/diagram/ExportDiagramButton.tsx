@@ -2,7 +2,6 @@ import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import useExportDiagramStore from "../../../stores/export/diagram/useExportDiagramStore";
 import { DiagramExportFormat } from "../../../types/export/DiagramExportFormat";
 import ExportButton from "../ExportButton";
-import ExportDiagramCanvas from "./ExportDiagramCanvas";
 import { ExportButtonProps } from "../types/ExportButtonProps";
 import { ExportItem } from "../types/ExportItem";
 import "./aspect-ratio-bridge-clip.css";
@@ -13,6 +12,7 @@ import createTextResultPreviewerComponent from "../createTextResultPreviewerComp
 import RasterDownloadButtons from "./RasterDownloadButtons";
 import ConfigSection from "../../layouts/ConfigSection";
 import LabelLineInputs from "./LabelLineInputs";
+import ExportDiagramOffscreenCanvas from "./ExportDiagramOffscreenCanvas";
 
 const TextPreviewer = createTextResultPreviewerComponent(useExportDiagramStore);
 
@@ -61,18 +61,24 @@ export default function ExportDiagramButton(props: ExportButtonProps) {
             items={ITEMS}
             isHighlighted
             useSelectedFormatStore={useExportDiagramStore}
-            onShowing={useExportDiagramStore.getState().resetResult}
+            onShowing={() => {
+                useExportDiagramStore.getState().onDialogShowing();
+                useExportDiagramStore.getState().resetResult();
+            }}
             onShown={() => {
                 useExportDiagramStore.getState().onDialogShown();
                 useExportDiagramStore.getState().triggerResultComputation();
             }}
-            onHiding={useExportDiagramStore.getState().resetResult} />
+            onHiding={() => {
+                useExportDiagramStore.getState().onDialogHiding();
+                useExportDiagramStore.getState().resetResult();
+            }} />
     );
 }
 
 function RasterContent() {
     return (
-        <ExportDiagramCanvas
+        <ExportDiagramOffscreenCanvas
             id={CANVAS_ID} />
     );
 }

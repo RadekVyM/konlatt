@@ -16,6 +16,7 @@ import withCanvasDimensions from "./withCanvasDimensions";
 import withTextResult from "./withTextResult";
 import { Link } from "../../../types/Link";
 import withLinks from "./withLinks";
+import DiagramExportWorker from "../../../workers/diagramExportWorker?worker";
 
 type ExportDiagramStoreState = {
     transformedLayout: Array<Point> | null,
@@ -34,6 +35,7 @@ type ExportDiagramStoreState = {
     defaultLinkColor: HsvaColor,
     nodeRadius: number,
     linkThickness: number,
+    worker: Worker | null,
 }
 
 type ExportDiagramStoreActions = {
@@ -51,6 +53,8 @@ type ExportDiagramStoreActions = {
     setLinkThickness: (linkThickness: number) => void,
     setDimensions: (largerSize: number, smallerSize: number) => void,
     onDialogShown: () => void,
+    onDialogShowing: () => void,
+    onDialogHiding: () => void,
     reset: () => void,
 }
 
@@ -73,6 +77,7 @@ const initialState: ExportDiagramStoreState = {
     backgroundColor: createHsvaColor(0, 0, 1, 0),
     defaultNodeColor: createHsvaColor(0, 0, 0, 1),
     defaultLinkColor: createHsvaColor(0, 0, 0.7, 1),
+    worker: null,
 };
 
 const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
@@ -143,6 +148,14 @@ const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
     setNodeRadius: (nodeRadius) => set((old) => w({ nodeRadius }, old, withPositionedLabelGroups, withTextResult)),
     setLinkThickness: (linkThickness) => set((old) => w({ linkThickness }, old, withTextResult)),
     onDialogShown: () => set((old) => w({}, old, withTransformedLayout, withLinks, withLabels, withTextResult)),
+    onDialogShowing: () => set((old) => {
+        old.worker?.terminate();
+        return { worker: new DiagramExportWorker() };
+    }),
+    onDialogHiding: () => set((old) => {
+        old.worker?.terminate();
+        return { worker: null };
+    }),
     ...createTextResultStoreBaseSlice<DiagramExportFormat, ExportDiagramStore>(
         "png",
         {

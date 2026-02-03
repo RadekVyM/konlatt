@@ -1,6 +1,6 @@
 import useDataStructuresStore from "../stores/useDataStructuresStore";
-import { CancellationRequest, CompleteWorkerRequest, WorkerRequest } from "../types/WorkerRequest";
-import { WorkerDataRequestResponse, WorkerResponse } from "../types/WorkerResponse";
+import { CancellationRequest, CompleteWorkerRequest, MainWorkerRequest } from "../types/workers/MainWorkerRequest";
+import { WorkerDataRequestResponse, MainWorkerResponse } from "../types/workers/MainWorkerResponse";
 import LatticeWorker from "../workers/latticeWorker?worker";
 
 // Single worker is reused for all formal context calculations
@@ -13,8 +13,8 @@ export default class LatticeWorkerQueue {
     #queue: Array<Job> = [];
     #currentJob: Job | null  = null;
 
-    enqueue<T extends WorkerResponse>(
-        request: WorkerRequest,
+    enqueue<T extends MainWorkerResponse>(
+        request: MainWorkerRequest,
         onResponse: (response: T) => void,
         callbacks?: {
             onStatusMessage?: (message: string | null) => void,
@@ -132,7 +132,7 @@ export default class LatticeWorkerQueue {
         }
     }
 
-    #onResponse(e: MessageEvent<WorkerResponse>) {
+    #onResponse(e: MessageEvent<MainWorkerResponse>) {
         // ignore responses with jobId !== this.currentJob.id
         // or suppose that these responses do not exist?
 
@@ -170,7 +170,7 @@ export default class LatticeWorkerQueue {
 
 type Job = {
     readonly id: number,
-    readonly request: WorkerRequest,
+    readonly request: MainWorkerRequest,
     readonly responseCallback: (response: any) => void,
     readonly statusMessageCallback?: (message: string | null) => void,
     readonly progressCallback?: (jobId: number, progress: number) => void,

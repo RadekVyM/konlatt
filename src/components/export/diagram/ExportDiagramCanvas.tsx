@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 import { cn } from "../../../utils/tailwind";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
-import { Point } from "../../../types/Point";
 import { TransformWrapper, TransformComponent, useControls, useTransformComponent } from "react-zoom-pan-pinch";
 import ZoomBar from "../../ZoomBar";
 import Button from "../../inputs/Button";
@@ -9,12 +8,8 @@ import { LuFocus } from "react-icons/lu";
 import useExportDiagramStore from "../../../stores/export/diagram/useExportDiagramStore";
 import { hsvaToHexa } from "../../../utils/colors";
 import useDebouncedValue from "../../../hooks/useDebouncedValue";
-import { outlineWidth } from "../../../utils/export";
-import { TextBackgroundType } from "../../../types/export/TextBackgroundType";
-import { HsvaColor } from "../../../types/HsvaColor";
-import { Font } from "../../../types/export/Font";
-import { LabelGroup } from "../../../types/export/LabelGroup";
 import { CanvasDimensions } from "../../../types/export/CanvasDimensions";
+import { drawLabels } from "../../../utils/drawing";
 
 const DEBOUNCE_DELAY = 200;
 
@@ -258,78 +253,23 @@ function useDrawLabels(
             return;
         }
 
-        drawLabels(context, layout, scale, labelGroups, font, textBackgroundType, textSize, textColor, textBackgroundColor, textOutlineColor);
+        drawLabels(
+            context,
+            labelGroups,
+            font,
+            textBackgroundType,
+            textSize,
+            hsvaToHexa(textColor),
+            hsvaToHexa(textBackgroundColor),
+            hsvaToHexa(textOutlineColor),
+            (layoutIndex) => {
+                if (layoutIndex >= layout.length) {
+                    console.error(`Layout index of the label group should not be ${layoutIndex}`);
+                    return null;
+                }
+
+                const point = layout[layoutIndex];
+                return [point[0] * scale, point[1] * scale];
+            });
     }, [layout, scale, labelGroups, font, textBackgroundType, textSize, textColor, textBackgroundColor, textOutlineColor]);
-}
-
-function drawLabels(
-    context: CanvasRenderingContext2D,
-    layout: Array<Point>,
-    scale: number,
-    labelGroups: Array<LabelGroup>,
-    font: Font,
-    textBackgroundType: TextBackgroundType,
-    textSize: number,
-    textColor: HsvaColor,
-    textBackgroundColor: HsvaColor,
-    textOutlineColor: HsvaColor,
-) {
-    const conceptToLayoutIndexesMapping = useDiagramStore.getState().conceptToLayoutIndexesMapping;
-    const textColorHexa = hsvaToHexa(textColor);
-    const textBackgroundColorHexa = hsvaToHexa(textBackgroundColor);
-    const textOutlineColorHexa = hsvaToHexa(textOutlineColor);
-    const textOutlineWidth = outlineWidth(textSize);
-
-    context.lineCap = "round";
-    context.lineJoin = "round";
-    context.textBaseline = "hanging";
-
-    context.font = `${textSize}px ${font}`;
-
-    for (const group of labelGroups) {
-        const layoutIndex = conceptToLayoutIndexesMapping.get(group.conceptIndex);
-
-        if (layoutIndex === undefined || layoutIndex >= layout.length) {
-            console.error(`Layout index should not be ${layoutIndex}`);
-            continue;
-        }
-
-        const point = layout[layoutIndex];
-        const nodeX = point[0] * scale;
-        const nodeY = -point[1] * scale;
-
-        if (textBackgroundType === "box") {
-            context.fillStyle = textBackgroundColorHexa;
-            context.strokeStyle = textOutlineColorHexa;
-            context.lineWidth = 1;
-
-            const outlineMargin = context.lineWidth / 2;
-            const outlineMarginDoubled = outlineMargin * 2;
-
-            const x = nodeX + group.relativeRect.x + outlineMargin;
-            const y = nodeY + group.relativeRect.y + outlineMargin;
-            const width = group.relativeRect.width - outlineMarginDoubled;
-            const height = group.relativeRect.height - outlineMarginDoubled;
-
-            context.beginPath();
-            context.roundRect(x, y, width, height, textSize / 4);
-            context.fill();
-            context.stroke();
-        }
-
-        context.fillStyle = textColorHexa;
-
-        for (const label of group.labels) {
-            const x = nodeX + group.relativeRect.x + label.relativeRect.x;
-            const y = nodeY + group.relativeRect.y + label.relativeRect.y;
-
-            if (textBackgroundType === "outline") {
-                context.strokeStyle = textBackgroundColorHexa;
-                context.lineWidth = textOutlineWidth;
-
-                context.strokeText(label.text, x, y);
-            }
-            context.fillText(label.text, x, y);
-        }
-    }
 }

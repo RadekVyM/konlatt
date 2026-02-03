@@ -1,5 +1,7 @@
 import { ConceptLabel } from "../../../types/ConceptLabel";
-import { LabelGroup, LabelGroupLine } from "../../../types/export/LabelGroup";
+import { LabelGroupLine, LabelGroup } from "../../../types/export/LabelGroup";
+import { withFallback } from "../../../utils/stores";
+import useDiagramStore from "../../diagram/useDiagramStore";
 import { ExportDiagramStore } from "./useExportDiagramStore";
 import withPositionedLabelGroups from "./withPositionedLabelGroups";
 
@@ -7,19 +9,21 @@ export default function withMeasuredLabelGroups(
     newState: Partial<ExportDiagramStore>,
     oldState: ExportDiagramStore,
 ): Partial<ExportDiagramStore> {
-    const measuringCanvas = newState.measuringCanvas !== undefined ? newState.measuringCanvas : oldState.measuringCanvas;
-    const textSize = newState.textSize !== undefined ? newState.textSize : oldState.textSize;
-    const font = newState.font !== undefined ? newState.font : oldState.font;
-    const attributeLabels = newState.attributeLabels !== undefined ? newState.attributeLabels : oldState.attributeLabels;
-    const objectLabels = newState.objectLabels !== undefined ? newState.objectLabels : oldState.objectLabels;
+    const measuringCanvas = withFallback(newState.measuringCanvas, oldState.measuringCanvas);
+    const textSize = withFallback(newState.textSize, oldState.textSize);
+    const font = withFallback(newState.font, oldState.font);
+    const attributeLabels = withFallback(newState.attributeLabels, oldState.attributeLabels);
+    const objectLabels = withFallback(newState.objectLabels, oldState.objectLabels);
+
+    const conceptToLayoutIndexesMapping = useDiagramStore.getState().conceptToLayoutIndexesMapping;
 
     const groups = new Array<LabelGroup>();
     
     const context = measuringCanvas.getContext("2d")!;
     context.font = `${textSize}px ${font}`;
 
-    const attributesBottomPadding = addLabelsToGroups(groups, attributeLabels, context);
-    const objectsBottomPadding = addLabelsToGroups(groups, objectLabels, context);
+    const attributesBottomPadding = addLabelsToGroups(groups, attributeLabels, context, conceptToLayoutIndexesMapping);
+    const objectsBottomPadding = addLabelsToGroups(groups, objectLabels, context, conceptToLayoutIndexesMapping);
 
     return withPositionedLabelGroups({
         ...newState,
@@ -33,10 +37,18 @@ function addLabelsToGroups(
     groups: Array<LabelGroup>,
     labels: Array<ConceptLabel>,
     context: OffscreenCanvasRenderingContext2D,
+    conceptToLayoutIndexesMapping: Map<number, number>,
 ) {
     let maxHeightDiff = 0;
-    
+
     for (const label of labels) {
+        const layoutIndex = conceptToLayoutIndexesMapping.get(label.conceptIndex);
+
+        if (layoutIndex === undefined) {
+            // This concept is not rendered => label is not rendered
+            continue;
+        }
+
         const groupLines = new Array<LabelGroupLine>();
         const lines = label.text.split("\n");
         let maxWidth = 0;
@@ -69,7 +81,7 @@ function addLabelsToGroups(
         }
 
         groups.push({
-            conceptIndex: label.conceptIndex,
+            layoutIndex,
             labels: groupLines,
             placement: label.placement,
             relativeRect: {

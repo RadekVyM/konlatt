@@ -1,4 +1,4 @@
-import { outlineWidth } from "../../../utils/export";
+import { labelOutlineWidth } from "../../../utils/drawing";
 import { withFallback } from "../../../utils/stores";
 import { ExportDiagramStore } from "./useExportDiagramStore";
 import withCanvasDimensions from "./withCanvasDimensions";
@@ -15,12 +15,12 @@ export default function withPositionedLabelGroups(
     const textOffset = withFallback(newState.textOffset, oldState.textOffset);
 
     const horizontalPadding = textBackgroundType === "outline" ?
-        outlineWidth(textSize) :
+        labelOutlineWidth(textSize) :
         textBackgroundType === "box" ?
             measuredBottomLabelPadding * 1.5 :
             0;
     const verticalPadding = textBackgroundType === "outline" ?
-        outlineWidth(textSize) :
+        labelOutlineWidth(textSize) :
         0;
     const heightAddition = textBackgroundType === "box" ? measuredBottomLabelPadding * 0.75 : 0;
 

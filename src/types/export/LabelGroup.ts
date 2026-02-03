@@ -1,7 +1,7 @@
 import { Rect } from "../Rect";
 
 export type LabelGroup = {
-    conceptIndex: number,
+    layoutIndex: number,
     labels: Array<LabelGroupLine>,
     placement: "top" | "bottom",
     relativeRect: Rect,

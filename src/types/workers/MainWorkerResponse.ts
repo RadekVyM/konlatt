@@ -1,10 +1,10 @@
-import { FormalContext } from "./FormalContext";
-import { ConceptLattice } from "./ConceptLattice";
-import { FormalConcepts } from "./FormalConcepts";
-import { ConceptLatticeLayout } from "./ConceptLatticeLayout";
-import { CompleteWorkerRequest } from "./WorkerRequest";
+import { FormalContext } from "../FormalContext";
+import { ConceptLattice } from "../ConceptLattice";
+import { FormalConcepts } from "../FormalConcepts";
+import { ConceptLatticeLayout } from "../ConceptLatticeLayout";
+import { CompleteWorkerRequest } from "./MainWorkerRequest";
 
-export type WorkerResponse = ErrorResponse | FinishedResponse | StatusResponse | ProgressResponse | ContextParsingResponse | ConceptComputationResponse | LatticeComputationResponse | LayoutComputationResponse | WorkerDataRequestResponse
+export type MainWorkerResponse = ErrorResponse | FinishedResponse | StatusResponse | ProgressResponse | ContextParsingResponse | ConceptComputationResponse | LatticeComputationResponse | LayoutComputationResponse | WorkerDataRequestResponse
 
 export type ErrorResponse = {
     type: "error",

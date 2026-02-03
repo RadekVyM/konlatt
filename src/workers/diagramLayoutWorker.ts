@@ -1,6 +1,6 @@
 import { LayoutWorkerProgressResponse, LayoutWorkerResultResponse } from "../types/LayoutWorkerResponse";
 import { Point } from "../types/Point";
-import { CompleteLayoutComputationRequest } from "../types/WorkerRequest";
+import { CompleteLayoutComputationRequest } from "../types/workers/MainWorkerRequest";
 import { hashString } from "../utils/string";
 
 self.onmessage = async (event: MessageEvent<CompleteLayoutComputationRequest>) => {

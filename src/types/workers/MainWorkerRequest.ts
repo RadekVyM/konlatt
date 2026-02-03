@@ -1,16 +1,16 @@
-import { ConceptLattice } from "./ConceptLattice";
-import { CsvSeparator } from "./CsvSeparator";
-import { FormalConcepts } from "./FormalConcepts";
-import { FormalContext } from "./FormalContext";
-import { ImportFormat } from "./ImportFormat";
-import { LayoutComputationOptions } from "./LayoutComputationOptions";
+import { ConceptLattice } from "../ConceptLattice";
+import { CsvSeparator } from "../CsvSeparator";
+import { FormalConcepts } from "../FormalConcepts";
+import { FormalContext } from "../FormalContext";
+import { ImportFormat } from "../ImportFormat";
+import { LayoutComputationOptions } from "../LayoutComputationOptions";
 
-export type WorkerRequest = CancellationRequest | ContextParsingRequest | ConceptComputationRequest | LatticeComputationRequest | LayoutComputationRequest
+export type MainWorkerRequest = CancellationRequest | ContextParsingRequest | ConceptComputationRequest | LatticeComputationRequest | LayoutComputationRequest
 
 export type CompleteWorkerRequest = {
     jobId: number,
     time: number,
-} & WorkerRequest
+} & MainWorkerRequest
 
 export type ContextParsingRequest = {
     type: "parse-context",

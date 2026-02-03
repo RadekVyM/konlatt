@@ -3,7 +3,6 @@ import { LabelGroup } from "../../../types/export/LabelGroup";
 import { Point } from "../../../types/Point";
 import { layoutRect } from "../../../utils/layout";
 import { withFallback } from "../../../utils/stores";
-import useDiagramStore from "../../diagram/useDiagramStore";
 import { ExportDiagramStore } from "./useExportDiagramStore";
 
 export default function withCanvasDimensions(
@@ -85,16 +84,15 @@ function getPeripheralLabelPaddings(
     },
     nodeRadius: number,
 ) {
-    const conceptToLayoutIndexesMapping = useDiagramStore.getState().conceptToLayoutIndexesMapping;
     let left = 0;
     let right = 0;
     let top = 0;
     let bottom = 0;
 
     for (const group of labelGroups) {
-        const layoutIndex = conceptToLayoutIndexesMapping.get(group.conceptIndex);
+        const layoutIndex = group.layoutIndex;
 
-        if (layoutIndex === undefined || layoutIndex >= layout.length) {
+        if (layoutIndex >= layout.length) {
             console.error(`Layout index should not be ${layoutIndex}`);
             continue;
         }
