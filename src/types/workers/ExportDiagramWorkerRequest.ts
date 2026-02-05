@@ -2,13 +2,14 @@ import { Font } from "../export/Font";
 import { LabelGroup } from "../export/LabelGroup";
 import { TextBackgroundType } from "../export/TextBackgroundType";
 
-export type DiagramExportWorkerRequest = InitCanvasRequest |
+export type ExportDiagramWorkerRequest = InitCanvasRequest |
     InitLayoutRequest |
     InitLinksRequest |
     DimensionsRequest |
     AppearanceRequest |
     LabelGroupsRequest |
-    LabelsAppearanceRequest
+    LabelsAppearanceRequest |
+    BlobRequest
 
 export type InitCanvasRequest = {
     type: "init-canvas",
@@ -56,4 +57,9 @@ export type LabelsAppearanceRequest = {
     textBackgroundType: TextBackgroundType,
     textSize: number,
     font: Font,
+}
+
+export type BlobRequest = {
+    type: "blob",
+    mimeType: string,
 }

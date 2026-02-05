@@ -35,6 +35,8 @@ export default function DiagramConfig() {
 
                 <LayoutSection />
 
+                <LabelsSection />
+
                 <NodesLinksSection />
 
                 <PerformanceSection />
@@ -45,12 +47,8 @@ export default function DiagramConfig() {
 
 function DisplaySection() {
     const displayHighlightedSublatticeOnly = useDiagramStore((state) => state.displayHighlightedSublatticeOnly);
-    const hoveredConceptDetailEnabled = useDiagramStore((state) => state.hoveredConceptDetailEnabled);
-    const recalculateLabelingOfSublatticeOnly = useDiagramStore((state) => state.recalculateLabelingOfSublatticeOnly);
     const cameraType = useDiagramStore((state) => state.cameraType);
     const setDisplayHighlightedSublatticeOnly = useDiagramStore((state) => state.setDisplayHighlightedSublatticeOnly);
-    const setHoveredConceptDetailEnabled = useDiagramStore((state) => state.setHoveredConceptDetailEnabled);
-    const setRecalculateLabelingOfSublatticeOnly = useDiagramStore((state) => state.setRecalculateLabelingOfSublatticeOnly);
     const setCameraType = useDiagramStore((state) => state.setCameraType);
 
     return (
@@ -65,10 +63,30 @@ function DisplaySection() {
                 onChange={(e) => setDisplayHighlightedSublatticeOnly(e.currentTarget.checked)}>
                 Show highlighted sublattice only
             </ToggleSwitch>
+        </ConfigSection>
+    );
+}
+
+function LabelsSection() {
+    const labelsEnabled = useDiagramStore((state) => state.labelsEnabled);
+    const hoveredConceptDetailEnabled = useDiagramStore((state) => state.hoveredConceptDetailEnabled);
+    const recalculateLabelingOfSublatticeOnly = useDiagramStore((state) => state.recalculateLabelingOfSublatticeOnly);
+    const setLabelsEnabled = useDiagramStore((state) => state.setLabelsEnabled);
+    const setHoveredConceptDetailEnabled = useDiagramStore((state) => state.setHoveredConceptDetailEnabled);
+    const setRecalculateLabelingOfSublatticeOnly = useDiagramStore((state) => state.setRecalculateLabelingOfSublatticeOnly);
+
+    return (
+        <ConfigSection
+            heading="Labeling">
             <ToggleSwitch
                 checked={hoveredConceptDetailEnabled}
                 onChange={(e) => setHoveredConceptDetailEnabled(e.currentTarget.checked)}>
                 Show concept detail on hover
+            </ToggleSwitch>
+            <ToggleSwitch
+                checked={labelsEnabled}
+                onChange={(e) => setLabelsEnabled(e.currentTarget.checked)}>
+                Show labeling
             </ToggleSwitch>
             <ToggleSwitch
                 checked={recalculateLabelingOfSublatticeOnly}
@@ -84,23 +102,16 @@ function NodesLinksSection() {
     const hoveredLinksHighlightingEnabled = useDiagramStore((state) => state.hoveredLinksHighlightingEnabled);
     const selectedLinksHighlightingEnabled = useDiagramStore((state) => state.selectedLinksHighlightingEnabled);
     const semitransparentLinksEnabled = useDiagramStore((state) => state.semitransparentLinksEnabled);
-    const labelsEnabled = useDiagramStore((state) => state.labelsEnabled);
     const flatLinksEnabled = useDiagramStore((state) => state.flatLinksEnabled);
     const setLinksVisibleEnabled = useDiagramStore((state) => state.setLinksVisibleEnabled);
     const setHoveredLinksHighlightingEnabled = useDiagramStore((state) => state.setHoveredLinksHighlightingEnabled);
     const setSelectedLinksHighlightingEnabled = useDiagramStore((state) => state.setSelectedLinksHighlightingEnabled);
     const setSemitransparentLinksEnabled = useDiagramStore((state) => state.setSemitransparentLinksEnabled);
-    const setLabelsEnabled = useDiagramStore((state) => state.setLabelsEnabled);
     const setFlatLinksEnabled = useDiagramStore((state) => state.setFlatLinksEnabled);
 
     return (
         <ConfigSection
             heading="Nodes and links">
-            <ToggleSwitch
-                checked={labelsEnabled}
-                onChange={(e) => setLabelsEnabled(e.currentTarget.checked)}>
-                Show labels
-            </ToggleSwitch>
             <ToggleSwitch
                 checked={linksVisibleEnabled}
                 onChange={(e) => setLinksVisibleEnabled(e.currentTarget.checked)}>

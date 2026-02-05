@@ -16,7 +16,9 @@ import withCanvasDimensions from "./withCanvasDimensions";
 import withTextResult from "./withTextResult";
 import { Link } from "../../../types/Link";
 import withLinks from "./withLinks";
-import DiagramExportWorker from "../../../workers/diagramExportWorker?worker";
+import ExportDiagramWorker from "../../../workers/exportDiagramWorker?worker";
+import { ExportDiagramWorkerResponse } from "../../../types/workers/ExportDiagramWorkerResponse";
+import toast from "../../../components/toast";
 
 type ExportDiagramStoreState = {
     transformedLayout: Array<Point> | null,
@@ -35,6 +37,8 @@ type ExportDiagramStoreState = {
     defaultLinkColor: HsvaColor,
     nodeRadius: number,
     linkThickness: number,
+    isInitialPreviewCanvasDrawDone: boolean,
+    isExporting: boolean,
     worker: Worker | null,
 }
 
@@ -52,6 +56,8 @@ type ExportDiagramStoreActions = {
     setNodeRadius: (nodeRadius: number) => void,
     setLinkThickness: (linkThickness: number) => void,
     setDimensions: (largerSize: number, smallerSize: number) => void,
+    setIsInitialPreviewCanvasDrawDone: (isInitialPreviewCanvasDrawDone: boolean) => void,
+    setIsExporting: (isExporting: boolean) => void,
     onDialogShown: () => void,
     onDialogShowing: () => void,
     onDialogHiding: () => void,
@@ -77,6 +83,8 @@ const initialState: ExportDiagramStoreState = {
     backgroundColor: createHsvaColor(0, 0, 1, 0),
     defaultNodeColor: createHsvaColor(0, 0, 0, 1),
     defaultLinkColor: createHsvaColor(0, 0, 0.7, 1),
+    isInitialPreviewCanvasDrawDone: false,
+    isExporting: false,
     worker: null,
 };
 
@@ -147,10 +155,20 @@ const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
     setDefaultLinkColor: (defaultLinkColor) => set((old) => w({ defaultLinkColor }, old, withTextResult)),
     setNodeRadius: (nodeRadius) => set((old) => w({ nodeRadius }, old, withPositionedLabelGroups, withTextResult)),
     setLinkThickness: (linkThickness) => set((old) => w({ linkThickness }, old, withTextResult)),
+    setIsInitialPreviewCanvasDrawDone: (isInitialPreviewCanvasDrawDone) => set({ isInitialPreviewCanvasDrawDone }),
+    setIsExporting: (isExporting) => set({ isExporting }),
     onDialogShown: () => set((old) => w({}, old, withTransformedLayout, withLinks, withLabels, withTextResult)),
     onDialogShowing: () => set((old) => {
         old.worker?.terminate();
-        return { worker: new DiagramExportWorker() };
+        const worker = new ExportDiagramWorker();
+
+        worker.addEventListener("message", handleWorkerResponse);
+        worker.addEventListener("error", (event) => {
+            console.error(event.message);
+            toast("Something went wrong while exporting the diagram");
+        });
+
+        return { worker, isInitialPreviewCanvasDrawDone: false };
     }),
     onDialogHiding: () => set((old) => {
         old.worker?.terminate();
@@ -167,3 +185,11 @@ const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
 }));
 
 export default useExportDiagramStore;
+
+function handleWorkerResponse(event: MessageEvent<ExportDiagramWorkerResponse>) {
+    switch (event.data.type) {
+        case "draw-done":
+            useExportDiagramStore.getState().setIsInitialPreviewCanvasDrawDone(true);
+            break;
+    }
+}

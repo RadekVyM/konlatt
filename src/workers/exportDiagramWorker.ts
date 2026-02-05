@@ -1,7 +1,8 @@
 import { Font } from "../types/export/Font";
 import { LabelGroup } from "../types/export/LabelGroup";
 import { TextBackgroundType } from "../types/export/TextBackgroundType";
-import { DiagramExportWorkerRequest } from "../types/workers/DiagramExportWorkerRequest";
+import { ExportDiagramWorkerRequest } from "../types/workers/ExportDiagramWorkerRequest";
+import { BlobResponse, DrawDoneResponse } from "../types/workers/ExportDiagramWorkerResponse";
 import { drawLabels } from "../utils/drawing";
 
 const LAYOUT_ENTRIES_COUNT = 2;
@@ -33,7 +34,7 @@ let links: Float64Array | null = null;
 
 let timeout: number | null = null;
 
-self.onmessage = async (event: MessageEvent<DiagramExportWorkerRequest>) => {
+self.onmessage = async (event: MessageEvent<ExportDiagramWorkerRequest>) => {
     switch (event.data.type) {
         case "init-canvas":
             canvas = event.data.canvas;
@@ -70,6 +71,20 @@ self.onmessage = async (event: MessageEvent<DiagramExportWorkerRequest>) => {
             font = event.data.font;
             textBackgroundType = event.data.textBackgroundType;
             break;
+        case "blob":
+            if (!canvas) {
+                postMessage(createBlobResponse(null));
+            }
+
+            try {
+                canvas?.convertToBlob({ type: event.data.mimeType }).then((blob) => {
+                    postMessage(createBlobResponse(blob));
+                });
+            }
+            catch {
+                postMessage(createBlobResponse(null));
+            }
+            return;
     }
 
     if (timeout !== null) {
@@ -108,6 +123,11 @@ function draw() {
     drawNodes(context);
     drawLabelGroups(context);
     context.restore();
+
+    const response: DrawDoneResponse = {
+        type: "draw-done",
+    };
+    postMessage(response);
 }
 
 function drawBackground(context: OffscreenCanvasRenderingContext2D) {
@@ -193,4 +213,11 @@ function drawLabelGroups(context: OffscreenCanvasRenderingContext2D) {
             const index = layoutIndex * LAYOUT_ENTRIES_COUNT;
             return [capturedLayout[index] * scale, capturedLayout[index + 1] * scale];
         });
+}
+
+function createBlobResponse(blob: Blob | null): BlobResponse {
+    return {
+        type: "blob",
+        blob,
+    };
 }

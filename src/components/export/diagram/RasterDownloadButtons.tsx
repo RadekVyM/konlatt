@@ -4,58 +4,76 @@ import useExportDiagramStore from "../../../stores/export/diagram/useExportDiagr
 import { downloadBlob } from "../../../utils/export";
 import toast from "../../toast";
 import DownloadButtons from "../DownloadButtons";
-import { CANVAS_ID } from "../../../constants/diagramExport";
 import { DiagramExportFormat } from "../../../types/export/DiagramExportFormat";
+import { BlobRequest } from "../../../types/workers/ExportDiagramWorkerRequest";
+import { BlobResponse } from "../../../types/workers/ExportDiagramWorkerResponse";
 
 export default function RasterDownloadButtons(props: {
     fileName: string,
 }) {
     const [copySuccessful, setCopySuccessful] = useCopySuccessful();
     const selectedFormat = useExportDiagramStore((state) => state.selectedFormat);
+    const isExporting = useExportDiagramStore((state) => state.isExporting);
+    const isInitialPreviewCanvasDrawDone = useExportDiagramStore((state) => state.isInitialPreviewCanvasDrawDone);
     const type = selectedFormatToMimeType(selectedFormat);
 
     async function onCopyClick() {
         setCopySuccessful(false);
-
-        // Clipboard support of "image/jpeg" is poor
-        const blob = await getCanvasImageBlob("image/png");
-
-        if (!blob) {
-            toast("Failed to generate the image.");
-            setCopySuccessful(false);
-            return;
-        }
+        useExportDiagramStore.getState().setIsExporting(true);
 
         try {
-            const item = new ClipboardItem({
-                [blob.type]: blob,
-            });
+            // Clipboard support of "image/jpeg" is poor
+            const blob = await getCanvasImageBlob("image/png");
 
-            await navigator.clipboard.write([item]);
+            if (!blob) {
+                toast("Failed to generate the image.");
+                setCopySuccessful(false);
+                return;
+            }
 
-            setCopySuccessful(true);
+            try {
+                const item = new ClipboardItem({
+                    [blob.type]: blob,
+                });
+
+                await navigator.clipboard.write([item]);
+
+                setCopySuccessful(true);
+            }
+            catch (error) {
+                toast("Failed to copy the image to clipboard.");
+                console.error("Failed to copy image to clipboard:", error);
+            }
         }
-        catch (error) {
-            toast("Failed to copy the image to clipboard.");
-            console.error("Failed to copy image to clipboard:", error);
+        finally {
+            useExportDiagramStore.getState().setIsExporting(false);
         }
     }
 
     async function onDownloadClick() {
-        const blob = await getCanvasImageBlob(type);
+        useExportDiagramStore.getState().setIsExporting(true);
 
-        if (!blob) {
-            toast("Failed to generate the image.");
-            return;
+        try {
+            const blob = await getCanvasImageBlob(type);
+
+            if (!blob) {
+                toast("Failed to generate the image.");
+                return;
+            }
+
+            downloadBlob(blob, props.fileName);
         }
-
-        downloadBlob(blob, props.fileName);
+        finally {
+            useExportDiagramStore.getState().setIsExporting(false);
+        }
     }
 
     return (
         <div
             className="grid grid-cols-2 gap-x-2 px-4 pb-4">
             <DownloadButtons
+                copyDisabled={isExporting || !isInitialPreviewCanvasDrawDone}
+                downloadDisabled={isExporting || !isInitialPreviewCanvasDrawDone}
                 onCopyClick={onCopyClick}
                 copyButtonIcon={copySuccessful ? LuCheck : LuCopy}
                 onDownloadClick={onDownloadClick} />
@@ -64,13 +82,30 @@ export default function RasterDownloadButtons(props: {
 }
 
 async function getCanvasImageBlob(type: string): Promise<Blob | null> {
-    const canvas = document.querySelector<HTMLCanvasElement>(`#${CANVAS_ID}`);
+    const worker = useExportDiagramStore.getState().worker;
 
-    if (!canvas) {
+    if (!worker) {
         return null;
     }
 
-    return await new Promise((resolve) => canvas.toBlob(resolve, type));
+    return await new Promise((resolve) => {
+        const handler = (response: MessageEvent<BlobResponse>) => {
+            if (response.data.type !== "blob") {
+                return;
+            }
+
+            worker.removeEventListener("message", handler);
+            resolve(response.data.blob);
+        };
+
+        worker.addEventListener("message", handler);
+
+        const message: BlobRequest = {
+            type: "blob",
+            mimeType: type,
+        };
+        worker.postMessage(message);
+    });
 }
 
 function selectedFormatToMimeType(selectedFormat: DiagramExportFormat) {

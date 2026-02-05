@@ -5,8 +5,8 @@ import { DiagramStore } from "./useDiagramStore";
 
 export default function withDiagramLabeling(newState: Partial<DiagramStore>, oldState: DiagramStore): Partial<DiagramStore> {
     const visibleConceptIndexes = withFallback(newState.visibleConceptIndexes, oldState.visibleConceptIndexes);
-    const displayHighlightedSublatticeOnly = withFallback(newState.visibleConceptIndexes, oldState.visibleConceptIndexes);
-    const recalculateLabelingOfSublatticeOnly = withFallback(newState.visibleConceptIndexes, oldState.visibleConceptIndexes);
+    const displayHighlightedSublatticeOnly = withFallback(newState.displayHighlightedSublatticeOnly, oldState.displayHighlightedSublatticeOnly);
+    const recalculateLabelingOfSublatticeOnly = withFallback(newState.recalculateLabelingOfSublatticeOnly, oldState.recalculateLabelingOfSublatticeOnly);
 
     const dataStructures = useDataStructuresStore.getState();
     const concepts = dataStructures.concepts;
