@@ -222,8 +222,18 @@ function pushObjectLabels(
 }
 
 function pointToTikz(point: Point) {
-    const x = point[0].toLocaleString("us", { maximumFractionDigits: 3 });
-    const y = point[1].toLocaleString("us", { maximumFractionDigits: 3 });
+    const x = toMaxThreeFractionDigitsString(point[0]);
+    const y = toMaxThreeFractionDigitsString(point[1]);
 
     return `{xpos(${x})}, {ypos(${y})}`;
+}
+
+function toMaxThreeFractionDigitsString(num: number) {
+    const split = num.toString().split(".");
+
+    if (split.length === 1) {
+        return split[0];
+    }
+
+    return `${split[0]}.${split[1].slice(0, 3)}`;
 }

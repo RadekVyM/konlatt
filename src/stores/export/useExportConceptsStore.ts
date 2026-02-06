@@ -62,7 +62,7 @@ function withTooLarge(newState: Partial<ExportConceptsStore>, oldState: ExportCo
     const context = useDataStructuresStore.getState().context;
     const concepts = useDataStructuresStore.getState().concepts;
     const lattice = useDataStructuresStore.getState().lattice;
-    // TODO: This should not be dependent on useDiagramStore
+    // This should ideally not be dependent on useDiagramStore, but it does not really matter...
     const visibleConceptIndexes = useDiagramStore.getState().visibleConceptIndexes;
 
     if (!context || !concepts) {
@@ -144,9 +144,9 @@ function averageLineLength(format: ConceptExportFormat) {
     // These numbers are experimentally measured on 5 datasets
     switch (format) {
         case "json":
-            return 8.88;
+            return 8.530866649111392;
         case "xml":
-            return 15.88;
+            return 16.269536151267996;
     }
 }
 

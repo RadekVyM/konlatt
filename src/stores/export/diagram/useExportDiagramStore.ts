@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import createSelectedFormatSlice from "../createSelectedFormatSlice";
 import { DiagramExportFormat } from "../../../types/export/DiagramExportFormat";
 import { createHsvaColor, HsvaColor } from "../../../types/HsvaColor";
 import createTextResultStoreBaseSlice, { TextResultExportStore } from "../createTextResultStoreBaseSlice";
@@ -19,6 +18,7 @@ import withLinks from "./withLinks";
 import ExportDiagramWorker from "../../../workers/exportDiagramWorker?worker";
 import { ExportDiagramWorkerResponse } from "../../../types/workers/ExportDiagramWorkerResponse";
 import toast from "../../../components/toast";
+import withTooLarge from "./withTooLarge";
 
 type ExportDiagramStoreState = {
     transformedLayout: Array<Point> | null,
@@ -92,7 +92,6 @@ const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
     ...initialState,
     ...labelsSliceInitialState,
     ...createDiagramOptionsSlice(set),
-    ...createSelectedFormatSlice<DiagramExportFormat, ExportDiagramStore>("svg", set),
     setMaxWidth: (maxWidth) => set((old) => {
         maxWidth = Math.max(maxWidth, 0);
 
@@ -157,7 +156,7 @@ const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
     setLinkThickness: (linkThickness) => set((old) => w({ linkThickness }, old, withTextResult)),
     setIsInitialPreviewCanvasDrawDone: (isInitialPreviewCanvasDrawDone) => set({ isInitialPreviewCanvasDrawDone }),
     setIsExporting: (isExporting) => set({ isExporting }),
-    onDialogShown: () => set((old) => w({}, old, withTransformedLayout, withLinks, withLabels, withTextResult)),
+    onDialogShown: () => set((old) => w({}, old, withTransformedLayout, withLinks, withLabels, withTooLarge, withTextResult)),
     onDialogShowing: () => set((old) => {
         old.worker?.terminate();
         const worker = new ExportDiagramWorker();
@@ -181,7 +180,8 @@ const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
             ...labelsSliceInitialState,
         },
         set,
-        withTextResult),
+        withTextResult,
+        withTooLarge),
 }));
 
 export default useExportDiagramStore;
