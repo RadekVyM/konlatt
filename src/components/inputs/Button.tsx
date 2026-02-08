@@ -10,6 +10,7 @@ export default function Button({ className, to, variant, size, disabled, title, 
     className?: string,
     shortcutKeys?: string,
     to?: string,
+    reloadDocument?: boolean,
     ref?: React.RefObject<HTMLElement | null>,
 } & React.ButtonHTMLAttributes<HTMLButtonElement> & VariantProps<typeof buttonVariants>) {
     const elementRef = useRef<HTMLElement>(null);
@@ -26,6 +27,7 @@ export default function Button({ className, to, variant, size, disabled, title, 
                     aria-label={title}
                     to={to}
                     viewTransition
+                    reloadDocument={rest.reloadDocument}
                     className={cn(buttonVariants({ variant, size, className }), disabled && "pointer-events-none opacity-50")}
                     children={rest.children} /> :
                 <button

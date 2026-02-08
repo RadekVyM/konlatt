@@ -5,7 +5,6 @@ import InitialPage from "./components/pages/InitialPage";
 import FormalContextPage from "./components/pages/FormalContextPage";
 import DiagramPage from "./components/pages/DiagramPage";
 import ExplorerPage from "./components/pages/ExplorerPage";
-import FormatsPage from "./components/pages/FormatsPage";
 import RootLayout from "./components/layouts/RootLayout";
 import useMediaQuery from "./hooks/useMediaQuery";
 import { useEffect } from "react";
@@ -21,6 +20,7 @@ const router = createBrowserRouter([
             {
                 path: "/",
                 element: <InitialPage />,
+                errorElement: <ErrorPage />,
             },
             {
                 element: <MainLayout />,
@@ -29,20 +29,19 @@ const router = createBrowserRouter([
                     {
                         path: "/project/context/*",
                         element: <FormalContextPage />,
+                        errorElement: <ErrorPage />,
                     },
                     {
                         path: "/project/diagram/*",
                         element: <DiagramPage />,
+                        errorElement: <ErrorPage />,
                     },
                     {
                         path: "/project/explorer/*",
                         element: <ExplorerPage />,
+                        errorElement: <ErrorPage />,
                     },
                 ]
-            },
-            {
-                path: "formats",
-                element: <FormatsPage />,
             },
         ]
     }
