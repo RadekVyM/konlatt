@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { FormalContext } from "../types/FormalContext";
 import { ConceptLattice } from "../types/ConceptLattice";
 import { FormalConcepts } from "../types/FormalConcepts";
+import useDiagramStore from "./diagram/useDiagramStore";
 
 type DataStructuresStore = {
     context: FormalContext | null,
@@ -17,7 +18,12 @@ const useDataStructuresStore = create<DataStructuresStore>((set) => ({
     context: null,
     concepts: null,
     lattice: null,
-    setContext: (context) => set(() => ({ context })),
+    setContext: (context) => set(() => {
+        if (context) {
+            useDiagramStore.getState().setupSelectedLabels(context);
+        }
+        return { context };
+    }),
     setConcepts: (concepts) => set(() => ({ concepts })),
     setLattice: (lattice) => set(() => ({ lattice })),
     reset: () => set(() => ({

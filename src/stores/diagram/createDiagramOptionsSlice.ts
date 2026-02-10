@@ -31,7 +31,6 @@ type DiagramOptionsSliceState = {
     gridWhileEditingEnabled: boolean,
     multiselectEnabled: boolean,
     antialiasEnabled: boolean,
-    labelsEnabled: boolean,
     flatLinksEnabled: boolean,
     visibleConceptIndexes: Set<number> | null,
 } & DiagramLayoutState
@@ -49,7 +48,6 @@ type DiagramOptionsSliceActions = {
     setSelectedLinksHighlightingEnabled: (selectedLinksHighlightingEnabled: boolean) => void,
     setSemitransparentLinksEnabled: (semitransparentLinksEnabled: boolean) => void,
     setAntialiasEnabled: (antialiasEnabled: boolean) => void,
-    setLabelsEnabled: (labelsEnabled: boolean) => void,
     setFlatLinksEnabled: (flatLinksEnabled: boolean) => void,
     setEditingEnabled: React.Dispatch<React.SetStateAction<boolean>>,
     setGridWhileEditingEnabled: React.Dispatch<React.SetStateAction<boolean>>,
@@ -81,7 +79,6 @@ export function initialState(): DiagramOptionsSliceState {
         selectedLinksHighlightingEnabled: true,
         semitransparentLinksEnabled: true,
         antialiasEnabled: true,
-        labelsEnabled: true,
         flatLinksEnabled: false,
         editingEnabled: false,
         gridWhileEditingEnabled: true,
@@ -109,7 +106,6 @@ export default function createDiagramOptionsSlice(set: (partial: DiagramStore | 
         setSelectedLinksHighlightingEnabled: (selectedLinksHighlightingEnabled) => set({ selectedLinksHighlightingEnabled }),
         setSemitransparentLinksEnabled: (semitransparentLinksEnabled) => set({ semitransparentLinksEnabled }),
         setAntialiasEnabled: (antialiasEnabled) => set({ antialiasEnabled }),
-        setLabelsEnabled: (labelsEnabled) => set({ labelsEnabled }),
         setFlatLinksEnabled: (flatLinksEnabled) => set({ flatLinksEnabled }),
         setEditingEnabled: (editingEnabled) => set((old) => {
             const newValue = typeof editingEnabled === "function" ?

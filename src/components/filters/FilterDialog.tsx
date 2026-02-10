@@ -7,6 +7,7 @@ export default function FilterDialog(props: {
     state: DialogState,
     children?: React.ReactNode,
     clearDisabled?: boolean,
+    applyDisabled?: boolean,
     onClearClick: () => void,
     onApplyClick: () => void,
 }) {
@@ -29,6 +30,7 @@ export default function FilterDialog(props: {
                 </Button>
                 <Button
                     variant="primary"
+                    disabled={props.applyDisabled}
                     onClick={async () => {
                         await props.state.hide();
                         props.onApplyClick();

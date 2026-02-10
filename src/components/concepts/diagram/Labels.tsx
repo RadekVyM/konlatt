@@ -15,8 +15,6 @@ import useDataStructuresStore from "../../../stores/useDataStructuresStore";
 
 export default function Labels() {
     const invalidate = useThree((state) => state.invalidate);
-    const labelsEnabled = useDiagramStore((state) => state.labelsEnabled);
-
     const { attributeLabels, objectLabels } = useLabels();
 
     useEffect(() => {
@@ -24,8 +22,7 @@ export default function Labels() {
     }, [attributeLabels, objectLabels]);
 
     return (
-        <group
-            visible={labelsEnabled}>
+        <group>
             {attributeLabels.map((label) => <Label {...label} key={label.id} />)}
             {objectLabels.map((label) => <Label {...label} key={label.id} />)}
         </group>
@@ -90,8 +87,8 @@ function LabelHtml(props: {
 
 function useLabels() {
     const context = useDataStructuresStore((state) => state.context);
-    const attributesLabeling = useDiagramStore((state) => state.attributesLabeling);
-    const objectsLabeling = useDiagramStore((state) => state.objectsLabeling);
+    const attributesLabeling = useDiagramStore((state) => state.filteredAttributesLabeling);
+    const objectsLabeling = useDiagramStore((state) => state.filteredObjectsLabeling);
     const layout = useDiagramStore((state) => state.layout);
     const diagramOffsets = useDiagramStore((state) => state.diagramOffsets);
     const cameraType = useDiagramStore((state) => state.cameraType);

@@ -18,11 +18,12 @@ export function formalContextHasAttribute(context: FormalContext, object: number
     return (cellValue & mask) !== 0;
 }
 
-export function getObjectAttributes(context: FormalContext, object: number): Array<number> {
+export function getObjectAttributes(context: FormalContext, objects: number | ReadonlyArray<number>): Array<number> {
     const attributes = new Array<number>();
+    const objectsArray = typeof objects === "number" ? [objects] : objects;
 
     for (let attribute = 0; attribute < context.attributes.length; attribute++) {
-        if (formalContextHasAttribute(context, object, attribute)) {
+        if (objectsArray.every((object) => formalContextHasAttribute(context, object, attribute))) {
             attributes.push(attribute);
         }
     }
@@ -30,11 +31,12 @@ export function getObjectAttributes(context: FormalContext, object: number): Arr
     return attributes;
 }
 
-export function getAttributeObjects(context: FormalContext, attribute: number): Array<number> {
+export function getAttributeObjects(context: FormalContext, attributes: number | ReadonlyArray<number>): Array<number> {
     const objects = new Array<number>();
+    const attributesArray = typeof attributes === "number" ? [attributes] : attributes;
 
     for (let object = 0; object < context.objects.length; object++) {
-        if (formalContextHasAttribute(context, object, attribute)) {
+        if (attributesArray.every((attribute) => formalContextHasAttribute(context, object, attribute))) {
             objects.push(object);
         }
     }

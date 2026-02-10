@@ -10,8 +10,8 @@ export default function withLabels(
     oldState: ExportDiagramStore,
 ): Partial<ExportDiagramStore> {
     const context = useDataStructuresStore.getState().context;
-    const attributesLabeling = useDiagramStore.getState().attributesLabeling;
-    const objectsLabeling = useDiagramStore.getState().objectsLabeling;
+    const attributesLabeling = useDiagramStore.getState().filteredAttributesLabeling;
+    const objectsLabeling = useDiagramStore.getState().filteredObjectsLabeling;
     const maxLabelLineLength = withFallback(newState.maxLabelLineLength, oldState.maxLabelLineLength);
     const maxLabelLineCount = withFallback(newState.maxLabelLineCount, oldState.maxLabelLineCount);
 

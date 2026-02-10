@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import useDataStructuresStore from "../../stores/useDataStructuresStore";
 import { DialogState } from "../../types/DialogState";
 import FilterDialog from "./FilterDialog";
@@ -7,7 +7,9 @@ import HorizontalScroller from "../HorizontalScroller";
 import Button from "../inputs/Button";
 import RangeFilter from "./RangeFilter";
 import { FormalContext, getAttributeObjects, getObjectAttributes } from "../../types/FormalContext";
-import CheckBox from "../inputs/CheckBox";
+import useSetupState from "../../hooks/useSetupState";
+import { areSetsEqual } from "../../utils/set";
+import StrictCheckBox from "./StrictCheckBox";
 
 type FilterType = "objects" | "attributes" | "objects-count" | "attributes-count"
 
@@ -61,17 +63,33 @@ export default function ConceptsFilterDialog(props: {
     const [maxAttributesCount, setMaxAttributesCount] = useSetupState(props.maxAttributesCount, props.state.isOpen);
     const [strictSelectedObjects, setStrictSelectedObjects] = useSetupState(props.strictSelectedObjects, props.state.isOpen);
     const [strictSelectedAttributes, setStrictSelectedAttributes] = useSetupState(props.strictSelectedAttributes, props.state.isOpen);
-    const [selectedObjects, setSelectedObjects] = useSetupState<Set<number>>(new Set(props.selectedObjects), props.state.isOpen);
-    const [selectedAttributes, setSelectedAttributes] = useSetupState<Set<number>>(new Set(props.selectedAttributes), props.state.isOpen);
+    const [selectedObjects, setSelectedObjects] = useSetupState<Set<number>>(() => new Set(props.selectedObjects), props.state.isOpen);
+    const [selectedAttributes, setSelectedAttributes] = useSetupState<Set<number>>(() => new Set(props.selectedAttributes), props.state.isOpen);
     const selectableObjects = context ? getSelectableItems(context, getAttributeObjects, selectedAttributes) : null;
     const selectableAttributes = context ? getSelectableItems(context, getObjectAttributes, selectedObjects) : null;
+
+    const normalizedMinObjectsCount = minObjectsCount === 0 ? null : minObjectsCount;
+    const normalizedMaxObjectsCount = maxObjectsCount === objects.length ? null : maxObjectsCount;
+    const normalizedMinAttributesCount = minAttributesCount === 0 ? null : minAttributesCount;
+    const normalizedMaxAttributesCount = maxAttributesCount === attributes.length ? null : maxAttributesCount;
 
     const clearDisabled = selectedObjects.size === 0 &&
         selectedAttributes.size === 0 &&
         minObjectsCount === null &&
         maxObjectsCount === null &&
         minAttributesCount === null &&
-        maxAttributesCount === null;
+        maxAttributesCount === null &&
+        !strictSelectedObjects &&
+        !strictSelectedAttributes;
+
+    const filtersChanged = !areSetsEqual(props.selectedAttributes, selectedAttributes) ||
+        !areSetsEqual(props.selectedObjects, selectedObjects) ||
+        normalizedMinObjectsCount !== props.minObjectsCount ||
+        normalizedMaxObjectsCount !== props.maxObjectsCount ||
+        normalizedMinAttributesCount !== props.minAttributesCount ||
+        normalizedMaxAttributesCount !== props.maxAttributesCount ||
+        strictSelectedObjects !== props.strictSelectedObjects ||
+        strictSelectedAttributes !== props.strictSelectedAttributes;
 
     return (
         <FilterDialog
@@ -81,11 +99,13 @@ export default function ConceptsFilterDialog(props: {
                 strictSelectedAttributes,
                 selectedObjects,
                 selectedAttributes,
-                minObjectsCount === 0 ? null : minObjectsCount,
-                maxObjectsCount === objects.length ? null : maxObjectsCount,
-                minAttributesCount === 0 ? null : minAttributesCount,
-                maxAttributesCount === attributes.length ? null : maxAttributesCount)}
+                normalizedMinObjectsCount,
+                normalizedMaxObjectsCount,
+                normalizedMinAttributesCount,
+                normalizedMaxAttributesCount)}
             onClearClick={() => {
+                setStrictSelectedObjects(false);
+                setStrictSelectedAttributes(false);
                 setSelectedObjects(new Set());
                 setSelectedAttributes(new Set());
                 setMinObjectsCount(null);
@@ -93,6 +113,7 @@ export default function ConceptsFilterDialog(props: {
                 setMinAttributesCount(null);
                 setMaxAttributesCount(null);
             }}
+            applyDisabled={!filtersChanged}
             clearDisabled={clearDisabled}>
             <HorizontalScroller
                 className="mb-3 mx-5">
@@ -151,20 +172,6 @@ export default function ConceptsFilterDialog(props: {
     );
 }
 
-function StrictCheckBox(props: {
-    checked: boolean,
-    onChange: (value: boolean) => void,
-}) {
-    return (
-        <CheckBox
-            className="mx-6.5 mb-2"
-            checked={props.checked}
-            onChange={(e) => props.onChange(e.currentTarget.checked)}>
-            Use strict filtering
-        </CheckBox>
-    );
-}
-
 function getSelectableItems(
     context: FormalContext,
     contextItems: (context: FormalContext, attribute: number) => Array<number>,
@@ -177,17 +184,4 @@ function getSelectableItems(
     }
 
     return selectedItems;
-}
-
-function useSetupState<T>(defaultValue: T, isOpen: boolean) {
-    const state = useState<T>(defaultValue);
-    const memoDefaultValue = useMemo(() => defaultValue, [isOpen]);
-
-    useEffect(() => {
-        if (isOpen) {
-            state[1](memoDefaultValue);
-        }
-    }, [isOpen, memoDefaultValue]);
-
-    return state;
 }

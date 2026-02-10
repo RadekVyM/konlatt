@@ -3,7 +3,7 @@ import useDataStructuresStore from "./useDataStructuresStore";
 import { searchStringFilter, toSearchTerms } from "../utils/search";
 import { ItemSortType } from "../types/SortType";
 import { SortDirection } from "../types/SortDirection";
-import { FormalContext, getAttributeObjects } from "../types/FormalContext";
+import { FormalContext, getAttributeObjects, getObjectAttributes } from "../types/FormalContext";
 import { withFallback } from "../utils/stores";
 
 type ContextStoreState = {
@@ -16,9 +16,11 @@ type ContextStoreState = {
     attributesSortType: ItemSortType,
     attributesSortDirection: SortDirection,
     selectedObject: number | null,
+    strictSelectedFilterAttributes: boolean,
     selectedFilterAttributes: ReadonlyArray<number>,
     filteredObjects: Set<number> | null,
     selectedAttribute: number | null,
+    strictSelectedFilterObjects: boolean,
     selectedFilterObjects: ReadonlyArray<number>,
     filteredAttributes: Set<number> | null,
 }
@@ -33,8 +35,8 @@ type ContextStoreActions = {
     setSelectedObject: (selectedObject: number | null) => void,
     setSelectedAttribute: (selectedAttribute: number | null) => void,
     setSelection: (selectedObject: number | null, selectedAttribute: number | null) => void,
-    setSelectedFilterAttributes: (selectedFilterAttributes: ReadonlyArray<number>) => void,
-    setSelectedFilterObjects: (selectedFilterObjects: ReadonlyArray<number>) => void,
+    setSelectedFilterAttributes: (selectedFilterAttributes: ReadonlyArray<number>, strictSelectedFilterAttributes: boolean) => void,
+    setSelectedFilterObjects: (selectedFilterObjects: ReadonlyArray<number>, strictSelectedFilterObjects: boolean) => void,
     reset: () => void,
 }
 
@@ -50,9 +52,11 @@ const initialState: ContextStoreState = {
     attributesSortType: "default",
     attributesSortDirection: "asc",
     selectedObject: null,
+    strictSelectedFilterAttributes: false,
     selectedFilterAttributes: [],
     filteredObjects: null,
     selectedAttribute: null,
+    strictSelectedFilterObjects: false,
     selectedFilterObjects: [],
     filteredAttributes: null,
 };
@@ -68,8 +72,10 @@ const useContextStore = create<ContextStore>((set) => ({
     setSelectedObject: (selectedObject) => set(() => ({ selectedObject })),
     setSelectedAttribute: (selectedAttribute) => set(() => ({ selectedAttribute })),
     setSelection: (selectedObject, selectedAttribute) => set(() => ({ selectedObject, selectedAttribute })),
-    setSelectedFilterAttributes: (selectedFilterAttributes: ReadonlyArray<number>) => set((old) => withFilteredObjects({ selectedFilterAttributes }, old)),
-    setSelectedFilterObjects: (selectedFilterObjects: ReadonlyArray<number>) => set((old) => withFilteredAttributes({ selectedFilterObjects }, old)),
+    setSelectedFilterAttributes: (selectedFilterAttributes, strictSelectedFilterAttributes) =>
+        set((old) => withFilteredObjects({ selectedFilterAttributes, strictSelectedFilterAttributes }, old)),
+    setSelectedFilterObjects: (selectedFilterObjects, strictSelectedFilterObjects) =>
+        set((old) => withFilteredAttributes({ selectedFilterObjects, strictSelectedFilterObjects }, old)),
     reset: () => set(() => ({
         ...initialState,
     })),
@@ -80,6 +86,7 @@ export default useContextStore;
 function withFilteredObjects(newState: Partial<ContextStore>, oldState: ContextStore): Partial<ContextStore> {
     const debouncedObjectsSearchInput = withFallback(newState.debouncedObjectsSearchInput, oldState.debouncedObjectsSearchInput);
     const selectedFilterAttributes = withFallback(newState.selectedFilterAttributes, oldState.selectedFilterAttributes);
+    const strictSelectedFilterAttributes = withFallback(newState.strictSelectedFilterAttributes, oldState.strictSelectedFilterAttributes);
     const objectsSearchTerms = toSearchTerms(debouncedObjectsSearchInput);
     const context = useDataStructuresStore.getState().context;
 
@@ -91,7 +98,11 @@ function withFilteredObjects(newState: Partial<ContextStore>, oldState: ContextS
         };
     }
 
-    const selectedItems = getSelectedItems(context, getAttributeObjects, selectedFilterAttributes);
+    const selectedItems = getSelectedItems(
+        context,
+        getAttributeObjects,
+        selectedFilterAttributes,
+        strictSelectedFilterAttributes);
 
     return {
         ...newState,
@@ -103,6 +114,7 @@ function withFilteredObjects(newState: Partial<ContextStore>, oldState: ContextS
 function withFilteredAttributes(newState: Partial<ContextStore>, oldState: ContextStore): Partial<ContextStore> {
     const debouncedAttributesSearchInput = withFallback(newState.debouncedAttributesSearchInput, oldState.debouncedAttributesSearchInput);
     const selectedFilterObjects = withFallback(newState.selectedFilterObjects, oldState.selectedFilterObjects);
+    const strictSelectedFilterObjects = withFallback(newState.strictSelectedFilterObjects, oldState.strictSelectedFilterObjects);
     const attributesSearchTerms = toSearchTerms(debouncedAttributesSearchInput);
     const context = useDataStructuresStore.getState().context;
 
@@ -114,7 +126,11 @@ function withFilteredAttributes(newState: Partial<ContextStore>, oldState: Conte
         };
     }
 
-    const selectedItems = getSelectedItems(context, getAttributeObjects, selectedFilterObjects);
+    const selectedItems = getSelectedItems(
+        context,
+        getObjectAttributes,
+        selectedFilterObjects,
+        strictSelectedFilterObjects);
 
     return {
         ...newState,
@@ -140,13 +156,19 @@ function filterItems(items: ReadonlyArray<string>, searchTerms: Array<string>, s
 
 function getSelectedItems(
     context: FormalContext,
-    contextItems: (context: FormalContext, item: number) => Array<number>,
+    contextItems: (context: FormalContext, item: number | ReadonlyArray<number>) => Array<number>,
     filterItems: ReadonlyArray<number>,
+    strictFiltering: boolean,
 ) {
     const selectedItems = new Set<number>();
 
-    for (const item of filterItems) {
-        contextItems(context, item).forEach((it) => selectedItems.add(it));
+    if (strictFiltering) {
+        contextItems(context, filterItems).forEach((it) => selectedItems.add(it));
+    }
+    else {
+        for (const item of filterItems) {
+            contextItems(context, item).forEach((it) => selectedItems.add(it));
+        }
     }
 
     return selectedItems;

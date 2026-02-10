@@ -20,6 +20,7 @@ export default function ListFilter<T extends ItemType>(props: {
     searchPlaceholder: string,
     className?: string,
     header?: React.ReactNode,
+    searchInputTrail?: React.ReactNode,
     setSelectedItems: React.Dispatch<React.SetStateAction<Set<number>>>,
 }) {
     const observerTargetRef = useRef<HTMLDivElement>(null);
@@ -35,11 +36,13 @@ export default function ListFilter<T extends ItemType>(props: {
             {props.header}
 
             <div
-                className="px-5 py-1">
+                className="px-5 py-1 flex gap-2">
                 <SearchInput
+                    className="flex-1"
                     value={searchInput}
                     onChange={setSearchInput}
                     placeholder={props.searchPlaceholder} />
+                {props.searchInputTrail}
             </div>
 
             {displayedItems.length === 0 ?

@@ -34,6 +34,7 @@ export default function ItemsCardContent<TItem extends ContextItem>(props: {
     sortType: ItemSortType,
     sortDirection: SortDirection,
     filterItems: ReadonlyArray<string>,
+    strictSelectedFilterItems: boolean,
     selectedFilterItems: ReadonlyArray<number>,
     searchFilterItemsPlaceholder: string,
     itemKey: (item: TItem) => string | number,
@@ -42,7 +43,7 @@ export default function ItemsCardContent<TItem extends ContextItem>(props: {
     updateSearchInput: (debouncedSearchInput: string) => void,
     onSortTypeChange: (key: ItemSortType) => void,
     onSortDirectionChange: (key: SortDirection) => void,
-    onSelectedFilterItemsChange: (selectedItems: ReadonlyArray<number>) => void,
+    onSelectedFilterItemsChange: (selectedItems: ReadonlyArray<number>, strictSelectedFilterItems: boolean) => void,
 }) {
     const [searchInput, setSearchInput] = useState<string>(props.storedSearchInput);
     const filteredItems = useFilteredItems(props.items, props.filteredItemIndexes, props.sortType, props.sortDirection);
@@ -73,6 +74,7 @@ export default function ItemsCardContent<TItem extends ContextItem>(props: {
                     onSortTypeChange={props.onSortTypeChange}
                     onSortDirectionChange={props.onSortDirectionChange}
                     filterItems={props.filterItems}
+                    strictSelectedFilterItems={props.strictSelectedFilterItems}
                     selectedFilterItems={props.selectedFilterItems}
                     onSelectedFilterItemsChange={props.onSelectedFilterItemsChange} />
 
@@ -103,12 +105,13 @@ function Search(props: {
     sortTitle: string,
     id: string,
     filterItems: ReadonlyArray<string>,
+    strictSelectedFilterItems: boolean,
     selectedFilterItems: ReadonlyArray<number>,
     searchFilterItemsPlaceholder: string,
     setSearchInput: React.Dispatch<React.SetStateAction<string>>,
     onSortTypeChange: (key: ItemSortType) => void,
     onSortDirectionChange: (key: SortDirection) => void,
-    onSelectedFilterItemsChange: (selectedItems: ReadonlyArray<number>) => void,
+    onSelectedFilterItemsChange: (selectedItems: ReadonlyArray<number>, strictSelectedFilterItems: boolean) => void,
 }) {
     const filterDialogState = useDialog();
 
@@ -148,6 +151,7 @@ function Search(props: {
                 searchFilterItemsPlaceholder={props.searchFilterItemsPlaceholder}
                 state={filterDialogState}
                 items={props.filterItems}
+                strictSelectedItems={props.strictSelectedFilterItems}
                 selectedItems={props.selectedFilterItems}
                 onApply={props.onSelectedFilterItemsChange} />
         </div>

@@ -27,6 +27,7 @@ export default function AttributesList(props: {
     const searchTerms = useContextStore((state) => state.attributesSearchTerms);
     const debouncedSearchInput = useContextStore((state) => state.debouncedAttributesSearchInput);
     const updateSearchInput = useContextStore((state) => state.setDebouncedAttributesSearchInput);
+    const strictSelectedFilterObjects = useContextStore((state) => state.strictSelectedFilterObjects);
     const selectedFilterObjects = useContextStore((state) => state.selectedFilterObjects);
     const setSelectedFilterObjects = useContextStore((state) => state.setSelectedFilterObjects);
     const attributes = (context?.attributes || []).map<ContextAttributeItem>((title, index) => ({ index, title }));
@@ -67,6 +68,7 @@ export default function AttributesList(props: {
                 sortDirection={attributesSortDirection} 
                 onSortDirectionChange={setAttributesSortDirection}
                 filterItems={context?.objects || []}
+                strictSelectedFilterItems={strictSelectedFilterObjects}
                 selectedFilterItems={selectedFilterObjects}
                 onSelectedFilterItemsChange={setSelectedFilterObjects} />
             {selectedAttribute &&

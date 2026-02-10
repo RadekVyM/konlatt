@@ -15,6 +15,7 @@ import AngleSlider from "./AngleSlider";
 import { LayeredLayoutPlacement } from "../../../types/LayeredLayoutPlacement";
 import InputLabel from "../../inputs/InputLabel";
 import ConfigSection from "../../layouts/ConfigSection";
+import LabelsSelectionButton from "./LabelsSelectionButton";
 
 const INPUT_DELAY = 500;
 
@@ -68,30 +69,30 @@ function DisplaySection() {
 }
 
 function LabelsSection() {
-    const labelsEnabled = useDiagramStore((state) => state.labelsEnabled);
     const hoveredConceptDetailEnabled = useDiagramStore((state) => state.hoveredConceptDetailEnabled);
     const recalculateLabelingOfSublatticeOnly = useDiagramStore((state) => state.recalculateLabelingOfSublatticeOnly);
-    const setLabelsEnabled = useDiagramStore((state) => state.setLabelsEnabled);
     const setHoveredConceptDetailEnabled = useDiagramStore((state) => state.setHoveredConceptDetailEnabled);
     const setRecalculateLabelingOfSublatticeOnly = useDiagramStore((state) => state.setRecalculateLabelingOfSublatticeOnly);
 
     return (
         <ConfigSection
             heading="Labeling">
-            <ToggleSwitch
-                checked={hoveredConceptDetailEnabled}
-                onChange={(e) => setHoveredConceptDetailEnabled(e.currentTarget.checked)}>
-                Show concept detail on hover
-            </ToggleSwitch>
-            <ToggleSwitch
-                checked={labelsEnabled}
-                onChange={(e) => setLabelsEnabled(e.currentTarget.checked)}>
-                Show labeling
-            </ToggleSwitch>
+            <div
+                className="mb-1">
+                <InputLabel>Shown labels</InputLabel>
+
+                <LabelsSelectionButton
+                    className="w-full" />
+            </div>
             <ToggleSwitch
                 checked={recalculateLabelingOfSublatticeOnly}
                 onChange={(e) => setRecalculateLabelingOfSublatticeOnly(e.currentTarget.checked)}>
                 Recalculate labeling of sublattices
+            </ToggleSwitch>
+            <ToggleSwitch
+                checked={hoveredConceptDetailEnabled}
+                onChange={(e) => setHoveredConceptDetailEnabled(e.currentTarget.checked)}>
+                Show concept detail on hover
             </ToggleSwitch>
         </ConfigSection>
     );

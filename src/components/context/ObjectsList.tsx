@@ -27,6 +27,7 @@ export default function ObjectsList(props: {
     const searchTerms = useContextStore((state) => state.objectsSearchTerms);
     const debouncedSearchInput = useContextStore((state) => state.debouncedObjectsSearchInput);
     const updateSearchInput = useContextStore((state) => state.setDebouncedObjectsSearchInput);
+    const strictSelectedFilterAttributes = useContextStore((state) => state.strictSelectedFilterAttributes);
     const selectedFilterAttributes = useContextStore((state) => state.selectedFilterAttributes);
     const setSelectedFilterAttributes = useContextStore((state) => state.setSelectedFilterAttributes);
     const objects = (context?.objects || []).map<ContextObjectItem>((title, index) => ({ index, title }));
@@ -67,6 +68,7 @@ export default function ObjectsList(props: {
                 sortDirection={objectsSortDirection}
                 onSortDirectionChange={setObjectsSortDirection}
                 filterItems={context?.attributes || []}
+                strictSelectedFilterItems={strictSelectedFilterAttributes}
                 selectedFilterItems={selectedFilterAttributes}
                 onSelectedFilterItemsChange={setSelectedFilterAttributes} />
             {selectedObject &&
