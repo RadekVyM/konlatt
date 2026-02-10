@@ -14,6 +14,10 @@ import ConceptHoverDetail from "../concepts/ConceptHoverDetail";
 import { DiagramFullscreenContext, DiagramFullscreenContextProvider } from "../../contexts/DiagramFullscreenContext";
 import useDimensionsListener from "../../hooks/useDimensionsListener";
 import useDiagramConfigPanelDimensionsStore from "../../stores/diagram/useDiagramConfigPanelDimensionsStore";
+import { CardContainer } from "../CardContainer";
+import ConceptDetail from "../concepts/ConceptDetail";
+import ExportDiagramConceptsButton from "../export/ExportDiagramConceptsButton";
+import ExportDiagramConceptButton from "../export/ExportDiagramConceptButton";
 
 export default function DiagramPage() {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -94,33 +98,43 @@ function Concepts(props: {
     const setSelectedFilters = useDiagramStore((state) => state.setSelectedFilters);
 
     return (
-        <ConceptsList
-            className={props.className}
-            route="/project/diagram"
-            selectedConceptIndex={selectedConceptIndex}
-            setSelectedConceptIndex={setSelectedConceptIndex}
-            updateSearchInput={updateSearchInput}
-            filteredConcepts={filteredConcepts}
-            searchTerms={searchTerms}
-            storedSearchInput={debouncedSearchInput}
-            sortType={sortType}
-            sortDirection={sortDirection}
-            onSortTypeChange={setSortType}
-            onSortDirectionChange={setSortDirection}
-            visibleConceptIndexes={visibleConceptIndexes}
-            strictSelectedObjects={strictSelectedObjects}
-            strictSelectedAttributes={strictSelectedAttributes}
-            selectedFilterObjects={selectedFilterObjects}
-            selectedFilterAttributes={selectedFilterAttributes}
-            minObjectsCount={minObjectsCount}
-            maxObjectsCount={maxObjectsCount}
-            minAttributesCount={minAttributesCount}
-            maxAttributesCount={maxAttributesCount}
-            onSelectedFiltersChange={setSelectedFilters}
-            controls={selectedConceptIndex !== null &&
-                <ConceptDiagramControls
+        <CardContainer
+            className={props.className}>
+            <ConceptsList
+                className={cn(selectedConceptIndex !== null && "hidden")}
+                exportConceptsButton={ExportDiagramConceptsButton}
+                route="/project/diagram"
+                setSelectedConceptIndex={setSelectedConceptIndex}
+                updateSearchInput={updateSearchInput}
+                filteredConcepts={filteredConcepts}
+                searchTerms={searchTerms}
+                storedSearchInput={debouncedSearchInput}
+                sortType={sortType}
+                sortDirection={sortDirection}
+                onSortTypeChange={setSortType}
+                onSortDirectionChange={setSortDirection}
+                visibleConceptIndexes={visibleConceptIndexes}
+                strictSelectedObjects={strictSelectedObjects}
+                strictSelectedAttributes={strictSelectedAttributes}
+                selectedFilterObjects={selectedFilterObjects}
+                selectedFilterAttributes={selectedFilterAttributes}
+                minObjectsCount={minObjectsCount}
+                maxObjectsCount={maxObjectsCount}
+                minAttributesCount={minAttributesCount}
+                maxAttributesCount={maxAttributesCount}
+                onSelectedFiltersChange={setSelectedFilters} />
+            {selectedConceptIndex !== null &&
+                <ConceptDetail
+                    key={selectedConceptIndex}
+                    exportConceptButton={ExportDiagramConceptButton}
+                    controls={selectedConceptIndex !== null &&
+                        <ConceptDiagramControls
+                            selectedConceptIndex={selectedConceptIndex}
+                            visibleConceptIndexes={visibleConceptIndexes} />}
+                    route="/project/diagram"
                     selectedConceptIndex={selectedConceptIndex}
-                    visibleConceptIndexes={visibleConceptIndexes} />} />
+                    onBackClick={() => setSelectedConceptIndex(null)} />}
+        </CardContainer>
     );
 }
 

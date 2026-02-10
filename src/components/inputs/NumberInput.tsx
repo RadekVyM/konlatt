@@ -28,9 +28,10 @@ export default function NumberInput({
 
     return (
         <div
-            className={cn("relative", className)}>
+            className={cn("relative flex flex-col justify-end", className)}>
             {label &&
                 <InputLabel
+                    className="w-fit"
                     htmlFor={id}>
                     {label}
                 </InputLabel>}

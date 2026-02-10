@@ -14,8 +14,8 @@ import { LuShapes, LuTag, LuTags } from "react-icons/lu";
 import Found from "../Found";
 import useDataStructuresStore from "../../stores/useDataStructuresStore";
 import Tooltip from "../Tooltip";
-import ExportConceptButton from "../export/ExportConceptButton";
 import HorizontalScroller from "../HorizontalScroller";
+import { ExportConceptButtonType } from "../export/createExportConceptButton";
 
 type TabItem = "objects" | "attributes"
 
@@ -24,8 +24,10 @@ export default function ConceptDetail(props: {
     selectedConceptIndex: number,
     route: string,
     controls?: React.ReactNode,
-    onBackClick: () => void,
+    exportConceptButton: ExportConceptButtonType,
+    onBackClick?: () => void,
 }) {
+    const ExportConceptButton = props.exportConceptButton;
     const [currentTab, setCurrentTab] = useState<TabItem>("objects");
     const concepts = useDataStructuresStore((state) => state.concepts);
     const context = useDataStructuresStore((state) => state.context);
@@ -39,22 +41,32 @@ export default function ConceptDetail(props: {
         <CardSection
             className={props.className}>
             <header>
+                {props.onBackClick &&
+                    <div
+                        className="flex justify-between items-start w-full pr-4">
+                        <BackButton
+                            onClick={props.onBackClick}>
+                            All concepts
+                        </BackButton>
+
+                        <ExportConceptButton
+                            conceptIndex={props.selectedConceptIndex}
+                            route={`${props.route}/concept/${props.selectedConceptIndex}/export`} />
+                    </div>}
+
                 <div
-                    className="flex justify-between items-start w-full pr-4">
-                    <BackButton
-                        onClick={props.onBackClick}>
-                        All concepts
-                    </BackButton>
+                    className="flex justify-between items-center">
+                    <h2
+                        className="mx-4 text-lg font-semibold">
+                        Concept {props.selectedConceptIndex}
+                    </h2>
 
-                    <ExportConceptButton
-                        conceptIndex={props.selectedConceptIndex}
-                        route={`${props.route}/concept/${props.selectedConceptIndex}/export`} />
+                    {!props.onBackClick &&
+                        <ExportConceptButton
+                            className="mr-4"
+                            conceptIndex={props.selectedConceptIndex}
+                            route={`${props.route}/concept/${props.selectedConceptIndex}/export`} />}
                 </div>
-
-                <h2
-                    className="mx-4 text-lg font-semibold">
-                    Concept {props.selectedConceptIndex}
-                </h2>
 
                 {(isThisInfimum || isThisSupremum) &&
                     <small

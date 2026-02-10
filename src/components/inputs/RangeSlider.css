@@ -14,7 +14,7 @@
         }
 
         input {
-            @apply absolute inset-0 w-full appearance-none bg-transparent h-4 border border-transparent rounded-full;
+            @apply absolute inset-0 w-full appearance-none bg-transparent h-4 border border-transparent rounded-full cursor-pointer;
 
             &::-webkit-slider-thumb {
                 -webkit-appearance: none;
@@ -36,7 +36,7 @@
         input.range-slider-bottom::after, input.range-slider-top::after {
             content: "";
             top: -1px;
-            @apply absolute w-4 h-4 box-border border-primary -translate-x-1/2 rounded-full bg-on-primary pointer-events-none select-none;
+            @apply absolute w-4 h-4 transition-[border-width] duration-75 box-border border-primary -translate-x-1/2 rounded-full bg-on-primary pointer-events-none select-none;
         }
 
         input.range-slider-bottom::after {

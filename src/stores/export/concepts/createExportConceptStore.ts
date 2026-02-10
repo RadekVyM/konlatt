@@ -1,25 +1,24 @@
 import { create } from "zustand";
-import { convertToJson } from "../../services/export/concept/json";
-import { ConceptExportFormat } from "../../types/export/ConceptExportFormat";
-import useDataStructuresStore from "../useDataStructuresStore";
-import createTextResultStoreBaseSlice, { TextResultExportStore } from "./createTextResultStoreBaseSlice";
-import { sumLengths } from "../../utils/array";
-import { convertToXml } from "../../services/export/concept/xml";
-import createSelectedConceptSlice, { SelectedConceptSlice, initialState as initialSelectedConceptSliceState } from "../createSelectedConceptSlice";
-import { withFallback } from "../../utils/stores";
+import { convertToJson } from "../../../services/export/concept/json";
+import { ConceptExportFormat } from "../../../types/export/ConceptExportFormat";
+import useDataStructuresStore from "../../useDataStructuresStore";
+import createTextResultStoreBaseSlice from "../createTextResultStoreBaseSlice";
+import { sumLengths } from "../../../utils/array";
+import { convertToXml } from "../../../services/export/concept/xml";
+import createSelectedConceptSlice, { initialState as initialSelectedConceptSliceState } from "../../createSelectedConceptSlice";
+import { withFallback } from "../../../utils/stores";
+import { ExportConceptStore } from "./ExportConceptStore";
 
-type ExportConceptStore = TextResultExportStore<ConceptExportFormat> & SelectedConceptSlice
-
-const useExportConceptStore = create<ExportConceptStore>((set) => ({
-    ...createSelectedConceptSlice(set),
-    ...createTextResultStoreBaseSlice<ConceptExportFormat, ExportConceptStore>(
-        "json",
-        initialSelectedConceptSliceState,
-        set,
-        withResult),
-}));
-
-export default useExportConceptStore;
+export default function createExportConceptStore() {
+    return create<ExportConceptStore>((set) => ({
+        ...createSelectedConceptSlice(set),
+        ...createTextResultStoreBaseSlice<ConceptExportFormat, ExportConceptStore>(
+            "json",
+            initialSelectedConceptSliceState,
+            set,
+            withResult),
+    }));
+}
 
 function withResult(newState: Partial<ExportConceptStore>, oldState: ExportConceptStore) {
     const selectedFormat = withFallback(newState.selectedFormat, oldState.selectedFormat);

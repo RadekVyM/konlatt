@@ -8,8 +8,8 @@ import { DiagramLayoutState } from "../types/DiagramLayoutState";
 import useContextStore from "../stores/useContextStore";
 import useExportAttributesStore from "../stores/export/useExportAttributesStore";
 import useExportAttributeStore from "../stores/export/useExportAttributeStore";
-import useExportConceptsStore from "../stores/export/useExportConceptsStore";
-import useExportConceptStore from "../stores/export/useExportConceptStore";
+import useExportDiagramConceptsStore from "../stores/export/concepts/useExportDiagramConceptsStore";
+import useExportDiagramConceptStore from "../stores/export/concepts/useExportDiagramConceptStore";
 import useExportContextStore from "../stores/export/useExportContextStore";
 import useExportDiagramStore from "../stores/export/diagram/useExportDiagramStore";
 import useExportObjectsStore from "../stores/export/useExportObjectsStore";
@@ -18,6 +18,7 @@ import LatticeWorkerQueue from "../workers/LatticeWorkerQueue";
 import toast from "../components/toast";
 import { ImportFormat } from "../types/ImportFormat";
 import { CsvSeparator } from "../types/CsvSeparator";
+import useExportExplorerConceptsStore from "../stores/export/concepts/useExportExplorerConceptsStore";
 
 export async function triggerInitialization(
     fileContent: string,
@@ -54,8 +55,9 @@ export async function triggerInitialization(
 
         useExportAttributesStore.getState().reset();
         useExportAttributeStore.getState().reset();
-        useExportConceptsStore.getState().reset();
-        useExportConceptStore.getState().reset();
+        useExportDiagramConceptsStore.getState().reset();
+        useExportExplorerConceptsStore.getState().reset();
+        useExportDiagramConceptStore.getState().reset();
         useExportContextStore.getState().reset();
         useExportDiagramStore.getState().reset();
         useExportObjectsStore.getState().reset();

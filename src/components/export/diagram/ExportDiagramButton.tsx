@@ -13,6 +13,9 @@ import RasterDownloadButtons from "./RasterDownloadButtons";
 import ConfigSection from "../../layouts/ConfigSection";
 import LabelLineInputs from "./LabelLineInputs";
 import ExportDiagramOffscreenCanvas from "./ExportDiagramOffscreenCanvas";
+import { LuCheck, LuCopy } from "react-icons/lu";
+import Button from "../../inputs/Button";
+import useCopySuccessful from "../../../hooks/useCopySuccesful";
 
 const TextPreviewer = createTextResultPreviewerComponent(useExportDiagramStore);
 
@@ -85,10 +88,54 @@ function RasterContent() {
 
 function TikzOptions() {
     return (
+        <>
+            <ConfigSection
+                heading="Labels"
+                className="mx-4">
+                <LabelLineInputs />
+            </ConfigSection>
+            <RequiredTikzPackagesSection />
+        </>
+    );
+}
+
+function RequiredTikzPackagesSection() {
+    const packages = `\\usepackage{tikz}\n\\usetikzlibrary{calc}\n\\usetikzlibrary{shapes}`;
+    const [copySuccessful, setCopySuccessful] = useCopySuccessful();
+
+    async function onCopyClick() {
+        try {
+            setCopySuccessful(false);
+
+            await navigator.clipboard.writeText(packages);
+
+            setCopySuccessful(true);
+        } catch (err) {
+            console.error("Failed to copy text: ", err);
+        }
+    }
+
+    return (
         <ConfigSection
-            heading="Labels"
+            heading="Required packages"
             className="mx-4">
-            <LabelLineInputs />
+            <div
+                className="relative">
+                <pre
+                    className="bg-surface-light-dim-container rounded-md px-2 py-1 text-sm cursor-text">
+                    <code>
+                        {packages}
+                    </code>
+                </pre>
+
+                <Button
+                    className="absolute top-2 right-2"
+                    size="sm"
+                    variant="icon-container"
+                    onClick={onCopyClick}>
+                    {copySuccessful ? <LuCheck /> : <LuCopy />}
+                </Button>
+            </div>
         </ConfigSection>
     );
 }

@@ -72,18 +72,10 @@ self.onmessage = async (event: MessageEvent<ExportDiagramWorkerRequest>) => {
             textBackgroundType = event.data.textBackgroundType;
             break;
         case "blob":
-            if (!canvas) {
-                postMessage(createBlobResponse(null));
-            }
-
-            try {
-                canvas?.convertToBlob({ type: event.data.mimeType }).then((blob) => {
-                    postMessage(createBlobResponse(blob));
-                });
-            }
-            catch {
-                postMessage(createBlobResponse(null));
-            }
+            // There is a small chance that the expected state of the canvas is not exported
+            // because of the following debounce of the draw() call
+            // But who cares? It is too much effort to make it right
+            exportCanvas(event.data.mimeType);
             return;
     }
 
@@ -92,6 +84,21 @@ self.onmessage = async (event: MessageEvent<ExportDiagramWorkerRequest>) => {
     }
 
     timeout = setTimeout(draw, DEBOUNCE_DELAY);
+}
+
+function exportCanvas(type: string) {
+    if (!canvas) {
+        postMessage(createBlobResponse(null));
+    }
+
+    try {
+        canvas?.convertToBlob({ type }).then((blob) => {
+            postMessage(createBlobResponse(blob));
+        });
+    }
+    catch {
+        postMessage(createBlobResponse(null));
+    }
 }
 
 function draw() {

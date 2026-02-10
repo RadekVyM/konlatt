@@ -3,20 +3,26 @@ import ConceptsList from "../concepts/ConceptsList";
 import Container from "../Container";
 import PageContainer from "../PageContainer";
 import useExplorerStore from "../../stores/useExplorerStore";
+import { CardContainer } from "../CardContainer";
+import ConceptDetail from "../concepts/ConceptDetail";
+import ExportExplorerConceptsButton from "../export/ExportExplorerConceptsButton";
+import ExportExplorerConceptButton from "../export/ExportExplorerConceptButton";
 
 export default function ExplorerPage() {
     return (
         <PageContainer
-            className="grid grid-cols-1 grid-rows-[5fr_4fr] md:grid-rows-1 md:grid-cols-[minmax(18rem,2fr)_5fr] xl:grid-cols-[1fr_2.5fr_1fr] gap-2">
+            className="grid grid-cols-2 grid-rows-2 lg:grid-rows-1 lg:grid-cols-[minmax(18rem,1fr)_minmax(18rem,1fr)_2.5fr] gap-2">
             <Concepts />
+            <Concept />
             <Diagram
-                className="col-start-1 col-end-2 row-start-1 row-end-2 md:col-start-2 md:col-end-3 xl:col-end-4 md:row-start-1 md:row-end-2" />
+                className="col-start-1 col-end-3 row-start-2 row-end-3 lg:col-start-3 lg:col-end-4 lg:row-start-1 lg:row-end-2" />
         </PageContainer>
     );
 }
 
-function Concepts() {
-    const selectedConceptIndex = useExplorerStore((state) => state.selectedConceptIndex);
+function Concepts(props: {
+    className?: string,
+}) {
     const filteredConcepts = useExplorerStore((state) => state.filteredConcepts);
     const searchTerms = useExplorerStore((state) => state.searchTerms);
     const debouncedSearchInput = useExplorerStore((state) => state.debouncedSearchInput);
@@ -37,28 +43,56 @@ function Concepts() {
     const setSelectedFilters = useExplorerStore((state) => state.setSelectedFilters);
 
     return (
-        <ConceptsList
-            route="/project/explorer"
-            selectedConceptIndex={selectedConceptIndex}
-            setSelectedConceptIndex={setSelectedConceptIndex}
-            updateSearchInput={updateSearchInput}
-            filteredConcepts={filteredConcepts}
-            searchTerms={searchTerms}
-            storedSearchInput={debouncedSearchInput}
-            sortType={sortType}
-            sortDirection={sortDirection}
-            onSortTypeChange={setSortType}
-            onSortDirectionChange={setSortDirection}
-            visibleConceptIndexes={null}
-            strictSelectedObjects={strictSelectedObjects}
-            strictSelectedAttributes={strictSelectedAttributes}
-            selectedFilterObjects={selectedFilterObjects}
-            selectedFilterAttributes={selectedFilterAttributes}
-            minObjectsCount={minObjectsCount}
-            maxObjectsCount={maxObjectsCount}
-            minAttributesCount={minAttributesCount}
-            maxAttributesCount={maxAttributesCount}
-            onSelectedFiltersChange={setSelectedFilters} />
+        <CardContainer
+            className={props.className}>
+            <ConceptsList
+                route="/project/explorer"
+                exportConceptsButton={ExportExplorerConceptsButton}
+                setSelectedConceptIndex={setSelectedConceptIndex}
+                updateSearchInput={updateSearchInput}
+                filteredConcepts={filteredConcepts}
+                searchTerms={searchTerms}
+                storedSearchInput={debouncedSearchInput}
+                sortType={sortType}
+                sortDirection={sortDirection}
+                onSortTypeChange={setSortType}
+                onSortDirectionChange={setSortDirection}
+                visibleConceptIndexes={null}
+                strictSelectedObjects={strictSelectedObjects}
+                strictSelectedAttributes={strictSelectedAttributes}
+                selectedFilterObjects={selectedFilterObjects}
+                selectedFilterAttributes={selectedFilterAttributes}
+                minObjectsCount={minObjectsCount}
+                maxObjectsCount={maxObjectsCount}
+                minAttributesCount={minAttributesCount}
+                maxAttributesCount={maxAttributesCount}
+                onSelectedFiltersChange={setSelectedFilters} />
+        </CardContainer>
+    );
+}
+
+function Concept(props: {
+    className?: string,
+}) {
+    const selectedConceptIndex = useExplorerStore((state) => state.selectedConceptIndex);
+
+    return (
+        <CardContainer
+            className={props.className}>
+            {selectedConceptIndex !== null ?
+                <ConceptDetail
+                    key={selectedConceptIndex}
+                    exportConceptButton={ExportExplorerConceptButton}
+                    route="/project/explorer"
+                    selectedConceptIndex={selectedConceptIndex} /> :
+                <div
+                    className="h-full grid place-content-center">
+                    <span
+                        className="text-center text-sm text-on-surface-container-muted">
+                        No concept selected
+                    </span>
+                </div>}
+        </CardContainer>
     );
 }
 

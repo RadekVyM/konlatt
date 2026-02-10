@@ -1,69 +1,27 @@
-import { create } from "zustand";
-import { convertToJson } from "../../services/export/concepts/json";
-import { ConceptExportFormat } from "../../types/export/ConceptExportFormat";
-import useDataStructuresStore from "../useDataStructuresStore";
-import createTextResultStoreBaseSlice, { TextResultExportStore } from "./createTextResultStoreBaseSlice";
-import { convertToXml } from "../../services/export/concepts/xml";
-import { sumLengths } from "../../utils/array";
-import useProjectStore from "../useProjectStore";
-import { w, withFallback } from "../../utils/stores";
-import { FormalContext } from "../../types/FormalContext";
-import { FormalConcept, FormalConcepts } from "../../types/FormalConcepts";
-import useDiagramStore from "../diagram/useDiagramStore";
-import { ConceptLattice } from "../../types/ConceptLattice";
+import { convertToJson } from "../../../services/export/concepts/json";
+import { convertToXml } from "../../../services/export/concepts/xml";
+import { ConceptLattice } from "../../../types/ConceptLattice";
+import { ConceptExportFormat } from "../../../types/export/ConceptExportFormat";
+import { FormalConcept, FormalConcepts } from "../../../types/FormalConcepts";
+import { FormalContext } from "../../../types/FormalContext";
+import { sumLengths } from "../../../utils/array";
+import { withFallback } from "../../../utils/stores";
+import useDataStructuresStore from "../../useDataStructuresStore";
+import useProjectStore from "../../useProjectStore";
+import { ExportConceptsStore } from "./ExportConceptsStore";
 
 const TOO_LARGE_THRESHOLD = 15_000_000;
 
-type ExportConceptsStoreState = {
-    includeHighlightedConceptsOnly: boolean,
-    includeLattice: boolean,
-}
-
-type ExportConceptsStoreActions = {
-    setIncludeHighlightedConceptsOnly: React.Dispatch<React.SetStateAction<boolean>>,
-    setIncludeLattice: React.Dispatch<React.SetStateAction<boolean>>,
-}
-
-type ExportConceptsStore = TextResultExportStore<ConceptExportFormat> & ExportConceptsStoreState & ExportConceptsStoreActions
-
-const initialState: ExportConceptsStoreState = {
-    includeHighlightedConceptsOnly: true,
-    includeLattice: false,
-};
-
-const useExportConceptsStore = create<ExportConceptsStore>((set) => ({
-    ...initialState,
-    setIncludeHighlightedConceptsOnly: (includeHighlightedConceptsOnly) => set((old) => w({
-        includeHighlightedConceptsOnly: (typeof includeHighlightedConceptsOnly === "function" ?
-            includeHighlightedConceptsOnly(old.includeHighlightedConceptsOnly) :
-            includeHighlightedConceptsOnly)
-    }, old, withTooLarge, withResult)),
-    setIncludeLattice: (includeLattice) => set((old) => w({
-        includeLattice: (typeof includeLattice === "function" ?
-            includeLattice(old.includeLattice) :
-            includeLattice)
-    }, old, withTooLarge, withResult)),
-    ...createTextResultStoreBaseSlice<ConceptExportFormat, ExportConceptsStore>(
-        "json",
-        { ...initialState },
-        set,
-        withResult,
-        withTooLarge),
-}));
-
-export default useExportConceptsStore;
-
-function withTooLarge(newState: Partial<ExportConceptsStore>, oldState: ExportConceptsStore): Partial<ExportConceptsStore> {
+export function withConceptsExportTooLarge(
+    newState: Partial<ExportConceptsStore>,
+    oldState: ExportConceptsStore,
+    visibleConceptIndexes: Array<number>,
+): Partial<ExportConceptsStore> {
     const selectedFormat = withFallback(newState.selectedFormat, oldState.selectedFormat);
     const includeLattice = withFallback(newState.includeLattice, oldState.includeLattice);
-    const includeHighlightedConceptsOnly = withFallback(
-        newState.includeHighlightedConceptsOnly,
-        oldState.includeHighlightedConceptsOnly);
     const context = useDataStructuresStore.getState().context;
     const concepts = useDataStructuresStore.getState().concepts;
     const lattice = useDataStructuresStore.getState().lattice;
-    // This should ideally not be dependent on useDiagramStore, but it does not really matter...
-    const visibleConceptIndexes = useDiagramStore.getState().visibleConceptIndexes;
 
     if (!context || !concepts) {
         return newState;
@@ -72,7 +30,7 @@ function withTooLarge(newState: Partial<ExportConceptsStore>, oldState: ExportCo
     const { objects, attributes, concepts: conceptsToExport, relation } = highlightedConcepts(
         context,
         concepts,
-        includeHighlightedConceptsOnly ? [...(visibleConceptIndexes?.values() || [])] : [],
+        visibleConceptIndexes,
         includeLattice ? lattice : null);
     const linesCountEstimate = objects.length +
         attributes.length +
@@ -87,18 +45,17 @@ function withTooLarge(newState: Partial<ExportConceptsStore>, oldState: ExportCo
     };
 }
 
-function withResult(newState: Partial<ExportConceptsStore>, oldState: ExportConceptsStore): Partial<ExportConceptsStore> {
+export function withConceptsExportResult(
+    newState: Partial<ExportConceptsStore>,
+    oldState: ExportConceptsStore,
+    visibleConceptIndexes: Array<number>,
+): Partial<ExportConceptsStore> {
     const selectedFormat = newState.selectedFormat !== undefined ? newState.selectedFormat : oldState.selectedFormat;
     const disabledComputation = newState.disabledComputation !== undefined ? newState.disabledComputation : oldState.disabledComputation;
     const includeLattice = newState.includeLattice !== undefined ? newState.includeLattice : oldState.includeLattice;
-    const includeHighlightedConceptsOnly = newState.includeHighlightedConceptsOnly !== undefined ?
-        newState.includeHighlightedConceptsOnly :
-        oldState.includeHighlightedConceptsOnly;
     const context = useDataStructuresStore.getState().context;
     const concepts = useDataStructuresStore.getState().concepts;
     const lattice = useDataStructuresStore.getState().lattice;
-    // TODO: This should not be dependent on useDiagramStore
-    const visibleConceptIndexes = useDiagramStore.getState().visibleConceptIndexes;
 
     if (!context || !concepts || disabledComputation) {
         return newState;
@@ -107,7 +64,7 @@ function withResult(newState: Partial<ExportConceptsStore>, oldState: ExportConc
     const { objects, attributes, concepts: conceptsToExport, relation } = highlightedConcepts(
         context,
         concepts,
-        includeHighlightedConceptsOnly ? [...(visibleConceptIndexes?.values() || [])] : [],
+        visibleConceptIndexes,
         includeLattice ? lattice : null);
     const name = useProjectStore.getState().name || "";
     let result: Array<string> | null = null;

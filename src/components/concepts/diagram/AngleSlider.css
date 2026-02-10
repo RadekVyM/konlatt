@@ -22,11 +22,11 @@
         &::after {
             content: "";
             left: calc(var(--spacing) * 2 + var(--position) * (100% - var(--spacing) * 4));
-            @apply absolute w-4 h-4 box-border border-4 border-primary -translate-x-1/2 rounded-full bg-on-primary z-30 pointer-events-none select-none;
+            @apply absolute w-4 h-4 transition-[border-width] duration-75 box-border border-4 border-primary -translate-x-1/2 rounded-full bg-on-primary z-30 pointer-events-none select-none;
         }
 
         input {
-            @apply w-full appearance-none bg-surface-light-dim-container h-4 border border-outline rounded-full cursor-pointer;
+            @apply isolate relative w-full appearance-none bg-surface-light-dim-container h-4 border border-outline rounded-full cursor-pointer;
 
             &::-webkit-slider-thumb {
                 -webkit-appearance: none;
@@ -63,5 +63,9 @@
                 }
             }
         }
+    }
+    
+    .angle-slider:has(input:hover)::after {
+        @apply border-3;
     }
 }

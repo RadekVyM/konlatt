@@ -3,8 +3,6 @@ import { cn } from "../../utils/tailwind";
 import useLazyListCount from "../../hooks/useLazyListCount";
 import Button from "../inputs/Button";
 import CardItemsLazyList from "../CardItemsLazyList";
-import { CardContainer } from "../CardContainer";
-import ConceptDetail from "./ConceptDetail";
 import NothingFound from "../NothingFound";
 import CardSection from "../CardSection";
 import FilterSortBar from "../filters/FilterSortBar";
@@ -15,87 +13,17 @@ import { searchTermsToRegex } from "../../utils/search";
 import SearchInput from "../inputs/SearchInput";
 import useDataStructuresStore from "../../stores/useDataStructuresStore";
 import useDebouncedSetter from "../../hooks/useDebouncedSetter";
-import ExportConceptsButton from "../export/ExportConceptsButton";
 import { ConceptSortType } from "../../types/SortType";
 import { SortDirection } from "../../types/SortDirection";
 import useDialog from "../../hooks/useDialog";
 import ConceptsFilterDialog from "../filters/ConceptsFilterDialog";
 import ConceptItemsList from "./ConceptItemsList";
 import useDiagramStore from "../../stores/diagram/useDiagramStore";
+import { ExportButtonProps } from "../export/types/ExportButtonProps";
 
 const MAX_TEXT_LENGTH = 500;
 
-export default function Concepts(props: {
-    className?: string,
-    route: string,
-    controls?: React.ReactNode,
-    selectedConceptIndex: number | null,
-    visibleConceptIndexes: Set<number> | null,
-    filteredConcepts: FormalConcepts | null,
-    searchTerms: Array<string>,
-    storedSearchInput: string,
-    sortType: ConceptSortType,
-    sortDirection: SortDirection,
-    strictSelectedObjects: boolean,
-    strictSelectedAttributes: boolean,
-    selectedFilterObjects: ReadonlySet<number>,
-    selectedFilterAttributes: ReadonlySet<number>,
-    minObjectsCount: number | null,
-    maxObjectsCount: number | null,
-    minAttributesCount: number | null,
-    maxAttributesCount: number | null,
-    onSortTypeChange: (key: ConceptSortType) => void,
-    onSortDirectionChange: (key: SortDirection) => void,
-    setSelectedConceptIndex: React.Dispatch<React.SetStateAction<number | null>>,
-    updateSearchInput: (debouncedSearchInput: string) => void,
-    onSelectedFiltersChange: (
-        strictSelectedObjects: boolean,
-        strictSelectedAttributes: boolean,
-        selectedObjects: ReadonlySet<number>,
-        selectedAttributes: ReadonlySet<number>,
-        minObjectsCount: number | null,
-        maxObjectsCount: number | null,
-        minAttributesCount: number | null,
-        maxAttributesCount: number | null,
-    ) => void,
-}) {
-    return (
-        <CardContainer
-            className={props.className}>
-            <ConceptsList
-                className={cn(props.selectedConceptIndex !== null && "hidden")}
-                route={props.route}
-                filteredConcepts={props.filteredConcepts}
-                searchTerms={props.searchTerms}
-                storedSearchInput={props.storedSearchInput}
-                updateSearchInput={props.updateSearchInput}
-                setSelectedConceptIndex={props.setSelectedConceptIndex}
-                visibleConceptIndexes={props.visibleConceptIndexes}
-                sortType={props.sortType}
-                sortDirection={props.sortDirection}
-                onSortTypeChange={props.onSortTypeChange}
-                onSortDirectionChange={props.onSortDirectionChange}
-                strictSelectedObjects={props.strictSelectedObjects}
-                strictSelectedAttributes={props.strictSelectedAttributes}
-                selectedFilterObjects={props.selectedFilterObjects}
-                selectedFilterAttributes={props.selectedFilterAttributes}
-                minObjectsCount={props.minObjectsCount}
-                maxObjectsCount={props.maxObjectsCount}
-                minAttributesCount={props.minAttributesCount}
-                maxAttributesCount={props.maxAttributesCount}
-                onSelectedFiltersChange={props.onSelectedFiltersChange} />
-            {props.selectedConceptIndex !== null &&
-                <ConceptDetail
-                    key={props.selectedConceptIndex}
-                    controls={props.controls}
-                    route={props.route}
-                    selectedConceptIndex={props.selectedConceptIndex}
-                    onBackClick={() => props.setSelectedConceptIndex(null)} />}
-        </CardContainer>
-    );
-}
-
-function ConceptsList(props: {
+export default function ConceptsList(props: {
     className?: string,
     route: string,
     visibleConceptIndexes?: Set<number> | null,
@@ -112,6 +40,7 @@ function ConceptsList(props: {
     maxObjectsCount: number | null,
     minAttributesCount: number | null,
     maxAttributesCount: number | null,
+    exportConceptsButton: (props: ExportButtonProps) => React.ReactNode,
     onSortTypeChange: (key: ConceptSortType) => void,
     onSortDirectionChange: (key: SortDirection) => void,
     setSelectedConceptIndex: (index: number | null) => void,
@@ -127,6 +56,7 @@ function ConceptsList(props: {
         maxAttributesCount: number | null,
     ) => void,
 }) {
+    const ExportConceptsButton = props.exportConceptsButton;
     const [searchInput, setSearchInput] = useState<string>(props.storedSearchInput);
     const concepts = useDataStructuresStore((state) => state.concepts);
     const disabled = concepts === null;
