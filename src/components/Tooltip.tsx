@@ -16,6 +16,17 @@ export default function Tooltip(props: {
     const [isShown, setIsShown] = useState<boolean>(false);
     const [position, setPosition] = useState<[number, number]>([0, 0]);
 
+    const isVisible = isShown && (position[0] || position[1]);
+
+    useLayoutEffect(() => {
+        if (isVisible) {
+            tooltipRef.current?.showPopover();
+        }
+        else {
+            tooltipRef.current?.hidePopover();
+        }
+    }, [isVisible]);
+
     useLayoutEffect(() => {
         updatePosition();
     }, [canBeShown, props.tooltip, props.shortcutKeys]);
@@ -87,12 +98,12 @@ export default function Tooltip(props: {
     const container = dialogs.length === 0 ?
         (document.fullscreenElement || document.body) :
         dialogs[dialogs.length - 1];
-    const isVisible = isShown && (position[0] || position[1]);
 
     return createPortal(
         <div
             ref={tooltipRef}
-            className={cn("fixed z-50 translate-x-[-50%] select-none pointer-events-none",
+            popover="manual"
+            className={cn("open:fixed block invisible open:visible z-50 translate-x-[-50%] translate-y-0 select-none pointer-events-none inset-[unset]",
                 "text-xs w-max px-1.5 pb-0.5 pt-1 bg-on-surface-container text-surface-container drop-shadow-md shadow-shade rounded-md",
                 !isVisible && "invisible",
                 isVisible && "animate-fadeIn")}

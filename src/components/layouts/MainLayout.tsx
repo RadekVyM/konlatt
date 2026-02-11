@@ -4,6 +4,7 @@ import { LuRoute, LuTable2 } from "react-icons/lu";
 import { cn } from "../../utils/tailwind";
 import useHasWindowControlsOverlay from "../../hooks/useHasWindowControlsOverlay";
 import NewProjectButton from "./NewProjectButton";
+import ThemeSwitcherButton from "../ThemeSwitcherButton";
 
 type NavLink = {
     to: string,
@@ -39,8 +40,12 @@ export default function MainLayout() {
                 className="flex justify-between items-center mb-2.5 px-3">
                 <Navigation />
 
-                {hasWindowsControlOverlay &&
-                    <NewProjectButton />}
+                <div
+                    className="flex gap-2">
+                    <ThemeSwitcherButton />
+                    {hasWindowsControlOverlay &&
+                        <NewProjectButton />}
+                </div>
             </div>
             <Outlet />
         </div>

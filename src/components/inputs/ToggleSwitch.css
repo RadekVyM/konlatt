@@ -36,7 +36,7 @@
 
         &:not(:checked) {
             &::before {
-                @apply bg-surface-light-dim-container border-outline;
+                @apply bg-surface-lite-dim-container border-outline;
             }
 
             &::after {

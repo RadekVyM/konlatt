@@ -154,7 +154,7 @@ function MaxDimensions() {
                 className="grid grid-cols-[1fr_1fr_auto] gap-x-2">
                 {maxDimensionsLockedAspecRatio &&
                     <div
-                        className="col-2 row-1 -ml-2.5 w-3 h-4 bg-surface-light-dim-container self-center aspect-ratio-bridge-clip">
+                        className="col-2 row-1 -ml-2.5 w-3 h-4 bg-surface-lite-dim-container self-center aspect-ratio-bridge-clip">
                     </div>}
                 <DebouncedPrefixedNumberInput
                     id="export-diagram-max-width"

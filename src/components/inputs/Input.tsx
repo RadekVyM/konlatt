@@ -9,7 +9,7 @@ export default function Input({ className, ref, ...rest }: {
             ref={ref}
             size={1}
             className={cn(
-                "disabled:opacity-50 text-sm bg-surface-light-dim-container hover:bg-surface-dim-container border border-surface-light-dim-container hover:border-outline px-2 py-0 min-h-7 rounded-md",
+                "disabled:opacity-50 text-sm bg-surface-lite-dim-container hover:bg-surface-dim-container border border-surface-lite-dim-container hover:border-outline px-2 py-0 min-h-7 rounded-md",
                 className)}
             {...rest} />
     );

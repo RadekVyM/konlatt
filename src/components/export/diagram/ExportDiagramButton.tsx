@@ -122,7 +122,7 @@ function RequiredTikzPackagesSection() {
             <div
                 className="relative">
                 <pre
-                    className="bg-surface-light-dim-container rounded-md px-2 py-1 text-sm cursor-text">
+                    className="bg-surface-lite-dim-container rounded-md px-2 py-1 text-sm cursor-text">
                     <code>
                         {packages}
                     </code>

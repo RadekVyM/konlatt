@@ -26,7 +26,7 @@
         }
 
         input {
-            @apply isolate relative w-full appearance-none bg-surface-light-dim-container h-4 border border-outline rounded-full cursor-pointer;
+            @apply isolate relative w-full appearance-none bg-surface-lite-dim-container h-4 border border-outline rounded-full cursor-pointer;
 
             &::-webkit-slider-thumb {
                 -webkit-appearance: none;

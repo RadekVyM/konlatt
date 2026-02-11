@@ -132,7 +132,7 @@ function StatusListItem(props: {
 
     return (
         <li
-            className="relative overflow-clip grid grid-rows-[auto_auto] grid-cols-[auto_1fr] gap-x-3 px-2 py-1 bg-surface-light-dim-container rounded-lg">
+            className="relative overflow-clip grid grid-rows-[auto_auto] grid-cols-[auto_1fr] gap-x-3 px-2 py-1 bg-surface-lite-dim-container rounded-lg">
             <Icon
                 className={cn("self-center row-start-1 row-end-3 w-5 h-5 text-primary", !props.item.isError && !props.item.isDone && "animate-spin")} />
             <span className="text-sm">{props.item.title}</span>

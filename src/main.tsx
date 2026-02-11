@@ -6,9 +6,12 @@ import "./css/index.css";
 import "./css/button.css";
 import "./assets/fonts/Gabarito-VariableFont_wght.ttf";
 import App from "./App.tsx";
+import { ThemeContextProvider } from "./contexts/ThemeContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
-        <App />
+        <ThemeContextProvider>
+            <App />
+        </ThemeContextProvider>
     </StrictMode>,
 );
