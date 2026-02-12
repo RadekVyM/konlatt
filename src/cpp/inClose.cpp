@@ -1,3 +1,6 @@
+// Implementation of the InClose algorithm:
+// - https://www.researchgate.net/publication/228522038_In-Close_a_fast_algorithm_for_computing_formal_concepts
+
 #include "utils.h"
 #include "inClose.h"
 #include "types/FormalConcept.h"

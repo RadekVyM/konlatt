@@ -1,23 +1,45 @@
-import { LuMonitor, LuMoon, LuSettings2, LuSun } from "react-icons/lu";
+import { LuMonitor, LuMoon, LuSettings, LuSun } from "react-icons/lu";
 import Button from "./inputs/Button";
 import { cn } from "../utils/tailwind";
-import { useContext } from "react";
+import { useContext, useRef } from "react";
 import { ThemeContext } from "../contexts/ThemeContext";
+import useDimensionsListener from "../hooks/useDimensionsListener";
+import useEventListener from "../hooks/useEventListener";
 
 export default function ThemeSwitcherButton(props: {
     className?: string,
 }) {
+    const buttonRef = useRef<HTMLButtonElement>(null);
+
+    useEventListener("resize", () => updatePopoverPosition());
+    useDimensionsListener(buttonRef, () => updatePopoverPosition());
+
+    function updatePopoverPosition() {
+        const popover = document.getElementById("theme-popover");
+
+        if (!popover || !buttonRef.current) {
+            return;
+        }
+
+        const rect = buttonRef.current.getBoundingClientRect();
+
+        popover.style.top = `${rect.bottom}px`;
+        popover.style.left = `${rect.right}px`;
+    }
+
     return (
-        <div
-            className={cn("relative", props.className)}>
+        <>
             <Button
+                ref={buttonRef}
+                className={props.className}
+                onClick={() => updatePopoverPosition()}
                 variant="icon-default"
                 title="Options"
                 popoverTarget="theme-popover">
-                <LuSettings2 />
+                <LuSettings />
             </Button>
             <Popover />
-        </div>
+        </>
     );
 }
 
@@ -33,7 +55,7 @@ function Popover(props: {
         <article
             className={cn(
                 "hidden open:block isolate",
-                "pointer-events-auto slide-down-popover-transition open:absolute inset-[unset] right-3 top-23",
+                "pointer-events-auto slide-down-popover-transition open:absolute inset-[unset] -translate-x-full mt-1",
                 "bg-surface-container rounded-xl border border-outline-variant px-3 pb-2 pt-1 drop-shadow-2xl drop-shadow-shade",
                 props.className)}
             id="theme-popover"

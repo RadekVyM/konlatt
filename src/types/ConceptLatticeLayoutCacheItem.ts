@@ -7,4 +7,5 @@ export type ConceptLatticeLayoutCacheItem = {
     layout: ConceptLatticeLayout,
     diagramOffsets: Array<Point>,
     diagramOffsetMementos: DiagramOffsetMementos,
+    createdAt: Date,
 }

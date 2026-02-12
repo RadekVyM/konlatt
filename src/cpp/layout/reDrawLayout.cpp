@@ -283,6 +283,11 @@ float nodeStep(
         for (int endConceptIndex : subconceptsMapping[conceptIndex]) {
             double verticalDistance = distance(layout, dimension, conceptIndex, endConceptIndex, 0, 1);
             double horizontalDistance = distance(layout, dimension, conceptIndex, endConceptIndex, 1, dimension - 1);
+
+            if (verticalDistance == 0) {
+                continue;
+            }
+
             double spring = -C_VERT * ((1 + horizontalDistance) / verticalDistance - 1);
             double force = DELTA * spring;
 
@@ -379,6 +384,10 @@ std::vector<float> calculateLineForce(
 
     std::vector<float> result(dimension - 1);
 
+    if (firstY == 0 || secondY == 0) {
+        return result;
+    }
+
     double factor = 1 - similarity * 1 / constant;
 
     for (int i = 0; i < result.size(); i++) {
@@ -454,7 +463,7 @@ float lineStep(
                     auto diff = difference(pa, bat);
                     double dist = length(diff);
 
-                    if (dist < C_DIST) {
+                    if (dist != 0 && dist < C_DIST) {
                         auto first = multiplyByScalar(diff, C_DIST / dist * DELTA);
                         auto second = multiplyByScalar(diff, -C_DIST / dist * DELTA / 2);
 

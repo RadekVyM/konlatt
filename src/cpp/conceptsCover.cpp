@@ -1,3 +1,7 @@
+// Implementation of the Concepts Cover algorithm:
+// - https://books.google.cz/books?hl=cs&lr=&id=-F8OoVXQioAC&oi=fnd&pg=PR9&ots=0spFK_kxlS&sig=JOgqZUvytyQSFL7aiKtLgk1JLvE&redir_esc=y#v=onepage&q=concepts%20cover&f=false
+// - https://www.researchgate.net/publication/220693390_Romano_G_Concept_Data_Analysis_Theory_and_Applications_Wiley_New_York
+
 #include "types/FormalConcept.h"
 #include "utils.h"
 #include "conceptsCover.h"

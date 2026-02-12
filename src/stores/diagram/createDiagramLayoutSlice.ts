@@ -13,6 +13,8 @@ import withConceptsToMoveBox from "./withConceptsToMoveBox";
 import withDefaultLayoutBox from "./withDefaultLayoutBox";
 import withDiagramLabeling from "./withDiagramLabeling";
 
+const CACHE_MAX_SIZE = 5_000_000;
+
 type DiagramLayoutSliceState = {
     layout: ConceptLatticeLayout | null,
     layoutId: string,
@@ -189,7 +191,32 @@ function updateLayoutCache(
 ): Map<string, ConceptLatticeLayoutCacheItem> {
     const stateId = createDiagramLayoutStateId(layoutState);
     const newCache = new Map<string, ConceptLatticeLayoutCacheItem>(layoutCache);
-    newCache.set(stateId, { layout: newLayout, stateId, diagramOffsetMementos, diagramOffsets });
+    newCache.set(stateId, { layout: newLayout, stateId, diagramOffsetMementos, diagramOffsets, createdAt: new Date() });
+
+    const totalPointsCount = [...newCache.values()].reduce((previous, current) => previous + current.layout.length, 0);
+
+    // Shrink the cache if needed
+    if (totalPointsCount > CACHE_MAX_SIZE) {
+        const entries = new Array<[string, ConceptLatticeLayoutCacheItem]>();
+        let addedPointsCount = 0;
+
+        // Make sure that the newest layout is always added
+        entries.push([stateId, newCache.get(stateId)!]);
+        addedPointsCount += newLayout.length;
+
+        for (const entry of [...newCache.entries()]
+            .sort((a, b) => b[1].createdAt.getTime() - a[1].createdAt.getTime()) // Iterating from newest to oldest
+            .filter((e) => e[0] !== stateId)) {
+            if (addedPointsCount + entry[1].layout.length > CACHE_MAX_SIZE) {
+                break;
+            }
+
+            entries.push(entry);
+            addedPointsCount += entry[1].layout.length;
+        }
+
+        return new Map<string, ConceptLatticeLayoutCacheItem>(entries);
+    }
 
     return newCache;
 }

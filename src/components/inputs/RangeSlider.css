@@ -6,6 +6,10 @@
     .range-slider {
         @apply relative isolate bg-surface-lite-dim-container h-4 border border-outline rounded-full cursor-pointer box-content;
 
+        &:hover {
+            @apply bg-surface-dim-container;
+        }
+
         &::before {
             content: "";
             left: calc(var(--position-bottom) * (100% - var(--spacing) * 4));

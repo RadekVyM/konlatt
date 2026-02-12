@@ -39,7 +39,7 @@
     --on-surface-dim-muted-light: #6b7280;
 
     --surface-container-light: #ffffff;
-    --on-surface-container-light: #000;
+    --on-surface-container-light: #191919;
     --on-surface-container-muted-light: #6b7280;
 
     --surface-dim-container-light: #eaeef4;
@@ -107,7 +107,7 @@
     --secondary: var(--secondary-light);
     --secondary-dim: var(--secondary-dim-light);
     --on-secondary: var(--on-secondary-light);
-    --on-secondary-dim: var(--on-secondary-light);
+    --on-secondary-dim: var(--on-secondary-dim-light);
 
     --surface: var(--surface-light);
     --on-surface: var(--on-surface-light);
@@ -154,7 +154,7 @@
         --secondary: var(--secondary-dark);
         --secondary-dim: var(--secondary-dim-dark);
         --on-secondary: var(--on-secondary-dark);
-        --on-secondary-dim: var(--on-secondary-dark);
+        --on-secondary-dim: var(--on-secondary-dim-dark);
 
         --surface: var(--surface-dark);
         --on-surface: var(--on-surface-dark);

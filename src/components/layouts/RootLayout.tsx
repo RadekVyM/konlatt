@@ -11,6 +11,8 @@ import useWindowControlsOverlayRect from "../../hooks/useWindowControlsOverlayRe
 import { cn } from "../../utils/tailwind";
 import DemoDatasetsButton from "../DemoDatasetsButton";
 import DemoDatasetsDialog from "../DemoDatasetsDialog";
+import ThemeSwitcherButton from "../ThemeSwitcherButton";
+import AboutButton from "../AboutButton";
 
 export default function RootLayout() {
     const newProjectDialogState = useDialog();
@@ -58,6 +60,11 @@ function Header() {
                 {!hasWindowControlsOverlay && (isRootPage ? 
                     <div
                         className="justify-self-end col-start-3 flex gap-3">
+                        <div
+                            className="flex gap-1.5">
+                            <ThemeSwitcherButton />
+                            <AboutButton />
+                        </div>
                         <DemoDatasetsButton
                             onClick={datasetsDialogState.show} />
                         <FormatsButton

@@ -121,6 +121,15 @@ body {
 }
 
 @media (prefers-color-scheme: dark) {
+  :root[data-theme="system"],
+  :root:not([data-theme]) {
+    .with-logo::before {
+      background-image: url("/images/logo_dark.svg");
+    }
+  }
+}
+
+[data-theme="dark"] {
   .with-logo::before {
     background-image: url("/images/logo_dark.svg");
   }

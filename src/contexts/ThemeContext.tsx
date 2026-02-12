@@ -21,11 +21,34 @@ export function ThemeContextProvider(props: {
 
     useLayoutEffect(() => {
         const theme = (localStorage.getItem(THEME_STORAGE_KEY) || "system") as Theme;
-        setCurrentTheme(theme);
+        setTheme(theme);
     }, []);
 
     function setTheme(theme: Theme) {
         document.documentElement.setAttribute("data-theme", theme);
+
+        document.querySelectorAll('meta[name="theme-color"]').forEach((tag) => tag.remove());
+
+        const lightColor = getComputedStyle(document.documentElement)
+            .getPropertyValue("--surface-light")
+            .trim();
+        const darkColor = getComputedStyle(document.documentElement)
+            .getPropertyValue("--surface-dark")
+            .trim();
+
+        switch (theme) {
+            case "system":
+                appendThemeColorMeta(lightColor, "(prefers-color-scheme: light)");
+                appendThemeColorMeta(darkColor, "(prefers-color-scheme: dark)");
+                break;
+            case "light":
+                appendThemeColorMeta(lightColor);
+                break;
+            case "dark":
+                appendThemeColorMeta(darkColor);
+                break;
+        }
+
         localStorage.setItem(THEME_STORAGE_KEY, theme);
         setCurrentTheme(theme);
     }
@@ -38,4 +61,14 @@ export function ThemeContextProvider(props: {
             {props.children}
         </ThemeContext.Provider>
     );
+}
+
+function appendThemeColorMeta(color: string, media?: string) {
+    const meta = document.createElement("meta");
+    meta.name = "theme-color";
+    meta.setAttribute("content", color);
+    if (media) {
+        meta.setAttribute("media", media);
+    }
+    document.head.appendChild(meta);
 }
