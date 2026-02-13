@@ -76,7 +76,7 @@ export default function DiagramPage() {
 function Concepts(props: {
     className?: string,
 }) {
-    const visibleConceptIndexes = useDiagramStore((state) => state.visibleConceptIndexes);
+    const sublatticeConceptIndexes = useDiagramStore((state) => state.sublatticeConceptIndexes);
     const selectedConceptIndex = useDiagramStore((state) => state.selectedConceptIndex);
     const filteredConcepts = useDiagramStore((state) => state.filteredConcepts);
     const searchTerms = useDiagramStore((state) => state.searchTerms);
@@ -113,7 +113,7 @@ function Concepts(props: {
                 sortDirection={sortDirection}
                 onSortTypeChange={setSortType}
                 onSortDirectionChange={setSortDirection}
-                visibleConceptIndexes={visibleConceptIndexes}
+                sublatticeConceptIndexes={sublatticeConceptIndexes}
                 strictSelectedObjects={strictSelectedObjects}
                 strictSelectedAttributes={strictSelectedAttributes}
                 selectedFilterObjects={selectedFilterObjects}
@@ -130,7 +130,7 @@ function Concepts(props: {
                     controls={selectedConceptIndex !== null &&
                         <ConceptDiagramControls
                             selectedConceptIndex={selectedConceptIndex}
-                            visibleConceptIndexes={visibleConceptIndexes} />}
+                            sublatticeConceptIndexes={sublatticeConceptIndexes} />}
                     route="/project/diagram"
                     selectedConceptIndex={selectedConceptIndex}
                     onBackClick={() => setSelectedConceptIndex(null)} />}

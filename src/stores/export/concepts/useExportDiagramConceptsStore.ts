@@ -46,21 +46,21 @@ function withTooLarge(newState: Partial<ExportDiagramConceptsStore>, oldState: E
     return withConceptsExportTooLarge(
         newState,
         oldState,
-        getVisibleConceptIndexes(newState, oldState));
+        getSublatticeConceptIndexes(newState, oldState));
 }
 
 function withResult(newState: Partial<ExportDiagramConceptsStore>, oldState: ExportDiagramConceptsStore): Partial<ExportDiagramConceptsStore> {
     return withConceptsExportResult(
         newState,
         oldState,
-        getVisibleConceptIndexes(newState, oldState));
+        getSublatticeConceptIndexes(newState, oldState));
 }
 
-function getVisibleConceptIndexes(newState: Partial<ExportDiagramConceptsStore>, oldState: ExportDiagramConceptsStore) {
+function getSublatticeConceptIndexes(newState: Partial<ExportDiagramConceptsStore>, oldState: ExportDiagramConceptsStore) {
     // This should ideally not be dependent on useDiagramStore, but it does not really matter...
-    const visibleConceptIndexes = useDiagramStore.getState().visibleConceptIndexes;
+    const sublatticeConceptIndexes = useDiagramStore.getState().sublatticeConceptIndexes;
     const includeHighlightedConceptsOnly = withFallback(
         newState.includeHighlightedConceptsOnly,
         oldState.includeHighlightedConceptsOnly);
-    return includeHighlightedConceptsOnly ? [...(visibleConceptIndexes?.values() || [])] : [];
+    return includeHighlightedConceptsOnly ? [...(sublatticeConceptIndexes?.values() || [])] : [];
 }

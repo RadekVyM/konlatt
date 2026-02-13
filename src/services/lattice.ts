@@ -88,21 +88,21 @@ export function reverseMapping(mapping: Array<Set<number>>) {
 export function getObjectsLabeling(
     concepts: FormalConcepts,
     superconceptsMapping: ReadonlyArray<Set<number>>,
-    visibleConceptIndexes?: Set<number>,
+    sublatticeConceptIndexes?: Set<number>,
 ): ConceptLatticeLabeling {
     const infimum = getInfimum(concepts);
 
-    return getLabeling(concepts, infimum, superconceptsMapping, (concept) => concept.objects, visibleConceptIndexes);
+    return getLabeling(concepts, infimum, superconceptsMapping, (concept) => concept.objects, sublatticeConceptIndexes);
 }
 
 export function getAttributesLabeling(
     concepts: FormalConcepts,
     subconceptsMapping: ReadonlyArray<Set<number>>,
-    visibleConceptIndexes?: Set<number>,
+    sublatticeConceptIndexes?: Set<number>,
 ): ConceptLatticeLabeling {
     const supremum = getSupremum(concepts);
 
-    return getLabeling(concepts, supremum, subconceptsMapping, (concept) => concept.attributes, visibleConceptIndexes);
+    return getLabeling(concepts, supremum, subconceptsMapping, (concept) => concept.attributes, sublatticeConceptIndexes);
 }
 
 
@@ -140,7 +140,7 @@ export function calculateConeConceptIndexes(upperConeOnlyConceptIndex: number | 
     return new Set(intersection);
 }
 
-export function calculateSublattice(visibleConceptIndexes: Set<number>, lattice: ConceptLattice, supremumIndex: number) {
+export function calculateSublattice(sublatticeConceptIndexes: Set<number>, lattice: ConceptLattice, supremumIndex: number) {
     const indexMapping = new Map<number, number>();
     const reverseIndexMapping = new Map<number, number>();
     const subconceptsMapping = new Array<Set<number>>();
@@ -151,7 +151,7 @@ export function calculateSublattice(visibleConceptIndexes: Set<number>, lattice:
 
     for (const layer of layers) {
         for (const conceptIndex of layer) {
-            if (!visibleConceptIndexes.has(conceptIndex)) {
+            if (!sublatticeConceptIndexes.has(conceptIndex)) {
                 continue;
             }
 
@@ -161,7 +161,7 @@ export function calculateSublattice(visibleConceptIndexes: Set<number>, lattice:
             const subconcepts = new Array<number>();
 
             for (const subconceptIndex of lattice.subconceptsMapping[conceptIndex]) {
-                if (!visibleConceptIndexes.has(subconceptIndex)) {
+                if (!sublatticeConceptIndexes.has(subconceptIndex)) {
                     continue;
                 }
 
@@ -213,7 +213,7 @@ function getLabeling(
     startConcept: FormalConcept,
     coverRelation: ReadonlyArray<Set<number>>,
     conceptItems: (concept: FormalConcept) => ReadonlyArray<number>,
-    visibleConceptIndexes?: Set<number>,
+    sublatticeConceptIndexes?: Set<number>,
 ): ConceptLatticeLabeling {
     const labeling = new Map<number, ReadonlyArray<number>>();
     const alreadyAppeared = new Set<number>();
@@ -221,7 +221,7 @@ function getLabeling(
 
     for (const layer of layers) {
         for (const conceptIndex of layer) {
-            if (visibleConceptIndexes && !visibleConceptIndexes.has(conceptIndex)) {
+            if (sublatticeConceptIndexes && !sublatticeConceptIndexes.has(conceptIndex)) {
                 continue;
             }
 

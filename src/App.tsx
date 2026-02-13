@@ -7,7 +7,7 @@ import DiagramPage from "./components/pages/DiagramPage";
 import ExplorerPage from "./components/pages/ExplorerPage";
 import RootLayout from "./components/layouts/RootLayout";
 import useMediaQuery from "./hooks/useMediaQuery";
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 import useGlobalsStore from "./stores/useGlobalsStore";
 import { Toasts } from "./components/toast";
 
@@ -60,7 +60,7 @@ export default function App() {
 function ThemeController() {
     const isDark = useMediaQuery("(prefers-color-scheme: dark)");
 
-    useEffect(() => useGlobalsStore.getState().setCurrentTheme(isDark ? "dark" : "light"), [isDark]);
+    useLayoutEffect(() => useGlobalsStore.getState().setPreferedColorScheme(isDark ? "dark" : "light"), [isDark]);
 
     return undefined;
 }

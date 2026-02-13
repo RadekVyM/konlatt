@@ -1,10 +1,10 @@
 import { LuMonitor, LuMoon, LuSettings, LuSun } from "react-icons/lu";
 import Button from "./inputs/Button";
 import { cn } from "../utils/tailwind";
-import { useContext, useRef } from "react";
-import { ThemeContext } from "../contexts/ThemeContext";
+import { useRef } from "react";
 import useDimensionsListener from "../hooks/useDimensionsListener";
 import useEventListener from "../hooks/useEventListener";
+import useGlobalsStore from "../stores/useGlobalsStore";
 
 export default function ThemeSwitcherButton(props: {
     className?: string,
@@ -46,8 +46,8 @@ export default function ThemeSwitcherButton(props: {
 function Popover(props: {
     className?: string,
 }) {
-    const { currentTheme, setCurrentTheme } = useContext(ThemeContext);
-
+    const setTheme = useGlobalsStore((state) => state.setTheme);
+    const theme = useGlobalsStore((state) => state.theme);
     const selectedVariant = "icon-primary";
     const deselectedVariant = "icon-secondary";
 
@@ -68,23 +68,23 @@ function Popover(props: {
                 className="flex gap-2">
                 <Button
                     className="flex-1"
-                    variant={currentTheme === "light" ? selectedVariant : deselectedVariant}
+                    variant={theme === "light" ? selectedVariant : deselectedVariant}
                     title="Light"
-                    onClick={() => setCurrentTheme("light")}>
+                    onClick={() => setTheme("light")}>
                     <LuSun />
                 </Button>
                 <Button
                     className="flex-1"
-                    variant={currentTheme === "system" ? selectedVariant : deselectedVariant}
+                    variant={theme === "system" ? selectedVariant : deselectedVariant}
                     title="System"
-                    onClick={() => setCurrentTheme("system")}>
+                    onClick={() => setTheme("system")}>
                     <LuMonitor />
                 </Button>
                 <Button
                     className="flex-1"
-                    variant={currentTheme === "dark" ? selectedVariant : deselectedVariant}
+                    variant={theme === "dark" ? selectedVariant : deselectedVariant}
                     title="Dark"
-                    onClick={() => setCurrentTheme("dark")}>
+                    onClick={() => setTheme("dark")}>
                     <LuMoon />
                 </Button>
             </div>

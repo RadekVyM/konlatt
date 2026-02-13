@@ -10,7 +10,7 @@ import { Point } from "../../../types/Point";
 import { CameraType } from "../../../types/CameraType";
 import { isRightClick } from "../../../utils/html";
 import { createRange } from "../../../utils/array";
-import { Theme } from "../../../types/Theme";
+import { CurrentTheme } from "../../../types/Theme";
 
 const HOVERED_MESH_NAME = "hovered_mesh";
 
@@ -24,7 +24,7 @@ export default function Nodes() {
     const dragOffset = useDiagramStore((state) => state.dragOffset);
     const selectedConceptIndex = useDiagramStore((state) => state.selectedConceptIndex);
     const conceptsToMoveIndexes = useDiagramStore((state) => state.conceptsToMoveIndexes);
-    const visibleConceptIndexes = useDiagramStore((state) => state.visibleConceptIndexes);
+    const sublatticeConceptIndexes = useDiagramStore((state) => state.sublatticeConceptIndexes);
     const lowerConeOnlyConceptIndex = useDiagramStore((state) => state.lowerConeOnlyConceptIndex);
     const upperConeOnlyConceptIndex = useDiagramStore((state) => state.upperConeOnlyConceptIndex);
     const filteredConceptIndexes = useDiagramStore((state) => state.filteredConceptIndexes);
@@ -68,7 +68,7 @@ export default function Nodes() {
         setNodesTransformMatricesHelper(
             instancedMeshRef.current,
             layoutIndexes,
-            visibleConceptIndexes,
+            sublatticeConceptIndexes,
             lowerConeOnlyConceptIndex,
             upperConeOnlyConceptIndex,
             displayHighlightedSublatticeOnly,
@@ -85,7 +85,7 @@ export default function Nodes() {
         layout,
         cameraType,
         diagramOffsets,
-        visibleConceptIndexes,
+        sublatticeConceptIndexes,
         lowerConeOnlyConceptIndex,
         upperConeOnlyConceptIndex,
         displayHighlightedSublatticeOnly,
@@ -106,7 +106,7 @@ export default function Nodes() {
         setNodesTransformMatricesHelper(
             instancedMeshRef.current,
             layoutIndexes,
-            visibleConceptIndexes,
+            sublatticeConceptIndexes,
             lowerConeOnlyConceptIndex,
             upperConeOnlyConceptIndex,
             displayHighlightedSublatticeOnly,
@@ -125,7 +125,7 @@ export default function Nodes() {
         layout,
         cameraType,
         diagramOffsets,
-        visibleConceptIndexes,
+        sublatticeConceptIndexes,
         lowerConeOnlyConceptIndex,
         upperConeOnlyConceptIndex,
         displayHighlightedSublatticeOnly,
@@ -431,7 +431,7 @@ function getNodeColor(
     conceptIndex: number | null | undefined,
     selectedConceptIndex: number | null,
     filteredConceptIndexes: Set<number> | null,
-    currentTheme: Theme,
+    currentTheme: CurrentTheme,
     forceDimColor?: boolean,
 ) {
     const dimColor = themedColor(DIM_NODE_COLOR_LIGHT, DIM_NODE_COLOR_DARK, currentTheme);
@@ -458,7 +458,7 @@ function getNodeColor(
 function setNodesTransformMatricesHelper(
     instancedMesh: InstancedMesh,
     layoutIndexes: Array<number>,
-    visibleConceptIndexes: Set<number> | null,
+    sublatticeConceptIndexes: Set<number> | null,
     lowerConeOnlyConceptIndex: number | null,
     upperConeOnlyConceptIndex: number | null,
     displayHighlightedSublatticeOnly: boolean,
@@ -472,7 +472,7 @@ function setNodesTransformMatricesHelper(
 ) {
     const { highlightedLayoutIndexes, dimLayoutIndexes, coneLayoutIndexes } = separateNodes(
         layoutIndexes,
-        visibleConceptIndexes,
+        sublatticeConceptIndexes,
         lowerConeOnlyConceptIndex,
         upperConeOnlyConceptIndex,
         displayHighlightedSublatticeOnly);
@@ -514,7 +514,7 @@ function setNodesTransformMatricesHelper(
 
 function separateNodes(
     layoutIndexes: Array<number>,
-    visibleConceptIndexes: Set<number> | null,
+    sublatticeConceptIndexes: Set<number> | null,
     lowerConeOnlyConceptIndex: number | null,
     upperConeOnlyConceptIndex: number | null,
     displayHighlightedSublatticeOnly: boolean,
@@ -533,7 +533,7 @@ function separateNodes(
             continue;
         }
 
-        if (displayHighlightedSublatticeOnly || visibleConceptIndexes === null || visibleConceptIndexes?.has(conceptIndex)) {
+        if (displayHighlightedSublatticeOnly || sublatticeConceptIndexes === null || sublatticeConceptIndexes?.has(conceptIndex)) {
             highlightedLayoutIndexes.push(layoutIndex);
         }
         else {

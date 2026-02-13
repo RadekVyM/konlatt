@@ -29,7 +29,12 @@ export const SEMITRANSPARENT_HIGHLIGHTED_LINK_COLOR_DARK = new Color("#ffffff");
 export const OPAQUE_HIGHLIGHTED_LINK_COLOR_LIGHT = new Color("#afafaf");
 export const OPAQUE_HIGHLIGHTED_LINK_COLOR_DARK = new Color("#808080");
 
-export const LINE_WIDTH = 0.03;
+export const SEMITRANSPARENT_COLORED_LINK_COLOR_LIGHT = new Color("#dd226f");
+export const SEMITRANSPARENT_COLORED_LINK_COLOR_DARK = new Color("#dd226f");
+export const OPAQUE_COLORED_LINK_COLOR_LIGHT = new Color("#ffbdd8");
+export const OPAQUE_COLORED_LINK_COLOR_DARK = new Color("#4f0926");
+
+export const LINE_THICKNESS = 0.03;
 
 export const X_SCALE = 1;
 export const Y_SCALE = 1;

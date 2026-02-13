@@ -32,7 +32,8 @@ type DiagramOptionsSliceState = {
     multiselectEnabled: boolean,
     antialiasEnabled: boolean,
     flatLinksEnabled: boolean,
-    visibleConceptIndexes: Set<number> | null,
+    /** Concept indexes of the currently highlighted sublattice. */
+    sublatticeConceptIndexes: Set<number> | null,
 } & DiagramLayoutState
 
 type DiagramOptionsSliceActions = {
@@ -86,7 +87,7 @@ export function initialState(): DiagramOptionsSliceState {
         displayHighlightedSublatticeOnly: false,
         upperConeOnlyConceptIndex: null,
         lowerConeOnlyConceptIndex: null,
-        visibleConceptIndexes: null,
+        sublatticeConceptIndexes: null,
         placementLayered: "simple",
         parallelizeReDraw: true,
         targetDimensionReDraw: 2,
@@ -148,7 +149,7 @@ export default function createDiagramOptionsSlice(set: (partial: DiagramStore | 
             {
                 upperConeOnlyConceptIndex,
                 lowerConeOnlyConceptIndex: withOtherReset ? null : old.lowerConeOnlyConceptIndex,
-                visibleConceptIndexes: calculateConeConceptIndexes(
+                sublatticeConceptIndexes: calculateConeConceptIndexes(
                     upperConeOnlyConceptIndex,
                     withOtherReset ? null : old.lowerConeOnlyConceptIndex,
                     useDataStructuresStore.getState().lattice),
@@ -158,7 +159,7 @@ export default function createDiagramOptionsSlice(set: (partial: DiagramStore | 
             {
                 lowerConeOnlyConceptIndex,
                 upperConeOnlyConceptIndex: withOtherReset ? null : old.upperConeOnlyConceptIndex,
-                visibleConceptIndexes: calculateConeConceptIndexes(
+                sublatticeConceptIndexes: calculateConeConceptIndexes(
                     withOtherReset ? null : old.upperConeOnlyConceptIndex,
                     lowerConeOnlyConceptIndex,
                     useDataStructuresStore.getState().lattice),

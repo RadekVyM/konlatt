@@ -269,9 +269,9 @@ function createCompleteLayoutComputationRequest(
     request: CompleteLayoutComputationRequest,
     reverseIndexMapping: Map<number, number> | null,
 } {
-    const visibleConceptIndexes = calculateConeConceptIndexes(upperConeOnlyConceptIndex, lowerConeOnlyConceptIndex, lattice);
+    const sublatticeConceptIndexes = calculateConeConceptIndexes(upperConeOnlyConceptIndex, lowerConeOnlyConceptIndex, lattice);
 
-    if (visibleConceptIndexes === null) {
+    if (sublatticeConceptIndexes === null) {
         // TODO: use iterators when available: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Iterator/flatMap
         return {
             request: {
@@ -286,7 +286,7 @@ function createCompleteLayoutComputationRequest(
         };
     }
 
-    const { reverseIndexMapping, subconceptsMapping, supremum, infimum } = calculateSublattice(visibleConceptIndexes, lattice, getSupremum(concepts).index);
+    const { reverseIndexMapping, subconceptsMapping, supremum, infimum } = calculateSublattice(sublatticeConceptIndexes, lattice, getSupremum(concepts).index);
 
     return {
         request: {

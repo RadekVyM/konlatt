@@ -15,7 +15,7 @@ const TOO_LARGE_THRESHOLD = 15_000_000;
 export function withConceptsExportTooLarge(
     newState: Partial<ExportConceptsStore>,
     oldState: ExportConceptsStore,
-    visibleConceptIndexes: Array<number>,
+    sublatticeConceptIndexes: Array<number>,
 ): Partial<ExportConceptsStore> {
     const selectedFormat = withFallback(newState.selectedFormat, oldState.selectedFormat);
     const includeLattice = withFallback(newState.includeLattice, oldState.includeLattice);
@@ -30,7 +30,7 @@ export function withConceptsExportTooLarge(
     const { objects, attributes, concepts: conceptsToExport, relation } = highlightedConcepts(
         context,
         concepts,
-        visibleConceptIndexes,
+        sublatticeConceptIndexes,
         includeLattice ? lattice : null);
     const linesCountEstimate = objects.length +
         attributes.length +
@@ -48,7 +48,7 @@ export function withConceptsExportTooLarge(
 export function withConceptsExportResult(
     newState: Partial<ExportConceptsStore>,
     oldState: ExportConceptsStore,
-    visibleConceptIndexes: Array<number>,
+    sublatticeConceptIndexes: Array<number>,
 ): Partial<ExportConceptsStore> {
     const selectedFormat = newState.selectedFormat !== undefined ? newState.selectedFormat : oldState.selectedFormat;
     const disabledComputation = newState.disabledComputation !== undefined ? newState.disabledComputation : oldState.disabledComputation;
@@ -64,7 +64,7 @@ export function withConceptsExportResult(
     const { objects, attributes, concepts: conceptsToExport, relation } = highlightedConcepts(
         context,
         concepts,
-        visibleConceptIndexes,
+        sublatticeConceptIndexes,
         includeLattice ? lattice : null);
     const name = useProjectStore.getState().name || "";
     let result: Array<string> | null = null;
@@ -110,7 +110,7 @@ function averageLineLength(format: ConceptExportFormat) {
 function highlightedConcepts(
     context: FormalContext,
     concepts: FormalConcepts,
-    visibleConceptIndexes: ReadonlyArray<number>,
+    sublatticeConceptIndexes: ReadonlyArray<number>,
     lattice: ConceptLattice | null,
 ): {
     objects: ReadonlyArray<string>,
@@ -118,7 +118,7 @@ function highlightedConcepts(
     concepts: FormalConcepts,
     relation?: ReadonlyArray<Set<number>>,
 } {
-    if (visibleConceptIndexes.length === 0) {
+    if (sublatticeConceptIndexes.length === 0) {
         return {
             objects: context.objects,
             attributes: context.attributes,
@@ -134,8 +134,8 @@ function highlightedConcepts(
     const conceptIndexesMapping = new Map<number, number>();
     const newConcepts = new Array<FormalConcept>();
 
-    for (let i = 0; i < visibleConceptIndexes.length; i++) {
-        const conceptIndex = visibleConceptIndexes[i];
+    for (let i = 0; i < sublatticeConceptIndexes.length; i++) {
+        const conceptIndex = sublatticeConceptIndexes[i];
         const concept = concepts[conceptIndex];
         const objects = remappedItems(concept.objects, objectsMapping);
         const attributes = remappedItems(concept.attributes, attributesMapping);
@@ -157,21 +157,21 @@ function highlightedConcepts(
         attributes,
         concepts: newConcepts,
         relation: lattice ?
-            remappedRelation(newConcepts, visibleConceptIndexes, lattice.superconceptsMapping, conceptIndexesMapping) :
+            remappedRelation(newConcepts, sublatticeConceptIndexes, lattice.superconceptsMapping, conceptIndexesMapping) :
             undefined,
     };
 }
 
 function remappedRelation(
     newConcepts: ReadonlyArray<FormalConcept>,
-    visibleConceptIndexes: ReadonlyArray<number>,
+    sublatticeConceptIndexes: ReadonlyArray<number>,
     coverRelation: ReadonlyArray<Set<number>>,
     conceptIndexesMapping: Map<number, number>,
 ) {
     const newCoverRelation = new Array<Set<number>>(newConcepts.length);
 
-    for (let i = 0; i < visibleConceptIndexes.length; i++) {
-        const conceptIndex = visibleConceptIndexes[i];
+    for (let i = 0; i < sublatticeConceptIndexes.length; i++) {
+        const conceptIndex = sublatticeConceptIndexes[i];
         const set = coverRelation[conceptIndex];
 
         newCoverRelation[conceptIndexesMapping.get(conceptIndex)!] = new Set(remappedSet(set, conceptIndexesMapping));

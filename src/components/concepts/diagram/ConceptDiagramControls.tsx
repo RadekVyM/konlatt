@@ -9,7 +9,7 @@ import { isInfimum, isSupremum } from "../../../types/FormalConcepts";
 
 export default function ConceptDiagramControls(props: {
     selectedConceptIndex: number,
-    visibleConceptIndexes: Set<number> | null,
+    sublatticeConceptIndexes: Set<number> | null,
 }) {
     const concepts = useDataStructuresStore((state) => state.concepts);
     const context = useDataStructuresStore((state) => state.context);
@@ -27,7 +27,7 @@ export default function ConceptDiagramControls(props: {
             {!isThisInfimum && !isThisSupremum &&
                 <Controls
                     selectedConceptIndex={props.selectedConceptIndex}
-                    visibleConceptIndexes={props.visibleConceptIndexes} />}
+                    sublatticeConceptIndexes={props.sublatticeConceptIndexes} />}
         </>
     );
 }
@@ -50,9 +50,9 @@ function FocusButton(props: {
     const zoomActionsRef = useContext(ZoomActionsContext);
     const layout = useDiagramStore((store) => store.layout);
     const diagramOffsets = useDiagramStore((store) => store.diagramOffsets);
-    const visibleConceptIndexes = useDiagramStore((store) => store.visibleConceptIndexes);
+    const sublatticeConceptIndexes = useDiagramStore((store) => store.sublatticeConceptIndexes);
     const displayHighlightedSublatticeOnly = useDiagramStore((store) => store.displayHighlightedSublatticeOnly);
-    const isDisabled = !layout || !diagramOffsets || (displayHighlightedSublatticeOnly && !!visibleConceptIndexes && !visibleConceptIndexes.has(props.conceptIndex));
+    const isDisabled = !layout || !diagramOffsets || (displayHighlightedSublatticeOnly && !!sublatticeConceptIndexes && !sublatticeConceptIndexes.has(props.conceptIndex));
 
     function onClick() {
         if (isDisabled) {
@@ -76,7 +76,7 @@ function FocusButton(props: {
 
 function Controls(props: {
     selectedConceptIndex: number,
-    visibleConceptIndexes: Set<number> | null,
+    sublatticeConceptIndexes: Set<number> | null,
 }) {
     const lattice = useDataStructuresStore((state) => state.lattice);
     const upperConeOnlyConceptIndex = useDiagramStore((state) => state.upperConeOnlyConceptIndex);
@@ -84,7 +84,7 @@ function Controls(props: {
     const setUpperConeOnlyConceptIndex = useDiagramStore((state) => state.setUpperConeOnlyConceptIndex);
     const setLowerConeOnlyConceptIndex = useDiagramStore((state) => state.setLowerConeOnlyConceptIndex);
 
-    const isVisible = !props.visibleConceptIndexes || props.visibleConceptIndexes.has(props.selectedConceptIndex);
+    const isVisible = !props.sublatticeConceptIndexes || props.sublatticeConceptIndexes.has(props.selectedConceptIndex);
 
     function onUpperConeClick(e: React.ChangeEvent<HTMLInputElement>) {
         setUpperConeOnlyConceptIndex(

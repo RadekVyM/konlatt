@@ -11,12 +11,12 @@ import { transformedPoint } from "./layout";
 export function getLinks(
     concepts: Array<{ conceptIndex: number }> | null,
     subconceptsMapping: ReadonlyArray<Set<number>> | null,
-    visibleConceptIndexes: Set<number> | null,
+    sublatticeConceptIndexes: Set<number> | null,
     filteredConceptIndexes: Set<number> | null,
     displayHighlightedSublatticeOnly: boolean,
 ) {
     const links = new Array<Link>();
-    const noInvisibleConcepts = !visibleConceptIndexes || visibleConceptIndexes.size === 0;
+    const isSublatticeHighlighted = !sublatticeConceptIndexes || sublatticeConceptIndexes.size === 0;
 
     if (!concepts || !subconceptsMapping) {
         return links;
@@ -26,23 +26,23 @@ export function getLinks(
 
     for (const concept of concepts) {
         for (const subconceptIndex of subconceptsMapping[concept.conceptIndex]) {
-            const isNotVisible = visibleConceptIndexes && !visibleConceptIndexes.has(subconceptIndex);
+            const isNotInSublattice = sublatticeConceptIndexes && !sublatticeConceptIndexes.has(subconceptIndex);
 
-            if (displayHighlightedSublatticeOnly && isNotVisible) {
+            if (displayHighlightedSublatticeOnly && isNotInSublattice) {
                 continue;
             }
 
-            const isVisible = !!visibleConceptIndexes && visibleConceptIndexes.has(concept.conceptIndex) && visibleConceptIndexes.has(subconceptIndex);
+            const isInSublattice = !!sublatticeConceptIndexes && sublatticeConceptIndexes.has(concept.conceptIndex) && sublatticeConceptIndexes.has(subconceptIndex);
             const isFiltered = !!filteredConceptIndexes && filteredConceptIndexes.has(concept.conceptIndex) && filteredConceptIndexes.has(subconceptIndex);
 
-            const finalIsVisible = noInvisibleConcepts ? isFiltered : isVisible && (!displayHighlightedSublatticeOnly || isFiltered);
+            const finalIsVisible = isSublatticeHighlighted ? isFiltered : isInSublattice && (!displayHighlightedSublatticeOnly || isFiltered);
 
             links.push({
                 conceptIndex: concept.conceptIndex,
                 subconceptIndex,
                 linkId: i,
-                isVisible: finalIsVisible,
                 isHighlighted: finalIsVisible,
+                isColored: false,
             });
             i++;
         }

@@ -26,7 +26,7 @@ const MAX_TEXT_LENGTH = 500;
 export default function ConceptsList(props: {
     className?: string,
     route: string,
-    visibleConceptIndexes?: Set<number> | null,
+    sublatticeConceptIndexes?: Set<number> | null,
     filteredConcepts: FormalConcepts | null,
     searchTerms: Array<string>,
     storedSearchInput: string,
@@ -65,7 +65,7 @@ export default function ConceptsList(props: {
 
     const groupedFilteredConcepts = useGroupedAndSorted(
         props.filteredConcepts || concepts || [],
-        props.visibleConceptIndexes,
+        props.sublatticeConceptIndexes,
         props.sortType,
         props.sortDirection);
 
@@ -114,7 +114,7 @@ export default function ConceptsList(props: {
                 className="flex-1"
                 filteredConcepts={groupedFilteredConcepts}
                 searchTerms={props.searchTerms}
-                visibleConceptIndexes={props.visibleConceptIndexes}
+                sublatticeConceptIndexes={props.sublatticeConceptIndexes}
                 setSelectedConceptIndex={props.setSelectedConceptIndex} />
         </CardSection>
     );
@@ -210,7 +210,7 @@ function List(props: {
     className?: string,
     filteredConcepts: ReadonlyArray<FormalConcept>,
     searchTerms: Array<string>,
-    visibleConceptIndexes?: Set<number> | null,
+    sublatticeConceptIndexes?: Set<number> | null,
     setSelectedConceptIndex: (index: number | null) => void,
 }) {
     const observerTargetRef = useRef<HTMLDivElement>(null);
@@ -238,7 +238,7 @@ function List(props: {
                         "px-1 py-0.5 concept-list-item",
                         index < props.filteredConcepts.length - 1 && "border-b border-outline-variant")}>
                     <ListItemButton
-                        contentClassName={cn(props.visibleConceptIndexes && !props.visibleConceptIndexes?.has(item.index) && "opacity-40")}
+                        contentClassName={cn(props.sublatticeConceptIndexes && !props.sublatticeConceptIndexes?.has(item.index) && "opacity-40")}
                         item={item}
                         context={context}
                         searchRegex={searchRegex}
@@ -289,11 +289,11 @@ function ListItemButton(props: {
 
 function useGroupedAndSorted(
     concepts: ReadonlyArray<FormalConcept>,
-    visibleConceptIndexes: Set<number> | null | undefined,
+    sublatticeConceptIndexes: Set<number> | null | undefined,
     sortType: ConceptSortType,
     sortDirection: SortDirection,
 ) {
-    const { start, end } = useGroupedByVisibility(concepts, visibleConceptIndexes);
+    const { start, end } = useGroupedByVisibility(concepts, sublatticeConceptIndexes);
 
     if (sortType === "objects-count") {
         start.sort((a, b) => a.objects.length - b.objects.length);
@@ -315,9 +315,9 @@ function useGroupedAndSorted(
 
 function useGroupedByVisibility(
     concepts: ReadonlyArray<FormalConcept>,
-    visibleConceptIndexes: Set<number> | null | undefined,
+    sublatticeConceptIndexes: Set<number> | null | undefined,
 ) {
-    if (!visibleConceptIndexes) {
+    if (!sublatticeConceptIndexes) {
         return {
             start: [...concepts],
             end: [],
@@ -328,7 +328,7 @@ function useGroupedByVisibility(
     const end: Array<FormalConcept> = [];
 
     for (const concept of concepts) {
-        if (visibleConceptIndexes.has(concept.index)) {
+        if (sublatticeConceptIndexes.has(concept.index)) {
             start.push(concept);
         }
         else {

@@ -13,7 +13,7 @@ export default function withLinks(
     const links = getLinks(
         diagramStore.layout,
         dataStructuresStore.lattice?.subconceptsMapping || null,
-        diagramStore.visibleConceptIndexes,
+        diagramStore.sublatticeConceptIndexes,
         diagramStore.filteredConceptIndexes,
         diagramStore.displayHighlightedSublatticeOnly);
 

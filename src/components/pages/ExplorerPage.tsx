@@ -57,7 +57,7 @@ function Concepts(props: {
                 sortDirection={sortDirection}
                 onSortTypeChange={setSortType}
                 onSortDirectionChange={setSortDirection}
-                visibleConceptIndexes={null}
+                sublatticeConceptIndexes={null}
                 strictSelectedObjects={strictSelectedObjects}
                 strictSelectedAttributes={strictSelectedAttributes}
                 selectedFilterObjects={selectedFilterObjects}
