@@ -139,12 +139,14 @@ function ColorDialog(props: {
             state={props.state}
             className="max-w-sm">
             <div
-                className="grid grid-cols-[1fr_auto_auto] grid-rows-[1fr_auto] gap-3 min-h-64 pt-0.5">
+                className="grid grid-cols-[1fr_auto_auto] grid-rows-[1fr_auto] gap-3 pt-0.5">
                 <SaturationValuePicker
                     color={props.color}
-                    onChange={props.onChange} />
+                    onChange={props.onChange}
+                    className="h-52" />
 
                 <ColorSlider
+                    className="h-52"
                     inputStyle={{
                         background: `linear-gradient(
                             rgb(255, 0, 0) 0%,
@@ -162,6 +164,7 @@ function ColorDialog(props: {
                     onChange={(newHue) => props.onChange({ ...props.color, hue: (1 - newHue) * 360 })} />
 
                 <ColorSlider
+                    className="h-52"
                     inputStyle={{
                         background: `linear-gradient(
                             rgba(${rgbString}, 0) 0%,
@@ -196,6 +199,7 @@ function ColorPreview(props: {
 }
 
 function SaturationValuePicker(props: {
+    className?: string,
     color: HsvaColor,
     onChange: (color: HsvaColor) => void,
 }) {
@@ -265,7 +269,7 @@ function SaturationValuePicker(props: {
         <div
             ref={pickerRef}
             tabIndex={0}
-            className="border border-outline rounded-md relative cursor-crosshair"
+            className={cn("border border-outline rounded-md relative cursor-crosshair", props.className)}
             style={{
                 background: `
                     linear-gradient(0deg, rgb(0, 0, 0), transparent),

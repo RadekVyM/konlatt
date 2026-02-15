@@ -61,6 +61,8 @@ export default function RangeSlider(props: {
                 min={props.min}
                 max={props.max}
                 step={1} />
+            <div className={cn("range-slider-bottom-thumb", bottomOnTop ? "z-20 on-top" : "z-10")}></div>
+            <div className={cn("range-slider-top-thumb", bottomOnTop ? "z-10" : "z-20 on-top")}></div>
         </div>
     );
 }

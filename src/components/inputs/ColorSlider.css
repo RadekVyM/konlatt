@@ -18,7 +18,7 @@
         background-size: 16px 16px;
         background-position: 0 0, 8px 0, 8px -8px, 0px 8px;
 
-        @apply relative isolate w-4 border border-outline rounded-full box-content cursor-pointer;
+        @apply relative isolate w-4 border border-outline rounded-full box-content cursor-pointer h-full;
 
         &:has(:focus-visible) {
             outline-offset: -1px;

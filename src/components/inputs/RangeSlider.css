@@ -37,25 +37,21 @@
             }
         }
 
-        input.range-slider-bottom::after, input.range-slider-top::after {
+        .range-slider-bottom-thumb, .range-slider-top-thumb {
             content: "";
-            top: -1px;
-            @apply absolute w-4 h-4 transition-[border-width] duration-75 box-border border-primary -translate-x-1/2 rounded-full bg-on-primary pointer-events-none select-none;
+            @apply absolute w-4 h-4 border-4 transition-[border-width] duration-75 box-border border-primary -translate-x-1/2 rounded-full bg-on-primary pointer-events-none select-none;
         }
 
-        input.range-slider-bottom::after {
+        .range-slider-bottom-thumb {
             left: calc(var(--spacing) * 2 + var(--position-bottom) * (100% - var(--spacing) * 4));
         }
 
-        input.range-slider-top::after {
+        .range-slider-top-thumb {
             left: calc(var(--spacing) * 2 + var(--position-top) * (100% - var(--spacing) * 4));
         }
 
-        input::after {
-            @apply border-4;
-        }
-
-        input.on-top:hover::after {
+        &:hover .range-slider-bottom-thumb.on-top,
+        &:hover .range-slider-top-thumb.on-top {
             @apply border-3;
         }
     }

@@ -2,8 +2,10 @@ import React, { useEffect, useRef } from "react";
 import "./ColorSlider.css";
 import { HsvaColor } from "../../types/HsvaColor";
 import { hsvaToHexa } from "../../utils/colors";
+import { cn } from "../../utils/tailwind";
 
 export default function ColorSlider(props: {
+    className?: string,
     inputStyle?: React.CSSProperties,
     thumbColor: HsvaColor,
     value: number,
@@ -29,7 +31,7 @@ export default function ColorSlider(props: {
     return (
         <div
             ref={containerRef}
-            className="color-slider"
+            className={cn("color-slider", props.className)}
             style={{
                 "--thumb-color": hsvaToHexa(props.thumbColor),
             } as React.CSSProperties}>

@@ -32,12 +32,18 @@ export const buttonVariants = cva(
                     "",
             },
             size: {
+                none: "",
                 default: "btn-md",
                 sm: "btn-sm",
                 lg: "btn-lg",
             },
         },
         compoundVariants: [
+            {
+                variant: ["icon-container", "icon-default", "icon-destructive", "icon-primary", "icon-secondary", "icon-plain"],
+                size: "none",
+                className: "",
+            },
             {
                 variant: ["icon-container", "icon-default", "icon-destructive", "icon-primary", "icon-secondary", "icon-plain"],
                 size: "default",

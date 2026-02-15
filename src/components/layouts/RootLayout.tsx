@@ -77,6 +77,11 @@ function Header() {
             {isRootPage && hasWindowControlsOverlay &&
                 <div
                     className="self-end mx-3 mb-2 flex gap-3">
+                    <div
+                        className="flex gap-1.5">
+                        <ThemeSwitcherButton />
+                        <AboutButton />
+                    </div>
                     <DemoDatasetsButton
                         onClick={datasetsDialogState.show} />
                     <FormatsButton
