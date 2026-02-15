@@ -5,7 +5,7 @@ import ConceptsList from "../concepts/ConceptsList";
 import PageContainer from "../PageContainer";
 import useFullscreen from "../../hooks/useFullscreen";
 import DiagramConfig from "../concepts/diagram/DiagramConfig";
-import { ZoomActionsContextProvider } from "../../contexts/ZoomActionsContext";
+import { DiagramZoomActionsContextProvider } from "../../contexts/DiagramZoomActionsContext";
 import useDiagramStore from "../../stores/diagram/useDiagramStore";
 import ConceptDiagramControls from "../concepts/diagram/ConceptDiagramControls";
 import DiagramCanvas from "../concepts/diagram/R3FDiagramCanvas";
@@ -34,7 +34,7 @@ export default function DiagramPage() {
                 setConceptsPanelEnabled,
                 setConfigPanelEnabled,
             }}>
-            <ZoomActionsContextProvider>
+            <DiagramZoomActionsContextProvider>
                 <PageContainer
                     ref={containerRef}
                     className={cn(
@@ -66,10 +66,23 @@ export default function DiagramPage() {
                             fullscreenState.isFullscreen && !(configPanelEnabled && conceptsPanelEnabled) && "hidden xl:block",
                             fullscreenState.isFullscreen && !configPanelEnabled && "xl:hidden")} />
 
-                    <ConceptHoverDetail />
+                    <ConceptHoverDetailInternal />
                 </PageContainer>
-            </ZoomActionsContextProvider>
+            </DiagramZoomActionsContextProvider>
         </DiagramFullscreenContextProvider>
+    );
+}
+
+function ConceptHoverDetailInternal() {
+    const hoveredConceptDetailEnabled = useDiagramStore((state) => state.hoveredConceptDetailEnabled);
+
+    if (!hoveredConceptDetailEnabled) {
+        return undefined;
+    }
+
+    return (
+        <ConceptHoverDetail
+            useStore={useDiagramStore} />
     );
 }
 

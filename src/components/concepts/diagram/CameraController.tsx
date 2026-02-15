@@ -2,7 +2,7 @@ import { useThree } from "@react-three/fiber";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import { useContext, useRef } from "react";
 import { CameraControls, CameraControlsImpl, OrthographicCamera, PerspectiveCamera } from "@react-three/drei";
-import { ZoomActionsContext } from "../../../contexts/ZoomActionsContext";
+import { DiagramZoomActionsContext } from "../../../contexts/DiagramZoomActionsContext";
 import { createPoint } from "../../../types/Point";
 import { transformedPoint } from "../../../utils/layout";
 
@@ -174,7 +174,7 @@ function useZoomActionsSetup(
     defaultZoom: number,
 ) {
     const distanceZoomFactor = 20;
-    const zoomActionsRef = useContext(ZoomActionsContext);
+    const zoomActionsRef = useContext(DiagramZoomActionsContext);
 
     zoomActionsRef.current = {
         zoomToConcept,

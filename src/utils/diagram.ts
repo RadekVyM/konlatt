@@ -1,4 +1,5 @@
-import { getPoint } from "../components/concepts/diagram/utils";
+import { getPoint, themedColor } from "../components/concepts/diagram/utils";
+import { DIM_NODE_COLOR_DARK, DIM_NODE_COLOR_LIGHT, NODE_COLOR_DARK, NODE_COLOR_LIGHT, PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT } from "../constants/diagram";
 import { CameraType } from "../types/CameraType";
 import { ConceptLabel, PositionedConceptLabel } from "../types/ConceptLabel";
 import { ConceptLatticeLabeling } from "../types/ConceptLatticeLabeling";
@@ -6,7 +7,36 @@ import { ConceptLatticeLayout } from "../types/ConceptLatticeLayout";
 import { LabelOptions } from "../types/LabelOptions";
 import { Link } from "../types/Link";
 import { createPoint, Point } from "../types/Point";
+import { CurrentTheme } from "../types/Theme";
 import { transformedPoint } from "./layout";
+
+export function getNodeColor(
+    conceptIndex: number | null | undefined,
+    selectedConceptIndex: number | null,
+    filteredConceptIndexes: Set<number> | null,
+    currentTheme: CurrentTheme,
+    forceDimColor?: boolean,
+) {
+    const dimColor = themedColor(DIM_NODE_COLOR_LIGHT, DIM_NODE_COLOR_DARK, currentTheme);
+
+    if (forceDimColor) {
+        return dimColor;
+    }
+
+    const isSelected = conceptIndex === selectedConceptIndex;
+    const isFilteredOut = conceptIndex !== undefined &&
+        conceptIndex !== null &&
+        filteredConceptIndexes &&
+        !filteredConceptIndexes.has(conceptIndex);
+
+    const color = isSelected ?
+        themedColor(PRIMARY_COLOR_LIGHT, PRIMARY_COLOR_DARK, currentTheme) :
+        isFilteredOut ?
+            dimColor :
+            themedColor(NODE_COLOR_LIGHT, NODE_COLOR_DARK, currentTheme);
+
+    return color;
+}
 
 export function getLinks(
     concepts: Array<{ conceptIndex: number }> | null,

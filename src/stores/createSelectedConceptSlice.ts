@@ -1,3 +1,5 @@
+import { w } from "../utils/stores";
+
 type SelectedConceptSliceState = {
     selectedConceptIndex: number | null,
 }
@@ -12,11 +14,14 @@ export const initialState: SelectedConceptSliceState = {
     selectedConceptIndex: null,
 };
 
-export default function createSelectedConceptSlice(set: (partial: SelectedConceptSlice | Partial<SelectedConceptSlice> | ((state: SelectedConceptSlice) => SelectedConceptSlice | Partial<SelectedConceptSlice>), replace?: false) => void): SelectedConceptSlice {
+export default function createSelectedConceptSlice<TStore extends SelectedConceptSlice>(
+    set: (partial: TStore | Partial<TStore> | ((state: TStore) => TStore | Partial<TStore>), replace?: false) => void,
+    withSelectedConceptChanged?: (newState: Partial<TStore>, oldState: TStore) => Partial<TStore>,
+): SelectedConceptSlice {
     return {
         ...initialState,
-        setSelectedConceptIndex: (selectedConceptIndex) => set((old) => typeof selectedConceptIndex === "function" ?
+        setSelectedConceptIndex: (selectedConceptIndex) => set((old) => w((typeof selectedConceptIndex === "function" ?
             { selectedConceptIndex: selectedConceptIndex(old.selectedConceptIndex) } :
-            { selectedConceptIndex }),
+            { selectedConceptIndex }) as Partial<TStore>, old, withSelectedConceptChanged)),
     };
 }

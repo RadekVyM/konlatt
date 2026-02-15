@@ -3,7 +3,7 @@ import Button from "../../inputs/Button";
 import ToggleSwitch from "../../inputs/ToggleSwitch";
 import { useContext } from "react";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
-import { ZoomActionsContext } from "../../../contexts/ZoomActionsContext";
+import { DiagramZoomActionsContext } from "../../../contexts/DiagramZoomActionsContext";
 import useDataStructuresStore from "../../../stores/useDataStructuresStore";
 import { isInfimum, isSupremum } from "../../../types/FormalConcepts";
 
@@ -47,7 +47,7 @@ function Buttons(props: {
 function FocusButton(props: {
     conceptIndex: number,
 }) {
-    const zoomActionsRef = useContext(ZoomActionsContext);
+    const zoomActionsRef = useContext(DiagramZoomActionsContext);
     const layout = useDiagramStore((store) => store.layout);
     const diagramOffsets = useDiagramStore((store) => store.diagramOffsets);
     const sublatticeConceptIndexes = useDiagramStore((store) => store.sublatticeConceptIndexes);

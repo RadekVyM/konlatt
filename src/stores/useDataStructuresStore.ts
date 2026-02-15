@@ -3,6 +3,7 @@ import { FormalContext } from "../types/FormalContext";
 import { ConceptLattice } from "../types/ConceptLattice";
 import { FormalConcepts } from "../types/FormalConcepts";
 import useDiagramStore from "./diagram/useDiagramStore";
+import useExplorerStore from "./explorer/useExplorerStore";
 
 type DataStructuresStore = {
     context: FormalContext | null,
@@ -25,7 +26,10 @@ const useDataStructuresStore = create<DataStructuresStore>((set) => ({
         return { context };
     }),
     setConcepts: (concepts) => set(() => ({ concepts })),
-    setLattice: (lattice) => set(() => ({ lattice })),
+    setLattice: (lattice) => set(() => {
+        useExplorerStore.getState().setupLattice(lattice);
+        return { lattice };
+    }),
     reset: () => set(() => ({
         context: null,
         concepts: null,

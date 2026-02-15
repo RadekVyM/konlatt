@@ -18,7 +18,6 @@ import { SortDirection } from "../../types/SortDirection";
 import useDialog from "../../hooks/useDialog";
 import ConceptsFilterDialog from "../filters/ConceptsFilterDialog";
 import ConceptItemsList from "./ConceptItemsList";
-import useDiagramStore from "../../stores/diagram/useDiagramStore";
 import { ExportButtonProps } from "../export/types/ExportButtonProps";
 
 const MAX_TEXT_LENGTH = 500;
@@ -40,6 +39,7 @@ export default function ConceptsList(props: {
     maxObjectsCount: number | null,
     minAttributesCount: number | null,
     maxAttributesCount: number | null,
+    highlightedConceptIndex?: number,
     exportConceptsButton: (props: ExportButtonProps) => React.ReactNode,
     onSortTypeChange: (key: ConceptSortType) => void,
     onSortDirectionChange: (key: SortDirection) => void,
@@ -114,6 +114,9 @@ export default function ConceptsList(props: {
                 className="flex-1"
                 filteredConcepts={groupedFilteredConcepts}
                 searchTerms={props.searchTerms}
+                highlightedConceptIndex={props.highlightedConceptIndex}
+                selectedFilterObjects={props.selectedFilterObjects}
+                selectedFilterAttributes={props.selectedFilterAttributes}
                 sublatticeConceptIndexes={props.sublatticeConceptIndexes}
                 setSelectedConceptIndex={props.setSelectedConceptIndex} />
         </CardSection>
@@ -210,7 +213,10 @@ function List(props: {
     className?: string,
     filteredConcepts: ReadonlyArray<FormalConcept>,
     searchTerms: Array<string>,
+    selectedFilterObjects: ReadonlySet<number>,
+    selectedFilterAttributes: ReadonlySet<number>,
     sublatticeConceptIndexes?: Set<number> | null,
+    highlightedConceptIndex?: number,
     setSelectedConceptIndex: (index: number | null) => void,
 }) {
     const observerTargetRef = useRef<HTMLDivElement>(null);
@@ -237,53 +243,63 @@ function List(props: {
                     className={cn(
                         "px-1 py-0.5 concept-list-item",
                         index < props.filteredConcepts.length - 1 && "border-b border-outline-variant")}>
-                    <ListItemButton
-                        contentClassName={cn(props.sublatticeConceptIndexes && !props.sublatticeConceptIndexes?.has(item.index) && "opacity-40")}
-                        item={item}
-                        context={context}
-                        searchRegex={searchRegex}
-                        onClick={() => props.setSelectedConceptIndex(item.index)} />
+                    {props.highlightedConceptIndex === item.index ?
+                        <div
+                            className="w-full py-1.5 px-2.5 border border-transparent rounded-md bg-secondary">
+                            <ListItemContent
+                                className={cn(props.sublatticeConceptIndexes && !props.sublatticeConceptIndexes?.has(item.index) && "opacity-40")}
+                                item={item}
+                                context={context}
+                                searchRegex={searchRegex}
+                                selectedFilterObjects={props.selectedFilterObjects}
+                                selectedFilterAttributes={props.selectedFilterAttributes} />
+                        </div> :
+                        <Button
+                            className="w-full text-start py-1.5"
+                            onClick={() => props.setSelectedConceptIndex(item.index)}>
+                            <ListItemContent
+                                className={cn(props.sublatticeConceptIndexes && !props.sublatticeConceptIndexes?.has(item.index) && "opacity-40")}
+                                item={item}
+                                context={context}
+                                searchRegex={searchRegex}
+                                selectedFilterObjects={props.selectedFilterObjects}
+                                selectedFilterAttributes={props.selectedFilterAttributes} />
+                        </Button>}
                 </li>)}
         </CardItemsLazyList>
     );
 }
 
-function ListItemButton(props: {
-    contentClassName?: string,
+function ListItemContent(props: {
+    className?: string,
     item: FormalConcept,
     context: FormalContext,
     searchRegex: RegExp | undefined,
-    onClick: () => void,
+    selectedFilterObjects: ReadonlySet<number>,
+    selectedFilterAttributes: ReadonlySet<number>,
 }) {
-    const selectedFilterObjects = useDiagramStore((state) => state.selectedFilterObjects);
-    const selectedFilterAttributes = useDiagramStore((state) => state.selectedFilterAttributes);
-
     return (
-        <Button
-            className="w-full text-start py-1.5"
-            onClick={props.onClick}>
-            <div
-                className={props.contentClassName}>
-                <div className="mb-0.5 text-sm line-clamp-3">
-                    <ConceptItemsList
-                        noItemsText="No objects"
-                        contextItems={props.context.objects}
-                        filterItems={selectedFilterObjects}
-                        items={props.item.objects}
-                        searchRegex={props.searchRegex}
-                        maxTextLength={MAX_TEXT_LENGTH} />
-                </div>
-                <div className="text-on-surface-container-muted text-xs line-clamp-3">
-                    <ConceptItemsList
-                        noItemsText="No attributes"
-                        contextItems={props.context.attributes}
-                        filterItems={selectedFilterAttributes}
-                        items={props.item.attributes}
-                        searchRegex={props.searchRegex}
-                        maxTextLength={MAX_TEXT_LENGTH} />
-                </div>
+        <div
+            className={props.className}>
+            <div className="mb-0.5 text-sm line-clamp-3">
+                <ConceptItemsList
+                    noItemsText="No objects"
+                    contextItems={props.context.objects}
+                    filterItems={props.selectedFilterObjects}
+                    items={props.item.objects}
+                    searchRegex={props.searchRegex}
+                    maxTextLength={MAX_TEXT_LENGTH} />
             </div>
-        </Button>
+            <div className="text-on-surface-container-muted text-xs line-clamp-3">
+                <ConceptItemsList
+                    noItemsText="No attributes"
+                    contextItems={props.context.attributes}
+                    filterItems={props.selectedFilterAttributes}
+                    items={props.item.attributes}
+                    searchRegex={props.searchRegex}
+                    maxTextLength={MAX_TEXT_LENGTH} />
+            </div>
+        </div>
     );
 }
 

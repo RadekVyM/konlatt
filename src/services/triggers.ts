@@ -3,7 +3,7 @@ import { ConceptComputationRequest, ContextParsingRequest, LatticeComputationReq
 import { ConceptComputationResponse, ContextParsingResponse, LatticeComputationResponse, LayoutComputationResponse } from "../types/workers/MainWorkerResponse";
 import useDiagramStore from "../stores/diagram/useDiagramStore";
 import useDataStructuresStore from "../stores/useDataStructuresStore";
-import useExplorerStore from "../stores/useExplorerStore";
+import useExplorerStore from "../stores/explorer/useExplorerStore";
 import { DiagramLayoutState } from "../types/DiagramLayoutState";
 import useContextStore from "../stores/useContextStore";
 import useExportAttributesStore from "../stores/export/useExportAttributesStore";

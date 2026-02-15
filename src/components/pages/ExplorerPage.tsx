@@ -2,21 +2,30 @@ import { cn } from "../../utils/tailwind";
 import ConceptsList from "../concepts/ConceptsList";
 import Container from "../Container";
 import PageContainer from "../PageContainer";
-import useExplorerStore from "../../stores/useExplorerStore";
+import useExplorerStore from "../../stores/explorer/useExplorerStore";
 import { CardContainer } from "../CardContainer";
 import ConceptDetail from "../concepts/ConceptDetail";
 import ExportExplorerConceptsButton from "../export/ExportExplorerConceptsButton";
 import ExportExplorerConceptButton from "../export/ExportExplorerConceptButton";
+import R3FExplorerCanvas from "../concepts/explorer/R3FExplorerCanvas";
+import { useEffect, useState } from "react";
+import ConceptHoverDetail from "../concepts/ConceptHoverDetail";
+import { ExplorerZoomActionsContextProvider } from "../../contexts/ExplorerZoomActionsContext";
+import ExplorerActions from "../concepts/explorer/ExplorerActions";
 
 export default function ExplorerPage() {
     return (
-        <PageContainer
-            className="grid grid-cols-2 grid-rows-2 lg:grid-rows-1 lg:grid-cols-[minmax(18rem,1fr)_minmax(18rem,1fr)_2.5fr] gap-2">
-            <Concepts />
-            <Concept />
-            <Diagram
-                className="col-start-1 col-end-3 row-start-2 row-end-3 lg:col-start-3 lg:col-end-4 lg:row-start-1 lg:row-end-2" />
-        </PageContainer>
+        <ExplorerZoomActionsContextProvider>
+            <PageContainer
+                className="grid grid-cols-2 grid-rows-2 lg:grid-rows-1 lg:grid-cols-[minmax(18rem,1fr)_minmax(18rem,1fr)_2.5fr] gap-2">
+                <Concepts />
+                <Concept />
+                <Explorer
+                    className="col-start-1 col-end-3 row-start-2 row-end-3 lg:col-start-3 lg:col-end-4 lg:row-start-1 lg:row-end-2" />
+                <ConceptHoverDetail
+                    useStore={useExplorerStore} />
+            </PageContainer>
+        </ExplorerZoomActionsContextProvider>
     );
 }
 
@@ -26,6 +35,7 @@ function Concepts(props: {
     const filteredConcepts = useExplorerStore((state) => state.filteredConcepts);
     const searchTerms = useExplorerStore((state) => state.searchTerms);
     const debouncedSearchInput = useExplorerStore((state) => state.debouncedSearchInput);
+    const selectedConceptIndex = useExplorerStore((state) => state.selectedConceptIndex);
     const setSelectedConceptIndex = useExplorerStore((state) => state.setSelectedConceptIndex);
     const updateSearchInput = useExplorerStore((state) => state.setDebouncedSearchInput);
     const sortType = useExplorerStore((state) => state.sortType);
@@ -50,6 +60,7 @@ function Concepts(props: {
                 exportConceptsButton={ExportExplorerConceptsButton}
                 setSelectedConceptIndex={setSelectedConceptIndex}
                 updateSearchInput={updateSearchInput}
+                highlightedConceptIndex={selectedConceptIndex ?? undefined}
                 filteredConcepts={filteredConcepts}
                 searchTerms={searchTerms}
                 storedSearchInput={debouncedSearchInput}
@@ -96,14 +107,23 @@ function Concept(props: {
     );
 }
 
-function Diagram(props: {
+function Explorer(props: {
     className?: string,
 }) {
+    const [canRenderCanvas, setCanRenderCanvas] = useState<boolean>(false);
+
+    useEffect(() => {
+        const timeoutId = setTimeout(() => setCanRenderCanvas(true), 500);
+        return () => clearTimeout(timeoutId);
+    }, []);
+
     return (
         <Container
             as="section"
             className={cn("overflow-hidden relative", props.className)}>
-
+            {canRenderCanvas &&
+                <R3FExplorerCanvas />}
+            <ExplorerActions />
         </Container>
     );
 }

@@ -1,7 +1,7 @@
 import { useLayoutEffect, useMemo, useRef } from "react";
 import { DoubleSide, InstancedMesh, LatheGeometry, Matrix4, Mesh, Object3D, Vector2 } from "three";
 import { ThreeEvent, useThree } from "@react-three/fiber";
-import { DIM_NODE_COLOR_DARK, DIM_NODE_COLOR_LIGHT, NODE_COLOR_DARK, NODE_COLOR_LIGHT, PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT } from "../../../constants/diagram";
+import { PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT } from "../../../constants/diagram";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import { setNodesTransformMatrices, setupNodeTransform, themedColor } from "./utils";
 import useGlobalsStore from "../../../stores/useGlobalsStore";
@@ -10,7 +10,7 @@ import { Point } from "../../../types/Point";
 import { CameraType } from "../../../types/CameraType";
 import { isRightClick } from "../../../utils/html";
 import { createRange } from "../../../utils/array";
-import { CurrentTheme } from "../../../types/Theme";
+import { getNodeColor } from "../../../utils/diagram";
 
 const HOVERED_MESH_NAME = "hovered_mesh";
 
@@ -425,34 +425,6 @@ function transformHemisphere(
         sphereRef.current.position.setFromMatrixPosition(temp.matrix);
         sphereRef.current.visible = true;
     }
-}
-
-function getNodeColor(
-    conceptIndex: number | null | undefined,
-    selectedConceptIndex: number | null,
-    filteredConceptIndexes: Set<number> | null,
-    currentTheme: CurrentTheme,
-    forceDimColor?: boolean,
-) {
-    const dimColor = themedColor(DIM_NODE_COLOR_LIGHT, DIM_NODE_COLOR_DARK, currentTheme);
-
-    if (forceDimColor) {
-        return dimColor;
-    }
-
-    const isSelected = conceptIndex === selectedConceptIndex;
-    const isFilteredOut = conceptIndex !== undefined &&
-        conceptIndex !== null &&
-        filteredConceptIndexes &&
-        !filteredConceptIndexes.has(conceptIndex);
-
-    const color = isSelected ?
-        themedColor(PRIMARY_COLOR_LIGHT, PRIMARY_COLOR_DARK, currentTheme) :
-        isFilteredOut ?
-            dimColor :
-            themedColor(NODE_COLOR_LIGHT, NODE_COLOR_DARK, currentTheme);
-
-    return color;
 }
 
 function setNodesTransformMatricesHelper(

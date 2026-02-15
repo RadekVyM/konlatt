@@ -1,28 +1,25 @@
 import { useState } from "react";
 import useEventListener from "../../hooks/useEventListener";
-import useDiagramStore from "../../stores/diagram/useDiagramStore";
 import useDataStructuresStore from "../../stores/useDataStructuresStore";
 import Container from "../Container";
 import { searchTermsToRegex } from "../../utils/search";
 import ConceptItemsList from "./ConceptItemsList";
+import { StoreApi, UseBoundStore } from "zustand";
 
-export default function ConceptHoverDetail() {
-    const hoveredConceptDetailEnabled = useDiagramStore((state) => state.hoveredConceptDetailEnabled);
+type StoreType = UseBoundStore<Pick<StoreApi<{
+    hoveredConceptIndex: number | null,
+    searchTerms: Array<string>,
+    selectedFilterObjects: ReadonlySet<number>,
+    selectedFilterAttributes: ReadonlySet<number>,
+}>, 'getState' | 'getInitialState' | 'subscribe'>>
 
-    if (!hoveredConceptDetailEnabled) {
-        return undefined;
-    }
-
-    return (
-        <ConceptCard />
-    );
-}
-
-function ConceptCard() {
-    const hoveredConceptIndex = useDiagramStore((state) => state.hoveredConceptIndex);
-    const searchTerms = useDiagramStore((state) => state.searchTerms);
-    const selectedFilterObjects = useDiagramStore((state) => state.selectedFilterObjects);
-    const selectedFilterAttributes = useDiagramStore((state) => state.selectedFilterAttributes);
+export default function ConceptHoverDetail(props: {
+    useStore: StoreType,
+}) {
+    const hoveredConceptIndex = props.useStore((state) => state.hoveredConceptIndex);
+    const searchTerms = props.useStore((state) => state.searchTerms);
+    const selectedFilterObjects = props.useStore((state) => state.selectedFilterObjects);
+    const selectedFilterAttributes = props.useStore((state) => state.selectedFilterAttributes);
     const concepts = useDataStructuresStore((state) => state.concepts);
     const context = useDataStructuresStore((state) => state.context);
     

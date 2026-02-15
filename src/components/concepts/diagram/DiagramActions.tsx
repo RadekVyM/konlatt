@@ -7,7 +7,7 @@ import { isCtrl, isCtrlZ, isEditableElement, isMac } from "../../../utils/html";
 import { FullscreenState } from "../../../types/FullscreenState";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import useDataStructuresStore from "../../../stores/useDataStructuresStore";
-import { ZoomActionsContext } from "../../../contexts/ZoomActionsContext";
+import { DiagramZoomActionsContext } from "../../../contexts/DiagramZoomActionsContext";
 import ExportDiagramButton from "../../export/diagram/ExportDiagramButton";
 import ZoomBar from "../../ZoomBar";
 import DiagramLoadingSpinner from "./DiagramLoadingSpinner";
@@ -186,7 +186,7 @@ function FullscreenButton(props: {
 function ZoomToCenterButton(props: {
     className?: string,
 }) {
-    const zoomActionsRef = useContext(ZoomActionsContext);
+    const zoomActionsRef = useContext(DiagramZoomActionsContext);
     /*
     disabled={props.zoomTransform.scale === 1 && props.zoomTransform.x === 0 &&  props.zoomTransform.y === 0}
     onClick={() => props.zoomTo({ scale: 1, x: 0, y: 0 })}
@@ -206,7 +206,7 @@ function ZoomToCenterButton(props: {
 function DiagramZoomBar(props: {
     className?: string,
 }) {
-    const zoomActionsRef = useContext(ZoomActionsContext);
+    const zoomActionsRef = useContext(DiagramZoomActionsContext);
     const currentZoomLevel = useDiagramStore((state) => state.currentZoomLevel);
 
     function onIncrease() {
