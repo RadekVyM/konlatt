@@ -1,8 +1,88 @@
-# konlatt
+<div align="center">
 
-## Building and Running the Application
+<p>
+<a href="https://radekvym.github.io/konlatt">
+    <picture>
+        <source srcset="./art/readme/banner_dark.png" media="(prefers-color-scheme: dark)">
+        <img src="./art/readme/banner_light.png">
+    </picture>
+</a>
+</p>
 
-To run this project, you need to first install the dependencies, then use Docker to compile the C++ code with Emscripten, build the main application, and finally start the preview server.
+[Open konlatt](https://radekvym.github.io/konlatt) ● [Key Features](#key-features) ● [Tech Stack](#tech-stack) ● [How to Build and Run](#how-to-build-and-run)
+
+<br>
+
+Konlatt bridges the gap between complex Formal Concept Analysis (FCA) and user-friendly interaction, making conceptual data exploration accessible to anyone.
+
+<br>
+
+<p>
+<a href="https://radekvym.github.io/konlatt">
+    <picture>
+        <source srcset="./art/readme/diagram_dark.png" media="(prefers-color-scheme: dark)">
+        <img src="./art/readme/diagram_light.png">
+    </picture>
+</a>
+</p>
+
+</div>
+
+## Key Features
+
+Import formal contexts from various formats and visualize them instantly:
+
+<picture>
+    <source srcset="./art/readme/context_dark.png" media="(prefers-color-scheme: dark)">
+    <img src="./art/readme/context_light.png">
+</picture>
+
+### Intuitive Visualization
+
+Automatically render formal contexts into clean, readable Hasse diagrams:
+
+<picture>
+    <source srcset="./art/readme/diagram_dark.png" media="(prefers-color-scheme: dark)">
+    <img src="./art/readme/diagram_light.png">
+</picture>
+
+<br/>
+
+* **Layouts**: Choose from **Layered**, or **Force-Directed** algorithms to find the best representation for your data.
+* **Manual Layout Control**: Click and drag nodes to fine-tune the visual structure for presentations or clarity.
+* **Smart Analysis**: Highlight specific parts of the lattice to uncover hidden dependencies.
+
+### Ready-to-use Exports
+
+Download your finalized lattice directly for research papers or documentation:
+
+<picture>
+    <source srcset="./art/readme/diagram_export_dark.png" media="(prefers-color-scheme: dark)">
+    <img src="./art/readme/diagram_export_light.png">
+</picture>
+
+### Large Lattice Navigation
+
+Navigate complex datasets without visual clutter. Instead of rendering the entire lattice, Explorer Mode focuses on local structures:
+
+<picture>
+    <source srcset="./art/readme/explorer_dark.png" media="(prefers-color-scheme: dark)">
+    <img src="./art/readme/explorer_light.png">
+</picture>
+
+## Tech Stack
+
+Konlatt leverages a modern web stack to ensure high performance and a seamless user experience without the need for local installations:
+
+- [Vite](https://vite.dev/), TypeScript, C++
+- [React](https://react.dev/), [React Router](https://reactrouter.com/), [Zustand](https://zustand-demo.pmnd.rs/)
+- [Three.js](https://threejs.org/), [React Three Fiber](https://r3f.docs.pmnd.rs/getting-started/introduction), [Drei](https://drei.docs.pmnd.rs/)
+- [Tailwind CSS](https://tailwindcss.com/), [React Icons](https://react-icons.github.io/react-icons/)
+- [Eigen](https://libeigen.gitlab.io/)
+
+## How to Build and Run
+
+To run this project, you need to first install the dependencies, then use Docker to compile the C++ code with Emscripten, build the main application, and finally start the development or preview server.
 
 All commands should be run from the project's root directory where `package.json` is located.
 
@@ -44,5 +124,6 @@ npm run build
 Once everything is built, you can preview the application:
 
 ```bash
-npm run preview
+npm run dev # development server
+npm run preview # preview server
 ```
