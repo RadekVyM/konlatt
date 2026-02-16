@@ -32,21 +32,23 @@ Konlatt bridges the gap between complex Formal Concept Analysis (FCA) and user-f
 
 Import formal contexts from various formats and visualize them instantly:
 
+<p>
 <picture>
     <source srcset="./art/readme/context_dark.png" media="(prefers-color-scheme: dark)">
     <img src="./art/readme/context_light.png">
 </picture>
+</p>
 
 ### Intuitive Visualization
 
 Automatically render formal contexts into clean, readable Hasse diagrams:
 
+<p>
 <picture>
     <source srcset="./art/readme/diagram_dark.png" media="(prefers-color-scheme: dark)">
     <img src="./art/readme/diagram_light.png">
 </picture>
-
-<br/>
+</p>
 
 * **Layouts**: Choose from **Layered**, or **Force-Directed** algorithms to find the best representation for your data.
 * **Manual Layout Control**: Click and drag nodes to fine-tune the visual structure for presentations or clarity.
@@ -56,19 +58,23 @@ Automatically render formal contexts into clean, readable Hasse diagrams:
 
 Download your finalized lattice directly for research papers or documentation:
 
+<p>
 <picture>
     <source srcset="./art/readme/diagram_export_dark.png" media="(prefers-color-scheme: dark)">
     <img src="./art/readme/diagram_export_light.png">
 </picture>
+</p>
 
 ### Large Lattice Navigation
 
-Navigate complex datasets without visual clutter. Instead of rendering the entire lattice, Explorer Mode focuses on local structures:
+Navigate complex datasets without visual clutter. Instead of rendering the entire lattice, _Explorer_ mode focuses on local structures:
 
+<p>
 <picture>
     <source srcset="./art/readme/explorer_dark.png" media="(prefers-color-scheme: dark)">
     <img src="./art/readme/explorer_light.png">
 </picture>
+</p>
 
 ## Tech Stack
 
