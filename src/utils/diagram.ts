@@ -1,6 +1,6 @@
 import { getPoint, themedColor } from "../components/concepts/diagram/utils";
-import { DIM_NODE_COLOR_DARK, DIM_NODE_COLOR_LIGHT, NODE_COLOR_DARK, NODE_COLOR_LIGHT, PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT } from "../constants/diagram";
-import { CameraType } from "../types/CameraType";
+import { DIM_NODE_COLOR_DARK, DIM_NODE_COLOR_LIGHT, NODE_COLOR_DARK, NODE_COLOR_LIGHT, PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT } from "../constants/canvas-drawing";
+import { CameraType } from "../types/diagram/CameraType";
 import { ConceptLabel, PositionedConceptLabel } from "../types/ConceptLabel";
 import { ConceptLatticeLabeling } from "../types/ConceptLatticeLabeling";
 import { ConceptLatticeLayout } from "../types/ConceptLatticeLayout";
@@ -9,6 +9,24 @@ import { Link } from "../types/Link";
 import { createPoint, Point } from "../types/Point";
 import { CurrentTheme } from "../types/Theme";
 import { transformedPoint } from "./layout";
+import { Object3D, Vector3 } from "three";
+
+export function setupLinkTransform(temp: Object3D, from: Point, to: Point, initialDirection: Vector3, lineThickness: number) {
+    // Vector math for link placement
+    const dx = to[0] - from[0];
+    const dy = to[1] - from[1];
+    const dz = to[2] - from[2];
+    const length = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2) + Math.pow(dz, 2));
+
+    // Position: Move to the start point
+    temp.position.set(from[0], from[1], from[2]);
+    // Rotation: Orient towards the end point
+    temp.quaternion.setFromUnitVectors(initialDirection, new Vector3(dx, dy, dz).normalize());
+    // Scale: Stretch X-axis to reach the length, keep Y/Z at lineThickness
+    temp.scale.set(length, lineThickness, lineThickness);
+
+    temp.updateMatrix();
+}
 
 export function getNodeColor(
     conceptIndex: number | null | undefined,
@@ -38,7 +56,7 @@ export function getNodeColor(
     return color;
 }
 
-export function getLinks(
+export function getDiagramLinks(
     concepts: Array<{ conceptIndex: number }> | null,
     subconceptsMapping: ReadonlyArray<Set<number>> | null,
     sublatticeConceptIndexes: Set<number> | null,

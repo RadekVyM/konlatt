@@ -1,9 +1,9 @@
 import { Box } from "../../types/Box";
-import { CameraType } from "../../types/CameraType";
+import { CameraType } from "../../types/diagram/CameraType";
 import { ConceptLatticeLayout } from "../../types/ConceptLatticeLayout";
-import { DiagramLayoutState } from "../../types/DiagramLayoutState";
 import { createPoint, Point } from "../../types/Point";
 import { transformedPoint } from "../../utils/layout";
+import { DiagramLayoutState } from "../../types/diagram/DiagramLayoutState";
 
 export function createEmptyDiagramOffsetMementos() {
     return { redos: [], undos: [] };

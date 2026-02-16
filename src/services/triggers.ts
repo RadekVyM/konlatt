@@ -4,7 +4,6 @@ import { ConceptComputationResponse, ContextParsingResponse, LatticeComputationR
 import useDiagramStore from "../stores/diagram/useDiagramStore";
 import useDataStructuresStore from "../stores/useDataStructuresStore";
 import useExplorerStore from "../stores/explorer/useExplorerStore";
-import { DiagramLayoutState } from "../types/DiagramLayoutState";
 import useContextStore from "../stores/useContextStore";
 import useExportAttributesStore from "../stores/export/useExportAttributesStore";
 import useExportAttributeStore from "../stores/export/useExportAttributeStore";
@@ -19,6 +18,7 @@ import toast from "../components/toast";
 import { ImportFormat } from "../types/ImportFormat";
 import { CsvSeparator } from "../types/CsvSeparator";
 import useExportExplorerConceptsStore from "../stores/export/concepts/useExportExplorerConceptsStore";
+import { DiagramLayoutState } from "../types/diagram/DiagramLayoutState";
 
 export async function triggerInitialization(
     fileContent: string,

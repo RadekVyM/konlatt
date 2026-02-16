@@ -1,4 +1,4 @@
-import { getLinks } from "../../../utils/diagram";
+import { getDiagramLinks } from "../../../utils/diagram";
 import useDiagramStore from "../../diagram/useDiagramStore";
 import useDataStructuresStore from "../../useDataStructuresStore";
 import { ExportDiagramStore } from "./useExportDiagramStore";
@@ -10,7 +10,7 @@ export default function withLinks(
     const diagramStore = useDiagramStore.getState();
     const dataStructuresStore = useDataStructuresStore.getState();
 
-    const links = getLinks(
+    const links = getDiagramLinks(
         diagramStore.layout,
         dataStructuresStore.lattice?.subconceptsMapping || null,
         diagramStore.sublatticeConceptIndexes,

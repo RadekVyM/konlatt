@@ -1,17 +1,15 @@
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
-import useGlobalsStore from "../../../stores/useGlobalsStore";
 import { useEffect, useMemo } from "react";
-import { themedColor } from "./utils";
-import { Billboard, Html, Text } from "@react-three/drei";
-import { LABEL_COLOR_DARK, LABEL_COLOR_LIGHT } from "../../../constants/diagram";
+import { Html } from "@react-three/drei";
 import { ConceptLabel } from "../../../types/ConceptLabel";
 import { useThree } from "@react-three/fiber";
 import { createLabelsWithPositions } from "../../../utils/diagram";
 import { Point } from "../../../types/Point";
 import { ConceptLatticeLabeling } from "../../../types/ConceptLatticeLabeling";
 import { ConceptLatticeLayout } from "../../../types/ConceptLatticeLayout";
-import { CameraType } from "../../../types/CameraType";
+import { CameraType } from "../../../types/diagram/CameraType";
 import useDataStructuresStore from "../../../stores/useDataStructuresStore";
+import R3FLabel from "../R3FLabel";
 
 export default function Labels() {
     const invalidate = useThree((state) => state.invalidate);
@@ -30,7 +28,6 @@ export default function Labels() {
 }
 
 function Label(props: Omit<ConceptLabel, "key">) {
-    const currentTheme = useGlobalsStore((state) => state.currentTheme);
     const isDraggingNodes = useDiagramStore((state) => state.isDraggingNodes);
     const conceptsToMoveIndexes = useDiagramStore((state) => state.conceptsToMoveIndexes);
     const selectedConceptIndex = useDiagramStore((state) => state.selectedConceptIndex);
@@ -49,26 +46,16 @@ function Label(props: Omit<ConceptLabel, "key">) {
     const renderOrder = isHovered ? 2 : (isSelected || is2D) ? 1 : 0;
 
     return (
-        <Billboard
+        <R3FLabel
+            text={props.text}
             position={props.position}
+            textPosition={textPosition}
+            anchorY={props.placement === "top" ? "bottom" : "top"}
+            depthTest={!isOnTop}
+            id={props.id}
+            renderOrder={renderOrder}
             scale={isSelected ? 1.05 : 1}
-            visible={isVisible}>
-            <Text
-                key={`${props.id}-${currentTheme}`}
-                color={themedColor(LABEL_COLOR_LIGHT, LABEL_COLOR_DARK, currentTheme)}
-                anchorX="center"
-                anchorY={props.placement === "top" ? "bottom" : "top"}
-                position={textPosition}
-                textAlign="center"
-                outlineWidth={0.01}
-                outlineColor={themedColor(LABEL_COLOR_DARK, LABEL_COLOR_LIGHT, currentTheme)}
-                fontWeight={600}
-                fontSize={0.09}
-                renderOrder={renderOrder}>
-                <meshBasicMaterial depthTest={!isOnTop} depthWrite={!isOnTop} />
-                {props.text}
-            </Text>
-        </Billboard>
+            visible={isVisible} />
     );
 }
 

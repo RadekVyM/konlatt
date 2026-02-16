@@ -4,13 +4,13 @@ import { ConceptComputationResponse, ContextParsingResponse, ErrorResponse, Fini
 import { FormalContext } from "../types/FormalContext";
 import { FormalConcepts, getInfimum, getSupremum } from "../types/FormalConcepts";
 import DiagramLayoutWorker from "./diagramLayoutWorker?worker";
-import { createConceptPoint } from "../types/ConceptPoint";
+import { createConceptPoint } from "../types/diagram/ConceptPoint";
 import { Point } from "../types/Point";
-import { LayoutWorkerResponse } from "../types/LayoutWorkerResponse";
-import { LayoutComputationOptions } from "../types/LayoutComputationOptions";
 import { ImportFormat } from "../types/ImportFormat";
 import { CsvSeparator } from "../types/CsvSeparator";
 import { calculateConeConceptIndexes, calculateSublattice } from "../services/lattice";
+import { LayoutComputationOptions } from "../types/diagram/LayoutComputationOptions";
+import { LayoutWorkerResponse } from "../types/diagram/LayoutWorkerResponse";
 
 let formalContext: FormalContext | null = null;
 let formalConcepts: FormalConcepts | null = null;

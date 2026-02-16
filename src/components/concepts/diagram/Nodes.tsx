@@ -1,13 +1,13 @@
 import { useLayoutEffect, useMemo, useRef } from "react";
 import { DoubleSide, InstancedMesh, LatheGeometry, Matrix4, Mesh, Object3D, Vector2 } from "three";
 import { ThreeEvent, useThree } from "@react-three/fiber";
-import { PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT } from "../../../constants/diagram";
+import { PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT } from "../../../constants/canvas-drawing";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import { setNodesTransformMatrices, setupNodeTransform, themedColor } from "./utils";
 import useGlobalsStore from "../../../stores/useGlobalsStore";
 import { ConceptLatticeLayout } from "../../../types/ConceptLatticeLayout";
 import { Point } from "../../../types/Point";
-import { CameraType } from "../../../types/CameraType";
+import { CameraType } from "../../../types/diagram/CameraType";
 import { isRightClick } from "../../../utils/html";
 import { createRange } from "../../../utils/array";
 import { getNodeColor } from "../../../utils/diagram";

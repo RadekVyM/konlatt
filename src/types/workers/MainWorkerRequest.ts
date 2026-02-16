@@ -1,9 +1,9 @@
 import { ConceptLattice } from "../ConceptLattice";
 import { CsvSeparator } from "../CsvSeparator";
+import { LayoutComputationOptions } from "../diagram/LayoutComputationOptions";
 import { FormalConcepts } from "../FormalConcepts";
 import { FormalContext } from "../FormalContext";
 import { ImportFormat } from "../ImportFormat";
-import { LayoutComputationOptions } from "../LayoutComputationOptions";
 
 export type MainWorkerRequest = CancellationRequest | ContextParsingRequest | ConceptComputationRequest | LatticeComputationRequest | LayoutComputationRequest
 

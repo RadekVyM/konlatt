@@ -8,7 +8,7 @@ import { isInRect } from "../../../utils/rect";
 import { ConceptLatticeLayout } from "../../../types/ConceptLatticeLayout";
 import { createPoint, Point } from "../../../types/Point";
 import { isRightClick } from "../../../utils/html";
-import { CameraType } from "../../../types/CameraType";
+import { CameraType } from "../../../types/diagram/CameraType";
 import { transformedPoint } from "../../../utils/layout";
 
 export default function NodesMultiselectionBox() {

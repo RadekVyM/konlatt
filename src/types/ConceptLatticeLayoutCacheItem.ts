@@ -1,5 +1,5 @@
 import { ConceptLatticeLayout } from "./ConceptLatticeLayout";
-import { DiagramOffsetMementos } from "./DiagramOffsetMementos";
+import { DiagramOffsetMementos } from "./diagram/DiagramOffsetMementos";
 import { Point } from "./Point";
 
 export type ConceptLatticeLayoutCacheItem = {

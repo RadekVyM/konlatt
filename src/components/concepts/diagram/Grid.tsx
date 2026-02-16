@@ -2,7 +2,7 @@ import { useLayoutEffect, useMemo, useRef } from "react";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import { Line, Grid as DreiGrid } from "@react-three/drei";
 import { createPoint, Point } from "../../../types/Point";
-import { GRID_COLOR_DARK, GRID_COLOR_LIGHT, PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT } from "../../../constants/diagram";
+import { GRID_COLOR_DARK, GRID_COLOR_LIGHT, PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT } from "../../../constants/canvas-drawing";
 import { themedColor } from "./utils";
 import useGlobalsStore from "../../../stores/useGlobalsStore";
 import { DoubleSide, Euler, Mesh } from "three";

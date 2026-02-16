@@ -1,14 +1,15 @@
-import { ExplorerConcept } from "../../types/ExplorerConcept";
+import { ExplorerConcept } from "../../types/explorer/ExplorerConcept";
 import { createPoint } from "../../types/Point";
 import { withFallback } from "../../utils/stores";
 import { ExplorerStore } from "./useExplorerStore";
+import withLayoutBox from "./withLayoutBox";
 
 export default function withExplorerConcepts(newState: Partial<ExplorerStore>, oldState: ExplorerStore): Partial<ExplorerStore> {
     const lattice = withFallback(newState.lattice, oldState.lattice);
     const selectedConceptIndex = withFallback(newState.selectedConceptIndex, oldState.selectedConceptIndex);
 
     if (lattice === null || selectedConceptIndex === null) {
-        return newState;
+        return withLayoutBox(newState, oldState);
     }
 
     const superconcepts = lattice.superconceptsMapping[selectedConceptIndex];
@@ -31,12 +32,12 @@ export default function withExplorerConcepts(newState: Partial<ExplorerStore>, o
     pushConcepts(concepts, superconcepts, 1, conceptToLayoutIndexesMapping, layoutToConceptIndexesMapping);
     pushConcepts(concepts, subconcepts, -1, conceptToLayoutIndexesMapping, layoutToConceptIndexesMapping);
 
-    return {
+    return withLayoutBox({
         ...newState,
         concepts,
         conceptToLayoutIndexesMapping,
         layoutToConceptIndexesMapping,
-    };
+    }, oldState);
 }
 
 // Places the concepts around the circumference of a half circle

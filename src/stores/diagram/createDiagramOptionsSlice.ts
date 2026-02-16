@@ -1,9 +1,9 @@
-import { MAX_SEED_LENGTH_REDRAW } from "../../constants/diagram";
+import { MAX_SEED_LENGTH_REDRAW } from "../../constants/canvas-drawing";
 import { calculateConeConceptIndexes } from "../../services/lattice";
-import { CameraType } from "../../types/CameraType";
-import { DiagramLayoutState } from "../../types/DiagramLayoutState";
-import { LayeredLayoutPlacement } from "../../types/LayeredLayoutPlacement";
-import { LayoutMethod } from "../../types/LayoutMethod";
+import { CameraType } from "../../types/diagram/CameraType";
+import { DiagramLayoutState } from "../../types/diagram/DiagramLayoutState";
+import { LayeredLayoutPlacement } from "../../types/diagram/LayeredLayoutPlacement";
+import { LayoutMethod } from "../../types/diagram/LayoutMethod";
 import { w } from "../../utils/stores";
 import { generateRandomSeed } from "../../utils/string";
 import useDataStructuresStore from "../useDataStructuresStore";

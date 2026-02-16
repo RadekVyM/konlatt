@@ -1,29 +1,18 @@
-import { DoubleSide, FrontSide, InstancedMesh, LineCurve3, Object3D, Shape, Vector3 } from "three";
+import { DoubleSide, FrontSide, InstancedMesh, Object3D, Vector3 } from "three";
 import { useLayoutEffect, useMemo, useRef } from "react";
 import { getPoint, themedColor } from "./utils";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import useDataStructuresStore from "../../../stores/useDataStructuresStore";
 import { createPoint, Point } from "../../../types/Point";
-import { CameraType } from "../../../types/CameraType";
-import { LINE_THICKNESS, OPAQUE_COLORED_LINK_COLOR_DARK, OPAQUE_COLORED_LINK_COLOR_LIGHT, OPAQUE_DIM_LINK_COLOR_DARK, OPAQUE_DIM_LINK_COLOR_LIGHT, OPAQUE_HIGHLIGHTED_LINK_COLOR_DARK, OPAQUE_HIGHLIGHTED_LINK_COLOR_LIGHT, OPAQUE_LINK_COLOR_DARK, OPAQUE_LINK_COLOR_LIGHT, PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT, SEMITRANSPARENT_DIM_LINK_COLOR_DARK, SEMITRANSPARENT_DIM_LINK_COLOR_LIGHT, SEMITRANSPARENT_HIGHLIGHTED_LINK_COLOR_DARK, SEMITRANSPARENT_HIGHLIGHTED_LINK_COLOR_LIGHT, SEMITRANSPARENT_LINK_COLOR_DARK, SEMITRANSPARENT_LINK_COLOR_LIGHT } from "../../../constants/diagram";
+import { CameraType } from "../../../types/diagram/CameraType";
+import { LINE_BASE_SEGMENT, LINE_THICKNESS, OPAQUE_COLORED_LINK_COLOR_DARK, OPAQUE_COLORED_LINK_COLOR_LIGHT, OPAQUE_DIM_LINK_COLOR_DARK, OPAQUE_DIM_LINK_COLOR_LIGHT, OPAQUE_HIGHLIGHTED_LINK_COLOR_DARK, OPAQUE_HIGHLIGHTED_LINK_COLOR_LIGHT, OPAQUE_LINK_COLOR_DARK, OPAQUE_LINK_COLOR_LIGHT, PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT, SEMITRANSPARENT_DIM_LINK_COLOR_DARK, SEMITRANSPARENT_DIM_LINK_COLOR_LIGHT, SEMITRANSPARENT_HIGHLIGHTED_LINK_COLOR_DARK, SEMITRANSPARENT_HIGHLIGHTED_LINK_COLOR_LIGHT, SEMITRANSPARENT_LINK_COLOR_DARK, SEMITRANSPARENT_LINK_COLOR_LIGHT, TUBE_LINE_CURVE } from "../../../constants/canvas-drawing";
 import { ConceptLatticeLayout } from "../../../types/ConceptLatticeLayout";
 import useGlobalsStore from "../../../stores/useGlobalsStore";
 import { useThree } from "@react-three/fiber";
 import { transformedPoint } from "../../../utils/layout";
 import { Link } from "../../../types/Link";
-import useLinks from "./useLinks";
-
-// https://codesandbox.io/p/sandbox/react-three-fiber-poc-segments-with-instancedmesh-and-hightlight-drag-2vcl9i
-// Base geometry for flat 2D lines (a thin rectangle)
-const LINE_BASE_SEGMENT = new Shape();
-LINE_BASE_SEGMENT.moveTo(0, 0.5);
-LINE_BASE_SEGMENT.lineTo(1, 0.5);
-LINE_BASE_SEGMENT.lineTo(1, -0.5);
-LINE_BASE_SEGMENT.lineTo(0, -0.5);
-LINE_BASE_SEGMENT.lineTo(0, 0.5);
-
-// Base curve for 3D tube lines
-const TUBE_LINE_CURVE = new LineCurve3(new Vector3(0, 0, 0), new Vector3(1, 0, 0));
+import useDiagramLinks from "./useDiagramLinks";
+import { setupLinkTransform } from "../../../utils/diagram";
 
 /**
  * R3F component that renders all links of the current diagram.
@@ -68,7 +57,7 @@ export default function Links() {
 
     const useFlatLinks = flatLinksEnabled || cameraType === "2d";
 
-    const prepLinks = useLinks();
+    const prepLinks = useDiagramLinks();
 
     // When there are lots of links, lots of data has to be transfered to the GPU which takes some time
     // This is especially noticable on node hovering
@@ -289,20 +278,7 @@ function setLinksTransformMatrices(
             cameraType,
             zOffset);
 
-        // Vector math for segment placement
-        const dx = to[0] - from[0];
-        const dy = to[1] - from[1];
-        const dz = to[2] - from[2];
-        const length = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2) + Math.pow(dz, 2));
-
-        // Position: Move to the start point
-        temp.position.set(from[0], from[1], from[2]);
-        // Rotation: Orient towards the end point
-        temp.quaternion.setFromUnitVectors(initialDirection, new Vector3(dx, dy, dz).normalize());
-        // Scale: Stretch X-axis to reach the length, keep Y/Z at LINE_THICKNESS
-        temp.scale.set(length, LINE_THICKNESS, LINE_THICKNESS);
-
-        temp.updateMatrix();
+        setupLinkTransform(temp, from, to, initialDirection, LINE_THICKNESS);
         instancedMesh.setMatrixAt(linkId, temp.matrix);
     }
 

@@ -1,5 +1,5 @@
 import { ConceptLattice } from "../../types/ConceptLattice";
-import { ExplorerConcept } from "../../types/ExplorerConcept";
+import { ExplorerConcept } from "../../types/explorer/ExplorerConcept";
 import { ExplorerStore } from "./useExplorerStore";
 import withExplorerConcepts from "./withExplorerConcepts";
 

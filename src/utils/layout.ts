@@ -1,5 +1,5 @@
-import { X_SCALE, Y_SCALE, Z_SCALE } from "../constants/diagram";
-import { CameraType } from "../types/CameraType";
+import { X_SCALE, Y_SCALE, Z_SCALE } from "../constants/canvas-drawing";
+import { CameraType } from "../types/diagram/CameraType";
 import { createPoint, Point } from "../types/Point";
 import { degreesToRadians } from "./numbers";
 

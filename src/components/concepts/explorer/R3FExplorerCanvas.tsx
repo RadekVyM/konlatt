@@ -4,6 +4,8 @@ import Nodes from "./Nodes";
 import { useContext, useEffect } from "react";
 import useExplorerStore from "../../../stores/explorer/useExplorerStore";
 import { ExplorerZoomActionsContext } from "../../../contexts/ExplorerZoomActionsContext";
+import Links from "./Links";
+import Labels from "./Labels";
 
 export default function R3FExplorerCanvas(props: {
     className?: string,
@@ -35,7 +37,9 @@ export default function R3FExplorerCanvas(props: {
 function Content() {
     return (
         <>
+            <Links />
             <Nodes />
+            <Labels />
         </>
     );
 }
@@ -45,7 +49,7 @@ function SelectedConceptChangeReaction() {
     const zoomActionsRef = useContext(ExplorerZoomActionsContext);
 
     useEffect(() => {
-        zoomActionsRef.current?.reset();
+        setTimeout(() => zoomActionsRef.current?.reset(), 0);
     }, [selectedConceptIndex]);
 
     return <></>;

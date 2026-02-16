@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 import useDataStructuresStore from "../../../stores/useDataStructuresStore";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
-import { getLinks } from "../../../utils/diagram";
+import { getDiagramLinks } from "../../../utils/diagram";
 
-export default function useLinks() {
+export default function useDiagramLinks() {
     const lattice = useDataStructuresStore((state) => state.lattice);
     const layout = useDiagramStore((state) => state.layout);
     const sublatticeConceptIndexes = useDiagramStore((state) => state.sublatticeConceptIndexes);
@@ -12,7 +12,7 @@ export default function useLinks() {
     const noInvisibleConcepts = !sublatticeConceptIndexes || sublatticeConceptIndexes.size === 0;
 
     return useMemo(() => {
-        return getLinks(
+        return getDiagramLinks(
             layout,
             lattice?.subconceptsMapping || null,
             sublatticeConceptIndexes,

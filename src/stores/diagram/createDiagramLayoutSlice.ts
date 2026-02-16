@@ -1,8 +1,8 @@
 import { ConceptLatticeLayout } from "../../types/ConceptLatticeLayout";
 import { ConceptLatticeLayoutCacheItem } from "../../types/ConceptLatticeLayoutCacheItem";
-import { DiagramLayoutState } from "../../types/DiagramLayoutState";
-import { DiagramOffsetMementos } from "../../types/DiagramOffsetMementos";
-import { createNodeOffsetMemento } from "../../types/NodeOffsetMemento";
+import { DiagramLayoutState } from "../../types/diagram/DiagramLayoutState";
+import { DiagramOffsetMementos } from "../../types/diagram/DiagramOffsetMementos";
+import { createNodeOffsetMemento } from "../../types/diagram/NodeOffsetMemento";
 import { createPoint, Point } from "../../types/Point";
 import { rotatePoint } from "../../utils/layout";
 import { w, withFallback } from "../../utils/stores";

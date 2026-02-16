@@ -6,7 +6,7 @@ import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import { createPoint, Point } from "../../../types/Point";
 import useGlobalsStore from "../../../stores/useGlobalsStore";
 import { transformedPoint } from "../../../utils/layout";
-import { PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT } from "../../../constants/diagram";
+import { PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT } from "../../../constants/canvas-drawing";
 
 export default function NodesToMove() {
     const instancedMeshRef = useRef<InstancedMesh>(null);

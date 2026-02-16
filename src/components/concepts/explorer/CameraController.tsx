@@ -4,6 +4,9 @@ import { useContext, useRef } from "react";
 import useExplorerStore from "../../../stores/explorer/useExplorerStore";
 import { ExplorerZoomActionsContext } from "../../../contexts/ExplorerZoomActionsContext";
 
+const IDEAL_EXPLORER_WIDTH = 30;
+const IDEAL_EXPLORER_HEIGHT = 24;
+
 const { ACTION } = CameraControlsImpl;
 
 const MOUSEBUTTONS_2D = {
@@ -21,7 +24,7 @@ const TOUCHES_2D = {
 
 export default function CameraController() {
     const cameraControlsRef = useRef<CameraControlsImpl>(null);
-    const defaultZoom = 100;
+    const defaultZoom = useDefaultZoom();
     const defaultDistance = 10;
 
     const cameraControlsEvents = useCameraControlsEvents(defaultZoom);
@@ -49,6 +52,25 @@ export default function CameraController() {
                 {...cameraControlsEvents} />
         </>
     );
+}
+
+function useDefaultZoom() {
+    // Do not expect any super smart calculations
+    // Good old rule of three and some made up numbers, that look generally fine, are used
+    const minConstantZoom = 25;
+    const maxConstantZoom = 100;
+
+    const layoutBox = useExplorerStore((state) => state.layoutBox);
+
+    const idealZoom = layoutBox === null ?
+        minConstantZoom :
+        Math.min(
+            minConstantZoom * (IDEAL_EXPLORER_WIDTH / layoutBox.width),
+            minConstantZoom * (IDEAL_EXPLORER_HEIGHT / layoutBox.height));
+
+    const defaultZoom = Math.min(maxConstantZoom, Math.max(minConstantZoom, idealZoom));
+
+    return defaultZoom;
 }
 
 function useCameraControlsEvents(
@@ -91,7 +113,21 @@ function useZoomActionsSetup(
     }
 
     async function resetCamera() {
-        cameraControlsRef.current?.setLookAt(0, 0, defaultDistance, 0, 0, 0, true);
+        const y = centerY();
+        cameraControlsRef.current?.setLookAt(0, y, defaultDistance, 0, y, 0, true);
         await cameraControlsRef.current?.zoomTo(defaultZoom, true);
     }
+}
+
+function centerY() {
+    const layoutBox = useExplorerStore.getState().layoutBox;
+
+    if (layoutBox === null) {
+        return 0;
+    }
+
+    const centerOffset = (layoutBox.height / 2) + layoutBox.y;
+    const maxOffset = IDEAL_EXPLORER_HEIGHT / 4;
+
+    return Math.max(-maxOffset, Math.min(maxOffset, centerOffset));
 }

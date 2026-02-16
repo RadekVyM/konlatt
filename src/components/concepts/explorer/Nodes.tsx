@@ -5,7 +5,7 @@ import { ThreeEvent, useThree } from "@react-three/fiber";
 import useGlobalsStore from "../../../stores/useGlobalsStore";
 import { getNodeColor } from "../../../utils/diagram";
 import { themedColor } from "../diagram/utils";
-import { PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT } from "../../../constants/diagram";
+import { PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT } from "../../../constants/canvas-drawing";
 
 const HOVERED_MESH_NAME = "hovered_mesh";
 

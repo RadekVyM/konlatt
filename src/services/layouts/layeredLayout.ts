@@ -1,7 +1,7 @@
 import Module from "../../cpp";
 import { cppFloatArrayToPoints } from "../../utils/cpp";
 import { Point } from "../../types/Point";
-import { LayeredLayoutPlacement } from "../../types/LayeredLayoutPlacement";
+import { LayeredLayoutPlacement } from "../../types/diagram/LayeredLayoutPlacement";
 
 export async function computeLayeredLayout(
     conceptsCount: number,

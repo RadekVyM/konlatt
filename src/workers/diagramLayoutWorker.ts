@@ -1,4 +1,4 @@
-import { LayoutWorkerProgressResponse, LayoutWorkerResultResponse } from "../types/LayoutWorkerResponse";
+import { LayoutWorkerProgressResponse, LayoutWorkerResultResponse } from "../types/diagram/LayoutWorkerResponse";
 import { Point } from "../types/Point";
 import { CompleteLayoutComputationRequest } from "../types/workers/MainWorkerRequest";
 import { hashString } from "../utils/string";
