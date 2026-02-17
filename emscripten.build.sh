@@ -45,7 +45,7 @@ else
     # Clean up the downloaded archive
     rm -f "${TEMP_ARCHIVE}"
 
-    echo "Eigen v${EIGEN_VERSION} successfully downloaded and extracted to ${EIGEN_TARGET_PATH}"
+    echo "Eigen v${EIGEN_VERSION} successfully downloaded and extracted to ${EIGEN_LIB_DIR}"
 fi
 
 # npm install -g npm@latest
