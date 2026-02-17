@@ -1,10 +1,10 @@
 import { useState } from "react";
 import useEventListener from "../../hooks/useEventListener";
 import useDataStructuresStore from "../../stores/useDataStructuresStore";
-import Container from "../Container";
 import { searchTermsToRegex } from "../../utils/search";
 import ConceptItemsList from "./ConceptItemsList";
 import { StoreApi, UseBoundStore } from "zustand";
+import Container from "../layouts/Container";
 
 type StoreType = UseBoundStore<Pick<StoreApi<{
     hoveredConceptIndex: number | null,

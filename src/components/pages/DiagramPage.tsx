@@ -1,8 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { cn } from "../../utils/tailwind";
-import Container from "../Container";
 import ConceptsList from "../concepts/ConceptsList";
-import PageContainer from "../PageContainer";
+import PageContainer from "../layouts/PageContainer";
 import useFullscreen from "../../hooks/useFullscreen";
 import DiagramConfig from "../concepts/diagram/DiagramConfig";
 import { DiagramZoomActionsContextProvider } from "../../contexts/DiagramZoomActionsContext";
@@ -14,10 +13,11 @@ import ConceptHoverDetail from "../concepts/ConceptHoverDetail";
 import { DiagramFullscreenContext, DiagramFullscreenContextProvider } from "../../contexts/DiagramFullscreenContext";
 import useDimensionsListener from "../../hooks/useDimensionsListener";
 import useDiagramConfigPanelDimensionsStore from "../../stores/diagram/useDiagramConfigPanelDimensionsStore";
-import { CardContainer } from "../CardContainer";
 import ConceptDetail from "../concepts/ConceptDetail";
 import ExportDiagramConceptsButton from "../export/ExportDiagramConceptsButton";
 import ExportDiagramConceptButton from "../export/ExportDiagramConceptButton";
+import { CardContainer } from "../layouts/CardContainer";
+import Container from "../layouts/Container";
 
 export default function DiagramPage() {
     const containerRef = useRef<HTMLDivElement>(null);

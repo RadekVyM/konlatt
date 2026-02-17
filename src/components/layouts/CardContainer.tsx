@@ -1,6 +1,6 @@
-import { cn } from "../utils/tailwind";
 import Container from "./Container";
 import "./CardContainer.css";
+import { cn } from "../../utils/tailwind";
 
 export function CardContainer(props: {
     children?: React.ReactNode,

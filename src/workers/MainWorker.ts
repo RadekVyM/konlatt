@@ -1,9 +1,9 @@
 import { ConceptLattice } from "../types/ConceptLattice";
-import { CompleteLayoutComputationRequest, CompleteWorkerRequest } from "../types/workers/MainWorkerRequest";
+import { CompleteLayoutComputationRequest, CompleteMainWorkerRequest } from "../types/workers/MainWorkerRequest";
 import { ConceptComputationResponse, ContextParsingResponse, ErrorResponse, FinishedResponse, LatticeComputationResponse, LayoutComputationResponse, ProgressResponse, StatusResponse, WorkerDataRequestObject, WorkerDataRequestResponse } from "../types/workers/MainWorkerResponse";
 import { FormalContext } from "../types/FormalContext";
 import { FormalConcepts, getInfimum, getSupremum } from "../types/FormalConcepts";
-import DiagramLayoutWorker from "./diagramLayoutWorker?worker";
+import DiagramLayoutWorker from "./DiagramLayoutWorker?worker";
 import { createConceptPoint } from "../types/diagram/ConceptPoint";
 import { Point } from "../types/Point";
 import { ImportFormat } from "../types/ImportFormat";
@@ -17,7 +17,7 @@ let formalConcepts: FormalConcepts | null = null;
 let conceptLattice: ConceptLattice | null = null;
 const workerInstances = new Map<number, { worker: Worker, reject?: (reason?: any) => void }>();
 
-self.onmessage = async (event: MessageEvent<CompleteWorkerRequest>) => {
+self.onmessage = async (event: MessageEvent<CompleteMainWorkerRequest>) => {
     console.log(`[${event.data.type}] sending arguments: ${new Date().getTime() - event.data.time} ms`);
 
     tryGetIncomingData(event);
@@ -309,7 +309,7 @@ function getValidLayout(layout: Array<Point>, reverseIndexMapping: Map<number, n
     return layout.map((point, index) => createConceptPoint(point[0], point[1], point[2], reverseIndexMapping.get(index)!));
 }
 
-function tryRequestDataFromMainThread(request: CompleteWorkerRequest, requestedObjects: Array<WorkerDataRequestObject>) {
+function tryRequestDataFromMainThread(request: CompleteMainWorkerRequest, requestedObjects: Array<WorkerDataRequestObject>) {
     // This is needed mainly because of Safari... 🤦‍♂️
     // Safari is too efficient (or grasping) and clears data from web workers
     // when it thinks that the workers do not deserve to have the data.
@@ -333,7 +333,7 @@ function tryRequestDataFromMainThread(request: CompleteWorkerRequest, requestedO
     self.postMessage(response);
 }
 
-function tryGetIncomingData(event: MessageEvent<CompleteWorkerRequest>) {
+function tryGetIncomingData(event: MessageEvent<CompleteMainWorkerRequest>) {
     if (event.data.context) {
         formalContext = event.data.context;
     }

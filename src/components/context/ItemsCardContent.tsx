@@ -4,9 +4,7 @@ import { cn } from "../../utils/tailwind";
 import Button from "../inputs/Button";
 import SearchInput from "../inputs/SearchInput";
 import CardItemsLazyList from "../CardItemsLazyList";
-import CardSectionTitle from "../CardSectionTitle";
 import NothingFound from "../NothingFound";
-import CardSection from "../CardSection";
 import { searchTermsToRegex } from "../../utils/search";
 import FilterSortBar from "../filters/FilterSortBar";
 import Found from "../Found";
@@ -16,6 +14,8 @@ import { ItemSortType } from "../../types/SortType";
 import { SortDirection } from "../../types/SortDirection";
 import useDialog from "../../hooks/useDialog";
 import ContextItemsFilterDialog from "../filters/ContextItemsFilterDialog";
+import CardSection from "../layouts/CardSection";
+import CardSectionTitle from "../layouts/CardSectionTitle";
 
 export default function ItemsCardContent<TItem extends ContextItem>(props: {
     id: string,

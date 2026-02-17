@@ -60,6 +60,6 @@ export default function withTextResult(newState: Partial<ExportDiagramStore>, ol
         ...newState,
         result,
         collapseRegions,
-        charactersCount: sumLengths(result),
+        charactersCount: sumLengths(result, 1),
     };
 }

@@ -45,6 +45,6 @@ function withResult(newState: Partial<ExportAttributesStore>, oldState: ExportAt
     return {
         ...newState,
         result,
-        charactersCount: sumLengths(result),
+        charactersCount: sumLengths(result, 1),
     };
 }

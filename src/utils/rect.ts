@@ -1,10 +1,17 @@
 import { Rect } from "../types/Rect";
 
+/**
+ * Checks if a point (x, y) is contained within the bounds of a rectangle.
+ */
 export function isInRect(x: number, y: number, rect: Rect) {
     return x >= rect.x && x <= rect.x + rect.width && 
         y >= rect.y && y <= rect.y + rect.height
 }
 
+/**
+ * Determines if a line segment between two points intersects or is contained within a rectangle.
+ * It checks if either endpoint is inside the rect, or if the segment crosses any of the four edges.
+ */
 export function crossesRect(firstX: number, firstY: number, secondX: number, secondY: number, rect: Rect) {
     if (isInRect(firstX, firstY, rect) || isInRect(secondX, secondY, rect)) {
         return true;

@@ -1,8 +1,19 @@
+/**
+ * Converts an angle from degrees to radians.
+ * @param angle - The angle in degrees to be converted.
+ * @returns The angle expressed in radians.
+ */
 export function degreesToRadians(angle: number) {
     return Math.PI * (angle / 180);
 }
 
-export function formatBytes(bytes: number) {
+/**
+ * Formats a numeric byte value into a human-readable string with units (e.g., KB, MB).
+ * @param bytes - The number of bytes to format.
+ * @param locales - Optional locale string or array for number formatting.
+ * @returns A localized string representing the byte size with the appropriate unit.
+ */
+export function formatBytes(bytes: number, locales?: Intl.LocalesArgument) {
     if (bytes === 0) {
         return bytes.toLocaleString(undefined, {
             style: "unit",
@@ -17,7 +28,7 @@ export function formatBytes(bytes: number) {
   
     const convertedValue = bytes / Math.pow(k, i);
 
-    return convertedValue.toLocaleString(undefined, {
+    return convertedValue.toLocaleString(locales, {
         style: "unit",
         unit: sizes[i],
         unitDisplay: "short",
@@ -25,6 +36,11 @@ export function formatBytes(bytes: number) {
     });
 }
 
+/**
+ * Formats a duration in milliseconds into a shorthand string (e.g., "1d 2h 30m").
+ * @param time - The duration in milliseconds.
+ * @returns A formatted string of time components, or undefined if the input is negative.
+ */
 export function formatTimeInterval(time: number) {
     if (time < 0) {
         return undefined;
@@ -41,7 +57,7 @@ export function formatTimeInterval(time: number) {
     const secs = seconds % minute;
     const millis = time - (seconds * 1000);
 
-    const parts: string[] = [];
+    const parts = new Array<string>();
 
     if (days > 0) {
         parts.push(`${days}d`);

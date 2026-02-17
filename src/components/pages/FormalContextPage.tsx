@@ -1,13 +1,13 @@
 import { cn } from "../../utils/tailwind";
-import Container from "../Container";
 import ContextTable from "../context/ContextTable";
 import ObjectsList from "../context/ObjectsList";
 import AttributesList from "../context/AttributesList";
 import NothingFound from "../NothingFound";
-import CardSectionTitle from "../CardSectionTitle";
-import PageContainer from "../PageContainer";
+import PageContainer from "../layouts/PageContainer";
 import useDataStructuresStore from "../../stores/useDataStructuresStore";
 import ExportContextButton from "../export/ExportContextButton";
+import Container from "../layouts/Container";
+import CardSectionTitle from "../layouts/CardSectionTitle";
 
 export default function FormalContextPage() {
     return (

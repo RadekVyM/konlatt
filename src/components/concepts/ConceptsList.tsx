@@ -4,7 +4,6 @@ import useLazyListCount from "../../hooks/useLazyListCount";
 import Button from "../inputs/Button";
 import CardItemsLazyList from "../CardItemsLazyList";
 import NothingFound from "../NothingFound";
-import CardSection from "../CardSection";
 import FilterSortBar from "../filters/FilterSortBar";
 import Found from "../Found";
 import { FormalConcept, FormalConcepts } from "../../types/FormalConcepts";
@@ -19,6 +18,7 @@ import useDialog from "../../hooks/useDialog";
 import ConceptsFilterDialog from "../filters/ConceptsFilterDialog";
 import ConceptItemsList from "./ConceptItemsList";
 import { ExportButtonProps } from "../export/types/ExportButtonProps";
+import CardSection from "../layouts/CardSection";
 
 const MAX_TEXT_LENGTH = 500;
 

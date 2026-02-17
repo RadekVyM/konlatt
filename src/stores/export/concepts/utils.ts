@@ -93,7 +93,7 @@ export function withConceptsExportResult(
         ...newState,
         result,
         collapseRegions,
-        charactersCount: sumLengths(result),
+        charactersCount: sumLengths(result, 1),
     };
 }
 

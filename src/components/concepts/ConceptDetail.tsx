@@ -6,7 +6,6 @@ import useLazyListCount from "../../hooks/useLazyListCount";
 import { cn } from "../../utils/tailwind";
 import NothingFound from "../NothingFound";
 import SearchInput from "../inputs/SearchInput";
-import CardSection from "../CardSection";
 import { isInfimum, isSupremum } from "../../types/FormalConcepts";
 import { searchStringFilter, searchTermsToRegex } from "../../utils/search";
 import HighlightedSearchTerms from "../HighlightedSearchTerms";
@@ -16,6 +15,7 @@ import useDataStructuresStore from "../../stores/useDataStructuresStore";
 import Tooltip from "../Tooltip";
 import HorizontalScroller from "../HorizontalScroller";
 import { ExportConceptButtonType } from "../export/createExportConceptButton";
+import CardSection from "../layouts/CardSection";
 
 type TabItem = "objects" | "attributes"
 

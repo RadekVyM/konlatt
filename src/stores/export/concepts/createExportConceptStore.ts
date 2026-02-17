@@ -52,6 +52,6 @@ function withResult(newState: Partial<ExportConceptStore>, oldState: ExportConce
         ...newState,
         result,
         collapseRegions,
-        charactersCount: sumLengths(result),
+        charactersCount: sumLengths(result, 1),
     };
 }

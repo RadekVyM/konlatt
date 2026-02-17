@@ -13,7 +13,7 @@ import useExportContextStore from "../stores/export/useExportContextStore";
 import useExportDiagramStore from "../stores/export/diagram/useExportDiagramStore";
 import useExportObjectsStore from "../stores/export/useExportObjectsStore";
 import useExportObjectStore from "../stores/export/useExportObjectStore";
-import LatticeWorkerQueue from "../workers/LatticeWorkerQueue";
+import MainWorkerQueue from "../workers/MainWorkerQueue";
 import toast from "../components/toast";
 import { ImportFormat } from "../types/ImportFormat";
 import { CsvSeparator } from "../types/CsvSeparator";
@@ -28,7 +28,7 @@ export async function triggerInitialization(
     onSuccess?: () => void,
     onError?: () => void,
 ) {
-    const newWorkerQueue = new LatticeWorkerQueue();
+    const newWorkerQueue = new MainWorkerQueue();
     newWorkerQueue.setup();
 
     const startTime = new Date().getTime();
@@ -109,7 +109,7 @@ export function triggerCancellation(jobId: number) {
 }
 
 function enqueFileParsing(
-    workerQueue: LatticeWorkerQueue,
+    workerQueue: MainWorkerQueue,
     fileContent: string,
     format: ImportFormat,
     csvSeparator: CsvSeparator | null,
@@ -131,7 +131,7 @@ function enqueFileParsing(
         });
 }
 
-function enqueueConceptComputation(workerQueue: LatticeWorkerQueue) {
+function enqueueConceptComputation(workerQueue: MainWorkerQueue) {
     const conceptsRequest: ConceptComputationRequest = { type: "concepts" };
 
     workerQueue.enqueue<ConceptComputationResponse>(
@@ -165,7 +165,7 @@ function enqueueConceptComputation(workerQueue: LatticeWorkerQueue) {
         });
 }
 
-function enqueueLatticeComputation(workerQueue: LatticeWorkerQueue) {
+function enqueueLatticeComputation(workerQueue: MainWorkerQueue) {
     const latticeRequest: LatticeComputationRequest = { type: "lattice" };
 
     workerQueue.enqueue<LatticeComputationResponse>(
@@ -197,7 +197,7 @@ function enqueueLatticeComputation(workerQueue: LatticeWorkerQueue) {
         });
 }
 
-function enqueueLayoutComputation(workerQueue: LatticeWorkerQueue, state: DiagramLayoutState) {
+function enqueueLayoutComputation(workerQueue: MainWorkerQueue, state: DiagramLayoutState) {
     const layoutRequest: LayoutComputationRequest = {
         type: "layout",
         upperConeOnlyConceptIndex: state.displayHighlightedSublatticeOnly ? state.upperConeOnlyConceptIndex : null,

@@ -1,5 +1,4 @@
 import { FormalContext, getObjectAttributes } from "../../types/FormalContext";
-import { CardContainer } from "../CardContainer";
 import ItemsCardContent from "./ItemsCardContent";
 import ItemCardContent from "./ItemCardContent";
 import { ContextCompleteItem, ContextItem } from "./types";
@@ -9,6 +8,7 @@ import useDataStructuresStore from "../../stores/useDataStructuresStore";
 import useContextStore from "../../stores/useContextStore";
 import ExportObjectsButton from "../export/ExportObjectsButton";
 import ExportObjectButton from "../export/ExportObjectButton";
+import { CardContainer } from "../layouts/CardContainer";
 
 type ContextObjectItem = ContextItem
 

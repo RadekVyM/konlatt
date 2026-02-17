@@ -1,9 +1,7 @@
 import { cn } from "../../utils/tailwind";
 import ConceptsList from "../concepts/ConceptsList";
-import Container from "../Container";
-import PageContainer from "../PageContainer";
+import PageContainer from "../layouts/PageContainer";
 import useExplorerStore from "../../stores/explorer/useExplorerStore";
-import { CardContainer } from "../CardContainer";
 import ConceptDetail from "../concepts/ConceptDetail";
 import ExportExplorerConceptsButton from "../export/ExportExplorerConceptsButton";
 import ExportExplorerConceptButton from "../export/ExportExplorerConceptButton";
@@ -12,6 +10,8 @@ import { useEffect, useState } from "react";
 import ConceptHoverDetail from "../concepts/ConceptHoverDetail";
 import { ExplorerZoomActionsContextProvider } from "../../contexts/ExplorerZoomActionsContext";
 import ExplorerActions from "../concepts/explorer/ExplorerActions";
+import { CardContainer } from "../layouts/CardContainer";
+import Container from "../layouts/Container";
 
 export default function ExplorerPage() {
     return (

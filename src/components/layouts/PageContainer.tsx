@@ -1,5 +1,5 @@
 import { RefObject } from "react";
-import { cn } from "../utils/tailwind";
+import { cn } from "../../utils/tailwind";
 
 export default function PageContainer(props: {
     children: React.ReactNode,

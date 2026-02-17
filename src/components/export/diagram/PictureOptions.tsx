@@ -1,5 +1,5 @@
 import { LuLock, LuLockOpen } from "react-icons/lu";
-import { EXPORT_DIMENSIONS_TEMPLATES } from "../../../constants/diagramExport";
+import { EXPORT_DIMENSIONS_TEMPLATES } from "../../../constants/diagram-export";
 import useExportDiagramStore from "../../../stores/export/diagram/useExportDiagramStore";
 import { DiagramExportDimensionsTemplateKey } from "../../../types/export/DiagramExportDimensionsTemplate";
 import { cn } from "../../../utils/tailwind";

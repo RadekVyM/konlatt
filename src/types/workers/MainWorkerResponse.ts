@@ -2,7 +2,7 @@ import { FormalContext } from "../FormalContext";
 import { ConceptLattice } from "../ConceptLattice";
 import { FormalConcepts } from "../FormalConcepts";
 import { ConceptLatticeLayout } from "../ConceptLatticeLayout";
-import { CompleteWorkerRequest } from "./MainWorkerRequest";
+import { CompleteMainWorkerRequest } from "./MainWorkerRequest";
 
 export type MainWorkerResponse = ErrorResponse | FinishedResponse | StatusResponse | ProgressResponse | ContextParsingResponse | ConceptComputationResponse | LatticeComputationResponse | LayoutComputationResponse | WorkerDataRequestResponse
 
@@ -51,7 +51,7 @@ export type LayoutComputationResponse = {
 
 export type WorkerDataRequestResponse = {
     type: "data-request",
-    request: CompleteWorkerRequest,
+    request: CompleteMainWorkerRequest,
     requestedObjects: Array<WorkerDataRequestObject>,
 } & BaseResponse
 

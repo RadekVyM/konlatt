@@ -1,4 +1,4 @@
-import { cn } from "../utils/tailwind";
+import { cn } from "../../utils/tailwind";
 
 export default function Container(props: {
     as?: "div" | "section" | "li" | "article",

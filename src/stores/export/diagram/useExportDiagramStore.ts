@@ -15,7 +15,7 @@ import withCanvasDimensions from "./withCanvasDimensions";
 import withTextResult from "./withTextResult";
 import { Link } from "../../../types/Link";
 import withLinks from "./withLinks";
-import ExportDiagramWorker from "../../../workers/exportDiagramWorker?worker";
+import ExportDiagramWorker from "../../../workers/ExportDiagramWorker?worker";
 import { ExportDiagramWorkerResponse } from "../../../types/workers/ExportDiagramWorkerResponse";
 import toast from "../../../components/toast";
 import withTooLarge from "./withTooLarge";

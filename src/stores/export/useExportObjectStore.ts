@@ -58,7 +58,7 @@ function withResult(newState: Partial<ExportObjectStore>, oldState: ExportObject
     return {
         ...newState,
         result,
-        charactersCount: sumLengths(result),
+        charactersCount: sumLengths(result, 1),
         collapseRegions,
     };
 }

@@ -1,13 +1,13 @@
 import { create } from "zustand";
-import LatticeWorkerQueue from "../workers/LatticeWorkerQueue";
+import MainWorkerQueue from "../workers/MainWorkerQueue";
 import { StatusItem } from "../types/StatusItem";
 
 type ProjectStore = {
     progressMessage: string | null,
     name: string | null,
-    workerQueue: LatticeWorkerQueue,
+    workerQueue: MainWorkerQueue,
     statusItems: Array<StatusItem>,
-    replaceWorkerQueue: (workerQueue: LatticeWorkerQueue) => void,
+    replaceWorkerQueue: (workerQueue: MainWorkerQueue) => void,
     setProgressMessage: (progressMessage: string | null) => void,
     setName: (name: string) => void,
     clearStatusItems: () => void,
@@ -29,7 +29,7 @@ type StatusItemOptions = {
 const useProjectStore = create<ProjectStore>((set) => ({
     progressMessage: null,
     name: null,
-    workerQueue: new LatticeWorkerQueue(),
+    workerQueue: new MainWorkerQueue(),
     statusItems: [],
     replaceWorkerQueue: (workerQueue) => set((old) => {
         old.workerQueue.dispose();

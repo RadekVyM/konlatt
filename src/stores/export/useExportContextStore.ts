@@ -76,6 +76,6 @@ function withResult(newState: Partial<ExportContextStore>, oldState: ExportConte
         ...newState,
         result,
         collapseRegions,
-        charactersCount: sumLengths(result),
+        charactersCount: sumLengths(result, 1),
     };
 }

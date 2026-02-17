@@ -1,8 +1,8 @@
 /**
- * Applies the provided `with*` transformations to the state.
+ * Sequentially applies the provided `with*` transformations to a state object.
  * @param newState 
  * @param oldState 
- * @param withTransformations `with*` transformations
+ * @param withTransformations - `with*` transformations. `undefined` values are skipped.
  * @returns Transformed state
  */
 export function w<T>(
@@ -23,6 +23,12 @@ export function w<T>(
     return result;
 }
 
+/**
+ * Returns the provided value if it is defined, otherwise returns the fallback.
+ * @param value - The value to check for `undefined`.
+ * @param fallback - The value to return if `value` is `undefined`.
+ * @returns The original value or the fallback.
+ */
 export function withFallback<T>(value: T | undefined, fallback: T): T {
     return value === undefined ? fallback : value;
 }

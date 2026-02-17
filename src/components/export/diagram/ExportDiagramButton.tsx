@@ -7,7 +7,7 @@ import { ExportItem } from "../types/ExportItem";
 import "./aspect-ratio-bridge-clip.css";
 import PictureOptions from "./PictureOptions";
 import createDownloadButtonsComponent from "../createDownloadButtonsComponent";
-import { CANVAS_ID } from "../../../constants/diagramExport";
+import { CANVAS_ID } from "../../../constants/diagram-export";
 import createTextResultPreviewerComponent from "../createTextResultPreviewerComponent";
 import RasterDownloadButtons from "./RasterDownloadButtons";
 import ConfigSection from "../../layouts/ConfigSection";

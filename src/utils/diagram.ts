@@ -210,43 +210,75 @@ export function sortedLabelsByPosition(labels: Array<ConceptLabel>, layout: Arra
 function createLabelText(labelIndexes: ReadonlyArray<number>, labels: ReadonlyArray<string>, options?: LabelOptions) {
     const defaultOptions = {
         lineSeparator: "\n",
+        labelSeparator: ", ",
         maxLineLength: 25,
         maxLinesCount: 3,
+        fillAsMuchAsPossible: false,
     };
     const { 
         maxLineLength,
         maxLinesCount,
         lineSeparator,
+        labelSeparator,
+        fillAsMuchAsPossible,
     } = { ...defaultOptions, ...options };
-    const textSegments = new Array<string>();
-    let lineLength = 0;
-    let currentLine = 1;
 
-    for (const index of labelIndexes) {
-        const label = labels[index];
+    let result = "";
+    let currentLineText = "";
+    let linesCount = 1;
 
-        if (lineLength + label.length <= maxLineLength) {
-            textSegments.push(label);
-            lineLength += label.length + 2;
-        }
-        else if (currentLine < maxLinesCount && label.length <= maxLineLength) {
-            lineLength = label.length + 2;
-            currentLine++;
+    for (let i = 0; i < labelIndexes.length; i++) {
+        const label = labels[labelIndexes[i]];
+        const suffix = i === labelIndexes.length - 1 ? "" : labelSeparator;
+        const words = (label + suffix).split(" ");
 
-            textSegments.push(`${lineSeparator}${label}`);
-            lineLength += label.length + 2;
+        for (let j = 0; j < words.length; j++) {
+            let word = words[j];
+            const space = j > 0 ? " " : "";
+            
+            if (currentLineText.length + space.length + word.length <= maxLineLength) {
+                currentLineText += space + word;
+            }
+            // Word doesn't fit, move to new line or split
+            else {
+                // If not on first word of line, try moving to a new line first
+                if (currentLineText.length > 0 && linesCount < maxLinesCount) {
+                    result += currentLineText + lineSeparator;
+                    currentLineText = "";
+                    linesCount++;
+                    j--; // Re-process same word on the new line
+                    continue;
+                }
+
+                // If word is still too long for an empty line, do a hard break
+                const availableSpace = maxLineLength - currentLineText.length - space.length;
+                
+                if (linesCount < maxLinesCount) {
+                    // Fill current line, wrap remainder
+                    const part = word.slice(0, availableSpace);
+                    const remainder = word.slice(availableSpace);
+                    currentLineText += space + part + "-";
+                    result += currentLineText + lineSeparator;
+                    currentLineText = "";
+                    linesCount++;
+                    words[j] = remainder; // Process remainder next
+                    j--;
+                }
+                else {
+                    // Final line
+                    const finalPart = fillAsMuchAsPossible ?
+                        word.slice(0, Math.max(0, maxLineLength - currentLineText.length - space.length - 3)) :
+                        "";
+                    currentLineText = currentLineText + space + finalPart;
+
+                    if (currentLineText.endsWith(labelSeparator)) {
+                        currentLineText = currentLineText.slice(0, currentLineText.length - labelSeparator.length);
+                    }
+                    return result + currentLineText + "...";
+                }
+            }
         }
     }
 
-    if (textSegments.length === 0) {
-        const label = labels[labelIndexes[0]];
-
-        if (label.length <= maxLineLength + 3) {
-            return label;
-        }
-
-        return `${label.slice(0, maxLineLength)}...`;
-    }
-
-    return textSegments.join(", ").replace(` ${lineSeparator}`, lineSeparator) + (labelIndexes.length === textSegments.length ? "" : "...");
+    return result + currentLineText;
 }

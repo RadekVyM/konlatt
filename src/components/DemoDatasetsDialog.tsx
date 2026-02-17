@@ -7,10 +7,10 @@ import LATTICE_URL from "../assets/datasets/lattice.cxt?url"
 import LIVEINWATER_URL from "../assets/datasets/liveinwater.cxt?url"
 import TEALADY_URL from "../assets/datasets/tealady.cxt?url"
 import Button from "./inputs/Button";
-import { triggerInitialization } from "../services/triggers";
 import { cn } from "../utils/tailwind";
 import { useState } from "react";
 import toast from "./toast";
+import { triggerInitialization } from "../services/triggers";
 
 type Dataset = {
     name: string,

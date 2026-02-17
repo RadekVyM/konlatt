@@ -1,8 +1,23 @@
-import { X_SCALE, Y_SCALE, Z_SCALE } from "../constants/canvas-drawing";
 import { CameraType } from "../types/diagram/CameraType";
 import { createPoint, Point } from "../types/Point";
 import { degreesToRadians } from "./numbers";
 
+const X_SCALE = 1;
+const Y_SCALE = 1;
+const Z_SCALE = 1;
+
+/**
+ * Transforms a 3D point based on scale, offset, rotation, and camera perspective.
+ * @param point - The initial source coordinates `[x, y, z]`.
+ * @param offset - Static positional offset.
+ * @param dragOffset - Dynamic offset (e.g., from user interaction).
+ * @param horizontalScale - Multiplier for X and Z axes.
+ * @param verticalScale - Multiplier for the Y axis.
+ * @param rotationDegrees - Y-axis rotation in degrees.
+ * @param cameraType - If "2d", the resulting Z coordinate is flattened to 0 (plus zOffset).
+ * @param zOffset - Final depth adjustment applied after all calculations.
+ * @returns A new transformed `Point`.
+ */
 export function transformedPoint(
     point: Point,
     offset: Point,
@@ -26,6 +41,12 @@ export function transformedPoint(
     ];
 }
 
+/**
+ * Rotates a point around the Y-axis (vertical axis).
+ * @param point - The point to rotate.
+ * @param rotationDegrees - The angle of rotation in degrees.
+ * @returns A new `Point` instance with updated X and Z coordinates.
+ */
 export function rotatePoint(point: Point, rotationDegrees: number) {
     const rotationRadians = degreesToRadians(rotationDegrees);
 
@@ -35,6 +56,11 @@ export function rotatePoint(point: Point, rotationDegrees: number) {
         (-point[0] * Math.sin(rotationRadians)) + (point[2] * Math.cos(rotationRadians)));
 }
 
+/**
+ * Calculates the bounding box and dimensions for a set of points.
+ * @param layout - An array of `Point`s to analyze.
+ * @returns An object containing the boundaries (left, right, top, bottom) and total dimensions.
+ */
 export function layoutRect(layout: Array<Point>) {
     let left = Number.MAX_SAFE_INTEGER;
     let right = Number.MIN_SAFE_INTEGER;

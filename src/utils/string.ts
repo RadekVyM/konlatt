@@ -1,3 +1,6 @@
+/**
+ * Generates a 32-bit unsigned integer hash from a string.
+ */
 export function hashString(str: string) {
     // https://stackoverflow.com/a/8831937
     let hash = 0;
@@ -15,15 +18,25 @@ export function hashString(str: string) {
     return hash >>> 0;
 }
 
+/**
+ * Generates a numeric random seed string of a specific length.
+ * @param length The number of digits in the seed.
+ */
 export function generateRandomSeed(length: number) {
     const random = Math.random();
     return Math.round(random * Math.pow(10, length)).toString().padStart(length, "0");
 }
 
+/**
+ * Checks if a string is null, undefined, or consists only of whitespace.
+ */
 export function isNullOrWhiteSpace(str: string | null | undefined) {
     return str === null || str === undefined || str.trim().length === 0;
 }
 
+/**
+ * Escapes backslashes and double quotes for inclusion in a JSON string.
+ */
 export function escapeJson(str: string) {
     return str
         .replace(/\\/g, "\\\\")
@@ -38,6 +51,9 @@ export function escapeJson(str: string) {
     */
 }
 
+/**
+ * Reverses JSON character escaping for backslashes and double quotes.
+ */
 export function unescapeJson(str: string) {
     return str
         .replace(/\\"/g, `"`)
@@ -52,6 +68,9 @@ export function unescapeJson(str: string) {
     */
 }
 
+/**
+ * Escapes special XML/HTML characters (&, <, >, ", ').
+ */
 export function escapeXml(str: string) {
     return str.replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
@@ -60,6 +79,9 @@ export function escapeXml(str: string) {
         .replace(/'/g, "&apos;");
 }
 
+/**
+ * Converts XML entities back to their literal characters.
+ */
 export function unescapeXml(str: string) {
     return str.replace(/&amp;/g, "&")
         .replace(/&lt;/g, "<")
@@ -68,6 +90,9 @@ export function unescapeXml(str: string) {
         .replace(/&apos;/g, "'");
 }
 
+/**
+ * Escapes characters that have special meaning in TikZ/LaTeX.
+ */
 export function escapeTikz(str: string) {
     return str
         .replace(/\\/g, "\\textbackslash{}")
@@ -83,14 +108,23 @@ export function escapeTikz(str: string) {
         .replace(/~/g, "\\textasciitilde{}");
 }
 
+/**
+ * Returns the filename or path without its final extension.
+ */
 export function withoutExtension(str: string) {
     const split = str.split(".");
 
     return split.length === 1 ?
         str :
-        split.slice(0, split.length - 1).join("");
+        split.slice(0, split.length - 1).join(".");
 }
 
+/**
+ * Reads a single line from a string starting at a specific index.
+ * @param content The full string content.
+ * @param start The index to start reading from.
+ * @returns An object containing the line text and the index of the next line (or -1 if EOF).
+ */
 export function readLine(content: string, start: number) {
     let end = start;
 

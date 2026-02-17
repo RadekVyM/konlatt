@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom";
 import useNewProjectStore from "../stores/useNewProjectStore";
 import { FILE_INPUT_ACCEPT } from "../constants/files";
 import FormatsButton from "./formats/FormatsButton";
-import { triggerInitialization } from "../services/triggers";
 import { withoutExtension } from "../utils/string";
 import DemoDatasetsButton from "./DemoDatasetsButton";
 import DemoDatasetsDialog from "./DemoDatasetsDialog";
@@ -18,6 +17,7 @@ import { ImportFormat } from "../types/ImportFormat";
 import CsvSeparatorSelect from "./CsvSeparatorSelect";
 import { CsvSeparator } from "../types/CsvSeparator";
 import InputLabel from "./inputs/InputLabel";
+import { triggerInitialization } from "../services/triggers";
 
 const DEFAULT_FILE_FORMAT: ImportFormat = "burmeister";
 const FILE_TYPES: Array<{ key: ImportFormat, label: string, idealExtension: string }> = [

@@ -1,12 +1,12 @@
 import { useRef } from "react";
 import useLazyListCount from "../../hooks/useLazyListCount";
-import CardSectionTitle from "../CardSectionTitle";
 import CardItemsLazyList from "../CardItemsLazyList";
 import { cn } from "../../utils/tailwind";
 import { ContextCompleteItem, ContextItem } from "./types";
 import BackButton from "../inputs/BackButton";
 import NothingFound from "../NothingFound";
-import CardSection from "../CardSection";
+import CardSection from "../layouts/CardSection";
+import CardSectionTitle from "../layouts/CardSectionTitle";
 
 export default function ItemCard(props: {
     className?: string,

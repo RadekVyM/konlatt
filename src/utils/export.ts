@@ -2,6 +2,10 @@ import { ConceptLatticeLayout } from "../types/ConceptLatticeLayout";
 import { createPoint, Point } from "../types/Point";
 import { transformedPoint } from "./layout";
 
+/**
+ * Applies spatial transformations to a layout for export.
+ * * Note: This uses a `"2d"` camera type for the final projection.
+ */
 export function transformedLayoutForExport(
     layout: ConceptLatticeLayout | null,
     diagramOffsets: Array<Point> | null,
@@ -23,6 +27,10 @@ export function transformedLayoutForExport(
         "2d"));
 }
 
+/**
+ * Triggers a browser download for a given `Blob` object.
+ * Creates a temporary anchor element and clicks it programmatically.
+ */
 export function downloadBlob(blob: Blob, fileName: string) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");

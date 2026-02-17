@@ -2,6 +2,19 @@ import { Font } from "../types/export/Font";
 import { LabelGroup } from "../types/export/LabelGroup";
 import { TextBackgroundType } from "../types/export/TextBackgroundType";
 
+/**
+ * Renders an array of label groups onto a 2D canvas context.
+ * * Note: The Y-coordinate is inverted during rendering.
+ * @param context - The canvas rendering context (standard or offscreen).
+ * @param labelGroups - Collection of labels grouped by layout index and relative rects.
+ * @param font - The font family to use for rendering.
+ * @param textBackgroundType - The style of background.
+ * @param textSize - Base font size in pixels.
+ * @param textColorHexa - Hex color for the primary text.
+ * @param textBackgroundColorHexa - Hex color for the box fill or the text outline.
+ * @param textOutlineColorHexa - Hex color for the box border (if background type is "box").
+ * @param position - A callback that maps a layout index to a [x, y] coordinate pair. 
+ */
 export function drawLabels(
     context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
     labelGroups: Array<LabelGroup>,
@@ -67,6 +80,10 @@ export function drawLabels(
     }
 }
 
+/**
+ * Calculates the stroke width for text outlines based on the current text size.
+ * @param textSize - The font size in pixels.
+ */
 export function labelOutlineWidth(textSize: number) {
     return textSize / 5;
 }

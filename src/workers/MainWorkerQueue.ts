@@ -1,13 +1,13 @@
 import useDataStructuresStore from "../stores/useDataStructuresStore";
-import { CancellationRequest, CompleteWorkerRequest, MainWorkerRequest } from "../types/workers/MainWorkerRequest";
+import { CancellationRequest, CompleteMainWorkerRequest, MainWorkerRequest } from "../types/workers/MainWorkerRequest";
 import { WorkerDataRequestResponse, MainWorkerResponse } from "../types/workers/MainWorkerResponse";
-import LatticeWorker from "../workers/latticeWorker?worker";
+import MainWorker from "../workers/MainWorker?worker";
 
 // Single worker is reused for all formal context calculations
 // This way the data can be kept in the worker to save some time due to fewer serialization
 // When a new file is loaded, new worker is created and the old one destroyed
 
-export default class LatticeWorkerQueue {
+export default class MainWorkerQueue {
     #worker: Worker | null = null;
     #lastId: number = 0;
     #queue: Array<Job> = [];
@@ -93,7 +93,7 @@ export default class LatticeWorkerQueue {
         this.#currentJob = null;
         this.#queue = [];
 
-        this.#worker = new LatticeWorker();
+        this.#worker = new MainWorker();
         this.#worker.addEventListener("message", (e) => this.#onResponse(e));
     }
 
@@ -114,7 +114,7 @@ export default class LatticeWorkerQueue {
         this.#currentJob = this.#queue.shift() || null;
         
         if (this.#currentJob) {
-            const request: CompleteWorkerRequest = {
+            const request: CompleteMainWorkerRequest = {
                 jobId: this.#currentJob.id,
                 time: new Date().getTime(),
                 ...this.#currentJob.request
@@ -180,7 +180,7 @@ type Job = {
 }
 
 function createRequestWithData(response: WorkerDataRequestResponse) {
-    const newRequest: CompleteWorkerRequest = response.request;
+    const newRequest: CompleteMainWorkerRequest = response.request;
 
     for (const requestedObject of response.requestedObjects) {
         switch (requestedObject) {

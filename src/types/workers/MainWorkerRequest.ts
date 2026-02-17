@@ -7,7 +7,7 @@ import { ImportFormat } from "../ImportFormat";
 
 export type MainWorkerRequest = CancellationRequest | ContextParsingRequest | ConceptComputationRequest | LatticeComputationRequest | LayoutComputationRequest
 
-export type CompleteWorkerRequest = {
+export type CompleteMainWorkerRequest = {
     jobId: number,
     time: number,
 } & MainWorkerRequest
