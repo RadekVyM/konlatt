@@ -5,18 +5,14 @@ on:
 env:
   CI: ""
 
-defaults:
-  run:
-    shell: pwsh
-
 jobs:
   upload:
     runs-on: ubuntu-latest
 
     permissions:
-      # Give the default GITHUB_TOKEN write permission to commit and push the
-      # added or changed files to the repository.
       contents: write
+      pages: write     # Required to deploy to Pages
+      id-token: write  # Required to verify the deployment source
 
     steps:
       - name: Checkout the main branch
