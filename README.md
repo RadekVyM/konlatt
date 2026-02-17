@@ -28,6 +28,9 @@ Konlatt bridges the gap between complex Formal Concept Analysis (FCA) and user-f
 
 </div>
 
+> [!NOTE] 
+> This application is being developed as part of my master's thesis at [Palacký University Olomouc](https://www.inf.upol.cz/), supervised by [RNDr. Martin Trnečka, Ph.D.](http://trnecka.inf.upol.cz/)
+
 ## Key Features
 
 Import formal contexts from various formats and visualize them instantly:
