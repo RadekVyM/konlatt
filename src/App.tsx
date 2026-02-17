@@ -15,7 +15,7 @@ const router = createBrowserRouter([
     {
         path: "/",
         element: <RootLayout />,
-        errorElement: <ErrorPage />,
+        errorElement: <ErrorPage withoutNewProjectButton />,
         children: [
             {
                 path: "/",
@@ -45,7 +45,7 @@ const router = createBrowserRouter([
             },
         ]
     }
-]);
+], { basename: "/konlatt" });
 
 export default function App() {
     return (

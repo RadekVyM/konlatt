@@ -2,7 +2,9 @@ import Button from "../inputs/Button";
 import NewProjectButton from "../layouts/NewProjectButton";
 import { LuRefreshCw } from "react-icons/lu";
 
-export default function ErrorPage() {
+export default function ErrorPage(props: {
+    withoutNewProjectButton?: boolean,
+}) {
     // const error = useRouteError();
 
     return (
@@ -30,7 +32,8 @@ export default function ErrorPage() {
                         <LuRefreshCw />
                         Reload
                     </Button>
-                    <NewProjectButton />
+                    {!props.withoutNewProjectButton &&
+                        <NewProjectButton />}
                 </div>
             </div>
         </div>
