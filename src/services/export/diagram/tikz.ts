@@ -85,7 +85,7 @@ function pushStartPictureWithOptions(
     lines.push(`${INDENTATION}},`);
     lines.push(`${INDENTATION}objectLabel/.style={`);
     lines.push(`${INDENTATION}${INDENTATION}below,`);
-    lines.push(`${INDENTATION}${INDENTATION}yshift=-1pt,`);
+    lines.push(`${INDENTATION}${INDENTATION}yshift=\\dimexpr -1pt \\relax,`);
     lines.push(`${INDENTATION}${INDENTATION}align=center,`);
     lines.push(`${INDENTATION}${INDENTATION}font=\\tiny,`);
     lines.push(`${INDENTATION}${INDENTATION}fill=white,`);
@@ -94,7 +94,7 @@ function pushStartPictureWithOptions(
     lines.push(`${INDENTATION}},`);
     lines.push(`${INDENTATION}attributeLabel/.style={`);
     lines.push(`${INDENTATION}${INDENTATION}above,`);
-    lines.push(`${INDENTATION}${INDENTATION}yshift=1pt,`);
+    lines.push(`${INDENTATION}${INDENTATION}yshift=\\dimexpr 1pt \\relax,`);
     lines.push(`${INDENTATION}${INDENTATION}align=center,`);
     lines.push(`${INDENTATION}${INDENTATION}font=\\tiny,`);
     lines.push(`${INDENTATION}${INDENTATION}fill=white,`);
