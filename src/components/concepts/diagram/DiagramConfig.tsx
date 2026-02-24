@@ -217,7 +217,8 @@ function PerformanceSection() {
 
     return (
         <ConfigSection
-            heading="Performance">
+            heading="Performance"
+            className="mb-0">
             <ToggleSwitch
                 checked={antialiasEnabled}
                 onChange={(e) => setAntialiasEnabled(e.currentTarget.checked)}>

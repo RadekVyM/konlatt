@@ -150,6 +150,10 @@ body {
   @apply min-h-13;
 }
 
+.site-header-layout.initial-page {
+  grid-template-columns: auto auto 1fr;
+}
+
 .checkered {
   --checkered-color: var(--surface);
 
@@ -182,7 +186,7 @@ body {
     min-height: env(titlebar-area-height, 33px);
   }
 
-  .site-header-layout {
+  .site-header-layout, .site-header-layout.initial-page {
     margin-left: env(titlebar-area-x, 0);
     margin-top: env(titlebar-area-y, 0);
     width: env(titlebar-area-width, 100%);

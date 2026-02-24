@@ -30,6 +30,30 @@ export const buttonVariants = cva(
                     "btn-container btn-icon px-0",
                 "icon-plain":
                     "",
+                "dynamic-xs-default":
+                    "btn-default btn-dynamic-xs max-[30rem]:px-0",
+                "dynamic-xs-destructive":
+                    "btn-destructive btn-dynamic-xs max-[30rem]:px-0",
+                "dynamic-xs-primary":
+                    "btn-primary btn-dynamic-xs max-[30rem]:px-0",
+                "dynamic-xs-secondary":
+                    "btn-secondary btn-dynamic-xs max-[30rem]:px-0",
+                "dynamic-xs-container":
+                    "btn-container btn-dynamic-xs max-[30rem]:px-0",
+                "dynamic-xs-plain":
+                    "",
+                "dynamic-sm-default":
+                    "btn-default btn-dynamic-sm max-sm:px-0",
+                "dynamic-sm-destructive":
+                    "btn-destructive btn-dynamic-sm max-sm:px-0",
+                "dynamic-sm-primary":
+                    "btn-primary btn-dynamic-sm max-sm:px-0",
+                "dynamic-sm-secondary":
+                    "btn-secondary btn-dynamic-sm max-sm:px-0",
+                "dynamic-sm-container":
+                    "btn-container btn-dynamic-sm max-sm:px-0",
+                "dynamic-sm-plain":
+                    "",
             },
             size: {
                 none: "",
@@ -58,6 +82,36 @@ export const buttonVariants = cva(
                 variant: ["icon-container", "icon-default", "icon-destructive", "icon-primary", "icon-secondary", "icon-plain"],
                 size: "lg",
                 className: "min-w-10",
+            },
+            {
+                variant: ["dynamic-xs-container", "dynamic-xs-default", "dynamic-xs-destructive", "dynamic-xs-primary", "dynamic-xs-secondary", "dynamic-xs-plain"],
+                size: "default",
+                className: "max-[30rem]:min-w-8",
+            },
+            {
+                variant: ["dynamic-xs-container", "dynamic-xs-default", "dynamic-xs-destructive", "dynamic-xs-primary", "dynamic-xs-secondary", "dynamic-xs-plain"],
+                size: "sm",
+                className: "max-[30rem]:min-w-7",
+            },
+            {
+                variant: ["dynamic-xs-container", "dynamic-xs-default", "dynamic-xs-destructive", "dynamic-xs-primary", "dynamic-xs-secondary", "dynamic-xs-plain"],
+                size: "lg",
+                className: "max-[30rem]:min-w-10",
+            },
+            {
+                variant: ["dynamic-sm-container", "dynamic-sm-default", "dynamic-sm-destructive", "dynamic-sm-primary", "dynamic-sm-secondary", "dynamic-sm-plain"],
+                size: "default",
+                className: "max-sm:min-w-8",
+            },
+            {
+                variant: ["dynamic-sm-container", "dynamic-sm-default", "dynamic-sm-destructive", "dynamic-sm-primary", "dynamic-sm-secondary", "dynamic-sm-plain"],
+                size: "sm",
+                className: "max-sm:min-w-7",
+            },
+            {
+                variant: ["dynamic-sm-container", "dynamic-sm-default", "dynamic-sm-destructive", "dynamic-sm-primary", "dynamic-sm-secondary", "dynamic-sm-plain"],
+                size: "lg",
+                className: "max-sm:min-w-10",
             },
         ],
         defaultVariants: {

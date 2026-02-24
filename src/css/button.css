@@ -10,6 +10,14 @@
     @apply grid place-content-center aspect-square;
   }
 
+  .btn-dynamic-xs {
+    @apply max-[30rem]:grid max-[30rem]:place-content-center max-[30rem]:aspect-square max-[30rem]:[&>*:not(:first-child)]:hidden;
+  }
+
+  .btn-dynamic-sm {
+    @apply max-sm:grid max-sm:place-content-center max-sm:aspect-square max-sm:[&>*:not(:first-child)]:hidden;
+  }
+
   .btn-default {
     @apply bg-transparent text-on-surface hover:bg-surface-dim hover:text-on-surface-dim border border-transparent;
   }

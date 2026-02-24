@@ -110,7 +110,7 @@ export default function NewProjectDialog(props: {
                                     }} />
                                 <FormatsButton
                                     className="w-full justify-center"
-                                    withText />
+                                    variant="container" />
                             </div>
                         </> :
                         <>

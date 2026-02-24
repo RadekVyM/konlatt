@@ -47,7 +47,7 @@ function Header() {
     return (
         <>
             <header
-                className="grid items-center gap-2 px-3 site-header-layout draggable-region">
+                className={cn("grid items-center gap-2 px-3 site-header-layout draggable-region", isRootPage && "initial-page")}>
                 {rect.x === 0 &&
                     <h1
                         className="with-logo flex gap-2.5 items-center font-semibold text-xl ml-0.5">
@@ -66,9 +66,10 @@ function Header() {
                             <AboutButton />
                         </div>
                         <DemoDatasetsButton
-                            onClick={datasetsDialogState.show} />
+                            onClick={datasetsDialogState.show}
+                            variant="dynamic-sm-container" />
                         <FormatsButton
-                            withText />
+                            variant="dynamic-sm-container" />
                     </div> :
                     <NewProjectButton />
                 )}
@@ -83,9 +84,10 @@ function Header() {
                         <AboutButton />
                     </div>
                     <DemoDatasetsButton
-                        onClick={datasetsDialogState.show} />
+                        onClick={datasetsDialogState.show}
+                        variant="dynamic-sm-container" />
                     <FormatsButton
-                        withText />
+                        variant="dynamic-sm-container" />
                 </div>}
             
             {isRootPage &&

@@ -302,7 +302,7 @@ function DialogContent() {
                     scrolledToExportedObjectId={scrolledToExportedObjectId} />
             </div>
             <div
-                className="col-start-1 col-end-2 row-start-1 overflow-x-clip">
+                className="col-start-1 col-end-2 row-start-1 overflow-x-clip -mx-1 px-1">
                 {EXPORTED_OBJECTS.map((exportedObject) =>
                     <ExportedObjectSection
                         key={exportedObject.id}
@@ -375,12 +375,12 @@ function ExportedObjectSection(props: {
 
             {props.exportedObject.description &&
                 <p
-                    className="mb-4">
+                    className="mb-3">
                     {props.exportedObject.description}
                 </p>}
 
             <HorizontalScroller
-                className="mb-3">
+                className="mb-3 mt-1">
                 {props.exportedObject.formats.map((format) =>
                     <Button
                         key={format.id}
@@ -421,7 +421,7 @@ function Title(props: {
     return (
         <HeaderElem
             id={props.id}
-            className={cn("pb-2 font-semibold text-lg", props.className)}>
+            className={cn("pb-1 font-semibold text-lg", props.className)}>
             {props.children}
         </HeaderElem>
     );

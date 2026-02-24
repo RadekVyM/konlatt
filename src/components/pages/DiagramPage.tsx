@@ -199,8 +199,11 @@ function Config(props: {
         <Container
             ref={containerRef}
             as="section"
-            className={cn("pt-3 flex flex-col overflow-hidden", props.className)}>
-            <DiagramConfig />
+            className={cn("overflow-clip relative", props.className)}>
+            <div
+                className="flex flex-col overflow-hidden pt-3 max-h-full absolute inset-0">
+                <DiagramConfig />
+            </div>
         </Container>
     );
 }

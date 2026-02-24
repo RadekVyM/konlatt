@@ -6,6 +6,7 @@ import useHasWindowControlsOverlay from "../../hooks/useHasWindowControlsOverlay
 import NewProjectButton from "./NewProjectButton";
 import ThemeSwitcherButton from "../ThemeSwitcherButton";
 import AboutButton from "../AboutButton";
+import useIsMaxXs from "../../hooks/useIsMaxXs";
 
 type NavLink = {
     to: string,
@@ -38,18 +39,19 @@ export default function MainLayout() {
         <div
             className="flex flex-col h-full max-h-full max-w-full">
             <div
-                className="flex justify-between items-center mb-2.5 px-3">
+                className="flex justify-between items-center mb-2.5 px-3 w-full gap-2">
                 <Navigation />
 
                 <div
-                    className="flex gap-2">
+                    className="flex gap-2 justify-self-end">
                     <div
                         className="flex gap-1.5">
                         <ThemeSwitcherButton />
                         <AboutButton />
                     </div>
                     {hasWindowsControlOverlay &&
-                        <NewProjectButton />}
+                        <NewProjectButton
+                            variant="dynamic-sm-container" />}
                 </div>
             </div>
             <Outlet />
@@ -73,20 +75,23 @@ function NavigationItem(props: {
     link: NavLink
 }) {
     const location = useLocation();
+    const isMaxXs = useIsMaxXs();
     const isSelected = location.pathname.startsWith(props.link.to);
+    const showTitle = !isSelected && isMaxXs;
 
     return (
         <Button
-            className="py-1.5 pl-1.5 pr-2.5 gap-2 rounded-lg group"
+            className="py-1.5 pl-1.5 pr-2.5 gap-2 max-[30rem]:min-w-9.5 rounded-lg group"
             to={props.link.to}
-            variant={isSelected ? "container" : "default"}>
+            variant={isSelected ? "container" : "dynamic-xs-default"}
+            title={showTitle ? props.link.title : undefined}>
             <div
                 className={cn(
                     "p-1 transition-colors rounded-md",
                     isSelected && "bg-primary border-primary text-on-primary")}>
                 {props.link.icon}
             </div>
-            {props.link.title}
+            <span>{props.link.title}</span>
         </Button>
     );
 }

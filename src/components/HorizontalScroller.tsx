@@ -8,6 +8,10 @@ export default function HorizontalScroller(props: {
     children?: React.ReactNode,
     className?: string,
     scrollerClassName?: string,
+    leftButtonClassName?: string,
+    rightButtonClassName?: string,
+    buttonBackgroundClassName?: string,
+    buttonSize?: "default" | "none" | "sm" | "lg" | null | undefined,
     as?: "div" | "section" | "nav"
 }) {
     const Element = props.as || "div";
@@ -22,7 +26,7 @@ export default function HorizontalScroller(props: {
         }
 
         const maxScrollLeft = scrollViewRef.current.scrollWidth - scrollViewRef.current.clientWidth;
-        const tolerance = 0.8;
+        const tolerance = 1;
 
         setIsLeftVisible(Math.abs(scrollViewRef.current.scrollLeft) > tolerance);
         setIsRightVisible(Math.abs(scrollViewRef.current.scrollLeft - maxScrollLeft) > tolerance);
@@ -60,14 +64,16 @@ export default function HorizontalScroller(props: {
             {isLeftVisible &&
                 <>
                     <div
-                        className="absolute -my-1 -ml-1 left-0 top-0 bottom-0 w-8 bg-linear-to-r from-surface-container via-surface-container to-transparent">
+                        className={cn(
+                            "absolute -my-1 -ml-1 left-0 top-0 bottom-0 w-8 bg-linear-to-r from-surface-container via-surface-container to-transparent",
+                            props.buttonBackgroundClassName)}>
                     </div>
 
                     {!isMobile &&
                         <Button
                             variant="icon-container"
-                            size="sm"
-                            className="absolute left-0 top-0"
+                            size={props.buttonSize || "sm"}
+                            className={cn("absolute left-0 top-1/2 -translate-y-1/2", props.leftButtonClassName)}
                             onClick={() => scrollViewRef.current?.scrollBy({ left: (scrollViewRef.current?.clientWidth || 0) / -2, behavior: "smooth" })}>
                             <LuChevronLeft
                                 className="w-3 h-3" />
@@ -77,14 +83,16 @@ export default function HorizontalScroller(props: {
             {isRightVisible &&
                 <>
                     <div
-                        className="absolute -my-1 -mr-1 right-0 top-0 bottom-0 w-8 bg-linear-to-l from-surface-container via-surface-container to-transparent">
+                        className={cn(
+                            "absolute -my-1 -mr-1 right-0 top-0 bottom-0 w-8 bg-linear-to-l from-surface-container via-surface-container to-transparent",
+                            props.buttonBackgroundClassName)}>
                     </div>
 
                     {!isMobile &&
                         <Button
                             variant="icon-container"
-                            size="sm"
-                            className="absolute right-0 top-0"
+                            size={props.buttonSize || "sm"}
+                            className={cn("absolute right-0 top-1/2 -translate-y-1/2", props.rightButtonClassName)}
                             onClick={() => scrollViewRef.current?.scrollBy({ left: (scrollViewRef.current?.clientWidth || 0) / 2, behavior: "smooth" })}>
                             <LuChevronRight
                                 className="w-3 h-3" />

@@ -2,24 +2,28 @@ import { LuInfo } from "react-icons/lu";
 import useDialog from "../../hooks/useDialog";
 import Button from "../inputs/Button";
 import FormatsDialog from "./FormatsDialog";
+import useIsMaxSm from "../../hooks/useIsMaxSm";
 
 export default function FormatsButton(props: {
     className?: string,
-    withText?: boolean,
+    variant?: "container" | "icon-container" | "dynamic-sm-container",
     disabled?: boolean,
 }) {
+    const variant = props.variant || "icon-container";
+    const withText = variant !== "icon-container";
+    const isMaxSm = useIsMaxSm();
     const dialogState = useDialog();
 
     return (
         <>
             <Button
                 className={props.className}
-                title={!props.withText ? "Supported formats" : undefined}
-                variant={props.withText ? "container" : "icon-container"}
+                title={isMaxSm || !withText ? "Supported formats" : undefined}
+                variant={variant}
                 onClick={dialogState.show}
                 disabled={props.disabled}>
                 <LuInfo />
-                {props.withText &&
+                {withText &&
                     <span className="text-sm leading-4">Supported formats</span>}
             </Button>
 
