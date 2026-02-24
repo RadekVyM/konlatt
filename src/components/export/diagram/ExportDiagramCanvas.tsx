@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useContext, useEffect, useRef } from "react";
 import { cn } from "../../../utils/tailwind";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
-import { TransformWrapper, TransformComponent, useControls, useTransformComponent } from "react-zoom-pan-pinch";
 import ZoomBar from "../../ZoomBar";
 import Button from "../../inputs/Button";
 import { LuFocus } from "react-icons/lu";
@@ -10,6 +9,8 @@ import { hsvaToHexa } from "../../../utils/colors";
 import useDebouncedValue from "../../../hooks/useDebouncedValue";
 import { CanvasDimensions } from "../../../types/export/CanvasDimensions";
 import { drawLabels } from "../../../utils/drawing";
+import { ExportDiagramZoomContext, ExportDiagramZoomContextProvider } from "../../../contexts/ExportDiagramZoomContext";
+import PanZoomContainer from "./PanZoomContainer";
 
 const DEBOUNCE_DELAY = 200;
 
@@ -33,17 +34,10 @@ export default function ExportDiagramCanvas(props: {
     useDrawing(canvasRef, canvasDimensions, debouncedCanvasDimensions);
 
     return (
-        <TransformWrapper
-            centerOnInit
-            disablePadding
-            minScale={0.05}>
-            <TransformComponent
-                wrapperClass={cn("export-diagram-canvas-wrapper checkered", props.className)}
-                wrapperStyle={{
-                    width: "100%",
-                    height: "100%",
-                }}
-                contentClass="border border-dashed border-outline border-2">
+        <ExportDiagramZoomContextProvider>
+            <PanZoomContainer
+                className={cn("export-diagram-canvas-wrapper checkered", props.className)}
+                contentWrapperClassName="border border-dashed border-outline border-2">
                 <canvas
                     ref={canvasRef}
                     id={props.id}
@@ -53,7 +47,7 @@ export default function ExportDiagramCanvas(props: {
                     role="img"
                     width={debouncedCanvasDimensions?.width}
                     height={debouncedCanvasDimensions?.height} />
-            </TransformComponent>
+            </PanZoomContainer>
 
             <Controls
                 className="absolute bottom-0 right-0" />
@@ -61,28 +55,27 @@ export default function ExportDiagramCanvas(props: {
             <Centering
                 canvasRef={canvasRef}
                 canvasDimensions={debouncedCanvasDimensions} />
-        </TransformWrapper>
+        </ExportDiagramZoomContextProvider>
     );
 }
 
 function Controls(props: {
     className?: string,
 }) {
-    const scale = useTransformComponent(({ state }) => state.scale);
-    const { zoomIn, zoomOut, centerView } = useControls();
+    const { actions: zoomActions, scale } = useContext(ExportDiagramZoomContext);
 
     return (
         <div
             className={cn("m-3 flex gap-2", props.className)}>
-            <ZoomBar
-                onIncreaseClick={() => zoomIn()}
-                onDecreaseClick={() => zoomOut()}
+           <ZoomBar
+                onIncreaseClick={() => zoomActions.current?.zoomIn()}
+                onDecreaseClick={() => zoomActions.current?.zoomOut()}
                 currentZoomLevel={scale} />
 
             <Button
                 title="Zoom to center"
                 variant="icon-secondary"
-                onClick={() => centerView(1)}>
+                onClick={() => zoomActions.current?.centerView(1)}>
                 <LuFocus />
             </Button>
         </div>
@@ -94,11 +87,10 @@ function Centering(props: {
     canvasRef: React.RefObject<HTMLCanvasElement | null>,
 }) {
     const format = useExportDiagramStore((state) => state.selectedFormat);
-    const scale = useTransformComponent(({ state }) => state.scale);
-    const { centerView } = useControls();
+    const { actions: zoomActions, scale } = useContext(ExportDiagramZoomContext);
 
     useEffect(() => {
-        setTimeout(() => centerView(scale), 100);
+        setTimeout(() => zoomActions.current?.centerView(scale), 100);
     }, [format, props.canvasDimensions?.width, props.canvasDimensions?.height]);
 
     return undefined;

@@ -26,8 +26,10 @@ export default function Labels() {
 
 function LabelInternal(props: Omit<ConceptLabel, "key">) {
     const hoveredConceptIndex = useExplorerStore((state) => state.hoveredConceptIndex);
+    const selectedConceptIndex = useExplorerStore((state) => state.selectedConceptIndex);
 
     const isHovered = hoveredConceptIndex === props.conceptIndex;
+    const isSelected = selectedConceptIndex === props.conceptIndex;
 
     const offset = 0.15;
     const textPosition: [number, number, number] = [0, props.placement === "top" ? offset : -offset, 0];
@@ -43,6 +45,7 @@ function LabelInternal(props: Omit<ConceptLabel, "key">) {
             depthTest={!isHovered}
             id={props.id}
             renderOrder={renderOrder}
+            usePrimaryColor={isSelected}
             visible={true}
             scale={1} />
     );

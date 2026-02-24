@@ -49,9 +49,9 @@ export default function Links() {
     const invalidate = useThree((state) => state.invalidate);
 
     // Logic to determine if any links should be visually "highlighted" vs "dimmed"
-    const isSublatticeHighlighted = !sublatticeConceptIndexes || sublatticeConceptIndexes.size === 0;
+    const isSublatticeHighlighted = !!sublatticeConceptIndexes && sublatticeConceptIndexes.size !== 0;
     const noFilteredConcepts = !filteredConceptIndexes || filteredConceptIndexes.size === 0 || filteredConceptIndexes.size === subconceptsMapping?.length;
-    const noHighlightedLinks = (displayHighlightedSublatticeOnly || isSublatticeHighlighted) && noFilteredConcepts &&
+    const noHighlightedLinks = (displayHighlightedSublatticeOnly || !isSublatticeHighlighted) && noFilteredConcepts &&
         (!hoveredLinksHighlightingEnabled || hoveredConceptIndex === null) &&
         (!selectedLinksHighlightingEnabled || selectedConceptIndex === null);
 
@@ -82,7 +82,7 @@ export default function Links() {
         previousHoveredConceptIndexRef.current = hoveredConceptIndex;
 
         // Nothing could be changed before the initial render
-        if (initialRender) {
+        if (initialRender && selectedConceptIndex === null) {
             return prepLinks;
         }
 

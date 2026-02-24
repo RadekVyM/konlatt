@@ -55,6 +55,7 @@ function Label(props: Omit<ConceptLabel, "key">) {
             id={props.id}
             renderOrder={renderOrder}
             scale={isSelected ? 1.05 : 1}
+            usePrimaryColor={isSelected}
             visible={isVisible} />
     );
 }

@@ -20,6 +20,10 @@
         @apply bg-primary;
     }
 
+    .x.dim::before {
+        @apply bg-on-surface-container-muted;
+    }
+
     .td {
         @apply text-center cursor-default hover:bg-surface-dim-container rounded-md grid place-content-center text-transparent;
     }
@@ -60,6 +64,10 @@
 
     .rhead.selected, .chead.selected {
         @apply text-primary bg-primary-lite;
+    }
+
+    .rhead.dim, .chead.dim {
+        @apply text-on-surface-container-muted;
     }
 
     .rhead.hovered.selected::before, .chead.hovered.selected::before {

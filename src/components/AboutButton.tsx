@@ -135,9 +135,6 @@ function Description() {
                 <li>
                     <Link href="https://drei.docs.pmnd.rs/">Drei</Link>
                 </li>
-                <li>
-                    <Link href="https://bettertyped.github.io/react-zoom-pan-pinch">React Zoom Pan Pinch</Link>
-                </li>
             </List>
 
             <h4 className="mb-2 font-bold">Styling & UI</h4>

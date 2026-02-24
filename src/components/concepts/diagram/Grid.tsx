@@ -12,6 +12,7 @@ type AxisLine = [Point, Point]
 
 const OPACITY = 0.5;
 const LINE_WIDTH = 2;
+const AXIS_LINE_WIDTH = LINE_WIDTH * 1.2;
 
 export default function Grid() {
     const gridRef = useRef<Mesh>(null);
@@ -30,7 +31,9 @@ export default function Grid() {
 
     const invalidate = useThree((state) => state.invalidate);
 
-    const isGridVisible = editingEnabled && gridWhileEditingEnabled && (cameraType === "2d" || !!(isDraggingNodesInXYPlane || isDraggingNodesInXZPlane || isDraggingNodesInYZPlane));
+    const isGridVisible = editingEnabled &&
+        gridWhileEditingEnabled &&
+        (cameraType === "2d" || !!(isDraggingNodesInXYPlane || isDraggingNodesInXZPlane || isDraggingNodesInYZPlane));
 
     const color = themedColor(PRIMARY_COLOR_LIGHT, PRIMARY_COLOR_DARK, currentTheme);
 
@@ -110,25 +113,31 @@ export default function Grid() {
                     points={xAxis}
                     color={color}
                     opacity={OPACITY}
-                    lineWidth={LINE_WIDTH}
+                    lineWidth={AXIS_LINE_WIDTH}
                     transparent
-                    segments />}
+                    segments
+                    depthTest={false}
+                    renderOrder={10} />}
             {isDraggingNodesSnappedToYAxis && yAxis &&
                 <Line
                     points={yAxis}
                     color={color}
                     opacity={OPACITY}
-                    lineWidth={LINE_WIDTH}
+                    lineWidth={AXIS_LINE_WIDTH}
                     transparent
-                    segments />}
+                    segments
+                    depthTest={false}
+                    renderOrder={10} />}
             {isDraggingNodesSnappedToZAxis && zAxis &&
                 <Line
                     points={zAxis}
                     color={color}
                     opacity={OPACITY}
-                    lineWidth={LINE_WIDTH}
+                    lineWidth={AXIS_LINE_WIDTH}
                     transparent
-                    segments />}
+                    segments
+                    depthTest={false}
+                    renderOrder={10} />}
         </>
     );
 }

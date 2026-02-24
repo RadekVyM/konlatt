@@ -28,6 +28,8 @@ export default function ContextTable(props: {
     const tableDimensions = useDimensions(tableRef);
     const selectedObject = useContextStore((state) => state.selectedObject);
     const selectedAttribute = useContextStore((state) => state.selectedAttribute);
+    const filteredObjects = useContextStore((state) => state.filteredObjects);
+    const filteredAttributes = useContextStore((state) => state.filteredAttributes);
     const setSelection = useContextStore((state) => state.setSelection);
     const [containerScroll, setContainerScroll] = useState<[number, number]>([0, 0]);
     const [hoveredColumn, setHoveredColumn] = useState<number | null>(null);
@@ -78,8 +80,6 @@ export default function ContextTable(props: {
         }
     }
 
-    // TODO: I have no idea why the column headers are not displayed sideways in Safari 🙃
-
     // As little elements as possible is used to make it a bit more performant
 
     return (
@@ -123,7 +123,9 @@ export default function ContextTable(props: {
                     <TableCell
                         key={`${cell.column} ${cell.row}`}
                         cell={cell}
-                        selected={cell.row === selectedObject || cell.column === selectedAttribute}
+                        isSelected={cell.row === selectedObject || cell.column === selectedAttribute}
+                        isDim={(filteredObjects !== null && !filteredObjects.has(cell.row)) ||
+                            (filteredAttributes !== null && !filteredAttributes.has(cell.column))}
                         onHoverChange={onHoverChange}
                         onClick={onCellClick} />)}
 
@@ -142,6 +144,8 @@ export default function ContextTable(props: {
                         className={cn(
                             "rhead",
                             header.cell === selectedObject && "selected rounded-l-md",
+                            filteredObjects !== null && !filteredObjects.has(header.cell) && header.cell !== selectedObject &&
+                                "dim",
                             header.cell === hoveredRow && "hovered")}
                         style={{
                             gridRowStart: header.cell + 2
@@ -174,7 +178,9 @@ export default function ContextTable(props: {
                             "chead",
                             columnHeadersSideways && "sideways",
                             header.cell === hoveredColumn && "hovered",
-                            header.cell === selectedAttribute && "selected rounded-t-md")}
+                            header.cell === selectedAttribute && "selected rounded-t-md",
+                            filteredAttributes !== null && !filteredAttributes.has(header.cell) && header.cell !== selectedAttribute &&
+                                "dim")}
                         style={{
                             gridColumnStart: header.cell + 2
                         }}
@@ -193,7 +199,8 @@ export default function ContextTable(props: {
 
 function TableCell(props: {
     cell: ContextTableCell,
-    selected: boolean,
+    isSelected: boolean,
+    isDim: boolean,
     onHoverChange: (cell: ContextTableCell | null) => void,
     onClick: (cell: ContextTableCell) => void,
 }) {
@@ -216,7 +223,11 @@ function TableCell(props: {
             aria-colindex={props.cell.column + 1}
             aria-rowindex={props.cell.row + 1}
             aria-checked={props.cell.checked}
-            className={cn("td", props.cell.checked && "x", props.selected && "selected")}
+            className={cn(
+                "td",
+                props.cell.checked && "x",
+                props.isSelected && "selected",
+                props.isDim && !props.isSelected && "dim")}
             style={{
                 gridRowStart: props.cell.row + 2,
                 gridColumnStart: props.cell.column + 2

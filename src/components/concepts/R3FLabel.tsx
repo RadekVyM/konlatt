@@ -1,6 +1,6 @@
 import { Billboard, Text } from "@react-three/drei";
 import { themedColor } from "./diagram/utils";
-import { LABEL_COLOR_DARK, LABEL_COLOR_LIGHT } from "../../constants/canvas-drawing";
+import { LABEL_COLOR_DARK, LABEL_COLOR_LIGHT, PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT } from "../../constants/canvas-drawing";
 import { Point } from "../../types/Point";
 import useGlobalsStore from "../../stores/useGlobalsStore";
 
@@ -13,9 +13,13 @@ export default function R3FLabel(props: {
     text: string,
     anchorY: "top" | "bottom",
     visible: boolean,
-    scale: number
+    scale: number,
+    usePrimaryColor?: boolean,
 }) {
     const currentTheme = useGlobalsStore((state) => state.currentTheme);
+    const color = props.usePrimaryColor ?
+        themedColor(PRIMARY_COLOR_LIGHT, PRIMARY_COLOR_DARK, currentTheme) :
+        themedColor(LABEL_COLOR_LIGHT, LABEL_COLOR_DARK, currentTheme);
 
     return (
         <Billboard
@@ -23,8 +27,8 @@ export default function R3FLabel(props: {
             visible={props.visible}
             scale={props.scale}>
             <Text
-                key={`${props.id}-${currentTheme}`}
-                color={themedColor(LABEL_COLOR_LIGHT, LABEL_COLOR_DARK, currentTheme)}
+                key={`${props.id}-${currentTheme}-${props.usePrimaryColor || false}`}
+                color={color}
                 anchorX="center"
                 anchorY={props.anchorY}
                 position={props.textPosition}

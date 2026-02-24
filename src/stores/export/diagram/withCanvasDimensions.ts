@@ -54,7 +54,7 @@ export default function withCanvasDimensions(
                 width / diagramWidth : 
                 Math.min(width / diagramWidth, height / diagramHeight);
     const centerX = -rect.left * scale + nodeRadius + minPaddingLeft + labelPadding.left;
-    const centerY = rect.top * scale + nodeRadius + minPaddingBottom + labelPadding.bottom;
+    const centerY = rect.top * scale + nodeRadius + minPaddingTop + labelPadding.top;
 
     const finalWidth = Math.min(width + horizontalPadding, maxWidth);
     const finalHeight = Math.min(height + verticalPadding, maxHeight);
@@ -63,7 +63,7 @@ export default function withCanvasDimensions(
         width: finalWidth,
         height: finalHeight,
         centerX,
-        centerY: finalHeight - centerY,
+        centerY,
         scale,
     };
 

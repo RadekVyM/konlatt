@@ -32,7 +32,7 @@ export default defineConfig({
         theme_color: "#f8fafc",
         icons: [
           {
-            src: "/images/logo_light.svg",
+            src: "/konlatt/images/logo_light.svg",
             sizes: "any",
             type: "image/svg+xml",
           },

@@ -1,6 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useContext, useEffect, useRef } from "react";
 import useExportDiagramStore from "../../../stores/export/diagram/useExportDiagramStore";
-import { TransformComponent, TransformWrapper, useControls, useTransformComponent } from "react-zoom-pan-pinch";
 import { cn } from "../../../utils/tailwind";
 import ZoomBar from "../../ZoomBar";
 import Button from "../../inputs/Button";
@@ -9,6 +8,8 @@ import { AppearanceRequest, DimensionsRequest, InitCanvasRequest, InitLayoutRequ
 import { hsvaToHexa } from "../../../utils/colors";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import useDimensionsListener from "../../../hooks/useDimensionsListener";
+import PanZoomContainer from "./PanZoomContainer";
+import { ExportDiagramZoomContext, ExportDiagramZoomContextProvider } from "../../../contexts/ExportDiagramZoomContext";
 
 const DEBOUNCE_DELAY = 200;
 
@@ -47,17 +48,12 @@ export default function ExportDiagramOffscreenCanvas(props: {
     useLabelGroups();
 
     return (
-        <TransformWrapper
-            centerOnInit
-            disablePadding
-            minScale={0.05}>
-            <TransformComponent
-                wrapperClass={cn("export-diagram-canvas-wrapper checkered", props.className)}
-                wrapperStyle={{
-                    width: "100%",
-                    height: "100%",
-                }}
-                contentClass={cn("border border-dashed border-outline border-2", !isInitialPreviewCanvasDrawDone && "invisible")}>
+        <ExportDiagramZoomContextProvider>
+            <PanZoomContainer
+                className={cn("export-diagram-canvas-wrapper checkered", props.className)}
+                contentWrapperClassName={cn(
+                    "border border-dashed border-outline border-2",
+                    !isInitialPreviewCanvasDrawDone && "invisible")}>
                 <canvas
                     ref={canvasRef}
                     id={props.id}
@@ -65,35 +61,34 @@ export default function ExportDiagramOffscreenCanvas(props: {
                         // imageRendering: "pixelated",
                     }}
                     role="img" />
-            </TransformComponent>
+            </PanZoomContainer>
 
             <Controls
                 className="absolute bottom-0 right-0" />
 
             <Centering
                 canvasRef={canvasRef} />
-        </TransformWrapper>
+        </ExportDiagramZoomContextProvider>
     );
 }
 
 function Controls(props: {
     className?: string,
 }) {
-    const scale = useTransformComponent(({ state }) => state.scale);
-    const { zoomIn, zoomOut, centerView } = useControls();
+    const { actions: zoomActions, scale } = useContext(ExportDiagramZoomContext);
 
     return (
         <div
             className={cn("m-3 flex gap-2", props.className)}>
             <ZoomBar
-                onIncreaseClick={() => zoomIn()}
-                onDecreaseClick={() => zoomOut()}
+                onIncreaseClick={() => zoomActions.current?.zoomIn()}
+                onDecreaseClick={() => zoomActions.current?.zoomOut()}
                 currentZoomLevel={scale} />
 
             <Button
                 title="Zoom to center"
                 variant="icon-secondary"
-                onClick={() => centerView(1)}>
+                onClick={() => zoomActions.current?.centerView(1)}>
                 <LuFocus />
             </Button>
         </div>
@@ -104,15 +99,14 @@ function Centering(props: {
     canvasRef: React.RefObject<HTMLCanvasElement | null>,
 }) {
     const format = useExportDiagramStore((state) => state.selectedFormat);
-    const scale = useTransformComponent(({ state }) => state.scale);
-    const { centerView } = useControls();
+    const { actions: zoomActions, scale } = useContext(ExportDiagramZoomContext);
 
     useDimensionsListener(props.canvasRef, () => {
-        setTimeout(() => centerView(scale), 100);
+        setTimeout(() => zoomActions.current?.centerView(scale), 100);
     });
 
     useEffect(() => {
-        setTimeout(() => centerView(scale), 100);
+        setTimeout(() => zoomActions.current?.centerView(scale), 100);
     }, [format]);
 
     return undefined;
