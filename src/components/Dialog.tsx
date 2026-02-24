@@ -10,6 +10,9 @@ export type DialogProps = {
     onEscape?: () => void,
 }
 
+/**
+ * Base modal dialog component rendered via a React Portal.
+*/
 export function Dialog(props: {
     ref: React.RefObject<HTMLDialogElement | null>,
     disabled?: boolean,

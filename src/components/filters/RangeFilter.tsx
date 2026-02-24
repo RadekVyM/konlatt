@@ -2,6 +2,10 @@ import { cn } from "../../utils/tailwind";
 import RangeSlider from "../inputs/RangeSlider";
 import NumberInput from "../inputs/NumberInput";
 
+/**
+ * Composite range selector component that synchronizes a dual-thumb slider 
+ * with numeric input fields for minimum and maximum values.
+ */
 export default function RangeFilter(props: {
     id: string,
     className?: string,

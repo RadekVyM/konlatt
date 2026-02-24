@@ -1,3 +1,6 @@
+/**
+ * Renders text with substrings highlighted based on a provided regular expression.
+*/
 export default function HighlightedSearchTerms(props: {
     text: string,
     regex?: RegExp,

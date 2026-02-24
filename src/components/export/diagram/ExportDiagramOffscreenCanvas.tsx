@@ -13,6 +13,9 @@ import { ExportDiagramZoomContext, ExportDiagramZoomContextProvider } from "../.
 
 const DEBOUNCE_DELAY = 200;
 
+/**
+ * Canvas for the exported diagram preview that delegates its rendering logic to a Web Worker using `transferControlToOffscreen`.
+ */
 export default function ExportDiagramOffscreenCanvas(props: {
     id: string,
     className?: string,

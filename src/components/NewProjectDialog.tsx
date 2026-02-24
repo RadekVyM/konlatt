@@ -27,6 +27,9 @@ const FILE_TYPES: Array<{ key: ImportFormat, label: string, idealExtension: stri
     { key: "csv", label: "CSV (.csv)", idealExtension: ".csv" },
 ];
 
+/**
+ * Dialog component for initializing a new project by uploading or selecting a file.
+*/
 export default function NewProjectDialog(props: {
     state: DialogState,
 }) {

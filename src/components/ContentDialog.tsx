@@ -5,6 +5,10 @@ import Button from "./inputs/Button";
 import { useLocation } from "react-router-dom";
 import { LuX } from "react-icons/lu";
 
+/**
+ * Styled wrapper for the base `Dialog` component that includes a standard 
+ * header with a heading and a close button.
+*/
 export default function ContentDialog(props: {
     ref: React.RefObject<HTMLDialogElement | null>,
     heading: React.ReactNode,

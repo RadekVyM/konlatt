@@ -2,6 +2,10 @@ import { LuMinus, LuPlus } from "react-icons/lu";
 import { cn } from "../utils/tailwind";
 import Button from "./inputs/Button";
 
+/**
+ * Compact zoom control component featuring decrement/increment buttons 
+ * and a central percentage display.
+*/
 export default function ZoomBar(props: {
     className?: string,
     currentZoomLevel: number,

@@ -14,6 +14,9 @@ type ItemType = {
     title: string,
 }
 
+/**
+ * Searchable, lazy-loaded list component with multi-select capabilities.
+ */
 export default function ListFilter<T extends ItemType>(props: {
     items: Array<T>,
     selectedItems: Set<number>,

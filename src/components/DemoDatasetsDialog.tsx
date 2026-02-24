@@ -46,6 +46,10 @@ const DATASETS: Array<Dataset> = [
     },
 ];
 
+/**
+ * Dialog component that allows users to select and load pre-defined 
+ * demonstration datasets.
+*/
 export default function DemoDatasetsDialog(props: {
     state: DialogState,
 }) {

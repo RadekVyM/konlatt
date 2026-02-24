@@ -6,6 +6,10 @@ import { ExportItem } from "./types/ExportItem";
 import { ExportButtonProps } from "./types/ExportButtonProps";
 import { SelectedFormatStoreType } from "../../stores/export/types/SelectedFormatStoreType";
 
+/**
+ * A specialized button component that triggers an export workflow.
+ * Renders a download icon button and manages an associated `ExportDialog`.
+ */
 export default function ExportButton<TKey extends string>(props: {
     isHighlighted?: boolean,
     items: Array<ExportItem<TKey>>,

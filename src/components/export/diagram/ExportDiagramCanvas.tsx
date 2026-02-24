@@ -14,15 +14,9 @@ import PanZoomContainer from "./PanZoomContainer";
 
 const DEBOUNCE_DELAY = 200;
 
-/*
-I tried to use transferControlToOffscreen() and do all the drawing in a worker.
-However, drawing and modifying the canvas (width and size) stopped working from a certain size of the canvas –
-even though the size was within the limit supported by the browser (https://jhildenbiddle.github.io/canvas-size/#/?id=test-results).
-I do not know why that is. The canvas pixels should be stored in a single shared buffer for both the main thread and the worker.
-
-So I do everything in the main thread...
-*/
-
+/**
+ * Canvas for the exported diagram preview that does all its rendering logic in the main thread.
+ */
 export default function ExportDiagramCanvas(props: {
     id: string,
     className?: string,

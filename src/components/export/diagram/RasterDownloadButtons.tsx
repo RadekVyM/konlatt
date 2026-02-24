@@ -8,6 +8,10 @@ import { DiagramExportFormat } from "../../../types/export/DiagramExportFormat";
 import { BlobRequest } from "../../../types/workers/ExportDiagramWorkerRequest";
 import { BlobResponse } from "../../../types/workers/ExportDiagramWorkerResponse";
 
+/**
+ * Copy and download buttons for raster-based diagram exports (PNG, JPG).
+ * Manages interaction with the export worker and handles clipboard operations.
+ */
 export default function RasterDownloadButtons(props: {
     fileName: string,
 }) {

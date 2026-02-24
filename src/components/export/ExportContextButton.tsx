@@ -39,6 +39,9 @@ const ITEMS: Array<ExportItem<ContextExportFormat>> = [
     },
 ];
 
+/**
+ * Export button for downloading or copying formal contexts.
+ */
 export default function ExportContextButton(props: ExportButtonProps) {
     const context = useDataStructuresStore((state) => state.context);
 

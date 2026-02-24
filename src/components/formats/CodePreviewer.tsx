@@ -1,5 +1,8 @@
 import "./CodePreviewer.css";
 
+/**
+ * Component for displaying multi-line code snippets with a header and line numbers.
+ */
 export default function CodePreviewer(props: {
     title: string,
     content: Array<string>,

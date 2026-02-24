@@ -8,6 +8,10 @@ import ExportButton from "./ExportButton";
 import { ExportButtonProps } from "./types/ExportButtonProps";
 import { ExportItem } from "./types/ExportItem";
 
+/**
+ * A factory that creates a export button component tailored to a specific text result store
+ * for downloading or copying concepts.
+ */
 export default function createExportConceptsButton(
     useStore: TextResultStoreType & SelectedFormatStoreType<ConceptExportFormat>,
     options: () => React.ReactNode

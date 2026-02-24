@@ -16,6 +16,10 @@ import { Font } from "../../../types/export/Font";
 import { DEBOUNCE_DELAY } from "./constants";
 import LabelLineInputs from "./LabelLineInputs";
 
+/**
+ * A configuration component for customizing diagram export settings
+ * for raster and selected vector formats.
+ */
 export default function PictureOptions() {
     return (
         <>

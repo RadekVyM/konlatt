@@ -2,6 +2,9 @@ import { CsvSeparator } from "../types/CsvSeparator";
 import { cn } from "../utils/tailwind";
 import ComboBox from "./inputs/ComboBox";
 
+/**
+ * Dropdown component for selecting a CSV delimiter.
+*/
 export default function CsvSeparatorSelect(props: {
     id: string,
     className?: string,

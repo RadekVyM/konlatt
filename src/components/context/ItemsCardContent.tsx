@@ -17,6 +17,10 @@ import ContextItemsFilterDialog from "../filters/ContextItemsFilterDialog";
 import CardSection from "../layouts/CardSection";
 import CardSectionTitle from "../layouts/CardSectionTitle";
 
+/**
+ * A layout component that manages a searchable, filterable, and sortable list of items 
+ * within a card section. Handles debounced search input and lazy-loaded rendering.
+ */
 export default function ItemsCardContent<TItem extends ContextItem>(props: {
     id: string,
     title: string,

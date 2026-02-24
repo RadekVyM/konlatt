@@ -2,6 +2,10 @@ import Container from "./Container";
 import "./CardContainer.css";
 import { cn } from "../../utils/tailwind";
 
+/**
+ * Layout wrapper for card-based content. 
+ * Renders as a `<section>` with overflow clipping and relative positioning.
+ */
 export function CardContainer(props: {
     children?: React.ReactNode,
     className?: string,

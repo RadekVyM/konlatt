@@ -4,6 +4,9 @@ import Button from "../inputs/Button";
 import FormatsDialog from "./FormatsDialog";
 import useIsMaxSm from "../../hooks/useIsMaxSm";
 
+/**
+ * Button component that triggers a dialog displaying supported file formats.
+ */
 export default function FormatsButton(props: {
     className?: string,
     variant?: "container" | "icon-container" | "dynamic-sm-container",

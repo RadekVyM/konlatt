@@ -16,6 +16,10 @@ type DisplayedLine = {
 const TOP_DISPLAYED_LINES_BUFFER_COUNT = 5;
 const BOTTOM_DISPLAYED_LINES_BUFFER_COUNT = 5;
 
+/**
+ * Virtualized text viewer component that supports collapsible code/text regions.
+ * Efficiently renders only the visible portion of large text arrays to maintain performance.
+*/
 export default function TextPreviewer(props: {
     lines: Array<string>,
     collapseRegions: Map<number, number> | null,

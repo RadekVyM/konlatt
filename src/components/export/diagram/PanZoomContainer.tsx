@@ -4,22 +4,22 @@ import { cn } from "../../../utils/tailwind";
 import useDimensionsListener from "../../../hooks/useDimensionsListener";
 import { ExportDiagramZoomContext } from "../../../contexts/ExportDiagramZoomContext";
 
-type Transform = {
-    x: number,
-    y: number,
-    scale: number,
-}
-
+/**
+ * A wrapper component that provides panning and zooming capabilities for its children.
+ * Supports pinch-to-zoom, mouse wheel zooming, and click-and-drag panning.
+ * Automatically centers content if smaller than the container and clamps panning to content edges.
+ */
 export default function PanZoomContainer(props: {
     className?: string,
     contentWrapperClassName?: string,
     children?: React.ReactNode,
 }) {
+    // Gemini helped a lot with all the math
     const { actions, setScale } = useContext(ExportDiagramZoomContext);
     const containerRef = useRef<HTMLDivElement>(null);
     const contentRef = useRef<HTMLDivElement>(null);
     const transitionTimeout = useRef<number | null>(null);
-    const transform = useRef<Transform>({ x: 0, y: 0, scale: 1 });
+    const transform = useRef({ x: 0, y: 0, scale: 1 });
     const activePointers = useRef<Map<number, PointerEvent>>(new Map());
     const lastDistance = useRef<number | null>(null);
     const lastPointerPosition = useRef({ x: 0, y: 0 });
@@ -75,8 +75,8 @@ export default function PanZoomContainer(props: {
         const centerX = rect.width / 2;
         const centerY = rect.height / 2;
 
-        transform.current.x = centerX - (centerX - transform.current.x) * (newScale / oldScale);
-        transform.current.y = centerY - (centerY - transform.current.y) * (newScale / oldScale);
+        transform.current.x = transformCoordAfterScaleChange(centerX, transform.current.x, newScale, oldScale);
+        transform.current.y = transformCoordAfterScaleChange(centerY, transform.current.y, newScale, oldScale);
         transform.current.scale = newScale;
 
         updateWithTransition();
@@ -104,7 +104,6 @@ export default function PanZoomContainer(props: {
 
     function update() {
         setScale(transform.current.scale);
-
         updateStyle();
     }
 
@@ -132,7 +131,7 @@ export default function PanZoomContainer(props: {
             return { minX: 0, maxX: 0, minY: 0, maxY: 0 };
         }
 
-        const container = containerRef.current.getBoundingClientRect();
+        const containerRect = containerRef.current.getBoundingClientRect();
         // Get the raw dimensions of the content (unscaled)
         const contentWidth = contentRef.current.offsetWidth;
         const contentHeight = contentRef.current.offsetHeight;
@@ -143,67 +142,51 @@ export default function PanZoomContainer(props: {
         let minX, maxX, minY, maxY;
 
         // Horizontal Logic
-        if (scaledWidth < container.width) {
+        if (scaledWidth < containerRect.width) {
             // Content is smaller: Force to center
-            const centerOffsetX = (container.width - scaledWidth) / 2;
+            const centerOffsetX = (containerRect.width - scaledWidth) / 2;
             minX = maxX = centerOffsetX;
-        } else {
+        }
+        else {
             // Content is larger: Allow panning between edges
-            minX = container.width - scaledWidth;
+            minX = containerRect.width - scaledWidth;
             maxX = 0;
         }
 
         // Vertical Logic
-        if (scaledHeight < container.height) {
+        if (scaledHeight < containerRect.height) {
             // Content is smaller: Force to center
-            const centerOffsetY = (container.height - scaledHeight) / 2;
+            const centerOffsetY = (containerRect.height - scaledHeight) / 2;
             minY = maxY = centerOffsetY;
-        } else {
+        }
+        else {
             // Content is larger: Allow panning
-            minY = container.height - scaledHeight;
+            minY = containerRect.height - scaledHeight;
             maxY = 0;
         }
 
         return { minX, maxX, minY, maxY };
     }
 
-    function getDistance(first: PointerEvent, second: PointerEvent) {
-        return Math.sqrt(
-            Math.pow(second.clientX - first.clientX, 2) +
-            Math.pow(second.clientY - first.clientY, 2));
-    }
-
-    function getCenter(first: PointerEvent, second: PointerEvent) {
-        return { x: (first.clientX + second.clientX) / 2, y: (first.clientY + second.clientY) / 2 };
-    }
-
     function onPointerDown(e: PointerEvent) {
-        if (!containerRef.current) {
+        activePointers.current.set(e.pointerId, e);
+        lastPointerPosition.current = { x: e.clientX, y: e.clientY };
+        // Keep tracking even if pointer leaves container
+        containerRef.current?.setPointerCapture(e.pointerId);
+    }
+
+    function onPointerMove(e: PointerEvent) {
+        if (!containerRef.current || !activePointers.current.has(e.pointerId)) {
             return;
         }
 
         activePointers.current.set(e.pointerId, e);
-        lastPointerPosition.current = { x: e.clientX, y: e.clientY };
-        containerRef.current?.setPointerCapture(e.pointerId); // Keep tracking even if finger leaves container
-    }
+        const pointers = [...activePointers.current.values()];
 
-    function onPointerMove(e: PointerEvent) {
-        if (!containerRef.current) {
-            return;
-        }
-
-        const pointers = activePointers.current;
-        if (!pointers.has(e.pointerId)) {
-            return;
-        }
-        pointers.set(e.pointerId, e);
-
-        const pArray = Array.from(pointers.values());
-
-        if (pArray.length === 2) {
+        if (pointers.length === 2) {
             // Pinch
-            const dist = getDistance(pArray[0], pArray[1]);
-            const center = getCenter(pArray[0], pArray[1]);
+            const dist = getDistance(pointers[0], pointers[1]);
+            const center = getCenter(pointers[0], pointers[1]);
             const rect = containerRef.current.getBoundingClientRect();
 
             if (lastDistance.current !== null) {
@@ -214,14 +197,15 @@ export default function PanZoomContainer(props: {
                 const originX = center.x - rect.left;
                 const originY = center.y - rect.top;
 
-                transform.current.x = originX - (originX - transform.current.x) * (newScale / oldScale);
-                transform.current.y = originY - (originY - transform.current.y) * (newScale / oldScale);
+                transform.current.x = transformCoordAfterScaleChange(originX, transform.current.x, newScale, oldScale);
+                transform.current.y = transformCoordAfterScaleChange(originY, transform.current.y, newScale, oldScale);
                 transform.current.scale = newScale;
             }
+
             lastDistance.current = dist;
             lastPointerPosition.current = { x: center.x, y: center.y };
         }
-        else if (pArray.length === 1) {
+        else if (pointers.length === 1) {
             // Pan
             const deltaX = e.clientX - lastPointerPosition.current.x;
             const deltaY = e.clientY - lastPointerPosition.current.y;
@@ -265,9 +249,10 @@ export default function PanZoomContainer(props: {
         const mouseX = e.clientX - rect.left;
         const mouseY = e.clientY - rect.top;
 
-        transform.current.x = mouseX - (mouseX - transform.current.x) * (newScale / oldScale);
-        transform.current.y = mouseY - (mouseY - transform.current.y) * (newScale / oldScale);
+        transform.current.x = transformCoordAfterScaleChange(mouseX, transform.current.x, newScale, oldScale);
+        transform.current.y = transformCoordAfterScaleChange(mouseY, transform.current.y, newScale, oldScale);
         transform.current.scale = newScale;
+
         update();
     }
 
@@ -285,4 +270,24 @@ export default function PanZoomContainer(props: {
             </div>
         </div>
     );
+}
+
+function transformCoordAfterScaleChange(
+    origin: number,
+    currentCoord: number,
+    newScale: number,
+    oldScale: number,
+) {
+    // Some fancy formula that Gemini came up with...
+    return origin - (origin - currentCoord) * (newScale / oldScale);
+}
+
+function getDistance(first: PointerEvent, second: PointerEvent) {
+    return Math.sqrt(
+        Math.pow(second.clientX - first.clientX, 2) +
+        Math.pow(second.clientY - first.clientY, 2));
+}
+
+function getCenter(first: PointerEvent, second: PointerEvent) {
+    return { x: (first.clientX + second.clientX) / 2, y: (first.clientY + second.clientY) / 2 };
 }

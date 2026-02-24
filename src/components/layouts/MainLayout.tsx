@@ -32,6 +32,9 @@ const NAV_LINKS: Array<NavLink> = [
     },
 ];
 
+/**
+ * The primary layout wrapper for the application's main pages.
+*/
 export default function MainLayout() {
     const hasWindowsControlOverlay = useHasWindowControlsOverlay();
 

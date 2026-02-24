@@ -3,6 +3,10 @@ import { DialogState } from "../../types/DialogState";
 import ContentDialog from "../ContentDialog";
 import Button from "../inputs/Button";
 
+/**
+ * A modal dialog tailored for filtering logic, featuring a scrollable 
+ * content area and a footer with "Clear" and "Apply" actions.
+ */
 export default function FilterDialog(props: {
     state: DialogState,
     children?: React.ReactNode,

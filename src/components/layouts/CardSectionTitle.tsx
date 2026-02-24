@@ -1,5 +1,8 @@
 import { cn } from "../../utils/tailwind";
 
+/**
+ * Title component for cards.
+ */
 export default function CardSectionTitle(props: {
     children: React.ReactNode,
     className?: string,

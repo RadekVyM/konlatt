@@ -8,7 +8,11 @@ import NothingFound from "../NothingFound";
 import CardSection from "../layouts/CardSection";
 import CardSectionTitle from "../layouts/CardSectionTitle";
 
-export default function ItemCard(props: {
+/**
+ * Displays the detailed content of a specific context item within a card layout,
+ * featuring a header with navigation and a lazy-loaded list of sub-items.
+*/
+export default function ItemCardContent(props: {
     className?: string,
     exportButton?: React.ReactNode,
     item: ContextCompleteItem,

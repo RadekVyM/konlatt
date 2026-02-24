@@ -3,6 +3,9 @@ import useDataStructuresStore from "../../stores/useDataStructuresStore";
 import ToggleSwitch from "../inputs/ToggleSwitch";
 import createExportConceptsButton from "./createExportConceptsButton";
 
+/**
+ * Export button for downloading or copying concepts on the diagram page.
+ */
 const ExportDiagramConceptsButton = createExportConceptsButton(useExportDiagramConceptsStore, Options);
 
 export default ExportDiagramConceptsButton;

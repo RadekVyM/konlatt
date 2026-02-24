@@ -1,5 +1,8 @@
 import { cn } from "../utils/tailwind";
 
+/**
+ * Displays a formatted count of found items relative to a total.
+*/
 export default function Found(props: {
     className?: string,
     found: number,

@@ -5,6 +5,9 @@ import { DialogState } from "../types/DialogState";
 import useDialog from "../hooks/useDialog";
 import { cn } from "../utils/tailwind";
 
+/**
+ * Button component that triggers an "About" information dialog.
+*/
 export default function AboutButton(props: {
     className?: string,
 }) {

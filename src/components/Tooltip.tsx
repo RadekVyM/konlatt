@@ -5,6 +5,9 @@ import { cn } from "../utils/tailwind";
 
 const TOOLTIP_TIMEOUT = 300;
 
+/**
+ * Portal-based tooltip component that attaches to a reference element.
+*/
 export default function Tooltip(props: {
     tooltip: string,
     shortcutKeys?: string,

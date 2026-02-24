@@ -1,6 +1,9 @@
 import { RefObject } from "react";
 import { cn } from "../../utils/tailwind";
 
+/**
+ * Container component for the main pages.
+ */
 export default function PageContainer(props: {
     children: React.ReactNode,
     ref?: RefObject<HTMLDivElement | null>,

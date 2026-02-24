@@ -3,6 +3,10 @@ import useDialog from "../hooks/useDialog";
 import { useEffect } from "react";
 import ContentDialog from "./ContentDialog";
 
+/**
+ * Fullscreen dialog component that automatically toggles its visibility 
+ * based on the current browser URL path.
+*/
 export default function FullscreenNavDialog(props: {
     route: string,
     heading: React.ReactNode,

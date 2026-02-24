@@ -14,6 +14,10 @@ export type ExportConceptButtonType = (props: {
     conceptIndex: number;
 } & ExportButtonProps) => React.ReactNode
 
+/**
+ * A factory that creates a export button component tailored to a specific text result store
+ * for downloading or copying selected concept.
+ */
 export default function createExportConceptButton(
     useStore: UseBoundStore<StoreApi<ExportConceptStore>>
 ): ExportConceptButtonType {

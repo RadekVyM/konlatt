@@ -1,5 +1,8 @@
 import { cn } from "../../utils/tailwind";
 
+/**
+ * Section component for grouping of configuration inputs.
+ */
 export default function ConfigSection(props: {
     heading?: React.ReactNode,
     children?: React.ReactNode,

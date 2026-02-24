@@ -2,6 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { cn } from "../../utils/tailwind";
 import "./RangeSlider.css";
 
+/**
+ * Dual-thumb range slider component for selecting a numeric range (min/max).
+ */
 export default function RangeSlider(props: {
     className?: string,
     min: number,

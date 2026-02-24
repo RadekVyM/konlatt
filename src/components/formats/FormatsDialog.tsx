@@ -273,6 +273,9 @@ const EXPORTED_OBJECTS: Array<ExportedObject> = [
     },
 ];
 
+/**
+ * Dialog component that displays supported export/import formats by konlatt.
+*/
 export default function FormatsDialog(props: {
     state: DialogState,
     formatTitleId?: FormatId,

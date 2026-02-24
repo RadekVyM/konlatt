@@ -8,6 +8,10 @@ import useCopySuccessful from "../../hooks/useCopySuccesful";
 
 const COPY_ENABLED_THRESHOLD = 15_000_000;
 
+/**
+ * A factory that creates a download/copy component
+ * tailored to a specific text result store.
+ */
 export default function createDownloadButtonsComponent(
     useTextResultStore: TextResultStoreType,
     fileName: string,

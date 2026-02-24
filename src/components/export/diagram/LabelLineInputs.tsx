@@ -2,6 +2,10 @@ import useExportDiagramStore from "../../../stores/export/diagram/useExportDiagr
 import DebouncedNumberInput from "../../inputs/DebouncedNumberInput";
 import { DEBOUNCE_DELAY } from "./constants";
 
+/**
+ * Provides debounced numerical inputs to configure 
+ * label wrapping and line constraints for diagram exports.
+ */
 export default function LabelLineInputs() {
     const maxLabelLineLength = useExportDiagramStore((state) => state.maxLabelLineLength);
     const maxLabelLineCount = useExportDiagramStore((state) => state.maxLabelLineCount);

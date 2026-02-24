@@ -9,6 +9,10 @@ import useWindowSizeChangedListener from "../../hooks/useWindowSizeChangedListen
 import useCurrentTime from "../../hooks/useCurrentTime";
 import { formatTimeInterval } from "../../utils/numbers";
 
+/**
+ * Status component that displays the current project name, 
+ * active progress messages, and a popover list of detailed background tasks.
+*/
 export default function StatusSection(props: {
     className?: string,
 }) {

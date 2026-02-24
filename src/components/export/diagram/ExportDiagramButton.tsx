@@ -54,6 +54,9 @@ const ITEMS: Array<ExportItem<DiagramExportFormat>> = [
     },
 ];
 
+/**
+ * Export button for downloading or copying diagrams.
+ */
 export default function ExportDiagramButton(props: ExportButtonProps) {
     const layout = useDiagramStore((state) => state.layout);
 

@@ -14,6 +14,10 @@ import DemoDatasetsDialog from "../DemoDatasetsDialog";
 import ThemeSwitcherButton from "../ThemeSwitcherButton";
 import AboutButton from "../AboutButton";
 
+/**
+ * The top-level layout wrapper that provides the application shell,
+ * including the global Header and main content area (Outlet).
+*/
 export default function RootLayout() {
     const newProjectDialogState = useDialog();
     const setDialogState = useNewProjectStore((state) => state.setDialogState);

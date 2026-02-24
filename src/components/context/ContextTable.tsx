@@ -16,6 +16,9 @@ type ContextTableCellHeader = {
     content: string,
 }
 
+/**
+ * Virtualized table component displaying the current formal context.
+ */
 export default function ContextTable(props: {
     context: FormalContext,
     className?: string,

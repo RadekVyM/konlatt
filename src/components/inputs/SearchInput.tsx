@@ -3,6 +3,9 @@ import { cn } from "../../utils/tailwind";
 import Button from "./Button";
 import Input from "./Input";
 
+/**
+ * Controlled search input component with a built-in clear button.
+*/
 export default function SearchInput(props: {
     className?: string,
     inputClassName?: string,

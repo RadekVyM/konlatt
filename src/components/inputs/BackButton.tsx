@@ -1,6 +1,9 @@
 import { LuChevronLeft } from "react-icons/lu";
 import Button from "./Button";
 
+/**
+ * Navigation button displaying a back chevron icon and a text label.
+*/
 export default function BackButton(props: {
     children?: React.ReactNode,
     onClick: () => void,

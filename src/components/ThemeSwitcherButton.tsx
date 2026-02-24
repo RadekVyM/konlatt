@@ -6,6 +6,10 @@ import useDimensionsListener from "../hooks/useDimensionsListener";
 import useEventListener from "../hooks/useEventListener";
 import useGlobalsStore from "../stores/useGlobalsStore";
 
+/**
+ * Toggle button component that anchors and controls the visibility of the theme selection popover.
+ * This popover allows users to switch between 'light', 'dark', and 'system' themes.
+*/
 export default function ThemeSwitcherButton(props: {
     className?: string,
 }) {

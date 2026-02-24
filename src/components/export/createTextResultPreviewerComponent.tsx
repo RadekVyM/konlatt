@@ -4,6 +4,9 @@ import { formatBytes } from "../../utils/numbers";
 import Button from "../inputs/Button";
 import TextPreviewer from "../TextPreviewer";
 
+/**
+ * Factory that creates a TextResultPreviewer component tied to a specific text result store.
+ */
 export default function createTextResultPreviewerComponent(useTextResultStore: TextResultStoreType) {
     const component = () => {
         const result = useTextResultStore((state) => state.result);

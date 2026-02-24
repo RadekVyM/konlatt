@@ -5,6 +5,9 @@ import { areArraySetEqual } from "../../utils/set";
 import StrictCheckBox from "./StrictCheckBox";
 import useSetupState from "../../hooks/useSetupState";
 
+/**
+ * Dialog component for filtering formal context items (attributes or objects).
+ */
 export default function ContextItemsFilterDialog(props: {
     state: DialogState,
     items: ReadonlyArray<string>,

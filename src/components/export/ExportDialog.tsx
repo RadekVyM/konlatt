@@ -6,6 +6,9 @@ import { SelectedFormatStoreType } from "../../stores/export/types/SelectedForma
 import InputLabel from "../inputs/InputLabel";
 import Container from "../layouts/Container";
 
+/**
+ * A fullscreen dialog for managing data exports with customizable formats and options.
+ */
 export default function ExportDialog<TKey extends string>(props: {
     route: string,
     items: Array<ExportItem<TKey>>,

@@ -45,16 +45,27 @@ type ToastState = {
     startTime: number,
 }
 
+/**
+ * Displays a toast message.
+*/
 export default function toast(
     title: string,
 ) {
     window.dispatchEvent(new ToastEvent(title));
 }
 
+/**
+ * Dispatches an event that the top layer content changed.
+ * The `Toasts` component listens to this event.
+*/
 export function dispatchTopLayerChanged() {
     window.dispatchEvent(new TopLayerChangedEvent());
 }
 
+/**
+ * Component that displays toast messages in the top layer.
+ * The messages can be displayed using the `toast()` function.
+*/
 export function Toasts() {
     const containerRef = useRef<HTMLUListElement>(null);
     const [toasts, setToasts] = useState<Array<ToastState>>([]);

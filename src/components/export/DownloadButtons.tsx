@@ -2,6 +2,9 @@ import { LuDownload } from "react-icons/lu";
 import Button from "../inputs/Button";
 import { IconType } from "react-icons";
 
+/**
+ * Copy and download buttons that can be displayed in export dialogs.
+ */
 export default function DownloadButtons(props: {
     copyDisabled?: boolean,
     downloadDisabled?: boolean,

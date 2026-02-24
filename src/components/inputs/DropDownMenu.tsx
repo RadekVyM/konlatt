@@ -26,7 +26,9 @@ type DropDownMenuContextType = {
 
 const DropDownMenuContext = createContext<DropDownMenuContextType | null>(null);
 
-/** Component for selecting single item from a collection of items which are displayed in a dropdown. */
+/**
+ * Component for selecting a single item from a collection of items which are displayed in a dropdown.
+ */
 export default function DropDownMenu<KeyT extends string>(props: {
     id: string,
     className?: string,

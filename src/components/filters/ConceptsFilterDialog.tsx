@@ -32,6 +32,9 @@ const FILTERS: ReadonlyArray<{ title: string, id: FilterType }> = [
     },
 ];
 
+/**
+ * Dialog component for filtering formal concepts based on objects, attributes, and their respective counts.
+ */
 export default function ConceptsFilterDialog(props: {
     state: DialogState,
     strictSelectedObjects: boolean,

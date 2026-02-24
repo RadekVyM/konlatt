@@ -1,5 +1,8 @@
 import { cn } from "../utils/tailwind";
 
+/**
+ * Fallback component that displays a "Nothing found" message.
+*/
 export default function NothingFound(props: {
     className?: string,
 }) {

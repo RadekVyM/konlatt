@@ -1,5 +1,8 @@
 import CheckBox from "../inputs/CheckBox";
 
+/**
+ * Specialized checkbox for toggling "strict filtering" logic.
+ */
 export default function StrictCheckBox(props: {
     checked: boolean,
     onChange: (value: boolean) => void,

@@ -4,6 +4,9 @@ import { cn } from "../utils/tailwind";
 import Button from "./inputs/Button";
 import { isMobileUserAgent } from "../utils/userAgent";
 
+/**
+ * Responsive horizontal scroll container with navigation buttons.
+*/
 export default function HorizontalScroller(props: {
     children?: React.ReactNode,
     className?: string,

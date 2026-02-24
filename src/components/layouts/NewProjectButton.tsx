@@ -4,6 +4,9 @@ import Button from "../inputs/Button";
 import useIsMaxSm from "../../hooks/useIsMaxSm";
 import useIsMaxXs from "../../hooks/useIsMaxXs";
 
+/**
+ * Specialized button component that triggers the `NewProjectDialog`.
+ */
 export default function NewProjectButton(props: {
     variant?: "dynamic-sm-container",
 }) {

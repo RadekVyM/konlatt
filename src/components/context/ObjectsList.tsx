@@ -12,6 +12,9 @@ import { CardContainer } from "../layouts/CardContainer";
 
 type ContextObjectItem = ContextItem
 
+/**
+ * Card component displaying all objects of the current formal context.
+ */
 export default function ObjectsList(props: {
     className?: string,
     route: string,

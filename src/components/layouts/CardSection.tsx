@@ -1,5 +1,8 @@
 import { cn } from "../../utils/tailwind";
 
+/**
+ * Content wrapper for a `CardContainer` content.
+ */
 export default function CardSection(props: {
     className?: string,
     children?: React.ReactNode,

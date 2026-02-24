@@ -3,6 +3,9 @@ import Button from "../inputs/Button";
 import DropDownMenu, { DropDownMenuItem, useDropDownMenuContext } from "../inputs/DropDownMenu";
 import { SortDirection } from "../../types/SortDirection";
 
+/**
+ * Component that provides filtering and sorting controls.
+ */
 export default function FilterSortBar<TSortType extends string>(props: {
     filterTitle?: string,
     sortTitle?: string,

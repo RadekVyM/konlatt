@@ -1,6 +1,9 @@
 import { RefObject } from "react";
 import { cn } from "../utils/tailwind";
 
+/**
+ * Scrollable list component designed for infinite scrolling or lazy loading.
+*/
 export default function CardItemsLazyList(props: {
     observerTargetRef: RefObject<HTMLDivElement | null>,
     children: React.ReactNode,
