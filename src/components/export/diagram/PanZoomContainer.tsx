@@ -264,7 +264,9 @@ export default function PanZoomContainer(props: {
                 ref={contentRef}
                 className={cn("w-fit h-fit origin-top-left", props.contentWrapperClassName)}
                 style={{
-                    willChange: "transform",
+                    // Large zoomed out diagram export previews lead to weird artifacts when hovering controls in Chrome
+                    // It is because of this property being set... so it is not set... 
+                    // willChange: "transform",
                 }}>
                 {props.children}
             </div>
