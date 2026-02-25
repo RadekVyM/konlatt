@@ -9,6 +9,9 @@ import useDiagramConfigPanelDimensionsStore from "../../../stores/diagram/useDia
 const MARGIN_RIGHT = 65;
 const MARGIN_BOTTOM = 105;
 
+/**
+ * Specialized R3F component that renders a navigation gizmo (orientation axes).
+*/
 export default function Gizmo() {
     const cameraType = useDiagramStore((state) => state.cameraType);
     const configPanelRect = useDiagramConfigPanelDimensionsStore((state) => state.rect);

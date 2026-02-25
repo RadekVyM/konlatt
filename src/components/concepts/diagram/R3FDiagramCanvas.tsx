@@ -12,6 +12,9 @@ import Grid from "./Grid";
 import CameraController from "./CameraController";
 import Gizmo from "./Gizmo";
 
+/**
+ * Specialized R3F canvas component for the diagram view.
+*/
 export default function DiagramCanvas(props: {
     className?: string,
 }) {

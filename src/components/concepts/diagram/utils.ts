@@ -5,6 +5,10 @@ import { ConceptLatticeLayout } from "../../../types/ConceptLatticeLayout";
 import { Theme } from "../../../types/Theme";
 import { transformedPoint } from "../../../utils/layout";
 
+/**
+ * Updates the transformation matrices for all instances in an {@link InstancedMesh}.
+ * It also computes bounding volumes to ensure raycasting works correctly.
+ */
 export function setNodesTransformMatrices(
     instancedMesh: InstancedMesh,
     layoutIndexes: Iterable<number>,
@@ -50,6 +54,9 @@ export function setNodesTransformMatrices(
     instancedMesh.computeBoundingBox();
 }
 
+/**
+ * Calculates and sets the transformation for a specific node based on its layout index.
+*/
 export function setupNodeTransform(
     temp: Object3D,
     layout: ConceptLatticeLayout,
@@ -68,6 +75,9 @@ export function setupNodeTransform(
     setupTransform(temp, createPoint(node.x, node.y, node.z), offset, dragOffset, scale, cameraType, horizontalScale, verticalScale, rotationDegrees);
 }
 
+/**
+ * Sets the position and scale of an {@link Object3D} based on coordinate transformations.
+*/
 export function setupTransform(
     temp: Object3D,
     point: Point,
@@ -84,10 +94,16 @@ export function setupTransform(
     temp.updateMatrix();
 }
 
+/**
+ * Safely retrieves a {@link Point} from an array by index, returning a zero-point if `undefined`.
+*/
 export function getPoint(points: Array<Point>, index: number): Point {
     return points[index] || [0, 0, 0];
 }
 
+/**
+ * Selects a color based on the current UI theme.
+*/
 export function themedColor(light: Color, dark: Color, theme: Theme) {
     if (theme === "dark") {
         return dark;

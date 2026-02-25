@@ -11,6 +11,12 @@ import { isRightClick } from "../../../utils/html";
 import { CameraType } from "../../../types/diagram/CameraType";
 import { transformedPoint } from "../../../utils/layout";
 
+/**
+ * Component that manages a 2D drag-selection box over an R3F canvas.
+ * It handles manual DOM element injection for the selection rectangle,
+ * tracks mouse movement to update the rectangle's dimensions, and calculates
+ * which 3D nodes fall within the 2D screen-space selection area upon release.
+*/
 export default function NodesMultiselectionBox() {
     const elementRef = useRef<HTMLDivElement>(null);
     const dragStartPointRef = useRef<[number, number]>(null);
@@ -136,6 +142,10 @@ export default function NodesMultiselectionBox() {
     return undefined;
 }
 
+/**
+ * Projects 3D layout points into 2D screen space to determine which concepts 
+ * are contained within the selection rectangle.
+*/
 function getSelectedConceptIndexes(
     dragSelectionRect: Rect,
     layout: ConceptLatticeLayout,

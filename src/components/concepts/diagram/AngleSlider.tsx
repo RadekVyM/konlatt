@@ -6,6 +6,9 @@ import "./AngleSlider.css";
 const HALF_TICKS_COUNT = 3;
 const TICKS = createRange((HALF_TICKS_COUNT * 2) + 1).map((i) => (i - HALF_TICKS_COUNT) * (180 / (HALF_TICKS_COUNT)));
 
+/**
+ * Slider component specifically designed for selecting angles between -180° and 180°.
+*/
 export default function AngleSlider(props: {
     className?: string,
     id: string,

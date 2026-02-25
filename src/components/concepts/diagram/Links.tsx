@@ -11,11 +11,16 @@ import useGlobalsStore from "../../../stores/useGlobalsStore";
 import { useThree } from "@react-three/fiber";
 import { transformedPoint } from "../../../utils/layout";
 import { Link } from "../../../types/Link";
-import useDiagramLinks from "./useDiagramLinks";
-import { setupLinkTransform } from "../../../utils/diagram";
+import { getDiagramLinks, setupLinkTransform } from "../../../utils/diagram";
 
 /**
- * R3F component that renders all links of the current diagram.
+ * R3F component that efficiently renders all edges (links) 
+ * of a concept lattice diagram using {@link InstancedMesh}.
+ * This component optimizes performance by:
+ * - Using {@link InstancedMesh} to draw thousands of links in a single draw call.
+ * - Manually tracking interaction state changes (hover/selection) via refs to avoid 
+ * unnecessary array re-allocations and heavy CPU-to-GPU updates.
+ * - Dynamically switching between 2D flat lines and 3D tube geometries based on camera mode.
  */
 export default function Links() {
     const instancedMeshRef = useRef<InstancedMesh>(null);
@@ -283,4 +288,24 @@ function setLinksTransformMatrices(
     }
 
     instancedMesh.instanceMatrix.needsUpdate = true;
+}
+
+function useDiagramLinks() {
+    const lattice = useDataStructuresStore((state) => state.lattice);
+    const layout = useDiagramStore((state) => state.layout);
+    const sublatticeConceptIndexes = useDiagramStore((state) => state.sublatticeConceptIndexes);
+    const filteredConceptIndexes = useDiagramStore((state) => state.filteredConceptIndexes);
+    const displayHighlightedSublatticeOnly = useDiagramStore((state) => state.displayHighlightedSublatticeOnly);
+    const noInvisibleConcepts = !sublatticeConceptIndexes || sublatticeConceptIndexes.size === 0;
+
+    return useMemo(() => {
+        return getDiagramLinks(
+            layout,
+            lattice?.subconceptsMapping || null,
+            sublatticeConceptIndexes,
+            filteredConceptIndexes,
+            displayHighlightedSublatticeOnly);
+        // The last false in the deps array is needed to make it stable when lattice, layout... are null
+        // I have no idea why this is, it is super weird
+    }, [lattice, sublatticeConceptIndexes, filteredConceptIndexes, layout, displayHighlightedSublatticeOnly, noInvisibleConcepts, false]);
 }

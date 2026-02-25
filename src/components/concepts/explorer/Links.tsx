@@ -13,6 +13,10 @@ type ExplorerLink = {
     end: Point,
 }
 
+/**
+ * Component that renders a set of semi-transparent connections between a selected concept 
+ * and all its neighbors in a 3D scene using an {@link InstancedMesh}.
+*/
 export default function Links() {
     const instancedMeshRef = useRef<InstancedMesh>(null);
     const links = useLinks();

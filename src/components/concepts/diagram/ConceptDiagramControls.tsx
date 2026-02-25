@@ -7,6 +7,11 @@ import { DiagramZoomActionsContext } from "../../../contexts/DiagramZoomActionsC
 import useDataStructuresStore from "../../../stores/useDataStructuresStore";
 import { isInfimum, isSupremum } from "../../../types/FormalConcepts";
 
+/**
+ * Component that provides "Focus" actions and filtering toggles (upper/lower cones).
+ * It automatically hides filtering controls if the selected concept is the 
+ * infimum or supremum of the lattice.
+*/
 export default function ConceptDiagramControls(props: {
     selectedConceptIndex: number,
     sublatticeConceptIndexes: Set<number> | null,

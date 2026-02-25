@@ -19,6 +19,15 @@ import LabelsSelectionButton from "./LabelsSelectionButton";
 
 const INPUT_DELAY = 500;
 
+/**
+ * Primary configuration component for the diagram view.
+ * Provides a scrollable interface containing multiple configuration sections including:
+ * - **Display**: Camera modes (2D/3D) and sublattice visibility.
+ * - **Layout**: Algorithm selection (Layered, Freese, ReDraw) and coordinate scaling.
+ * - **Labeling**: Hover details and labeling recalculation logic.
+ * - **Nodes and Links**: Visual styling for connections (transparency, highlighting, etc.).
+ * - **Performance**: Antialiasing and regression toggles.
+*/
 export default function DiagramConfig() {
     return (
         <>

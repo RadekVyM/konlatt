@@ -7,6 +7,10 @@ import { LuFocus } from "react-icons/lu";
 
 const ZOOM_STEP = 0.1;
 
+/**
+ * Floating action overlay component for the explorer, containing 
+ * zoom controls and positioning utilities.
+*/
 export default function ExplorerActions(props: {
     className?: string,
     showSpinner?: boolean,

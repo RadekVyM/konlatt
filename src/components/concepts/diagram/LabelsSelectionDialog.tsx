@@ -23,6 +23,9 @@ const TABS: ReadonlyArray<{ title: string, id: Tab }> = [
     },
 ];
 
+/**
+ * Dialog component that allows users to toggle the visibility of object and attribute labels.
+*/
 export default function LabelsSelectionDialog(props: {
     state: DialogState,
     selectedObjectLabels: ReadonlySet<number>,

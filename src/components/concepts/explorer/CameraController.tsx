@@ -22,6 +22,11 @@ const TOUCHES_2D = {
     three: ACTION.TOUCH_ZOOM,
 } as const;
 
+/**
+ * Renders and manages the 2D orthographic camera and its controls.
+ * Sets up custom mouse/touch interactions (trucking and zooming) 
+ * and initializes zoom-related event listeners and actions.
+*/
 export default function CameraController() {
     const cameraControlsRef = useRef<CameraControlsImpl>(null);
     const defaultZoom = useDefaultZoom();
@@ -89,6 +94,10 @@ function useCameraControlsEvents(
     };
 }
 
+/**
+ * Registers camera manipulation methods (zoom to, zoom by, reset) into the 
+ * `ExplorerZoomActionsContext` for external trigger.
+ */
 function useZoomActionsSetup(
     cameraControlsRef: React.RefObject<CameraControlsImpl | null>,
     defaultDistance: number,

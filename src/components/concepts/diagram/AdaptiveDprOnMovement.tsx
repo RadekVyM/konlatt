@@ -2,6 +2,10 @@ import { useThree } from "@react-three/fiber";
 import { useEffect } from "react";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 
+/**
+ * Side-effect component that dynamically adjusts the Device Pixel Ratio (DPR) 
+ * during camera movement to optimize rendering performance.
+*/
 export function AdaptiveDprOnMovement() {
     const gl = useThree((state) => state.gl);
     const active = useThree((state) => state.internal.active);

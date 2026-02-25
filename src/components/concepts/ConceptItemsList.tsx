@@ -1,6 +1,10 @@
 import { Fragment, useMemo } from "react";
 import HighlightedSearchTerms from "../HighlightedSearchTerms";
 
+/**
+ * Renders a comma-separated list of concept items with optional search highlighting 
+ * and filtering styles. Handles empty states gracefully.
+*/
 export default function ConceptItemsList(props: {
     noItemsText: string,
     items: ReadonlyArray<number>,
@@ -29,7 +33,7 @@ function NonemptyConceptItemsList(props: {
     maxTextLength?: number,
 }) {
     const items = useGroupedItems(props.items, props.contextItems, props.filterItems, props.searchRegex, props.maxTextLength);
-    return items.map((item, i) => <Fragment key={i}>{item}</Fragment>)
+    return items.map((item, i) => <Fragment key={i}>{item}</Fragment>);
 }
 
 function useGroupedItems(

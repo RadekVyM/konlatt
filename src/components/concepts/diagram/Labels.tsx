@@ -11,6 +11,11 @@ import { CameraType } from "../../../types/diagram/CameraType";
 import useDataStructuresStore from "../../../stores/useDataStructuresStore";
 import R3FLabel from "../R3FLabel";
 
+/**
+ * Component that renders a collection of 3D attribute and object labels for the displayed concepts.
+ * It uses responsive R3F text label components that use a `Billboard` to always face the camera.
+ * It automatically handles theme-based coloring and supports custom positioning and scaling.
+*/
 export default function Labels() {
     const invalidate = useThree((state) => state.invalidate);
     const { attributeLabels, objectLabels } = useLabels();

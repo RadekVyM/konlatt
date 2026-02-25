@@ -21,6 +21,18 @@ type PanelToggleButtonProps = {
     onClick: () => void,
 }
 
+/**
+ * The primary action overlay for the diagram interface.
+ * Provides a UI layer containing:
+ * - **Navigation:** Fullscreen toggle, zoom controls, and "zoom to center".
+ * - **History:** Undo and redo functionality.
+ * - **Tools:** Toggles for node movement (edit mode), grid visibility, and multi-selection.
+ * - **Panels:** Controls to open/close side panels based on screen size and fullscreen state.
+ * - **Export:** Access to the diagram export utility.
+ * 
+ * Includes keyboard listeners for shortcuts like `Ctrl`/`Cmd` for temporary movement 
+ * and `Shift` for temporary multi-selection.
+*/
 export default function DiagramActions(props: {
     className?: string,
     showSpinner?: boolean,

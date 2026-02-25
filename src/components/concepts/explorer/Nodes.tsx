@@ -11,6 +11,13 @@ const HOVERED_MESH_NAME = "hovered_mesh";
 
 const tempObject = new Object3D();
 
+/**
+ * Component that renders an optimized collection of nodes using an {@link InstancedMesh}.
+ * Handles high-performance rendering of concept nodes, including:
+ * - Dynamic color updates based on selection/filtering.
+ * - Spatial positioning from store data.
+ * - Hover states and click interactions.
+*/
 export default function Nodes() {
     const instancedMeshRef = useRef<InstancedMesh>(null);
     const hoverSphereRef = useRef<Mesh>(null);

@@ -9,10 +9,15 @@ const THICKNESS = 4;
 const RADIUS = 22;
 const DIAMETER = 2 * RADIUS;
 
+/**
+ * A high-level layout status indicator that monitors the `useProjectStore`.
+ * It automatically switches between a generic spinning loader and a
+ * detailed progress canvas based on whether a "layout" task is currently active.
+*/
 export default function DiagramLoadingSpinner() {
     const statusItems = useProjectStore((state) => state.statusItems);
     const item = statusItems.find((item) => item.tag === "layout" && !item.isDone && !item.isError);
-    
+
     if (!item) {
         return (
             <LuLoaderCircle

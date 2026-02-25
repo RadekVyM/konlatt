@@ -13,6 +13,10 @@ type StoreType = UseBoundStore<Pick<StoreApi<{
     selectedFilterAttributes: ReadonlySet<number>,
 }>, 'getState' | 'getInitialState' | 'subscribe'>>
 
+/**
+ * Floating detail tooltip component that tracks the pointer and displays information
+ * about the currently hovered concept, including its associated objects and attributes.
+*/
 export default function ConceptHoverDetail(props: {
     useStore: StoreType,
 }) {

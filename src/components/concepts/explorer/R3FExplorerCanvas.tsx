@@ -7,6 +7,9 @@ import { ExplorerZoomActionsContext } from "../../../contexts/ExplorerZoomAction
 import Links from "./Links";
 import Labels from "./Labels";
 
+/**
+ * Specialized R3F canvas component for the explorer view.
+*/
 export default function R3FExplorerCanvas(props: {
     className?: string,
 }) {

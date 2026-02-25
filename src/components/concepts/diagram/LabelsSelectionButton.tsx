@@ -6,6 +6,13 @@ import useDialog from "../../../hooks/useDialog";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import useDataStructuresStore from "../../../stores/useDataStructuresStore";
 
+/**
+ * Button component that triggers a dialog for selecting object and attribute labels.
+ * This component displays a dynamic label based on the current selection state:
+ * - "All labels": All objects and attributes are selected.
+ * - "No labels": Nothing is selected.
+ * - "Selected labels": A partial selection exists.
+*/
 export default function LabelsSelectionButton(props: {
     className?: string,
 }) {

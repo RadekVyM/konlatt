@@ -28,6 +28,10 @@ import { createLabels, getLinks } from "../src/utils/diagram";
 import { LabelGroup } from "../src/types/export/LabelGroup";
 import { HsvaColor } from "../src/types/HsvaColor";
 
+/**
+ * Tracks string length metrics for different export formats.
+ * 'average' includes indentation/whitespace, 'averageTrimmed' ignores it.
+ */
 type Average = {
     average: number,
     averageTrimmed: number,
@@ -47,16 +51,19 @@ const datasets = [
     WingspanBirds,
 ];
 
+// Accumulators for concepts exports
 const conceptsAverageSums = {
     json: createDefaultAverage(),
     xml: createDefaultAverage(),
 };
 
+// Accumulators for lattice diagram exports
 const diagramAverageSums = {
     svg: createDefaultAverage(),
     tikz: createDefaultAverage(),
 };
 
+// Processes each dataset to calculate average line lengths across all formats.
 for (const dataset of datasets) {
     forceGC();
 
@@ -86,12 +93,16 @@ for (const dataset of datasets) {
             { maxLineLength: 25, maxLinesCount: 3 }));
 }
 
+// Final report output
 printAverage(conceptsAverageSums.json, datasets.length, "concepts - JSON");
 printAverage(conceptsAverageSums.xml, datasets.length, "concepts - XML");
 printAverage(diagramAverageSums.svg, datasets.length, "diagram - SVG");
 printAverage(diagramAverageSums.tikz, datasets.length, "diagram - TikZ");
 
 
+/**
+ * Generates a dummy diagram layout.
+ */
 function generateLayout(nodesCount: number) {
     const layout = new Array<Point>(nodesCount);
     const conceptToLayoutIndexesMapping = new Map<number, number>();
@@ -109,6 +120,9 @@ function generateLayout(nodesCount: number) {
     };
 }
 
+/**
+ * Converts concepts to JSON/XML strings and records their line length stats.
+ */
 function measureConcepts(
     context: FormalContext,
     concepts: Array<FormalConcept>,
@@ -149,6 +163,9 @@ function measureConcepts(
     forceGC();
 }
 
+/**
+ * Converts the lattice diagram to SVG/TikZ and records line length stats.
+ */
 function measureDiagram(
     layout: Array<Point>,
     links: Array<Link>,
@@ -239,6 +256,10 @@ function averageLength(lines: Array<string>) {
     };
 }
 
+/**
+ * Manually triggers garbage collection. 
+ * Requires the `--expose-gc` flag in Node.js.
+ */
 function forceGC() {
     const gc = (globalThis as any).gc;
     if (typeof gc === "function") {

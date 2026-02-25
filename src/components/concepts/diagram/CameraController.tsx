@@ -34,6 +34,11 @@ const TOUCHES_3D = {
     three: ACTION.TOUCH_DOLLY,
 } as const;
 
+/**
+ * Component that manages camera behavior and controls for the diagram.
+ * It toggles between 2D (Orthographic) and 3D (Perspective) modes based on the store state,
+ * applying specific mouse/touch bindings and zoom constraints for each.
+*/
 export default function CameraController() {
     const cameraControlsRef = useRef<CameraControlsImpl>(null);
     const layoutId = useDiagramStore((state) => state.layoutId);
@@ -118,6 +123,10 @@ function useDefaultZoomAndDistance() {
     };
 }
 
+/**
+ * Handles side effects related to camera movement, performance regression, 
+ * and syncing the global zoom level state.
+*/
 function useCameraControlsEvents(
     cameraControlsRef: React.RefObject<CameraControlsImpl | null>,
     defaultDistance: number,
@@ -168,6 +177,10 @@ function useCameraControlsEvents(
     };
 }
 
+/**
+ * Bridges the camera instance with the `DiagramZoomActionsContext` to allow 
+ * external components to trigger camera movements.
+*/
 function useZoomActionsSetup(
     cameraControlsRef: React.RefObject<CameraControlsImpl | null>,
     defaultDistance: number,

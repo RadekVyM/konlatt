@@ -8,6 +8,10 @@ import useGlobalsStore from "../../../stores/useGlobalsStore";
 import { transformedPoint } from "../../../utils/layout";
 import { PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT } from "../../../constants/canvas-drawing";
 
+/**
+ * Component that renders a set of selectable nodes with interactive pivot controls 
+ * for translation within a 3D or 2D diagram.
+*/
 export default function NodesToMove() {
     const instancedMeshRef = useRef<InstancedMesh>(null);
     const pivotControlsRef = useRef<Group>(null);

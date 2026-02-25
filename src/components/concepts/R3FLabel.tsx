@@ -4,6 +4,10 @@ import { LABEL_COLOR_DARK, LABEL_COLOR_LIGHT, PRIMARY_COLOR_DARK, PRIMARY_COLOR_
 import { Point } from "../../types/Point";
 import useGlobalsStore from "../../stores/useGlobalsStore";
 
+/**
+ * Responsive R3F text label component that uses a `Billboard` to always face the camera.
+ * It automatically handles theme-based coloring and supports custom positioning and scaling.
+*/
 export default function R3FLabel(props: {
     id: string,
     position?: Point,

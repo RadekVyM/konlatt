@@ -14,6 +14,9 @@ const OPACITY = 0.5;
 const LINE_WIDTH = 2;
 const AXIS_LINE_WIDTH = LINE_WIDTH * 1.2;
 
+/**
+ * Component that renders an adaptive 3D grid and snapping axis lines for the diagram canvas.
+*/
 export default function Grid() {
     const gridRef = useRef<Mesh>(null);
     const currentTheme = useGlobalsStore((state) => state.currentTheme);

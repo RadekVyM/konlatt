@@ -22,6 +22,12 @@ import CardSection from "../layouts/CardSection";
 
 const MAX_TEXT_LENGTH = 500;
 
+/**
+ * Component that displays a searchable, filterable, and sortable list of formal concepts.
+ * This component manages a search input with debouncing, displays a list of concepts 
+ * using lazy loading for performance, and provides hooks for sorting and filtering 
+ * through a dedicated dialog.
+*/
 export default function ConceptsList(props: {
     className?: string,
     route: string,

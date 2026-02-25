@@ -19,6 +19,10 @@ import CardSection from "../layouts/CardSection";
 
 type TabItem = "objects" | "attributes"
 
+/**
+ * Component that displays detailed information about a specific formal concept, 
+ * including its extent (objects) and intent (attributes).
+ */
 export default function ConceptDetail(props: {
     className?: string,
     selectedConceptIndex: number,

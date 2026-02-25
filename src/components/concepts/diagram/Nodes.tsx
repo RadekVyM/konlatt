@@ -14,6 +14,16 @@ import { getNodeColor } from "../../../utils/diagram";
 
 const HOVERED_MESH_NAME = "hovered_mesh";
 
+/**
+ * Component that renders the interactive nodes of a concept lattice diagram
+ * using an {@link InstancedMesh} for performance.
+ * This component manages:
+ * - High-performance rendering of concept nodes via instancing.
+ * - Node coloring based on selection, filtering, and theme.
+ * - Hover states with a dedicated highlighter sphere.
+ * - Node interaction (click to select or move).
+ * - Synchronization with the `useDiagramStore` for layout and transformation updates.
+ */
 export default function Nodes() {
     const instancedMeshRef = useRef<InstancedMesh>(null);
     const hoverSphereRef = useRef<Mesh>(null);
