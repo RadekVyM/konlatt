@@ -152,9 +152,6 @@ function Description() {
                     <Link href="https://github.com/lukeed/clsx">clsx</Link>
                 </li>
                 <li>
-                    <Link href="https://cva.style/docs">Class Variance Authority</Link>
-                </li>
-                <li>
                     <Link href="https://react-icons.github.io/react-icons/">React Icons</Link>
                     <List>
                         <li>

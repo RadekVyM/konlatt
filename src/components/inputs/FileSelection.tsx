@@ -1,8 +1,6 @@
 import { useRef, useState } from "react";
-import Button from "../inputs/Button";
+import Button, { ButtonVariantProps } from "../inputs/Button";
 import { cn } from "../../utils/tailwind";
-import { VariantProps } from "class-variance-authority";
-import { buttonVariants } from "../variants/buttonVariants";
 import { LuFile, LuFileUp } from "react-icons/lu";
 
 export function FileSelection(props: {
@@ -67,7 +65,7 @@ function FileSelectionBase(props: {
     fileType?: string,
     disabled?: boolean,
     onFileSelect: (file: File | null | undefined) => void,
-} & VariantProps<typeof buttonVariants>) {
+} & ButtonVariantProps) {
     const inputRef = useRef<HTMLInputElement>(null);
     const [isDragOver, setIsDragOver] = useState(false);
 
