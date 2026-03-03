@@ -6,7 +6,7 @@ import { LayeredLayoutPlacement } from "../../types/diagram/LayeredLayoutPlaceme
 export async function computeLayeredLayout(
     conceptsCount: number,
     supremum: number,
-    subconceptsMappingArrayBuffer: Int32Array,
+    subconceptsRelationArrayBuffer: Int32Array,
     placement: LayeredLayoutPlacement,
     onProgress: (progress: number) => void,
 ): Promise<{
@@ -16,7 +16,7 @@ export async function computeLayeredLayout(
     const module = await Module();
     const result = new module.FloatArrayTimedResult();
 
-    module.computeLayeredLayout(result, supremum, conceptsCount, subconceptsMappingArrayBuffer, placement, onProgress);
+    module.computeLayeredLayout(result, supremum, conceptsCount, subconceptsRelationArrayBuffer, placement, onProgress);
     const layout = cppFloatArrayToPoints(result.value, conceptsCount, true);
     const computationTime = result.time;
 

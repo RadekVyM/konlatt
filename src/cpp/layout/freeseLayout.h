@@ -18,8 +18,8 @@ void computeFreeseLayout(
     int supremum,
     int infimum,
     int conceptsCount,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping,
+    std::vector<std::unordered_set<int>>& subconceptsRelation,
+    std::vector<std::unordered_set<int>>& superconceptsRelation,
     std::function<void(double)> onProgress
 );
 

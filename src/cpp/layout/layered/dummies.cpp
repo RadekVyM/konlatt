@@ -8,36 +8,36 @@
 #include <unordered_map>
 #include <algorithm>
 
-void addSubconceptToMapping(std::unordered_map<int, std::vector<int>> & subconceptsMapping, int superconcept, int subconcept) {
-    if (subconceptsMapping.count(superconcept) == 1) {
-        std::vector<int>& subconcepts = subconceptsMapping[superconcept];
-        subconcepts.push_back(subconcept);
+void addEdgeToRelation(std::unordered_map<int, std::vector<int>> & relation, int from, int to) {
+    if (relation.count(from) == 1) {
+        std::vector<int>& subconcepts = relation[from];
+        subconcepts.push_back(to);
     }
     else {
-        subconceptsMapping.insert({ superconcept, { subconcept } });
+        relation.insert({ from, { to } });
     }
 }
 
 void addDummiesToLayers(
     int conceptsCount,
-    const std::vector<std::unordered_set<int>>& subconceptsMapping,
+    const std::vector<std::unordered_set<int>>& subconceptsRelation,
     const std::vector<int>& layersMapping,
     std::vector<int>& horizontalPositions,
     std::vector<std::vector<int>>& layersWithDummies,
-    std::unordered_map<int, std::vector<int>>& dummySubconceptsMapping,
+    std::unordered_map<int, std::vector<int>>& dummySubconceptsRelation,
     std::unordered_map<int, std::vector<int>>& subconceptsToRemove,
-    std::unordered_map<int, std::vector<int>>& dummySuperconceptsMapping,
+    std::unordered_map<int, std::vector<int>>& dummySuperconceptsRelation,
     std::unordered_map<int, std::vector<int>>& superconceptsToRemove,
     ProgressData& progress
 ) {
-    progress.beginBlock(subconceptsMapping.size());
+    progress.beginBlock(subconceptsRelation.size());
 
     int newDummy = conceptsCount;
 
-    for (int from = 0; from < subconceptsMapping.size(); from++) {
+    for (int from = 0; from < subconceptsRelation.size(); from++) {
         int fromLayer = layersMapping[from];
 
-        for (int to : subconceptsMapping[from]) {
+        for (int to : subconceptsRelation[from]) {
             int toLayer = layersMapping[to];
             int diff = abs(toLayer - fromLayer);
 
@@ -68,18 +68,18 @@ void addDummiesToLayers(
                     horizontalPositions[targetLayer[j]]++;
                 }
 
-                addSubconceptToMapping(dummySubconceptsMapping, previousSuperconcept, newDummy);
-                addSubconceptToMapping(dummySuperconceptsMapping, newDummy, previousSuperconcept);
+                addEdgeToRelation(dummySubconceptsRelation, previousSuperconcept, newDummy);
+                addEdgeToRelation(dummySuperconceptsRelation, newDummy, previousSuperconcept);
 
                 previousSuperconcept = newDummy;
                 newDummy++;
             }
 
-            addSubconceptToMapping(dummySubconceptsMapping, previousSuperconcept, to);
-            addSubconceptToMapping(dummySuperconceptsMapping, to, previousSuperconcept);
+            addEdgeToRelation(dummySubconceptsRelation, previousSuperconcept, to);
+            addEdgeToRelation(dummySuperconceptsRelation, to, previousSuperconcept);
 
-            addSubconceptToMapping(subconceptsToRemove, from, to);
-            addSubconceptToMapping(superconceptsToRemove, to, from);
+            addEdgeToRelation(subconceptsToRemove, from, to);
+            addEdgeToRelation(superconceptsToRemove, to, from);
         }
 
         progress.progress(from + 1);
@@ -88,24 +88,24 @@ void addDummiesToLayers(
     progress.finishBlock();
 }
 
-void mergeMappings(
-    std::vector<std::unordered_set<int>>& mapping,
-    std::unordered_map<int, std::vector<int>>& dummyMapping
+void mergeRelations(
+    std::vector<std::unordered_set<int>>& relation,
+    std::unordered_map<int, std::vector<int>>& dummyRelation
 ) {
-    for (const auto& [concept, subconcepts] : dummyMapping) {
-        for (auto subconcept : subconcepts) {
-            mapping[concept].insert(subconcept);
+    for (const auto& [concept, children] : dummyRelation) {
+        for (auto child : children) {
+            relation[concept].insert(child);
         }
     }
 }
 
-void removeNodesFromMapping(
-    std::vector<std::unordered_set<int>>& mapping,
-    std::unordered_map<int, std::vector<int>>& nodesToRemove
+void removeEdgesFromRelation(
+    std::vector<std::unordered_set<int>>& relation,
+    std::unordered_map<int, std::vector<int>>& edgesToRemove
 ) {
-    for (const auto& [node, subnodes] : nodesToRemove) {
-        for (auto subnode : subnodes) {
-            mapping[node].erase(subnode);
+    for (const auto& [concept, children] : edgesToRemove) {
+        for (auto child : children) {
+            relation[concept].erase(child);
         }
     }
 }
@@ -115,8 +115,8 @@ std::unique_ptr<std::tuple<
     std::vector<int>
 >> addDummies(
     int conceptsCount,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping,
+    std::vector<std::unordered_set<int>>& subconceptsRelation,
+    std::vector<std::unordered_set<int>>& superconceptsRelation,
     std::vector<std::unordered_set<int>>& layers,
     const std::vector<int>& layersMapping,
     ProgressData& progress
@@ -126,9 +126,9 @@ std::unique_ptr<std::tuple<
         std::vector<int>>>();
     auto& [layersWithDummies, horizontalPositions] = *result;
 
-    std::unordered_map<int, std::vector<int>> dummySubconceptsMapping;
+    std::unordered_map<int, std::vector<int>> dummySubconceptsRelation;
     std::unordered_map<int, std::vector<int>> subconceptsToRemove;
-    std::unordered_map<int, std::vector<int>> dummySuperconceptsMapping;
+    std::unordered_map<int, std::vector<int>> dummySuperconceptsRelation;
     std::unordered_map<int, std::vector<int>> superconceptsToRemove;
 
     horizontalPositions.resize(conceptsCount);
@@ -154,25 +154,25 @@ std::unique_ptr<std::tuple<
 
     addDummiesToLayers(
         conceptsCount,
-        subconceptsMapping,
+        subconceptsRelation,
         layersMapping,
         horizontalPositions,
         layersWithDummies,
-        dummySubconceptsMapping,
+        dummySubconceptsRelation,
         subconceptsToRemove,
-        dummySuperconceptsMapping,
+        dummySuperconceptsRelation,
         superconceptsToRemove,
         progress);
 
-    // Add dummies to the cover relation mappings
-    subconceptsMapping.resize(horizontalPositions.size());
-    superconceptsMapping.resize(horizontalPositions.size());
-    mergeMappings(subconceptsMapping, dummySubconceptsMapping);
-    mergeMappings(superconceptsMapping, dummySuperconceptsMapping);
+    // Add dummies to the cover relation
+    subconceptsRelation.resize(horizontalPositions.size());
+    superconceptsRelation.resize(horizontalPositions.size());
+    mergeRelations(subconceptsRelation, dummySubconceptsRelation);
+    mergeRelations(superconceptsRelation, dummySuperconceptsRelation);
 
-    // Remove the transitive relations from the mappings
-    removeNodesFromMapping(subconceptsMapping, subconceptsToRemove);
-    removeNodesFromMapping(superconceptsMapping, superconceptsToRemove);
+    // Remove the transitive relations
+    removeEdgesFromRelation(subconceptsRelation, subconceptsToRemove);
+    removeEdgesFromRelation(superconceptsRelation, superconceptsToRemove);
 
     // Make the coords precise
     int maxWithDummies = maxSizeOfVectors(layersWithDummies);

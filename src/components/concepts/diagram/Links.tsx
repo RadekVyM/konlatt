@@ -32,7 +32,7 @@ export default function Links() {
     const previousSelectedLinksHighlightingEnabledRef = useRef<boolean | null>(null);
 
     const currentTheme = useGlobalsStore((state) => state.currentTheme);
-    const subconceptsMapping = useDataStructuresStore((state) => state.lattice?.subconceptsMapping);
+    const subconceptsRelation = useDataStructuresStore((state) => state.lattice?.subconceptsRelation);
     const layout = useDiagramStore((state) => state.layout);
     const sublatticeConceptIndexes = useDiagramStore((state) => state.sublatticeConceptIndexes);
     const filteredConceptIndexes = useDiagramStore((state) => state.filteredConceptIndexes);
@@ -55,7 +55,7 @@ export default function Links() {
 
     // Logic to determine if any links should be visually "highlighted" vs "dimmed"
     const isSublatticeHighlighted = !!sublatticeConceptIndexes && sublatticeConceptIndexes.size !== 0;
-    const noFilteredConcepts = !filteredConceptIndexes || filteredConceptIndexes.size === 0 || filteredConceptIndexes.size === subconceptsMapping?.length;
+    const noFilteredConcepts = !filteredConceptIndexes || filteredConceptIndexes.size === 0 || filteredConceptIndexes.size === subconceptsRelation?.length;
     const noHighlightedLinks = (displayHighlightedSublatticeOnly || !isSublatticeHighlighted) && noFilteredConcepts &&
         (!hoveredLinksHighlightingEnabled || hoveredConceptIndex === null) &&
         (!selectedLinksHighlightingEnabled || selectedConceptIndex === null);
@@ -141,7 +141,7 @@ export default function Links() {
             horizontalScale,
             verticalScale,
             rotationDegrees);
-    }, [links, layout, subconceptsMapping, cameraType, diagramOffsets, horizontalScale, verticalScale, rotationDegrees]);
+    }, [links, layout, subconceptsRelation, cameraType, diagramOffsets, horizontalScale, verticalScale, rotationDegrees]);
 
     // Update matrices specifically for links whose nodes are being moved to maintain sync with nodes
     useLayoutEffect(() => {
@@ -163,7 +163,7 @@ export default function Links() {
             horizontalScale,
             verticalScale,
             rotationDegrees);
-    }, [selectedLinks, layout, subconceptsMapping, conceptsToMoveIndexes, dragOffset, cameraType, diagramOffsets, horizontalScale, verticalScale, rotationDegrees]);
+    }, [selectedLinks, layout, subconceptsRelation, conceptsToMoveIndexes, dragOffset, cameraType, diagramOffsets, horizontalScale, verticalScale, rotationDegrees]);
 
     // Handle color updates
     useLayoutEffect(() => {
@@ -301,7 +301,7 @@ function useDiagramLinks() {
     return useMemo(() => {
         return getDiagramLinks(
             layout,
-            lattice?.subconceptsMapping || null,
+            lattice?.subconceptsRelation || null,
             sublatticeConceptIndexes,
             filteredConceptIndexes,
             displayHighlightedSublatticeOnly);

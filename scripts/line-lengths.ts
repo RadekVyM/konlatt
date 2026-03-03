@@ -71,9 +71,9 @@ for (const dataset of datasets) {
     const { concepts } = await computeConcepts(context);
     const { lattice } = await conceptsToLattice(concepts, context);
     const { layout, conceptToLayoutIndexesMapping } = generateLayout(concepts.length);
-    const links = getLinks(concepts.map((c) => ({ conceptIndex: c.index })), lattice.subconceptsMapping, null, null, false);
+    const links = getLinks(concepts.map((c) => ({ conceptIndex: c.index })), lattice.subconceptsRelation, null, null, false);
 
-    measureConcepts(context, concepts, lattice.subconceptsMapping);
+    measureConcepts(context, concepts, lattice.subconceptsRelation);
 
     measureDiagram(
         layout,

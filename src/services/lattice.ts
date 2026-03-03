@@ -34,10 +34,10 @@ export async function conceptsToLattice(concepts: FormalConcepts, context: Forma
 
     console.log(`ConceptsCover: ${result.time}ms`);
 
-    const superconceptsMapping = [...cppIntMultiArrayToJs(result.value, true)].map((set) => new Set<number>(set));
-    const subconceptsMapping = reverseMapping(superconceptsMapping);
-    const objectsLabeling = getObjectsLabeling(concepts, superconceptsMapping);
-    const attributesLabeling = getAttributesLabeling(concepts, subconceptsMapping);
+    const superconceptsRelation = [...cppIntMultiArrayToJs(result.value, true)].map((set) => new Set<number>(set));
+    const subconceptsRelation = reverseRelation(superconceptsRelation);
+    const objectsLabeling = getObjectsLabeling(concepts, superconceptsRelation);
+    const attributesLabeling = getAttributesLabeling(concepts, subconceptsRelation);
     const computationTime = result.time;
 
     cppContext.delete();
@@ -52,8 +52,8 @@ export async function conceptsToLattice(concepts: FormalConcepts, context: Forma
 
     return {
         lattice: {
-            subconceptsMapping,
-            superconceptsMapping,
+            subconceptsRelation,
+            superconceptsRelation,
             objectsLabeling,
             attributesLabeling,
         },
@@ -61,48 +61,48 @@ export async function conceptsToLattice(concepts: FormalConcepts, context: Forma
     };
 }
 
-export function reverseMapping(mapping: Array<Set<number>>) {
-    const reversedMapping = new Array<Set<number>>(mapping.length);
+function reverseRelation(relation: Array<Set<number>>) {
+    const reversedRelation = new Array<Set<number>>(relation.length);
 
-    for (let i = 0; i < mapping.length; i++) {
-        const items = mapping[i];
+    for (let i = 0; i < relation.length; i++) {
+        const children = relation[i];
 
-        for (const item of items) {
-            if (reversedMapping[item] === undefined) {
-                reversedMapping[item] = new Set<number>();
+        for (const child of children) {
+            if (reversedRelation[child] === undefined) {
+                reversedRelation[child] = new Set<number>();
             }
 
-            reversedMapping[item].add(i);
+            reversedRelation[child].add(i);
         }
     }
 
-    for (let i = 0; i < mapping.length; i++) {
-        if (reversedMapping[i] === undefined) {
-            reversedMapping[i] = new Set<number>();
+    for (let i = 0; i < relation.length; i++) {
+        if (reversedRelation[i] === undefined) {
+            reversedRelation[i] = new Set<number>();
         }
     }
 
-    return reversedMapping;
+    return reversedRelation;
 }
 
 export function getObjectsLabeling(
     concepts: FormalConcepts,
-    superconceptsMapping: ReadonlyArray<Set<number>>,
+    superconceptsRelation: ReadonlyArray<Set<number>>,
     sublatticeConceptIndexes?: Set<number>,
 ): ConceptLatticeLabeling {
     const infimum = getInfimum(concepts);
 
-    return getLabeling(concepts, infimum, superconceptsMapping, (concept) => concept.objects, sublatticeConceptIndexes);
+    return getLabeling(concepts, infimum, superconceptsRelation, (concept) => concept.objects, sublatticeConceptIndexes);
 }
 
 export function getAttributesLabeling(
     concepts: FormalConcepts,
-    subconceptsMapping: ReadonlyArray<Set<number>>,
+    subconceptsRelation: ReadonlyArray<Set<number>>,
     sublatticeConceptIndexes?: Set<number>,
 ): ConceptLatticeLabeling {
     const supremum = getSupremum(concepts);
 
-    return getLabeling(concepts, supremum, subconceptsMapping, (concept) => concept.attributes, sublatticeConceptIndexes);
+    return getLabeling(concepts, supremum, subconceptsRelation, (concept) => concept.attributes, sublatticeConceptIndexes);
 }
 
 
@@ -111,12 +111,12 @@ export function calculateConeConceptIndexes(upperConeOnlyConceptIndex: number | 
         return null;
     }
 
-    const upperCone = upperConeOnlyConceptIndex !== null && lattice?.superconceptsMapping ?
-        collectIndexes(upperConeOnlyConceptIndex, lattice.superconceptsMapping) :
+    const upperCone = upperConeOnlyConceptIndex !== null && lattice?.superconceptsRelation ?
+        collectIndexes(upperConeOnlyConceptIndex, lattice.superconceptsRelation) :
         null;
 
-    const lowerCone = lowerConeOnlyConceptIndex !== null && lattice?.subconceptsMapping ?
-        collectIndexes(lowerConeOnlyConceptIndex, lattice.subconceptsMapping) :
+    const lowerCone = lowerConeOnlyConceptIndex !== null && lattice?.subconceptsRelation ?
+        collectIndexes(lowerConeOnlyConceptIndex, lattice.subconceptsRelation) :
         null;
 
     if (upperCone === null) {
@@ -143,8 +143,8 @@ export function calculateConeConceptIndexes(upperConeOnlyConceptIndex: number | 
 export function calculateSublattice(sublatticeConceptIndexes: Set<number>, lattice: ConceptLattice, supremumIndex: number) {
     const indexMapping = new Map<number, number>();
     const reverseIndexMapping = new Map<number, number>();
-    const subconceptsMapping = new Array<Set<number>>();
-    const { layers } = assignNodesToLayersByLongestPath(supremumIndex, lattice.subconceptsMapping);
+    const subconceptsRelation = new Array<Set<number>>();
+    const { layers } = assignNodesToLayersByLongestPath(supremumIndex, lattice.subconceptsRelation);
 
     let infimum = 0;
     let nextUsableIndex = 0;
@@ -160,7 +160,7 @@ export function calculateSublattice(sublatticeConceptIndexes: Set<number>, latti
 
             const subconcepts = new Array<number>();
 
-            for (const subconceptIndex of lattice.subconceptsMapping[conceptIndex]) {
+            for (const subconceptIndex of lattice.subconceptsRelation[conceptIndex]) {
                 if (!sublatticeConceptIndexes.has(subconceptIndex)) {
                     continue;
                 }
@@ -171,7 +171,7 @@ export function calculateSublattice(sublatticeConceptIndexes: Set<number>, latti
                 subconcepts.push(index);
             }
 
-            subconceptsMapping[index] = new Set(subconcepts);
+            subconceptsRelation[index] = new Set(subconcepts);
 
             if (subconcepts.length === 0) {
                 infimum = index;
@@ -181,7 +181,7 @@ export function calculateSublattice(sublatticeConceptIndexes: Set<number>, latti
 
     return {
         reverseIndexMapping,
-        subconceptsMapping,
+        subconceptsRelation,
         supremum: 0,
         infimum,
     };

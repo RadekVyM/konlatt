@@ -12,8 +12,8 @@ export default function withExplorerConcepts(newState: Partial<ExplorerStore>, o
         return withLayoutBox(newState, oldState);
     }
 
-    const superconcepts = lattice.superconceptsMapping[selectedConceptIndex];
-    const subconcepts = lattice.subconceptsMapping[selectedConceptIndex];
+    const superconcepts = lattice.superconceptsRelation[selectedConceptIndex];
+    const subconcepts = lattice.subconceptsRelation[selectedConceptIndex];
 
     const conceptToLayoutIndexesMapping = new Map<number, number>();
     const layoutToConceptIndexesMapping = new Map<number, number>();

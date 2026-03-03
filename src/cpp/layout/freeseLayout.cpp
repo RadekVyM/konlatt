@@ -42,12 +42,12 @@ std::unique_ptr<std::tuple<std::vector<int>, std::unordered_map<int, int>>> assi
     int conceptsCount,
     int supremum,
     int infimum,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping
+    std::vector<std::unordered_set<int>>& subconceptsRelation,
+    std::vector<std::unordered_set<int>>& superconceptsRelation
 ) {
-    auto depthsResult = assignNodesToLayersByLongestPath(supremum, subconceptsMapping);
+    auto depthsResult = assignNodesToLayersByLongestPath(supremum, subconceptsRelation);
     auto& [depthsMapping, depthLayers] = *depthsResult;
-    auto heightResult = assignNodesToLayersByLongestPath(infimum, superconceptsMapping);
+    auto heightResult = assignNodesToLayersByLongestPath(infimum, superconceptsRelation);
     auto& [heightsMapping, heightLayers] = *heightResult;
 
     auto result = std::make_unique<std::tuple<std::vector<int>, std::unordered_map<int, int>>>();
@@ -237,11 +237,11 @@ void update(
     float attractionFactor,
     float repulsionFactor,
     int conceptsCount,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping
+    std::vector<std::unordered_set<int>>& subconceptsRelation,
+    std::vector<std::unordered_set<int>>& superconceptsRelation
 ) {
     for (int conceptIndex = 0; conceptIndex < conceptsCount; conceptIndex++) {
-        auto comparableConcepts = getComparableConcepts(conceptIndex, subconceptsMapping, superconceptsMapping);
+        auto comparableConcepts = getComparableConcepts(conceptIndex, subconceptsRelation, superconceptsRelation);
 
         for (int comp : *comparableConcepts) {
             attraction(forces, attractionFactor, layout, conceptIndex, comp);
@@ -268,14 +268,14 @@ void multiUpdate(
     float attractionFactor,
     float repulsionFactor,
     int conceptsCount,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping,
+    std::vector<std::unordered_set<int>>& subconceptsRelation,
+    std::vector<std::unordered_set<int>>& superconceptsRelation,
     ProgressData& progress
 ) {
     progress.beginBlock(updatesCount);
 
     for (int i = 0; i < updatesCount; i++) {
-        update(layout, forces, attractionFactor, repulsionFactor, conceptsCount, subconceptsMapping, superconceptsMapping);
+        update(layout, forces, attractionFactor, repulsionFactor, conceptsCount, subconceptsRelation, superconceptsRelation);
 
         progress.progress(i + 1);
     }
@@ -288,15 +288,15 @@ void computeFreeseLayout(
     int supremum,
     int infimum,
     int conceptsCount,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping,
+    std::vector<std::unordered_set<int>>& subconceptsRelation,
+    std::vector<std::unordered_set<int>>& superconceptsRelation,
     std::function<void(double)> onProgress
 ) {
     long long startTime = nowMills();
 
     auto progress = ProgressData(3, onProgress);
 
-    auto ranksResult = assignRanksToNodes(conceptsCount, supremum, infimum, subconceptsMapping, superconceptsMapping);
+    auto ranksResult = assignRanksToNodes(conceptsCount, supremum, infimum, subconceptsRelation, superconceptsRelation);
     auto& [ranksMapping, rankCounts] = *ranksResult;
     auto forces = std::make_unique<std::vector<ForcePoint>>();
 
@@ -317,8 +317,8 @@ void computeFreeseLayout(
         attractionFactor * 0.5,
         repulsionFactor * 3,
         conceptsCount,
-        subconceptsMapping,
-        superconceptsMapping,
+        subconceptsRelation,
+        superconceptsRelation,
         progress);
 
     multiUpdate(
@@ -328,8 +328,8 @@ void computeFreeseLayout(
         attractionFactor * 3,
         repulsionFactor * 0.5,
         conceptsCount,
-        subconceptsMapping,
-        superconceptsMapping,
+        subconceptsRelation,
+        superconceptsRelation,
         progress);
 
     multiUpdate(
@@ -339,8 +339,8 @@ void computeFreeseLayout(
         attractionFactor * 0.75,
         repulsionFactor * 1.5,
         conceptsCount,
-        subconceptsMapping,
-        superconceptsMapping,
+        subconceptsRelation,
+        superconceptsRelation,
         progress);
 
     normalizeDistances(result.value, conceptsCount, supremum, infimum, ranksMapping, rankCounts);

@@ -27,31 +27,31 @@ std::unique_ptr<std::vector<int>> jsTypedArrayToVector(const emscripten::val& in
 std::unique_ptr<std::tuple<
     std::vector<std::unordered_set<int>>,
     std::vector<std::unordered_set<int>>
->> convertToCppMappings(
+>> convertToCppRelations(
     int conceptsCount,
-    const emscripten::val& subconceptsMappingTypedArray
+    const emscripten::val& subconceptsRelationTypedArray
 ) {
-    auto flatSubconceptsMapping = jsTypedArrayToVector(subconceptsMappingTypedArray);
+    auto flatSubconceptsRelation = jsTypedArrayToVector(subconceptsRelationTypedArray);
 
     auto result = std::make_unique<std::tuple<
         std::vector<std::unordered_set<int>>,
         std::vector<std::unordered_set<int>>>>();
-    auto& [subconceptsMapping, superconceptsMapping] = *result;
+    auto& [subconceptsRelation, superconceptsRelation] = *result;
 
-    subconceptsMapping.resize(conceptsCount);
-    superconceptsMapping.resize(conceptsCount);
+    subconceptsRelation.resize(conceptsCount);
+    superconceptsRelation.resize(conceptsCount);
 
     int i = 0;
     int currentConcept = 0;
 
-    while (i < flatSubconceptsMapping->size()) {
-        int count = (*flatSubconceptsMapping)[i];
+    while (i < flatSubconceptsRelation->size()) {
+        int count = (*flatSubconceptsRelation)[i];
         i++;
 
         for (int j = 0; j < count; j++) {
-            int value = (*flatSubconceptsMapping)[i];
-            subconceptsMapping[currentConcept].insert(value);
-            superconceptsMapping[value].insert(currentConcept);
+            int value = (*flatSubconceptsRelation)[i];
+            subconceptsRelation[currentConcept].insert(value);
+            superconceptsRelation[value].insert(currentConcept);
 
             i++;
         }
@@ -66,14 +66,14 @@ void computeLayeredLayoutJs(
     TimedResult<std::vector<float>>& result,
     int supremum,
     int conceptsCount,
-    const emscripten::val& subconceptsMappingTypedArray,
+    const emscripten::val& subconceptsRelationTypedArray,
     std::string placement
 #ifdef __EMSCRIPTEN__
     , OnProgressCallback onProgress
 #endif
 ) {
-    auto mappings = convertToCppMappings(conceptsCount, subconceptsMappingTypedArray);
-    auto& [subconceptsMapping, superconceptsMapping] = *mappings;
+    auto relations = convertToCppRelations(conceptsCount, subconceptsRelationTypedArray);
+    auto& [subconceptsRelation, superconceptsRelation] = *relations;
 
     auto onProgressCallback = [&onProgress](double value) {
 #ifdef __EMSCRIPTEN__
@@ -87,8 +87,8 @@ void computeLayeredLayoutJs(
         result,
         supremum,
         conceptsCount,
-        subconceptsMapping,
-        superconceptsMapping,
+        subconceptsRelation,
+        superconceptsRelation,
         placement,
         onProgressCallback);
 }
@@ -98,13 +98,13 @@ void computeFreeseLayoutJs(
     int supremum,
     int infimum,
     int conceptsCount,
-    const emscripten::val& subconceptsMappingTypedArray
+    const emscripten::val& subconceptsRelationTypedArray
 #ifdef __EMSCRIPTEN__
     , OnProgressCallback onProgress
 #endif
 ) {
-    auto mappings = convertToCppMappings(conceptsCount, subconceptsMappingTypedArray);
-    auto& [subconceptsMapping, superconceptsMapping] = *mappings;
+    auto relations = convertToCppRelations(conceptsCount, subconceptsRelationTypedArray);
+    auto& [subconceptsRelation, superconceptsRelation] = *relations;
 
     auto onProgressCallback = [&onProgress](double value) {
 #ifdef __EMSCRIPTEN__
@@ -119,8 +119,8 @@ void computeFreeseLayoutJs(
         supremum,
         infimum,
         conceptsCount,
-        subconceptsMapping,
-        superconceptsMapping,
+        subconceptsRelation,
+        superconceptsRelation,
         onProgressCallback);
 }
 
@@ -129,7 +129,7 @@ void computeReDrawLayoutJs(
     int supremum,
     int infimum,
     int conceptsCount,
-    const emscripten::val& subconceptsMappingTypedArray,
+    const emscripten::val& subconceptsRelationTypedArray,
     unsigned int seed,
     int targetDimension,
     bool parallelize
@@ -137,8 +137,8 @@ void computeReDrawLayoutJs(
     , OnProgressCallback onProgress
 #endif
 ) {
-    auto mappings = convertToCppMappings(conceptsCount, subconceptsMappingTypedArray);
-    auto& [subconceptsMapping, superconceptsMapping] = *mappings;
+    auto relations = convertToCppRelations(conceptsCount, subconceptsRelationTypedArray);
+    auto& [subconceptsRelation, superconceptsRelation] = *relations;
 
     auto onProgressCallback = [&onProgress](double value) {
 #ifdef __EMSCRIPTEN__
@@ -153,8 +153,8 @@ void computeReDrawLayoutJs(
         supremum,
         infimum,
         conceptsCount,
-        subconceptsMapping,
-        superconceptsMapping,
+        subconceptsRelation,
+        superconceptsRelation,
         seed,
         targetDimension,
         parallelize,

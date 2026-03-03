@@ -37,15 +37,15 @@ describe.each<TestValue>([
     test(`lattice: ${value.title}`, async () => {
         const { lattice } = await conceptsToLattice(savedConcepts, savedContext);
         savedLattice = lattice;
-        expect(lattice.subconceptsMapping.reduce((prev, curr) => prev + curr.size, 0))
+        expect(lattice.subconceptsRelation.reduce((prev, curr) => prev + curr.size, 0))
             .toBe(value.coverRelationSize);
-        expect(lattice.superconceptsMapping.reduce((prev, curr) => prev + curr.size, 0))
+        expect(lattice.superconceptsRelation.reduce((prev, curr) => prev + curr.size, 0))
             .toBe(value.coverRelationSize);
-        //expect(lattice.subconceptsMapping).toMatchSnapshot();
+        //expect(lattice.subconceptsRelation).toMatchSnapshot();
     }, 60000);
 
     test(`layers by the longest path: ${value.title}`, () => {
-        const { layers } = assignNodesToLayersByLongestPath(getSupremum(savedConcepts).index, savedLattice.subconceptsMapping);
+        const { layers } = assignNodesToLayersByLongestPath(getSupremum(savedConcepts).index, savedLattice.subconceptsRelation);
 
         for (let i = 0; i < value.byLongestPathLayersCounts.length; i++) {
             expect(layers[i].size).toBe(value.byLongestPathLayersCounts[i]);

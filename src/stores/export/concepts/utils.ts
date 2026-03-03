@@ -124,7 +124,7 @@ function highlightedConcepts(
             attributes: context.attributes,
             concepts,
             relation: lattice ?
-                lattice.superconceptsMapping :
+                lattice.superconceptsRelation :
                 undefined,
         };
     }
@@ -157,7 +157,7 @@ function highlightedConcepts(
         attributes,
         concepts: newConcepts,
         relation: lattice ?
-            remappedRelation(newConcepts, sublatticeConceptIndexes, lattice.superconceptsMapping, conceptIndexesMapping) :
+            remappedRelation(newConcepts, sublatticeConceptIndexes, lattice.superconceptsRelation, conceptIndexesMapping) :
             undefined,
     };
 }

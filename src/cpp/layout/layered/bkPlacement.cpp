@@ -39,11 +39,11 @@ bool isDummy(int node, int conceptsCount) {
 
 std::optional<int> findOtherInnerSegmentNode(
     int node,
-    std::vector<std::unordered_set<int>>& superconceptsMapping,
+    std::vector<std::unordered_set<int>>& superconceptsRelation,
     int conceptsCount
 ) {
     if (isDummy(node, conceptsCount)) {
-        for (auto super : superconceptsMapping[node]) {
+        for (auto super : superconceptsRelation[node]) {
             if (isDummy(super, conceptsCount)) {
                 return super;
             }
@@ -85,7 +85,7 @@ bool hasConflict(
 
 void markConflicts(
     std::vector<std::vector<int>>& layers,
-    std::vector<std::unordered_set<int>>& superconceptsMapping,
+    std::vector<std::unordered_set<int>>& superconceptsRelation,
     int conceptsCount,
     std::vector<int>& horizontalOrder,
     Conflicts& conflicts,
@@ -108,7 +108,7 @@ void markConflicts(
         for (int nodeIndex = 0; nodeIndex < layer.size(); nodeIndex++) {
             iteration++;
             int node = layer[nodeIndex];
-            auto otherInnerSegmentNode = findOtherInnerSegmentNode(node, superconceptsMapping, conceptsCount);
+            auto otherInnerSegmentNode = findOtherInnerSegmentNode(node, superconceptsRelation, conceptsCount);
             int otherInnerSegmentNodeOrder = otherInnerSegmentNode ?
                 horizontalOrder[otherInnerSegmentNode.value()] :
                 layers[layerIndex - 1].size();
@@ -122,7 +122,7 @@ void markConflicts(
             for (int scanNodeIndex = startScanIndex; scanNodeIndex < nodeIndex + 1; scanNodeIndex++) {
                 int scanNode = layer[scanNodeIndex];
 
-                for (auto superNode : superconceptsMapping[scanNode]) {
+                for (auto superNode : superconceptsRelation[scanNode]) {
                     int superOrder = horizontalOrder[superNode];
 
                     // type 1
@@ -195,8 +195,8 @@ std::vector<int> findMediansDestructive(
 
 void verticalAlignment(
     std::vector<std::vector<int>>& layers,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping,
+    std::vector<std::unordered_set<int>>& subconceptsRelation,
+    std::vector<std::unordered_set<int>>& superconceptsRelation,
     int conceptsCount,
     std::vector<int>& horizontalOrder,
     Conflicts& conflicts,
@@ -225,7 +225,7 @@ void verticalAlignment(
 
     int startLayerIndex = up ? layers.size() - 2 : 1;
     int layerIncrease = up ? -1 : 1;
-    auto& neighborsMapping = up ? subconceptsMapping : superconceptsMapping;
+    auto& neighborsMapping = up ? subconceptsRelation : superconceptsRelation;
 
     int iteration = 0;
 
@@ -475,20 +475,20 @@ void balance(
 void bkPlacement(
     std::vector<float>& result,
     std::vector<std::vector<int>>& layers,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping,
+    std::vector<std::unordered_set<int>>& subconceptsRelation,
+    std::vector<std::unordered_set<int>>& superconceptsRelation,
     int conceptsCount,
     ProgressData& progress
 ) {
     float delta = 1;
-    auto horizontalOrder = std::vector<int>(subconceptsMapping.size());
-    auto predecessors = std::vector<int>(subconceptsMapping.size());
+    auto horizontalOrder = std::vector<int>(subconceptsRelation.size());
+    auto predecessors = std::vector<int>(subconceptsRelation.size());
     setupHorizontalOrder(horizontalOrder, predecessors, layers);
 
     Conflicts conflicts;
     markConflicts(
         layers,
-        superconceptsMapping,
+        superconceptsRelation,
         conceptsCount,
         horizontalOrder,
         conflicts,
@@ -506,8 +506,8 @@ void bkPlacement(
         NodesList roots;
         verticalAlignment(
             layers,
-            subconceptsMapping,
-            superconceptsMapping,
+            subconceptsRelation,
+            superconceptsRelation,
             conceptsCount,
             horizontalOrder,
             conflicts,

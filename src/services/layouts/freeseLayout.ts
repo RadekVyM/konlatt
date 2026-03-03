@@ -6,7 +6,7 @@ export async function computeFreeseLayout(
     conceptsCount: number,
     supremum: number,
     infimum: number,
-    subconceptsMappingArrayBuffer: Int32Array,
+    subconceptsRelationArrayBuffer: Int32Array,
     onProgress: (progress: number) => void,
 ): Promise<{
     layout: Array<Point>,
@@ -15,7 +15,7 @@ export async function computeFreeseLayout(
     const module = await Module();
     const result = new module.FloatArrayTimedResult();
 
-    module.computeFreeseLayout(result, supremum, infimum, conceptsCount, subconceptsMappingArrayBuffer, onProgress);
+    module.computeFreeseLayout(result, supremum, infimum, conceptsCount, subconceptsRelationArrayBuffer, onProgress);
     const layout = cppFloatArrayToPoints(result.value, conceptsCount, true);
     const computationTime = result.time;
 

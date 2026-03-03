@@ -97,8 +97,8 @@ function tryReadLattice(
     concepts: FormalConcepts,
     jsonLattice: Array<any>,
 ): ConceptLattice {
-    const subconceptsMapping = new Array<Set<number>>(concepts.length);
-    const superconceptsMapping = new Array<Set<number>>(concepts.length);
+    const subconceptsRelation = new Array<Set<number>>(concepts.length);
+    const superconceptsRelation = new Array<Set<number>>(concepts.length);
 
     for (const relation of jsonLattice) {
         if (!Array.isArray(relation) || relation.length !== 2) {
@@ -110,18 +110,18 @@ function tryReadLattice(
 
         if ((typeof sub === "number" && sub >= 0 && sub < concepts.length) &&
             (typeof sup === "number" && sup >= 0 && sup < concepts.length)) {
-            if (subconceptsMapping[sup] === undefined) {
-                subconceptsMapping[sup] = new Set([sub]);
+            if (subconceptsRelation[sup] === undefined) {
+                subconceptsRelation[sup] = new Set([sub]);
             }
             else {
-                subconceptsMapping[sup].add(sub);
+                subconceptsRelation[sup].add(sub);
             }
 
-            if (superconceptsMapping[sub] === undefined) {
-                superconceptsMapping[sub] = new Set([sup]);
+            if (superconceptsRelation[sub] === undefined) {
+                superconceptsRelation[sub] = new Set([sup]);
             }
             else {
-                superconceptsMapping[sub].add(sup);
+                superconceptsRelation[sub].add(sup);
             }
         }
         else {
@@ -130,18 +130,18 @@ function tryReadLattice(
     }
 
     for (let i = 0; i < concepts.length; i++) {
-        if (subconceptsMapping[i] === undefined) {
-            subconceptsMapping[i] = new Set();
+        if (subconceptsRelation[i] === undefined) {
+            subconceptsRelation[i] = new Set();
         }
-        if (superconceptsMapping[i] === undefined) {
-            superconceptsMapping[i] = new Set();
+        if (superconceptsRelation[i] === undefined) {
+            superconceptsRelation[i] = new Set();
         }
     }
 
     return {
-        subconceptsMapping,
-        superconceptsMapping,
-        objectsLabeling: getObjectsLabeling(concepts, superconceptsMapping),
-        attributesLabeling: getAttributesLabeling(concepts, subconceptsMapping),
+        subconceptsRelation,
+        superconceptsRelation,
+        objectsLabeling: getObjectsLabeling(concepts, superconceptsRelation),
+        attributesLabeling: getAttributesLabeling(concepts, subconceptsRelation),
     };
 }

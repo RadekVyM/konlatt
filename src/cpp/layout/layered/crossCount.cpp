@@ -16,14 +16,14 @@ long long twoLayerCrossCount(
     std::vector<int>& northLayer,
     std::vector<int>& southLayer,
     std::vector<int>& horizontalPositions,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
+    std::vector<std::unordered_set<int>>& subconceptsRelation,
     CrossCountDataStructures& datastructures
 ) {
     // Create the permutation
 
     for (int northNode : northLayer) {
         int startIndex = datastructures.permutation.size();
-        auto& subnodes = subconceptsMapping[northNode];
+        auto& subnodes = subconceptsRelation[northNode];
 
         std::vector<int> southNodePositions;
         southNodePositions.reserve(subnodes.size());
@@ -83,20 +83,20 @@ long long twoLayerCrossCount(
 long long crossCount(
     std::vector<std::vector<int>>& layers,
     std::vector<int>& horizontalPositions,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
+    std::vector<std::unordered_set<int>>& subconceptsRelation,
     CrossCountDataStructures& datastructures
 ) {
     // Preallocate the data structures
     std::size_t edgesCount = std::accumulate(
-        subconceptsMapping.begin(),
-        subconceptsMapping.end(),
+        subconceptsRelation.begin(),
+        subconceptsRelation.end(),
         0,
         [](std::size_t currentSum, const std::unordered_set<int>& subconcepts) {
             return currentSum + subconcepts.size();
         }
     );
     datastructures.permutation.reserve(edgesCount);
-    datastructures.tree.reserve(subconceptsMapping.size());
+    datastructures.tree.reserve(subconceptsRelation.size());
 
     long long count = 0;
 
@@ -106,7 +106,7 @@ long long crossCount(
             layers[i],
             layers[i + 1],
             horizontalPositions,
-            subconceptsMapping,
+            subconceptsRelation,
             datastructures);
     }
 

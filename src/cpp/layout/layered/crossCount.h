@@ -12,12 +12,12 @@ struct CrossCountDataStructures {
 /// @brief Counts edge crossings in the layers. The layers need to be sorted by horizontal positions.
 /// @param layers
 /// @param horizontalPositions
-/// @param subconceptsMapping
+/// @param subconceptsRelation
 /// @return
 long long crossCount(
     std::vector<std::vector<int>>& layers,
     std::vector<int>& horizontalPositions,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
+    std::vector<std::unordered_set<int>>& subconceptsRelation,
     CrossCountDataStructures& datastructures
 );
 

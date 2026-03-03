@@ -152,7 +152,7 @@ async function calculateLayout(
     const worker = new DiagramLayoutWorker();
     const { request, reverseIndexMapping } = createCompleteLayoutComputationRequest(concepts, lattice, upperConeOnlyConceptIndex, lowerConeOnlyConceptIndex, options);
 
-    worker.postMessage(request, [request.subconceptsMappingArrayBuffer.buffer]);
+    worker.postMessage(request, [request.subconceptsRelationArrayBuffer.buffer]);
 
     await tryThrow(new Promise((resolve, reject) => {
         workerInstances.set(jobId, { worker, reject });
@@ -280,22 +280,22 @@ function createCompleteLayoutComputationRequest(
                 conceptsCount: concepts.length,
                 supremum: getSupremum(concepts).index,
                 infimum: getInfimum(concepts).index,
-                subconceptsMappingArrayBuffer: new Int32Array(lattice.subconceptsMapping.flatMap((set) => [set.size, ...set])),
+                subconceptsRelationArrayBuffer: new Int32Array(lattice.subconceptsRelation.flatMap((set) => [set.size, ...set])),
             },
             reverseIndexMapping: null,
         };
     }
 
-    const { reverseIndexMapping, subconceptsMapping, supremum, infimum } = calculateSublattice(sublatticeConceptIndexes, lattice, getSupremum(concepts).index);
+    const { reverseIndexMapping, subconceptsRelation, supremum, infimum } = calculateSublattice(sublatticeConceptIndexes, lattice, getSupremum(concepts).index);
 
     return {
         request: {
             type: "layout",
             options,
-            conceptsCount: subconceptsMapping.length,
+            conceptsCount: subconceptsRelation.length,
             supremum,
             infimum,
-            subconceptsMappingArrayBuffer: new Int32Array(subconceptsMapping.flatMap((set) => [set.size, ...set])),
+            subconceptsRelationArrayBuffer: new Int32Array(subconceptsRelation.flatMap((set) => [set.size, ...set])),
         },
         reverseIndexMapping,
     };

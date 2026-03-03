@@ -7,7 +7,7 @@ import { createPoint, Point } from "../../types/Point";
 import { rotatePoint } from "../../utils/layout";
 import { w, withFallback } from "../../utils/stores";
 import { DiagramStore } from "./useDiagramStore";
-import { createConceptLayoutIndexesMappings, createDefaultDiagramOffsets, createDiagramLayoutStateId, createEmptyDiagramOffsetMementos } from "./utils";
+import { createConceptLayoutIndexesRelations, createDefaultDiagramOffsets, createDiagramLayoutStateId, createEmptyDiagramOffsetMementos } from "./utils";
 import { withCanUndoRedo } from "./withCanUndoRedo";
 import withConceptsToMoveBox from "./withConceptsToMoveBox";
 import withDefaultLayoutBox from "./withDefaultLayoutBox";
@@ -63,7 +63,7 @@ export default function createDiagramLayoutSlice(set: (partial: DiagramStore | P
             return w({
                 layout,
                 layoutId: `${layout?.length}-${Math.random()}`,
-                ...createConceptLayoutIndexesMappings(layout),
+                ...createConceptLayoutIndexesRelations(layout),
                 diagramOffsets,
                 diagramOffsetMementos,
                 layoutCache: layout && diagramOffsets ?

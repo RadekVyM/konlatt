@@ -12,8 +12,8 @@ std::unique_ptr<std::tuple<
     std::vector<int>
 >> addDummies(
     int conceptsCount,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping,
+    std::vector<std::unordered_set<int>>& subconceptsRelation,
+    std::vector<std::unordered_set<int>>& superconceptsRelation,
     std::vector<std::unordered_set<int>>& layers,
     const std::vector<int>& layersMapping,
     ProgressData& progress

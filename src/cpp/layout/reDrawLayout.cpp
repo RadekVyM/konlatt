@@ -191,8 +191,8 @@ float applyForces(
     std::vector<float>& forces,
     int conceptsCount,
     int dimension,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping
+    std::vector<std::unordered_set<int>>& subconceptsRelation,
+    std::vector<std::unordered_set<int>>& superconceptsRelation
 ) {
     float forcesSum = 0;
 
@@ -209,7 +209,7 @@ float applyForces(
             float upperb = std::numeric_limits<float>::max();
             bool hasPredecessor = false;
 
-            for (int superconcept : superconceptsMapping[conceptIndex]) {
+            for (int superconcept : superconceptsRelation[conceptIndex]) {
                 upperb = std::min(upperb, layout[getStart(dimension, superconcept)]);
                 hasPredecessor = true;
             }
@@ -225,7 +225,7 @@ float applyForces(
             float lowerb = std::numeric_limits<float>::min();
             bool hasSuccessor = false;
 
-            for (int subconcept : subconceptsMapping[conceptIndex]) {
+            for (int subconcept : subconceptsRelation[conceptIndex]) {
                 lowerb = std::max(lowerb, layout[getStart(dimension, subconcept)]);
                 hasSuccessor = true;
             }
@@ -275,12 +275,12 @@ float nodeStep(
     std::vector<float>& forces,
     int conceptsCount,
     int dimension,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping
+    std::vector<std::unordered_set<int>>& subconceptsRelation,
+    std::vector<std::unordered_set<int>>& superconceptsRelation
 ) {
     for (int conceptIndex = 0; conceptIndex < conceptsCount; conceptIndex++) {
         // Vertical forces
-        for (int endConceptIndex : subconceptsMapping[conceptIndex]) {
+        for (int endConceptIndex : subconceptsRelation[conceptIndex]) {
             double verticalDistance = distance(layout, dimension, conceptIndex, endConceptIndex, 0, 1);
             double horizontalDistance = distance(layout, dimension, conceptIndex, endConceptIndex, 1, dimension - 1);
 
@@ -295,7 +295,7 @@ float nodeStep(
             addVForce(force, forces, dimension, endConceptIndex);
         }
 
-        auto comparableConcepts = getComparableConcepts(conceptIndex, subconceptsMapping, superconceptsMapping);
+        auto comparableConcepts = getComparableConcepts(conceptIndex, subconceptsRelation, superconceptsRelation);
 
         // Attracting forces of chains (comparable elements)
         for (int comp : *comparableConcepts) {
@@ -331,7 +331,7 @@ float nodeStep(
         }
     }
 
-    return applyForces(layout, forces, conceptsCount, dimension, subconceptsMapping, superconceptsMapping);
+    return applyForces(layout, forces, conceptsCount, dimension, subconceptsRelation, superconceptsRelation);
 }
 
 void multiNodeStep(
@@ -339,8 +339,8 @@ void multiNodeStep(
     std::vector<float>& forces,
     int conceptsCount,
     int dimension,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping,
+    std::vector<std::unordered_set<int>>& subconceptsRelation,
+    std::vector<std::unordered_set<int>>& superconceptsRelation,
     ProgressData& progress
 ) {
     progress.beginBlock(ITERATIONS_COUNT);
@@ -353,8 +353,8 @@ void multiNodeStep(
             forces,
             conceptsCount,
             dimension,
-            subconceptsMapping,
-            superconceptsMapping);
+            subconceptsRelation,
+            superconceptsRelation);
 
         progress.progress(i + 1);
 
@@ -402,14 +402,14 @@ float lineStep(
     std::vector<float>& forces,
     int conceptsCount,
     int dimension,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping
+    std::vector<std::unordered_set<int>>& subconceptsRelation,
+    std::vector<std::unordered_set<int>>& superconceptsRelation
 ) {
     // TODO: Check if this is implemented correctly
     for (int firstFrom = 0; firstFrom < conceptsCount; firstFrom++) {
-        for (int firstTo : subconceptsMapping[firstFrom]) {
+        for (int firstTo : subconceptsRelation[firstFrom]) {
             for (int secondFrom = 0; secondFrom < conceptsCount; secondFrom++) {
-                for (int secondTo : subconceptsMapping[secondFrom]) {
+                for (int secondTo : subconceptsRelation[secondFrom]) {
                     if ((firstFrom == secondFrom && firstTo == secondTo) || firstFrom == firstTo || secondFrom == secondTo) {
                         continue;
                     }
@@ -476,7 +476,7 @@ float lineStep(
         }
     }
 
-    return applyForces(layout, forces, conceptsCount, dimension, subconceptsMapping, superconceptsMapping);
+    return applyForces(layout, forces, conceptsCount, dimension, subconceptsRelation, superconceptsRelation);
 }
 
 void multiLineStep(
@@ -484,8 +484,8 @@ void multiLineStep(
     std::vector<float>& forces,
     int conceptsCount,
     int dimension,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping,
+    std::vector<std::unordered_set<int>>& subconceptsRelation,
+    std::vector<std::unordered_set<int>>& superconceptsRelation,
     ProgressData& progress
 ) {
     progress.beginBlock(ITERATIONS_COUNT);
@@ -498,8 +498,8 @@ void multiLineStep(
             forces,
             conceptsCount,
             dimension,
-            subconceptsMapping,
-            superconceptsMapping);
+            subconceptsRelation,
+            superconceptsRelation);
 
         progress.progress(i + 1);
 
@@ -516,8 +516,8 @@ void round(
     std::vector<float>& forces,
     int conceptsCount,
     int dimension,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping,
+    std::vector<std::unordered_set<int>>& subconceptsRelation,
+    std::vector<std::unordered_set<int>>& superconceptsRelation,
     bool parallelize,
     ProgressData& progress
 ) {
@@ -526,8 +526,8 @@ void round(
         forces,
         conceptsCount,
         dimension,
-        subconceptsMapping,
-        superconceptsMapping,
+        subconceptsRelation,
+        superconceptsRelation,
         progress);
     correctOffset(layout, conceptsCount, dimension);
 
@@ -537,8 +537,8 @@ void round(
             forces,
             conceptsCount,
             dimension,
-            subconceptsMapping,
-            superconceptsMapping,
+            subconceptsRelation,
+            superconceptsRelation,
             progress);
         correctOffset(layout, conceptsCount, dimension);
     }
@@ -549,7 +549,7 @@ void initializeLayout(
     int conceptsCount,
     int dimension,
     int infimum,
-    std::vector<std::unordered_set<int>>& superconceptsMapping,
+    std::vector<std::unordered_set<int>>& superconceptsRelation,
     unsigned int seed
 ) {
     layout.resize(getLayoutDimension(dimension) * conceptsCount);
@@ -559,7 +559,7 @@ void initializeLayout(
     // Uniform distribution for numbers between -0.5 and 0.5
     std::uniform_real_distribution<> distrib(-0.5, 0.5);
 
-    auto topologicalOrder = topologicalSort(infimum, superconceptsMapping);
+    auto topologicalOrder = topologicalSort(infimum, superconceptsRelation);
 
     for (int i = 0; i < topologicalOrder->size(); i++) {
         // It is super important to assign the Y values in the opposite direction: topologicalOrder->size() - 1 - i
@@ -693,8 +693,8 @@ void computeReDrawLayout(
     int supremum,
     int infimum,
     int conceptsCount,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping,
+    std::vector<std::unordered_set<int>>& subconceptsRelation,
+    std::vector<std::unordered_set<int>>& superconceptsRelation,
     unsigned int seed,
     int targetDimension,
     bool parallelize,
@@ -706,7 +706,7 @@ void computeReDrawLayout(
         (INITIAL_DIMENSION - targetDimension + 1) * (parallelize ? 2 : 1),
         onProgress);
 
-    initializeLayout(result.value, conceptsCount, INITIAL_DIMENSION, infimum, superconceptsMapping, seed);
+    initializeLayout(result.value, conceptsCount, INITIAL_DIMENSION, infimum, superconceptsRelation, seed);
     std::vector<float> forces;
 
     for (int dimension = INITIAL_DIMENSION; dimension >= targetDimension; dimension--) {
@@ -715,8 +715,8 @@ void computeReDrawLayout(
             forces,
             conceptsCount,
             dimension,
-            subconceptsMapping,
-            superconceptsMapping,
+            subconceptsRelation,
+            superconceptsRelation,
             parallelize,
             progress);
 

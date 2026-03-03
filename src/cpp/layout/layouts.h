@@ -13,7 +13,7 @@ void computeLayeredLayoutJs(
     TimedResult<std::vector<float>>& result,
     int supremum,
     int conceptsCount,
-    emscripten::val const & superconceptsMappingTypedArray,
+    emscripten::val const & superconceptsRelationTypedArray,
     std::string placement
 #ifdef __EMSCRIPTEN__
     , OnProgressCallback onProgress
@@ -25,7 +25,7 @@ void computeFreeseLayoutJs(
     int supremum,
     int infimum,
     int conceptsCount,
-    const emscripten::val& subconceptsMappingTypedArray
+    const emscripten::val& subconceptsRelationTypedArray
 #ifdef __EMSCRIPTEN__
     , OnProgressCallback onProgress
 #endif
@@ -36,7 +36,7 @@ void computeReDrawLayoutJs(
     int supremum,
     int infimum,
     int conceptsCount,
-    const emscripten::val& subconceptsMappingTypedArray,
+    const emscripten::val& subconceptsRelationTypedArray,
     unsigned int seed,
     int targetDimension,
     bool parallelize

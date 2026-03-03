@@ -19,8 +19,8 @@ std::unique_ptr<std::vector<int>> topologicalSort(int startConceptIndex, std::ve
 
 std::unique_ptr<std::unordered_set<int>> getComparableConcepts(
     int conceptIndex,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping
+    std::vector<std::unordered_set<int>>& subconceptsRelation,
+    std::vector<std::unordered_set<int>>& superconceptsRelation
 );
 
 void tryTriggerProgress(

@@ -38,7 +38,7 @@ async function computeLayout(request: CompleteLayoutComputationRequest) {
             return await computeLayeredLayout(
                 request.conceptsCount,
                 request.supremum,
-                request.subconceptsMappingArrayBuffer,
+                request.subconceptsRelationArrayBuffer,
                 request.options.placementLayered,
                 postProgressMessage);
         case "freese":
@@ -46,14 +46,14 @@ async function computeLayout(request: CompleteLayoutComputationRequest) {
                 request.conceptsCount,
                 request.supremum,
                 request.infimum,
-                request.subconceptsMappingArrayBuffer,
+                request.subconceptsRelationArrayBuffer,
                 postProgressMessage);
         case "redraw":
             return await computeReDrawLayout(
                 request.conceptsCount,
                 request.supremum,
                 request.infimum,
-                request.subconceptsMappingArrayBuffer,
+                request.subconceptsRelationArrayBuffer,
                 hashString(request.options.seedReDraw),
                 request.options.targetDimensionReDraw,
                 request.options.parallelizeReDraw,

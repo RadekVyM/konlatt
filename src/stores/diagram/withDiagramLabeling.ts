@@ -21,8 +21,8 @@ export default function withDiagramLabeling(newState: Partial<DiagramStore>, old
         }, oldState);
     }
 
-    const attributesLabeling = getAttributesLabeling(concepts, lattice.subconceptsMapping, sublatticeConceptIndexes);
-    const objectsLabeling = getObjectsLabeling(concepts, lattice.superconceptsMapping, sublatticeConceptIndexes);
+    const attributesLabeling = getAttributesLabeling(concepts, lattice.subconceptsRelation, sublatticeConceptIndexes);
+    const objectsLabeling = getObjectsLabeling(concepts, lattice.superconceptsRelation, sublatticeConceptIndexes);
 
     return withFilteredDiagramLabeling({
         ...newState,

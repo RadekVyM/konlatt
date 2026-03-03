@@ -59,8 +59,8 @@ float layerWidth(
 void ellipsePlacement(
     std::vector<float>& result,
     std::vector<std::vector<int>>& layers,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping,
+    std::vector<std::unordered_set<int>>& subconceptsRelation,
+    std::vector<std::unordered_set<int>>& superconceptsRelation,
     int conceptsCount,
     ProgressData& progress
 ) {

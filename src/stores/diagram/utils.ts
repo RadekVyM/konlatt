@@ -9,7 +9,7 @@ export function createEmptyDiagramOffsetMementos() {
     return { redos: [], undos: [] };
 }
 
-export function createConceptLayoutIndexesMappings(layout: ConceptLatticeLayout | null) {
+export function createConceptLayoutIndexesRelations(layout: ConceptLatticeLayout | null) {
     const conceptToLayoutIndexesMapping = new Map<number, number>();
     const layoutToConceptIndexesMapping = new Map<number, number>();
 

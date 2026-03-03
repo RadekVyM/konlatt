@@ -58,7 +58,7 @@ export function getNodeColor(
 
 export function getDiagramLinks(
     concepts: Array<{ conceptIndex: number }> | null,
-    subconceptsMapping: ReadonlyArray<Set<number>> | null,
+    subconceptsRelation: ReadonlyArray<Set<number>> | null,
     sublatticeConceptIndexes: Set<number> | null,
     filteredConceptIndexes: Set<number> | null,
     displayHighlightedSublatticeOnly: boolean,
@@ -66,14 +66,14 @@ export function getDiagramLinks(
     const links = new Array<Link>();
     const isSublatticeHighlighted = !sublatticeConceptIndexes || sublatticeConceptIndexes.size === 0;
 
-    if (!concepts || !subconceptsMapping) {
+    if (!concepts || !subconceptsRelation) {
         return links;
     }
 
     let i = 0;
 
     for (const concept of concepts) {
-        for (const subconceptIndex of subconceptsMapping[concept.conceptIndex]) {
+        for (const subconceptIndex of subconceptsRelation[concept.conceptIndex]) {
             const isNotInSublattice = sublatticeConceptIndexes && !sublatticeConceptIndexes.has(subconceptIndex);
 
             if (displayHighlightedSublatticeOnly && isNotInSublattice) {

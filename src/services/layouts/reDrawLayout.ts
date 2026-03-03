@@ -6,7 +6,7 @@ export async function computeReDrawLayout(
     conceptsCount: number,
     supremum: number,
     infimum: number,
-    subconceptsMappingArrayBuffer: Int32Array,
+    subconceptsRelationArrayBuffer: Int32Array,
     seed: number,
     targetDimension: 2 | 3,
     parallelize: boolean,
@@ -18,7 +18,7 @@ export async function computeReDrawLayout(
     const module = await Module();
     const result = new module.FloatArrayTimedResult();
 
-    module.computeReDrawLayout(result, supremum, infimum, conceptsCount, subconceptsMappingArrayBuffer, seed, targetDimension, parallelize, onProgress);
+    module.computeReDrawLayout(result, supremum, infimum, conceptsCount, subconceptsRelationArrayBuffer, seed, targetDimension, parallelize, onProgress);
     const layout = cppFloatArrayToPoints(result.value, conceptsCount, true);
     const computationTime = result.time;
 

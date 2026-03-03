@@ -74,7 +74,7 @@ std::unique_ptr<std::vector<int>> topologicalSort(int startConceptIndex, std::ve
 void getComparableConceptsOneWay(
     std::unordered_set<int>& comparableConcepts,
     int conceptIndex,
-    std::vector<std::unordered_set<int>>& mapping
+    std::vector<std::unordered_set<int>>& relation
 ) {
     std::queue<int> conceptsQueue;
 
@@ -84,7 +84,7 @@ void getComparableConceptsOneWay(
         int conceptIndex = conceptsQueue.front();
         conceptsQueue.pop();
 
-        auto& subconcepts = mapping[conceptIndex];
+        auto& subconcepts = relation[conceptIndex];
 
         for (auto subconcept : subconcepts) {
             if (!comparableConcepts.count(subconcept)) {
@@ -97,20 +97,20 @@ void getComparableConceptsOneWay(
 
 std::unique_ptr<std::unordered_set<int>> getComparableConcepts(
     int conceptIndex,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping
+    std::vector<std::unordered_set<int>>& subconceptsRelation,
+    std::vector<std::unordered_set<int>>& superconceptsRelation
 ) {
     auto comparableConcepts = std::make_unique<std::unordered_set<int>>();
 
     getComparableConceptsOneWay(
         *comparableConcepts,
         conceptIndex,
-        subconceptsMapping);
+        subconceptsRelation);
 
     getComparableConceptsOneWay(
         *comparableConcepts,
         conceptIndex,
-        superconceptsMapping);
+        superconceptsRelation);
 
     return comparableConcepts;
 }

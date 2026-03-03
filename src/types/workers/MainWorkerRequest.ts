@@ -44,7 +44,7 @@ export type CompleteLayoutComputationRequest = {
     supremum: number,
     infimum: number,
     conceptsCount: number,
-    subconceptsMappingArrayBuffer: Int32Array,
+    subconceptsRelationArrayBuffer: Int32Array,
     options: LayoutComputationOptions,
 } & BaseRequest
 

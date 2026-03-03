@@ -128,31 +128,31 @@ std::unique_ptr<std::vector<std::vector<int>>> reduceCrossingsUsingAveragePass(
 std::unique_ptr<std::vector<std::vector<int>>> reduceCrossingsUsingAverage(
     std::vector<std::vector<int>>& layersWithDummies,
     std::vector<int>& horizontalPositions,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping,
+    std::vector<std::unordered_set<int>>& subconceptsRelation,
+    std::vector<std::unordered_set<int>>& superconceptsRelation,
     ProgressData& progress
 ) {
     auto orderedLayers = reduceCrossingsUsingAveragePass(
         layersWithDummies,
         horizontalPositions,
-        superconceptsMapping,
-        subconceptsMapping,
+        superconceptsRelation,
+        subconceptsRelation,
         true,
         false,
         progress);
     orderedLayers = reduceCrossingsUsingAveragePass(
         *orderedLayers,
         horizontalPositions,
-        subconceptsMapping,
-        superconceptsMapping,
+        subconceptsRelation,
+        superconceptsRelation,
         false,
         false,
         progress);
     orderedLayers = reduceCrossingsUsingAveragePass(
         *orderedLayers,
         horizontalPositions,
-        superconceptsMapping,
-        subconceptsMapping,
+        superconceptsRelation,
+        subconceptsRelation,
         true,
         true,
         progress);
@@ -163,8 +163,8 @@ std::unique_ptr<std::vector<std::vector<int>>> reduceCrossingsUsingAverage(
 std::unique_ptr<std::vector<std::vector<int>>> reduceCrossings(
     std::vector<std::vector<int>>& layersWithDummies,
     std::vector<int>& horizontalPositions,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping,
+    std::vector<std::unordered_set<int>>& subconceptsRelation,
+    std::vector<std::unordered_set<int>>& superconceptsRelation,
     ProgressData& progress
 ) {
     CrossCountDataStructures crossCountDataStructures;
@@ -172,14 +172,14 @@ std::unique_ptr<std::vector<std::vector<int>>> reduceCrossings(
     auto bestOrderedLayers = reduceCrossingsUsingAverage(
         layersWithDummies,
         horizontalPositions,
-        subconceptsMapping,
-        superconceptsMapping,
+        subconceptsRelation,
+        superconceptsRelation,
         progress);
 
     int iteration = 0;
 
     try {
-        long long bestCount = crossCount(*bestOrderedLayers, horizontalPositions, subconceptsMapping, crossCountDataStructures);
+        long long bestCount = crossCount(*bestOrderedLayers, horizontalPositions, subconceptsRelation, crossCountDataStructures);
         long long lastCount = bestCount;
         std::unique_ptr<std::vector<std::vector<int>>> lastOrderedLayers = nullptr;
 
@@ -191,11 +191,11 @@ std::unique_ptr<std::vector<std::vector<int>>> reduceCrossings(
             lastOrderedLayers = std::move(reduceCrossingsUsingAverage(
                 lastOrderedLayers == nullptr ? *bestOrderedLayers : *lastOrderedLayers,
                 horizontalPositions,
-                subconceptsMapping,
-                superconceptsMapping,
+                subconceptsRelation,
+                superconceptsRelation,
                 progress));
 
-            long long newCount = crossCount(*lastOrderedLayers, horizontalPositions, subconceptsMapping, crossCountDataStructures);
+            long long newCount = crossCount(*lastOrderedLayers, horizontalPositions, subconceptsRelation, crossCountDataStructures);
 
             iteration++;
 
@@ -230,14 +230,14 @@ std::unique_ptr<std::vector<std::vector<int>>> reduceCrossings(
 void createLayout(
     TimedResult<std::vector<float>>& result,
     int conceptsCount,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping,
+    std::vector<std::unordered_set<int>>& subconceptsRelation,
+    std::vector<std::unordered_set<int>>& superconceptsRelation,
     std::vector<std::vector<int>>& layers,
     ProgressData& progress,
     PlacementDelegate placement
 ) {
     result.value.resize(conceptsCount * COORDS_COUNT);
-    placement(result.value, layers, subconceptsMapping, superconceptsMapping, conceptsCount, progress);
+    placement(result.value, layers, subconceptsRelation, superconceptsRelation, conceptsCount, progress);
 }
 
 PlacementDelegate getPlacementFunc(std::string placement) {
@@ -254,8 +254,8 @@ void computeLayeredLayout(
     TimedResult<std::vector<float>>& result,
     int supremum,
     int conceptsCount,
-    std::vector<std::unordered_set<int>>& subconceptsMapping,
-    std::vector<std::unordered_set<int>>& superconceptsMapping,
+    std::vector<std::unordered_set<int>>& subconceptsRelation,
+    std::vector<std::unordered_set<int>>& superconceptsRelation,
     std::string placement,
     std::function<void(double)> onProgress
 ) {
@@ -266,13 +266,13 @@ void computeLayeredLayout(
         onProgress);
 
     // The layers are ordered from top to bottom – the first layer is at the top
-    auto layersResult = assignNodesToLayersByLongestPath(supremum, subconceptsMapping);
+    auto layersResult = assignNodesToLayersByLongestPath(supremum, subconceptsRelation);
     auto& [layersMapping, layers] = *layersResult;
 
     auto dummiesResult = addDummies(
         conceptsCount,
-        subconceptsMapping,
-        superconceptsMapping,
+        subconceptsRelation,
+        superconceptsRelation,
         layers,
         layersMapping,
         progress);
@@ -281,15 +281,15 @@ void computeLayeredLayout(
     auto orderedLayers = reduceCrossings(
         layersWithDummies,
         horizontalPositions,
-        subconceptsMapping,
-        superconceptsMapping,
+        subconceptsRelation,
+        superconceptsRelation,
         progress);
 
     createLayout(
         result,
         conceptsCount,
-        subconceptsMapping,
-        superconceptsMapping,
+        subconceptsRelation,
+        superconceptsRelation,
         *orderedLayers,
         progress,
         getPlacementFunc(placement));

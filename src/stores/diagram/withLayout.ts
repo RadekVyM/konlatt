@@ -3,7 +3,7 @@ import { ConceptLatticeLayoutCacheItem } from "../../types/ConceptLatticeLayoutC
 import { DiagramLayoutState } from "../../types/diagram/DiagramLayoutState";
 import { w } from "../../utils/stores";
 import { DiagramStore } from "./useDiagramStore";
-import { createConceptLayoutIndexesMappings, createDiagramLayoutStateId, createEmptyDiagramOffsetMementos } from "./utils";
+import { createConceptLayoutIndexesRelations, createDiagramLayoutStateId, createEmptyDiagramOffsetMementos } from "./utils";
 import { withCanUndoRedo } from "./withCanUndoRedo";
 import withConceptsToMoveBox from "./withConceptsToMoveBox";
 import withDefaultLayoutBox from "./withDefaultLayoutBox";
@@ -35,7 +35,7 @@ export default function withLayout(
         return w({
             layout: cachedLayoutItem.layout,
             layoutId: `${cachedLayoutItem.layout?.length}-${Math.random()}`,
-            ...createConceptLayoutIndexesMappings(cachedLayoutItem.layout),
+            ...createConceptLayoutIndexesRelations(cachedLayoutItem.layout),
             diagramOffsets: cachedLayoutItem.diagramOffsets,
             diagramOffsetMementos: cachedLayoutItem.diagramOffsetMementos,
             currentZoomLevel: 1,
