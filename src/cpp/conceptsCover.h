@@ -4,6 +4,7 @@
 #include "types/FormalConcept.h"
 #include "types/TimedResult.h"
 #include <vector>
+#include <cstdint>
 
 #ifdef __EMSCRIPTEN__
 #include "types/OnProgressCallback.h"
@@ -14,7 +15,7 @@ template struct TimedResult<std::vector<std::vector<int>>>;
 void conceptsCover(
     TimedResult<std::vector<std::vector<int>>>& result,
     std::vector<SimpleFormalConcept>& concepts,
-    std::vector<unsigned int>& contextMatrix,
+    std::vector<uint64_t>& contextMatrix,
     int cellSize,
     int cellsPerObject,
     int contextObjectsCount,

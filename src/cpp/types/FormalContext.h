@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <cstdint>
 
 class FormalContext {
 public:
@@ -22,16 +23,16 @@ public:
     std::vector<std::string> getAttributesCopy() const { return attributes; }
     void setAttributes(std::vector<std::string>& value) { attributes = value; }
 
-    std::vector<unsigned int>& getContext() { return context; }
-    std::vector<unsigned int> getContextCopy() const { return context; }
-    void setContext(std::vector<unsigned int>& value) { context = value; }
+    std::vector<uint64_t>& getContext() { return context; }
+    std::vector<uint64_t> getContextCopy() const { return context; }
+    void setContext(std::vector<uint64_t>& value) { context = value; }
 
 private:
     int cellSize;
     int cellsPerObject;
     std::vector<std::string> objects;
     std::vector<std::string> attributes;
-    std::vector<unsigned int> context;
+    std::vector<uint64_t> context;
 };
 
 #endif

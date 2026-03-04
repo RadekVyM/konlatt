@@ -3,7 +3,7 @@ import { ConceptLattice } from "../types/ConceptLattice";
 import { ConceptLatticeLabeling } from "../types/ConceptLatticeLabeling";
 import { FormalConcept, FormalConcepts, getInfimum, getSupremum } from "../types/FormalConcepts";
 import { FormalContext } from "../types/FormalContext";
-import { cppIntMultiArrayToJs, jsArrayToCppSimpleFormalConceptArray, jsArrayToCppUIntArray } from "../utils/cpp";
+import { cppIntMultiArrayToJs, jsArrayToCppSimpleFormalConceptArray, jsArrayToCppUInt64Array } from "../utils/cpp";
 import { breadthFirstSearch } from "../utils/graphs";
 import { assignNodesToLayersByLongestPath } from "./layers";
 
@@ -18,7 +18,7 @@ export async function conceptsToLattice(concepts: FormalConcepts, context: Forma
 }> {
     const module = await Module();
     const cppConcepts = jsArrayToCppSimpleFormalConceptArray(module, concepts);
-    const cppContext = jsArrayToCppUIntArray(module, context.context);
+    const cppContext = jsArrayToCppUInt64Array(module, context.data);
 
     const result = new module.IntMultiArrayTimedResult();
 

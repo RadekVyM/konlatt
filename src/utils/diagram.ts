@@ -57,7 +57,7 @@ export function getNodeColor(
 }
 
 export function getDiagramLinks(
-    concepts: Array<{ conceptIndex: number }> | null,
+    concepts: ReadonlyArray<{ conceptIndex: number }> | null,
     subconceptsRelation: ReadonlyArray<Set<number>> | null,
     sublatticeConceptIndexes: Set<number> | null,
     filteredConceptIndexes: Set<number> | null,

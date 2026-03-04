@@ -9,6 +9,7 @@
 #include <vector>
 #include <string>
 #include <unordered_set>
+#include <cstdint>
 
 long long nowMills() {
     auto now = std::chrono::system_clock::now();
@@ -16,21 +17,22 @@ long long nowMills() {
 }
 
 bool formalContextHasAttribute(
-    std::vector<unsigned int>& contextMatrix,
+    std::vector<uint64_t>& contextMatrix,
     int cellSize,
     int cellsPerObject,
     int object,
     int attribute
 ) {
     int cell = (object * cellsPerObject) + (attribute / cellSize);
-    unsigned int cellValue = contextMatrix[cell];
-    unsigned int mask = 1u << (attribute % cellSize);
+    uint64_t cellValue = contextMatrix[cell];
+    uint64_t one = 1;
+    uint64_t mask = one << (attribute % cellSize);
 
-    return (cellValue & mask) != 0u;
+    return (cellValue & mask) != 0;
 }
 
 bool hasObjectWithAllAttributes(
-    std::vector<unsigned int>& contextMatrix,
+    std::vector<uint64_t>& contextMatrix,
     int cellSize,
     int cellsPerObject,
     int objectsCount,
@@ -99,7 +101,7 @@ void printCollection(const T& collection) {
 }
 
 void printFormalContext(
-    std::vector<unsigned int>& contextMatrix,
+    std::vector<uint64_t>& contextMatrix,
     int cellSize,
     int cellsPerObject,
     int objectsCount,

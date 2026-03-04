@@ -13,11 +13,12 @@
 #include <memory>
 #include <unordered_set>
 #include <map>
+#include <cstdint>
 
 void conceptsCover(
     TimedResult<std::vector<std::vector<int>>>& result,
     std::vector<SimpleFormalConcept>& concepts,
-    std::vector<unsigned int>& contextMatrix,
+    std::vector<uint64_t>& contextMatrix,
     int cellSize,
     int cellsPerObject,
     int contextObjectsCount,

@@ -1,4 +1,4 @@
-import { FloatArray, FormalConceptArray, SimpleFormalConceptArray, IntArray, IntMultiArray, MainModule, StringArray, UIntArray } from "../cpp";
+import { FloatArray, FormalConceptArray, SimpleFormalConceptArray, IntArray, IntMultiArray, MainModule, StringArray, UInt64Array } from "../cpp";
 import { FormalConcept, FormalConcepts } from "../types/FormalConcepts";
 import { createPoint, Point } from "../types/Point";
 
@@ -15,9 +15,9 @@ export function* cppStringArrayToJs(cppArray: StringArray, shouldDelete: boolean
     }
 }
 
-export function* cppUIntArrayToJs(cppArray: UIntArray, shouldDelete: boolean = false) {
+export function* cppUInt64ArrayToJs(cppArray: UInt64Array, shouldDelete: boolean = false) {
     for (let i = 0; i < cppArray.size(); i++)
-        yield cppArray.get(i)!;
+        yield Number(cppArray.get(i)!);
 
     if (shouldDelete) {
         cppArray.delete();
@@ -96,12 +96,12 @@ export function jsArrayToCppIntArray(module: MainModule, array: Array<number> | 
     return cppArray;
 }
 
-export function jsArrayToCppUIntArray(module: MainModule, array: Array<number> | ReadonlyArray<number>): UIntArray {
-    const cppArray = new module.UIntArray();
-    cppArray.resize(array.length, 0);
+export function jsArrayToCppUInt64Array(module: MainModule, array: Array<number> | ReadonlyArray<number>): UInt64Array {
+    const cppArray = new module.UInt64Array();
+    cppArray.resize(array.length, 0n);
 
     for (let i = 0; i < array.length; i++) {
-        cppArray.set(i, array[i]);
+        cppArray.set(i, BigInt.asUintN(64, BigInt(array[i])));
     }
 
     return cppArray;

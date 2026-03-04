@@ -10,6 +10,7 @@
 #include <iostream>
 #include <sstream>
 #include <chrono>
+#include <cstdint>
 
 #include "utils.cpp"
 #include "burmeister.cpp"
@@ -35,7 +36,7 @@ using namespace emscripten;
 
 EMSCRIPTEN_BINDINGS(my_module) {
     emscripten::register_vector<std::string>("StringArray");
-    emscripten::register_vector<unsigned int>("UIntArray");
+    emscripten::register_vector<uint64_t>("UInt64Array");
     emscripten::register_vector<int>("IntArray");
     emscripten::register_vector<float>("FloatArray");
     emscripten::register_vector<FormalConcept>("FormalConceptArray");

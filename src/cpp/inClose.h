@@ -4,6 +4,7 @@
 #include "types/FormalConcept.h"
 #include "types/TimedResult.h"
 #include <vector>
+#include <cstdint>
 
 #ifdef __EMSCRIPTEN__
 #include "types/OnProgressCallback.h"
@@ -13,7 +14,7 @@ template struct TimedResult<std::vector<FormalConcept>>;
 
 void inClose(
     TimedResult<std::vector<FormalConcept>>& result,
-    std::vector<unsigned int>& contextMatrix,
+    std::vector<uint64_t>& contextMatrix,
     int cellSize,
     int cellsPerObject,
     int contextObjectsCount,

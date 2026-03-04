@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 import Module from "../../../src/cpp";
 import { DIGITS, NOM10CRX, MUSHROOMEP } from "../../constants/flowTestValues";
-import { cppStringArrayToJs, cppUIntArrayToJs } from "../../../src/utils/cpp";
+import { cppStringArrayToJs, cppUInt64ArrayToJs } from "../../../src/utils/cpp";
 
 const DIGITS_CONTEXT = [
     0b1111101,
@@ -23,7 +23,7 @@ test("digits context is parsed correctly", async () => {
     const module = await Module();
     const context = module.parseBurmeister(DIGITS.fileContent);
 
-    expect([...cppUIntArrayToJs(context.context)]).toEqual(DIGITS_CONTEXT);
+    expect([...cppUInt64ArrayToJs(context.context)]).toEqual(DIGITS_CONTEXT);
     expect([...cppStringArrayToJs(context.objects)]).toEqual(DIGITS_OBJECTS);
     expect([...cppStringArrayToJs(context.attributes)]).toEqual(DIGITS_ATTRIBUTES);
     expect(context.cellsPerObject).toBe(DIGITS_CELLS_PER_OBJECT);
@@ -38,7 +38,7 @@ test("nom10crx context is parsed", async () => {
     expect(context.context.size() > 0).toBe(true);
     expect(context.objects.size()).toBe(653);
     expect(context.attributes.size()).toBe(85);
-    expect(context.cellsPerObject).toBe(3);
+    expect(context.cellsPerObject).toBe(2);
 
     context.delete();
 });
@@ -50,7 +50,7 @@ test("mushroomep context is parsed", async () => {
     expect(context.context.size() > 0).toBe(true);
     expect(context.objects.size()).toBe(8124);
     expect(context.attributes.size()).toBe(126);
-    expect(context.cellsPerObject).toBe(4);
+    expect(context.cellsPerObject).toBe(3);
 
     context.delete();
 });

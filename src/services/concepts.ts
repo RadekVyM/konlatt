@@ -1,14 +1,14 @@
 import { FormalContext } from "../types/FormalContext";
 import Module from "../cpp";
 import { FormalConcept } from "../types/FormalConcepts";
-import { cppFormalConceptArrayToJs, jsArrayToCppUIntArray } from "../utils/cpp";
+import { cppFormalConceptArrayToJs, jsArrayToCppUInt64Array } from "../utils/cpp";
 
 export async function computeConcepts(context: FormalContext, onProgress?: (progress: number) => void): Promise<{
     concepts: Array<FormalConcept>,
     computationTime: number,
 }> {
     const module = await Module();
-    const uIntContext = jsArrayToCppUIntArray(module, context.context);
+    const uIntContext = jsArrayToCppUInt64Array(module, context.data);
     const result = new module.FormalConceptsTimedResult();
 
     module.inClose(

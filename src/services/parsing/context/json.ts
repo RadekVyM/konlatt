@@ -33,7 +33,7 @@ export default function parseJsonContext(jsonContent: {
         name: "name" in jsonContent && typeof jsonContent.name === "string" ?
             jsonContent.name :
             undefined,
-        context,
+        data: context,
         objects,
         attributes,
         cellsPerObject: cellsPerObjectCount,

@@ -8,6 +8,9 @@
 #include <string>
 #include <vector>
 #include <cmath>
+#include <cstdint>
+
+#define CELL_SIZE 52 // Size of max safe JS integer
 
 FormalContext parseBurmeister(std::string fileContent) {
     // TODO: Produce exceptions when issues with the file format are encountered
@@ -32,11 +35,9 @@ FormalContext parseBurmeister(std::string fileContent) {
     int objectsCount = stoi(objectsCountLine);
     int attributesCount = stoi(attributesCountLine);
 
-    int cellSize = sizeof(unsigned int) * 8;
-
     std::vector<std::string> atributes;
     std::vector<std::string> objects;
-    std::vector<unsigned int> contextMatrix;
+    std::vector<uint64_t> contextMatrix;
 
     for (int i = 0; i < objectsCount; i++) {
         std::string line;
@@ -59,7 +60,8 @@ FormalContext parseBurmeister(std::string fileContent) {
         std::getline(fileContentStream, line);
 
         int offset = 0;
-        unsigned int value = 0u;
+        uint64_t value = 0u;
+        uint64_t one = 1;
 
         for (char & character : line) {
             character = tolower(character);
@@ -68,14 +70,14 @@ FormalContext parseBurmeister(std::string fileContent) {
                 offset++;
             }
             else if (character == 'x') {
-                value = value | (1u << offset);
+                value = value | (one << offset);
                 offset++;
             }
             else {
                 // error
             }
 
-            if (offset == cellSize) {
+            if (offset == CELL_SIZE) {
                 contextMatrix.push_back(value);
                 value = 0u;
                 offset = 0;
@@ -87,8 +89,8 @@ FormalContext parseBurmeister(std::string fileContent) {
 
     context.setObjects(objects);
     context.setAttributes(atributes);
-    context.setCellsPerObject((int)ceil(atributes.size() / (double)cellSize));
-    context.setCellSize(cellSize);
+    context.setCellsPerObject((int)ceil(atributes.size() / (double)CELL_SIZE));
+    context.setCellSize(CELL_SIZE);
     context.setContext(contextMatrix);
 
     return context;

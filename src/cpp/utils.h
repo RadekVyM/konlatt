@@ -4,16 +4,17 @@
 #include <vector>
 #include <string>
 #include <unordered_set>
+#include <cstdint>
 
 bool formalContextHasAttribute(
-    std::vector<unsigned int> &contextMatrix,
+    std::vector<uint64_t> &contextMatrix,
     int cellSize,
     int cellsPerObject,
     int object,
     int attribute);
 
 bool hasObjectWithAllAttributes(
-    std::vector<unsigned int> &contextMatrix,
+    std::vector<uint64_t> &contextMatrix,
     int cellSize,
     int cellsPerObject,
     int objectsCount,
@@ -28,7 +29,7 @@ template <typename T>
 bool areCollectionsEqual(std::vector<T>& first, std::vector<T>& second);
 
 void printFormalContext(
-    std::vector<unsigned int> &contextMatrix,
+    std::vector<uint64_t> &contextMatrix,
     int cellSize,
     int cellsPerObject,
     int objectsCount,

@@ -10,9 +10,10 @@
 #include <memory>
 #include <queue>
 #include <vector>
+#include <cstdint>
 
 bool isCannonical(
-    std::vector<unsigned int>& contextMatrix,
+    std::vector<uint64_t>& contextMatrix,
     int cellSize,
     int cellsPerObject,
     FormalConcept& parentConcept,
@@ -65,7 +66,7 @@ bool isCannonical(
 }
 
 void inCloseImpl(
-    std::vector<unsigned int>& contextMatrix,
+    std::vector<uint64_t>& contextMatrix,
     int cellSize,
     int cellsPerObject,
     int contextObjectsCount,
@@ -163,7 +164,7 @@ void inCloseImpl(
 
 void inClose(
     TimedResult<std::vector<FormalConcept>>& result,
-    std::vector<unsigned int>& contextMatrix,
+    std::vector<uint64_t>& contextMatrix,
     int cellSize,
     int cellsPerObject,
     int contextObjectsCount,

@@ -116,7 +116,7 @@ export const NOM10SHUTTLE: TestValue = {
 export const NOM5SHUTTLE: TestValue = {
     title: "nom5shuttle",
     fileContent: nom5shuttle,
-    contextCellsPerObject: 2,
+    contextCellsPerObject: 1,
     objectsCount: 43500,
     attributesCount: 52,
     conceptsCount: 1461,
