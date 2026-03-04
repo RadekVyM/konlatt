@@ -18,7 +18,7 @@ export async function conceptsToLattice(concepts: FormalConcepts, context: Forma
 }> {
     const module = await Module();
     const cppConcepts = jsArrayToCppSimpleFormalConceptArray(module, concepts);
-    const cppContext = jsArrayToCppUIntArray(module, context.context);
+    const cppContext = jsArrayToCppUIntArray(module, context.relation);
 
     const result = new module.IntMultiArrayTimedResult();
 
@@ -87,7 +87,7 @@ function reverseRelation(relation: Array<Set<number>>) {
 
 export function getObjectsLabeling(
     concepts: FormalConcepts,
-    superconceptsRelation: ReadonlyArray<Set<number>>,
+    superconceptsRelation: ReadonlyArray<ReadonlySet<number>>,
     sublatticeConceptIndexes?: Set<number>,
 ): ConceptLatticeLabeling {
     const infimum = getInfimum(concepts);
@@ -97,7 +97,7 @@ export function getObjectsLabeling(
 
 export function getAttributesLabeling(
     concepts: FormalConcepts,
-    subconceptsRelation: ReadonlyArray<Set<number>>,
+    subconceptsRelation: ReadonlyArray<ReadonlySet<number>>,
     sublatticeConceptIndexes?: Set<number>,
 ): ConceptLatticeLabeling {
     const supremum = getSupremum(concepts);
@@ -187,7 +187,7 @@ export function calculateSublattice(sublatticeConceptIndexes: Set<number>, latti
     };
 }
 
-function collectIndexes(startIndex: number, relation: ReadonlyArray<Set<number>>) {
+function collectIndexes(startIndex: number, relation: ReadonlyArray<ReadonlySet<number>>) {
     const set = new Set<number>();
 
     breadthFirstSearch(startIndex, relation, (index) => set.add(index));
@@ -211,7 +211,7 @@ function getMappedIndex(mapping: Map<number, number>, reverseIndexMapping: Map<n
 function getLabeling(
     concepts: FormalConcepts,
     startConcept: FormalConcept,
-    coverRelation: ReadonlyArray<Set<number>>,
+    coverRelation: ReadonlyArray<ReadonlySet<number>>,
     conceptItems: (concept: FormalConcept) => ReadonlyArray<number>,
     sublatticeConceptIndexes?: Set<number>,
 ): ConceptLatticeLabeling {

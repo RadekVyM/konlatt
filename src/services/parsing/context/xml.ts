@@ -35,7 +35,7 @@ export default function parseXmlContext(xmlContent: {
         name: "@_name" in xmlContent.context && typeof xmlContent.context["@_name"] === "string" ?
             xmlContent.context["@_name"] :
             undefined,
-        context,
+        relation: context,
         objects,
         attributes,
         cellsPerObject: cellsPerObjectCount,

@@ -43,7 +43,7 @@ export default function withExplorerConcepts(newState: Partial<ExplorerStore>, o
 // Places the concepts around the circumference of a half circle
 function pushConcepts(
     concepts: Array<ExplorerConcept>,
-    conceptIndexes: Set<number>,
+    conceptIndexes: ReadonlySet<number>,
     verticalScale: number,
     conceptToLayoutIndexesMapping: Map<number, number>,
     layoutToConceptIndexesMapping: Map<number, number>,

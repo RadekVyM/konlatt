@@ -4,7 +4,7 @@
  * @param relation - An adjacency list representing the graph, where each index contains a `Set` of neighboring node indices.
  * @param work - A callback function executed for every node visited during the traversal.
  */
-export function breadthFirstSearch(startIndex: number, relation: ReadonlyArray<Set<number>>, work: (index: number) => void) {
+export function breadthFirstSearch(startIndex: number, relation: ReadonlyArray<ReadonlySet<number>>, work: (index: number) => void) {
     const visited = new Array<boolean>(relation.length);
     const queue = new Array<number>();
 

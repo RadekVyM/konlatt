@@ -109,7 +109,7 @@ function parseContext(objectsCount: number, attributesCount: number, content: st
 
     return {
         name,
-        context,
+        relation: context,
         objects,
         attributes,
         cellsPerObject: cellsPerObjectCount,

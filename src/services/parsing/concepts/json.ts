@@ -51,7 +51,7 @@ export default function parseJsonConcepts(jsonContent: {
             name: "name" in jsonContent && typeof jsonContent.name === "string" ?
                 jsonContent.name :
                 undefined,
-            context,
+            relation: context,
             objects,
             attributes,
             cellsPerObject: cellsPerObjectCount,

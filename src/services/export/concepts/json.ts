@@ -10,7 +10,7 @@ export function convertToJson(
     attributes: ReadonlyArray<string>,
     formalConcepts: FormalConcepts,
     name?: string,
-    latticeRelation?: ReadonlyArray<Set<number>>,
+    latticeRelation?: ReadonlyArray<ReadonlySet<number>>,
 ) {
     const lines = new Array<string>();
     const collapseRegions = createCollapseRegions();

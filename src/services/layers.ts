@@ -1,4 +1,4 @@
-export function assignNodesToLayersByLongestPath(startConceptIndex: number, coverRelation: ReadonlyArray<Set<number>>) {
+export function assignNodesToLayersByLongestPath(startConceptIndex: number, coverRelation: ReadonlyArray<ReadonlySet<number>>) {
     const layersMapping = new Array<number>(coverRelation.length);
     const layers = new Array<Set<number>>();
 
@@ -37,7 +37,7 @@ export function assignNodesToLayersByLongestPath(startConceptIndex: number, cove
     };
 }
 
-function topologicalSort(startConceptIndex: number, coverRelation: ReadonlyArray<Set<number>>) {
+function topologicalSort(startConceptIndex: number, coverRelation: ReadonlyArray<ReadonlySet<number>>) {
     const visited = new Array<boolean>(coverRelation.length);
     const topologicalOrder = Array<number>(coverRelation.length);
 
@@ -53,7 +53,7 @@ function topologicalSort(startConceptIndex: number, coverRelation: ReadonlyArray
 
 function topologicalSortImpl(
     currentIndex: number,
-    coverRelation: ReadonlyArray<Set<number>>,
+    coverRelation: ReadonlyArray<ReadonlySet<number>>,
     visited: Array<boolean>,
     topologicalOrder: Array<number>,
     sortedLastIndex: { value: number }

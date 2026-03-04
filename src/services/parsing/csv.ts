@@ -47,7 +47,7 @@ export default function parseCsv(content: string, separator: CsvSeparator): Form
     }
 
     return {
-        context,
+        relation: context,
         objects: [...objects.keys()],
         attributes: [...attributes.keys()],
         cellsPerObject: cellsPerObjectCount,

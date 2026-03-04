@@ -10,7 +10,7 @@ export function* generateContextRelation(context: FormalContext): Generator<[num
     }
 }
 
-export function* generateLatticeRelation(latticeRelation: ReadonlyArray<Set<number>>): Generator<[number, number], void, unknown> {
+export function* generateLatticeRelation(latticeRelation: ReadonlyArray<ReadonlySet<number>>): Generator<[number, number], void, unknown> {
     for (let first = 0; first < latticeRelation.length; first++) {
         for (const second of latticeRelation[first]) {
             yield [first, second];

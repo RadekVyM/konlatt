@@ -116,7 +116,7 @@ function highlightedConcepts(
     objects: ReadonlyArray<string>,
     attributes: ReadonlyArray<string>,
     concepts: FormalConcepts,
-    relation?: ReadonlyArray<Set<number>>,
+    relation?: ReadonlyArray<ReadonlySet<number>>,
 } {
     if (sublatticeConceptIndexes.length === 0) {
         return {
@@ -165,7 +165,7 @@ function highlightedConcepts(
 function remappedRelation(
     newConcepts: ReadonlyArray<FormalConcept>,
     sublatticeConceptIndexes: ReadonlyArray<number>,
-    coverRelation: ReadonlyArray<Set<number>>,
+    coverRelation: ReadonlyArray<ReadonlySet<number>>,
     conceptIndexesMapping: Map<number, number>,
 ) {
     const newCoverRelation = new Array<Set<number>>(newConcepts.length);
@@ -193,7 +193,7 @@ function remappedItems(items: ReadonlyArray<number>, mapping: Map<number, number
     });
 }
 
-function* remappedSet(set: Set<number>, mapping: Map<number, number>) {
+function* remappedSet(set: ReadonlySet<number>, mapping: Map<number, number>) {
     for (const value of set) {
         const mappedValue = mapping.get(value);
 

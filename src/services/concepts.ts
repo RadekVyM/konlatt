@@ -8,7 +8,7 @@ export async function computeConcepts(context: FormalContext, onProgress?: (prog
     computationTime: number,
 }> {
     const module = await Module();
-    const uIntContext = jsArrayToCppUIntArray(module, context.context);
+    const uIntContext = jsArrayToCppUIntArray(module, context.relation);
     const result = new module.FormalConceptsTimedResult();
 
     module.inClose(
