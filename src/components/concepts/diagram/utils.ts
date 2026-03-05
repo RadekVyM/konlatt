@@ -1,7 +1,7 @@
 import { Color, InstancedMesh, Object3D } from "three";
 import { CameraType } from "../../../types/diagram/CameraType";
 import { createPoint, Point } from "../../../types/Point";
-import { ConceptLatticeLayout } from "../../../types/ConceptLatticeLayout";
+import { ConceptLatticeLayout } from "../../../types/diagram/ConceptLatticeLayout";
 import { Theme } from "../../../types/Theme";
 import { transformedPoint } from "../../../utils/layout";
 

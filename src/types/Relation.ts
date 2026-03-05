@@ -1,0 +1,1 @@
+export type Relation = ReadonlyArray<ReadonlySet<number>>

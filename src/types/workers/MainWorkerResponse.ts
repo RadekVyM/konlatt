@@ -1,7 +1,7 @@
 import { FormalContext } from "../FormalContext";
 import { ConceptLattice } from "../ConceptLattice";
 import { FormalConcepts } from "../FormalConcepts";
-import { ConceptLatticeLayout } from "../ConceptLatticeLayout";
+import { ConceptLatticeLayout } from "../diagram/ConceptLatticeLayout";
 import { CompleteMainWorkerRequest } from "./MainWorkerRequest";
 
 export type MainWorkerResponse = ErrorResponse | FinishedResponse | StatusResponse | ProgressResponse | ContextParsingResponse | ConceptComputationResponse | LatticeComputationResponse | LayoutComputationResponse | WorkerDataRequestResponse

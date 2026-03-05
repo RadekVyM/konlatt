@@ -1,4 +1,5 @@
 import { FormalConcepts } from "../../../types/FormalConcepts";
+import { Relation } from "../../../types/Relation";
 import { escapeJson } from "../../../utils/string";
 import { createCollapseRegions } from "../CollapseRegions";
 import { INDENTATION } from "../constants";
@@ -10,7 +11,7 @@ export function convertToJson(
     attributes: ReadonlyArray<string>,
     formalConcepts: FormalConcepts,
     name?: string,
-    latticeRelation?: ReadonlyArray<ReadonlySet<number>>,
+    latticeRelation?: Relation,
 ) {
     const lines = new Array<string>();
     const collapseRegions = createCollapseRegions();

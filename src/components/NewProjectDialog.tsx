@@ -34,7 +34,8 @@ export default function NewProjectDialog(props: {
     state: DialogState,
 }) {
     const navigate = useNavigate();
-    const { selectedFile, setSelectedFile } = useNewProjectStore();
+    const selectedFile = useNewProjectStore((state) => state.selectedFile);
+    const setSelectedFile = useNewProjectStore((state) => state.setSelectedFile);
     const [selectedFileFormat, setSelectedFileFormat] = useState<ImportFormat>(DEFAULT_FILE_FORMAT);
     const [selectedCsvSeparator, setSelectedCsvSeparator] = useState<CsvSeparator>(",");
     const [disabled, setDisabled] = useState(false);

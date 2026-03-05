@@ -6,7 +6,7 @@ import useDataStructuresStore from "../../../stores/useDataStructuresStore";
 import { createPoint, Point } from "../../../types/Point";
 import { CameraType } from "../../../types/diagram/CameraType";
 import { LINE_BASE_SEGMENT, LINE_THICKNESS, OPAQUE_COLORED_LINK_COLOR_DARK, OPAQUE_COLORED_LINK_COLOR_LIGHT, OPAQUE_DIM_LINK_COLOR_DARK, OPAQUE_DIM_LINK_COLOR_LIGHT, OPAQUE_HIGHLIGHTED_LINK_COLOR_DARK, OPAQUE_HIGHLIGHTED_LINK_COLOR_LIGHT, OPAQUE_LINK_COLOR_DARK, OPAQUE_LINK_COLOR_LIGHT, PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT, SEMITRANSPARENT_DIM_LINK_COLOR_DARK, SEMITRANSPARENT_DIM_LINK_COLOR_LIGHT, SEMITRANSPARENT_HIGHLIGHTED_LINK_COLOR_DARK, SEMITRANSPARENT_HIGHLIGHTED_LINK_COLOR_LIGHT, SEMITRANSPARENT_LINK_COLOR_DARK, SEMITRANSPARENT_LINK_COLOR_LIGHT, TUBE_LINE_CURVE } from "../../../constants/canvas-drawing";
-import { ConceptLatticeLayout } from "../../../types/ConceptLatticeLayout";
+import { ConceptLatticeLayout } from "../../../types/diagram/ConceptLatticeLayout";
 import useGlobalsStore from "../../../stores/useGlobalsStore";
 import { useThree } from "@react-three/fiber";
 import { transformedPoint } from "../../../utils/layout";

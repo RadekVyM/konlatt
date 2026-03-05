@@ -1,3 +1,3 @@
-import { ConceptPoint } from "./diagram/ConceptPoint";
+import { ConceptPoint } from "./ConceptPoint";
 
 export type ConceptLatticeLayout = Array<ConceptPoint>

@@ -1,5 +1,5 @@
 import { triggerCancellation, triggerLayoutComputation } from "../../services/triggers";
-import { ConceptLatticeLayoutCacheItem } from "../../types/ConceptLatticeLayoutCacheItem";
+import { ConceptLatticeLayoutCacheItem } from "../../types/diagram/ConceptLatticeLayoutCacheItem";
 import { DiagramLayoutState } from "../../types/diagram/DiagramLayoutState";
 import { w } from "../../utils/stores";
 import { DiagramStore } from "./useDiagramStore";

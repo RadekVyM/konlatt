@@ -19,17 +19,18 @@ const useDataStructuresStore = create<DataStructuresStore>((set) => ({
     context: null,
     concepts: null,
     lattice: null,
-    setContext: (context) => set(() => {
+    setContext: (context) => {
+        set({ context });
+
         if (context) {
             useDiagramStore.getState().setupSelectedLabels(context);
         }
-        return { context };
-    }),
-    setConcepts: (concepts) => set(() => ({ concepts })),
-    setLattice: (lattice) => set(() => {
+    },
+    setConcepts: (concepts) => set({ concepts }),
+    setLattice: (lattice) => {
+        set({ lattice });
         useExplorerStore.getState().setupLattice(lattice);
-        return { lattice };
-    }),
+    },
     reset: () => set(() => ({
         context: null,
         concepts: null,

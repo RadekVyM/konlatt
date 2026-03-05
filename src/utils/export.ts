@@ -1,4 +1,4 @@
-import { ConceptLatticeLayout } from "../types/ConceptLatticeLayout";
+import { ConceptLatticeLayout } from "../types/diagram/ConceptLatticeLayout";
 import { createPoint, Point } from "../types/Point";
 import { transformedPoint } from "./layout";
 

@@ -1,5 +1,5 @@
-import { ConceptLatticeLayout } from "../../types/ConceptLatticeLayout";
-import { ConceptLatticeLayoutCacheItem } from "../../types/ConceptLatticeLayoutCacheItem";
+import { ConceptLatticeLayout } from "../../types/diagram/ConceptLatticeLayout";
+import { ConceptLatticeLayoutCacheItem } from "../../types/diagram/ConceptLatticeLayoutCacheItem";
 import { DiagramLayoutState } from "../../types/diagram/DiagramLayoutState";
 import { DiagramOffsetMementos } from "../../types/diagram/DiagramOffsetMementos";
 import { createNodeOffsetMemento } from "../../types/diagram/NodeOffsetMemento";

@@ -5,7 +5,7 @@ import { PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT } from "../../../constants/canv
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import { setNodesTransformMatrices, setupNodeTransform, themedColor } from "./utils";
 import useGlobalsStore from "../../../stores/useGlobalsStore";
-import { ConceptLatticeLayout } from "../../../types/ConceptLatticeLayout";
+import { ConceptLatticeLayout } from "../../../types/diagram/ConceptLatticeLayout";
 import { Point } from "../../../types/Point";
 import { CameraType } from "../../../types/diagram/CameraType";
 import { isRightClick } from "../../../utils/html";

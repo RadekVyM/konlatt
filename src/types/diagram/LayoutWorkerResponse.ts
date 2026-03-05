@@ -1,5 +1,3 @@
-import { Point } from "../Point"
-
 export type LayoutWorkerResponse = LayoutWorkerProgressResponse | LayoutWorkerResultResponse
 
 export type LayoutWorkerProgressResponse = {
@@ -9,6 +7,6 @@ export type LayoutWorkerProgressResponse = {
 
 export type LayoutWorkerResultResponse = {
     type: "result",
-    layout: Array<Point>,
+    layout: Float32Array,
     computationTime: number,
 }

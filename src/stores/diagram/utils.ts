@@ -1,6 +1,6 @@
 import { Box } from "../../types/Box";
 import { CameraType } from "../../types/diagram/CameraType";
-import { ConceptLatticeLayout } from "../../types/ConceptLatticeLayout";
+import { ConceptLatticeLayout } from "../../types/diagram/ConceptLatticeLayout";
 import { createPoint, Point } from "../../types/Point";
 import { transformedPoint } from "../../utils/layout";
 import { DiagramLayoutState } from "../../types/diagram/DiagramLayoutState";

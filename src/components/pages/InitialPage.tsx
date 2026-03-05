@@ -4,7 +4,8 @@ import { LargeFileSelection } from "../inputs/FileSelection";
 
 export default function InitialPage() {
     const dialogState = useNewProjectStore((state) => state.dialogState);
-    const { selectedFile, setSelectedFile } = useNewProjectStore();
+    const selectedFile = useNewProjectStore((state) => state.selectedFile);
+    const setSelectedFile = useNewProjectStore((state) => state.setSelectedFile);
 
     async function onFileSelect(file: File | null | undefined) {
         setSelectedFile(file);

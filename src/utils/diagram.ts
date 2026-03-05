@@ -3,13 +3,14 @@ import { DIM_NODE_COLOR_DARK, DIM_NODE_COLOR_LIGHT, NODE_COLOR_DARK, NODE_COLOR_
 import { CameraType } from "../types/diagram/CameraType";
 import { ConceptLabel, PositionedConceptLabel } from "../types/ConceptLabel";
 import { ConceptLatticeLabeling } from "../types/ConceptLatticeLabeling";
-import { ConceptLatticeLayout } from "../types/ConceptLatticeLayout";
+import { ConceptLatticeLayout } from "../types/diagram/ConceptLatticeLayout";
 import { LabelOptions } from "../types/LabelOptions";
 import { Link } from "../types/Link";
 import { createPoint, Point } from "../types/Point";
 import { CurrentTheme } from "../types/Theme";
 import { transformedPoint } from "./layout";
 import { Object3D, Vector3 } from "three";
+import { Relation } from "../types/Relation";
 
 export function setupLinkTransform(temp: Object3D, from: Point, to: Point, initialDirection: Vector3, lineThickness: number) {
     // Vector math for link placement
@@ -58,7 +59,7 @@ export function getNodeColor(
 
 export function getDiagramLinks(
     concepts: Array<{ conceptIndex: number }> | null,
-    subconceptsRelation: ReadonlyArray<ReadonlySet<number>> | null,
+    subconceptsRelation: Relation | null,
     sublatticeConceptIndexes: ReadonlySet<number> | null,
     filteredConceptIndexes: ReadonlySet<number> | null,
     displayHighlightedSublatticeOnly: boolean,

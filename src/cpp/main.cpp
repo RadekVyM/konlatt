@@ -33,6 +33,10 @@ using namespace emscripten;
 // but are passed into them through parameters from JavaScript.
 // This way, a few copies of (often large) vectors can be avoided.
 
+uintptr_t getFloatVectorAddress(const std::vector<float>& v) {
+    return reinterpret_cast<uintptr_t>(v.data());
+}
+
 EMSCRIPTEN_BINDINGS(my_module) {
     emscripten::register_vector<std::string>("StringArray");
     emscripten::register_vector<unsigned int>("UIntArray");
@@ -41,6 +45,8 @@ EMSCRIPTEN_BINDINGS(my_module) {
     emscripten::register_vector<FormalConcept>("FormalConceptArray");
     emscripten::register_vector<SimpleFormalConcept>("SimpleFormalConceptArray");
     emscripten::register_vector<std::vector<int>>("IntMultiArray");
+
+    emscripten::function("getFloatVectorAddress", &getFloatVectorAddress);
 
     emscripten::class_<FormalContext>("FormalContext")
         .constructor()

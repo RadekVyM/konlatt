@@ -3,6 +3,7 @@ import { ConceptLattice } from "../types/ConceptLattice";
 import { ConceptLatticeLabeling } from "../types/ConceptLatticeLabeling";
 import { FormalConcept, FormalConcepts, getInfimum, getSupremum } from "../types/FormalConcepts";
 import { FormalContext } from "../types/FormalContext";
+import { Relation } from "../types/Relation";
 import { cppIntMultiArrayToJs, jsArrayToCppSimpleFormalConceptArray, jsArrayToCppUIntArray } from "../utils/cpp";
 import { breadthFirstSearch } from "../utils/graphs";
 import { assignNodesToLayersByLongestPath } from "./layers";
@@ -87,7 +88,7 @@ function reverseRelation(relation: Array<Set<number>>) {
 
 export function getObjectsLabeling(
     concepts: FormalConcepts,
-    superconceptsRelation: ReadonlyArray<ReadonlySet<number>>,
+    superconceptsRelation: Relation,
     sublatticeConceptIndexes?: Set<number>,
 ): ConceptLatticeLabeling {
     const infimum = getInfimum(concepts);
@@ -97,7 +98,7 @@ export function getObjectsLabeling(
 
 export function getAttributesLabeling(
     concepts: FormalConcepts,
-    subconceptsRelation: ReadonlyArray<ReadonlySet<number>>,
+    subconceptsRelation: Relation,
     sublatticeConceptIndexes?: Set<number>,
 ): ConceptLatticeLabeling {
     const supremum = getSupremum(concepts);
@@ -187,7 +188,7 @@ export function calculateSublattice(sublatticeConceptIndexes: Set<number>, latti
     };
 }
 
-function collectIndexes(startIndex: number, relation: ReadonlyArray<ReadonlySet<number>>) {
+function collectIndexes(startIndex: number, relation: Relation) {
     const set = new Set<number>();
 
     breadthFirstSearch(startIndex, relation, (index) => set.add(index));
@@ -211,7 +212,7 @@ function getMappedIndex(mapping: Map<number, number>, reverseIndexMapping: Map<n
 function getLabeling(
     concepts: FormalConcepts,
     startConcept: FormalConcept,
-    coverRelation: ReadonlyArray<ReadonlySet<number>>,
+    coverRelation: Relation,
     conceptItems: (concept: FormalConcept) => ReadonlyArray<number>,
     sublatticeConceptIndexes?: Set<number>,
 ): ConceptLatticeLabeling {

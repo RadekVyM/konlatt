@@ -5,7 +5,7 @@ import { Rect } from "../../../types/Rect";
 import { Camera, Vector3, WebGLRenderer } from "three";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import { isInRect } from "../../../utils/rect";
-import { ConceptLatticeLayout } from "../../../types/ConceptLatticeLayout";
+import { ConceptLatticeLayout } from "../../../types/diagram/ConceptLatticeLayout";
 import { createPoint, Point } from "../../../types/Point";
 import { isRightClick } from "../../../utils/html";
 import { CameraType } from "../../../types/diagram/CameraType";

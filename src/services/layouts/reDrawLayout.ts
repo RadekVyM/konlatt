@@ -1,6 +1,5 @@
 import Module from "../../cpp";
-import { cppFloatArrayToPoints } from "../../utils/cpp";
-import { Point } from "../../types/Point";
+import { cppFloatArrayToFloat32Array } from "../../utils/cpp";
 
 export async function computeReDrawLayout(
     conceptsCount: number,
@@ -12,14 +11,14 @@ export async function computeReDrawLayout(
     parallelize: boolean,
     onProgress: (progress: number) => void,
 ): Promise<{
-    layout: Array<Point>,
+    layout: Float32Array,
     computationTime: number,
 }> {
     const module = await Module();
     const result = new module.FloatArrayTimedResult();
 
     module.computeReDrawLayout(result, supremum, infimum, conceptsCount, subconceptsRelationArrayBuffer, seed, targetDimension, parallelize, onProgress);
-    const layout = cppFloatArrayToPoints(result.value, conceptsCount, true);
+    const layout = cppFloatArrayToFloat32Array(result.value, module, true);
     const computationTime = result.time;
 
     result.delete();

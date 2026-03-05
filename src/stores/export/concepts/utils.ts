@@ -4,6 +4,7 @@ import { ConceptLattice } from "../../../types/ConceptLattice";
 import { ConceptExportFormat } from "../../../types/export/ConceptExportFormat";
 import { FormalConcept, FormalConcepts } from "../../../types/FormalConcepts";
 import { FormalContext } from "../../../types/FormalContext";
+import { Relation } from "../../../types/Relation";
 import { sumLengths } from "../../../utils/array";
 import { withFallback } from "../../../utils/stores";
 import useDataStructuresStore from "../../useDataStructuresStore";
@@ -116,7 +117,7 @@ function highlightedConcepts(
     objects: ReadonlyArray<string>,
     attributes: ReadonlyArray<string>,
     concepts: FormalConcepts,
-    relation?: ReadonlyArray<ReadonlySet<number>>,
+    relation?: Relation,
 } {
     if (sublatticeConceptIndexes.length === 0) {
         return {
@@ -165,7 +166,7 @@ function highlightedConcepts(
 function remappedRelation(
     newConcepts: ReadonlyArray<FormalConcept>,
     sublatticeConceptIndexes: ReadonlyArray<number>,
-    coverRelation: ReadonlyArray<ReadonlySet<number>>,
+    coverRelation: Relation,
     conceptIndexesMapping: Map<number, number>,
 ) {
     const newCoverRelation = new Array<Set<number>>(newConcepts.length);

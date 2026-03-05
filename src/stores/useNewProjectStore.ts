@@ -11,8 +11,8 @@ type NewProjectStore = {
 const useNewProjectStore = create<NewProjectStore>((set) => ({
     selectedFile: null,
     dialogState: null,
-    setSelectedFile: (selectedFile) => set(() => ({ selectedFile })),
-    setDialogState: (dialogState) => set(() => ({ dialogState })),
+    setSelectedFile: (selectedFile) => set({ selectedFile }),
+    setDialogState: (dialogState) => set({ dialogState }),
 }));
 
 export default useNewProjectStore;

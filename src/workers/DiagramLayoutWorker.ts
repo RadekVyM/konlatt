@@ -1,11 +1,10 @@
 import { LayoutWorkerProgressResponse, LayoutWorkerResultResponse } from "../types/diagram/LayoutWorkerResponse";
-import { Point } from "../types/Point";
 import { CompleteLayoutComputationRequest } from "../types/workers/MainWorkerRequest";
 import { hashString } from "../utils/string";
 
 self.onmessage = async (event: MessageEvent<CompleteLayoutComputationRequest>) => {
     let result: {
-        layout: Array<Point>,
+        layout: Float32Array,
         computationTime: number,
     };
 
@@ -24,7 +23,7 @@ self.onmessage = async (event: MessageEvent<CompleteLayoutComputationRequest>) =
         computationTime: result.computationTime,
     };
 
-    self.postMessage(response);
+    self.postMessage(response, { transfer: [response.layout.buffer] });
     self.close();
 }
 

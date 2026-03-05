@@ -6,7 +6,7 @@ import { useThree } from "@react-three/fiber";
 import { createLabelsWithPositions } from "../../../utils/diagram";
 import { Point } from "../../../types/Point";
 import { ConceptLatticeLabeling } from "../../../types/ConceptLatticeLabeling";
-import { ConceptLatticeLayout } from "../../../types/ConceptLatticeLayout";
+import { ConceptLatticeLayout } from "../../../types/diagram/ConceptLatticeLayout";
 import { CameraType } from "../../../types/diagram/CameraType";
 import useDataStructuresStore from "../../../stores/useDataStructuresStore";
 import R3FLabel from "../R3FLabel";

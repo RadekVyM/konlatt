@@ -4,13 +4,13 @@ import { ConceptComputationResponse, ContextParsingResponse, ErrorResponse, Fini
 import { FormalContext } from "../types/FormalContext";
 import { FormalConcepts, getInfimum, getSupremum } from "../types/FormalConcepts";
 import DiagramLayoutWorker from "./DiagramLayoutWorker?worker";
-import { createConceptPoint } from "../types/diagram/ConceptPoint";
-import { Point } from "../types/Point";
+import { ConceptPoint, createConceptPoint } from "../types/diagram/ConceptPoint";
 import { ImportFormat } from "../types/ImportFormat";
 import { CsvSeparator } from "../types/CsvSeparator";
 import { calculateConeConceptIndexes, calculateSublattice } from "../services/lattice";
 import { LayoutComputationOptions } from "../types/diagram/LayoutComputationOptions";
 import { LayoutWorkerResponse } from "../types/diagram/LayoutWorkerResponse";
+import { ConceptLatticeLayout } from "../types/diagram/ConceptLatticeLayout";
 
 let formalContext: FormalContext | null = null;
 let formalConcepts: FormalConcepts | null = null;
@@ -150,7 +150,12 @@ async function calculateLayout(
     postStatusMessage(jobId, "Computing layout");
 
     const worker = new DiagramLayoutWorker();
-    const { request, reverseIndexMapping } = createCompleteLayoutComputationRequest(concepts, lattice, upperConeOnlyConceptIndex, lowerConeOnlyConceptIndex, options);
+    const { request, reverseIndexMapping } = createCompleteLayoutComputationRequest(
+        concepts,
+        lattice,
+        upperConeOnlyConceptIndex,
+        lowerConeOnlyConceptIndex,
+        options);
 
     worker.postMessage(request, [request.subconceptsRelationArrayBuffer.buffer]);
 
@@ -170,7 +175,7 @@ async function calculateLayout(
                         jobId,
                         time: new Date().getTime(),
                         type: "layout",
-                        layout: getValidLayout(response.layout, reverseIndexMapping),
+                        layout: convertToConceptLatticeLayout(response.layout, concepts.length, reverseIndexMapping),
                         computationTime: response.computationTime,
                     };
                     self.postMessage(layoutMessage);
@@ -301,12 +306,24 @@ function createCompleteLayoutComputationRequest(
     };
 }
 
-function getValidLayout(layout: Array<Point>, reverseIndexMapping: Map<number, number> | null) {
-    if (reverseIndexMapping === null) {
-        return layout.map((point, index) => createConceptPoint(point[0], point[1], point[2], index));
+function convertToConceptLatticeLayout(
+    layout: Float32Array,
+    conceptsCount: number,
+    reverseIndexMapping: Map<number, number> | null,
+): ConceptLatticeLayout {
+    const validLayout = new Array<ConceptPoint>();
+
+    for (let i = 0; i < conceptsCount; i++) {
+        const start = i * 3;
+        const x = layout[start];
+        const y = layout[start + 1];
+        const z = layout[start + 2];
+        const index = reverseIndexMapping === null ? i : reverseIndexMapping.get(i)!;
+
+        validLayout.push(createConceptPoint(x, y, z, index));
     }
 
-    return layout.map((point, index) => createConceptPoint(point[0], point[1], point[2], reverseIndexMapping.get(index)!));
+    return validLayout;
 }
 
 function tryRequestDataFromMainThread(request: CompleteMainWorkerRequest, requestedObjects: Array<WorkerDataRequestObject>) {

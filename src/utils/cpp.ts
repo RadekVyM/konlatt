@@ -85,6 +85,24 @@ export function cppFloatArrayToPoints(cppArray: FloatArray, conceptsCount: numbe
     return result;
 }
 
+export function cppFloatArrayToFloat32Array(
+    cppArray: FloatArray,
+    module: MainModule,
+    shouldDelete: boolean = false
+): Float32Array {
+    const size = cppArray.size();
+    const pointer = module.getFloatVectorAddress(cppArray);
+    // Create a view of the WASM memory
+    const view = module.HEAPF32.subarray(pointer >> 2, (pointer >> 2) + size);
+    const result = new Float32Array(view);
+
+    if (shouldDelete) {
+        cppArray.delete();
+    }
+
+    return result;
+}
+
 export function jsArrayToCppIntArray(module: MainModule, array: Array<number> | ReadonlyArray<number>): IntArray {
     const cppArray = new module.IntArray();
     cppArray.resize(array.length, 0);
