@@ -1,12 +1,12 @@
-#ifndef FORMAL_CONTEXT_H
-#define FORMAL_CONTEXT_H
+#ifndef BENCH_FORMAL_CONTEXT_H
+#define BENCH_FORMAL_CONTEXT_H
 
 #include <vector>
 #include <string>
 
-class FormalContext {
+class BenchFormalContext {
 public:
-    FormalContext() {}
+    BenchFormalContext() {}
 
     int getCellSize() const { return cellSize; }
     void setCellSize(int value) { cellSize = value; }

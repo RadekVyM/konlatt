@@ -11,6 +11,10 @@
 
 template struct TimedResult<std::vector<std::vector<int>>>;
 
+/**
+ * Computes the cover relation for a formal concept lattice.
+ * @param result Stores the adjacency list (edges) and execution time.
+ */
 void conceptsCover(
     TimedResult<std::vector<std::vector<int>>>& result,
     std::vector<SimpleFormalConcept>& concepts,

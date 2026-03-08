@@ -14,6 +14,9 @@
 #include <unordered_set>
 #include <map>
 
+// It is annoying to pass the formal context data to the functions like this,
+// but it is the fastest and simplest way
+
 void conceptsCover(
     TimedResult<std::vector<std::vector<int>>>& result,
     std::vector<SimpleFormalConcept>& concepts,
@@ -29,22 +32,25 @@ void conceptsCover(
     //printFormalContext(contextMatrix, cellSize, cellsPerObject, contextObjectsCount, contextAttributesCount);
     long long startTime = nowMills();
 
+    // Map extents to their concept index for O(log N) lookup
     std::map<std::vector<int>, int> conceptsMap;
-
     for (int i = 0; i < concepts.size(); i++) {
         conceptsMap.insert({ concepts[i].getObjectsCopy(), i });
     }
 
     result.value.resize(concepts.size());
 
+    // counts[j] tracks how many attributes 'm' result in the intersection 
+    // that matches concepts[j]'s extent.
     std::vector<int> counts(concepts.size(), 0);
-    std::vector<int> inters;
-    inters.reserve(contextObjectsCount);
+    std::vector<int> intersection;
+    intersection.reserve(contextObjectsCount);
 
 #ifdef __EMSCRIPTEN__
     int progressStep = concepts.size() / 100;
 #endif
 
+    // Iterate through each concept to find its direct children in the lattice
     for (int i = 0; i < concepts.size(); i++) {
         std::fill(counts.begin(), counts.end(), 0);
 
@@ -57,8 +63,9 @@ void conceptsCover(
         int conceptAttributesCount = concepts[i].getAttributes().size();
         int ignoredConceptAttributeIndex = 0;
 
+        // Check every attribute 'm' in the formal context
         for (int m = 0; m < contextAttributesCount; m++) {
-            // ignore all the attributes of concepts[i]
+            // Optimization: If attribute 'm' is already in the current concept's (concepts[i]) intent, skip it.
             if (ignoredConceptAttributeIndex < conceptAttributesCount) {
                 int ignoredAttribute = concepts[i].getAttributes()[ignoredConceptAttributeIndex];
 
@@ -68,8 +75,9 @@ void conceptsCover(
                 }
             }
 
-            // all objects of concepts[i] that have attribute m
-            inters.clear();
+            // Find the intersection of the current concept's (concepts[i]) extent with the attribute 'm'
+            // Intersection = { objects in concept[i] | object has attribute m }
+            intersection.clear();
             for (int object : concepts[i].getObjects()) {
                 if (formalContextHasAttribute(
                     contextMatrix,
@@ -78,16 +86,21 @@ void conceptsCover(
                     object,
                     m
                 )) {
-                    inters.push_back(object);
+                    intersection.push_back(object);
                 }
             }
 
-            // getting concept whose extent is equal to inters
-            int anotherConceptIndex = conceptsMap.find(inters)->second;
+            // Identify which concept (anotherConceptIndex) has this specific extent (intersection)
+            int anotherConceptIndex = conceptsMap.find(intersection)->second;
             counts[anotherConceptIndex] = counts[anotherConceptIndex] + 1;
 
+            // THE COVER CONDITION:
+            // A concept B is covered by concept A if the number of attributes 
+            // that generate B's extent from A equals the difference in their intent sizes.
+            // This ensures B is a maximal sub-concept (no concept exists between A and B).
             if (concepts[anotherConceptIndex].getAttributes().size() - conceptAttributesCount == counts[anotherConceptIndex]) {
-                // add an edge from concepts[anotherConceptIndex] to concepts[i]
+                // Add an edge from concepts[anotherConceptIndex] to concepts[i]
+                // Edge: anotherConceptIndex (sub-concept) -> i (super-concept)
                 result.value[anotherConceptIndex].push_back(i);
             }
         }

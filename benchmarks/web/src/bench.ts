@@ -2,6 +2,7 @@ import mushroomep from "../../../datasets/mushroomep.cxt?raw";
 import { __collect, inClose as inCloseAs, parseBurmeister as parseBurmeisterAs } from "../../as";
 import { inClose as inCloseJs } from "../../js/inClose";
 import parseBurmeisterJs from "../../../src/services/parsing/burmeister"
+import { jsArrayToCppUIntArray } from "../../../src/utils/cpp"
 import Module from "../../../src/cpp";
 import { generateStats } from "../../stats";
 
@@ -9,12 +10,13 @@ export async function benchCpp(runsCount: number, postMessage: (message: string)
     const times1 = new Array<number>();
     const times2 = new Array<number>();
     const module = await Module();
-    const context = module.parseBurmeister(mushroomep);
+    const context = parseBurmeisterJs(mushroomep);
+    const uIntContext = jsArrayToCppUIntArray(module, context.relation);
 
     for (let i = 0; i < runsCount; i++) {
         const startTime = new Date().getTime();
         const result = new module.FormalConceptsTimedResult();
-        module.inClose(result, context.context, context.cellSize, context.cellsPerObject, context.objects.size(), context.attributes.size(), undefined);
+        module.inClose(result, uIntContext, context.cellSize, context.cellsPerObject, context.objects.length, context.attributes.length, undefined);
         const time2 = new Date().getTime() - startTime;
 
         times1.push(result.time);
@@ -29,7 +31,7 @@ export async function benchCpp(runsCount: number, postMessage: (message: string)
 
     postStats(times1, times2, postMessage);
 
-    context.delete();
+    uIntContext.delete();
 }
 
 export async function benchAs(runsCount: number, postMessage: (message: string) => void) {

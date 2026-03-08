@@ -21,12 +21,12 @@
 // Clang macOS:
 // clang++ -std=gnu++17 -O3 ./benchmarks/native/main.cpp -o ./benchmarks/native/main_clang
 
+#include "BenchFormalContext.h"
 #include "../../src/cpp/types/FormalConcept.h"
-#include "../../src/cpp/types/FormalContext.h"
 #include "../../src/cpp/types/TimedResult.h"
 
 #include "../../src/cpp/utils.cpp"
-#include "../../src/cpp/burmeister.cpp"
+#include "burmeister.cpp"
 #include "../../src/cpp/inClose.cpp"
 
 #include <stdio.h>
@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    FormalContext context = parseBurmeister(fileContent);
+    BenchFormalContext context = parseBurmeister(fileContent);
 
     std::vector<double> times;
     int runsCount = 50;

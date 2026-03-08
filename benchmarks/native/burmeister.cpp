@@ -1,5 +1,5 @@
-#include "types/FormalContext.h"
-#include "utils.h"
+#include "BenchFormalContext.h"
+#include "../../src/cpp/utils.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -9,9 +9,9 @@
 #include <vector>
 #include <cmath>
 
-FormalContext parseBurmeister(std::string fileContent) {
+BenchFormalContext parseBurmeister(std::string fileContent) {
     // TODO: Produce exceptions when issues with the file format are encountered
-    FormalContext context;
+    BenchFormalContext context;
     std::stringstream fileContentStream(fileContent);
 
     std::string bLine;

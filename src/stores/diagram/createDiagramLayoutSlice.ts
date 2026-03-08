@@ -17,6 +17,7 @@ const CACHE_MAX_SIZE = 5_000_000;
 
 type DiagramLayoutSliceState = {
     layout: ConceptLatticeLayout | null,
+    /** This ID is used to trigger rerender of some React components using the `key` property */
     layoutId: string,
     conceptToLayoutIndexesMapping: Map<number, number>,
     layoutToConceptIndexesMapping: Map<number, number>,

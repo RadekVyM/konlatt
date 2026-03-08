@@ -11,6 +11,11 @@
 
 template struct TimedResult<std::vector<FormalConcept>>;
 
+/**
+ * Entry point for the In-Close algorithm.
+ * Initializes the first concept (all objects) and triggers recursion.
+ * @param result Stores the list of all concepts and execution time.
+ */
 void inClose(
     TimedResult<std::vector<FormalConcept>>& result,
     std::vector<unsigned int>& contextMatrix,

@@ -11,6 +11,15 @@
 #include <queue>
 #include <vector>
 
+
+// It is annoying to pass the formal context data to the functions like this,
+// but it is the fastest and simplest way
+
+/**
+ * Checks if a concept has already been generated.
+ * Returns `false` (not canonical) if the extent is found elsewhere.
+ * Basically one-to-one implementation of the 3.2 section from the paper.
+ */
 bool isCannonical(
     std::vector<unsigned int>& contextMatrix,
     int cellSize,
@@ -22,10 +31,12 @@ bool isCannonical(
 ) {
     std::vector<int>& parentConceptAttributes = parentConcept.getAttributes();
 
+    // Iterate through blocks of columns between those already in the intent
     for (int k = parentConceptAttributes.size() - 1; k >= 0; k--) {
         for (int j = startingAttribute; j >= parentConceptAttributes[k] + 1; j--) {
             int h = 0;
 
+            // Check if the current attribute j is shared by all objects in the new extent
             for (h = 0; h < newExtentSize; h++) {
                 if (!formalContextHasAttribute(
                     contextMatrix,
@@ -36,13 +47,16 @@ bool isCannonical(
                 ))
                     break;
             }
+            // If the extent is found (all objects share attribute j), it's not canonical
             if (h == newExtentSize) {
                 return false;
             }
         }
+        // Prepare to skip the column just iterated down to
         startingAttribute = parentConceptAttributes[k] - 1;
     }
 
+    // Final search for the extent in the block of columns down to 0
     for (int j = startingAttribute; j >= 0; j--) {
         int h = 0;
 
@@ -64,6 +78,10 @@ bool isCannonical(
     return true;
 }
 
+/**
+ * Core recursive implementation of In-Close.
+ * Implementation of the 3.1 section from the paper.
+ */
 void inCloseImpl(
     std::vector<unsigned int>& contextMatrix,
     int cellSize,
@@ -81,6 +99,7 @@ void inCloseImpl(
 ) {
     std::queue<int> conceptsQueue;
 
+    // Iterate through attributes starting from the currentAttribute
     for (int j = currentAttribute; j < contextAttributesCount; j++) {
         int lastObjectIndex = 0;
         std::vector<int>& parentConceptObjects = formalConcepts[parentConceptIndex].getObjects();
@@ -96,10 +115,12 @@ void inCloseImpl(
         }
 
         if (lastObjectIndex > 0) {
+            // Case A: Extent didn't change -> Attribute j belongs to the current concept's intent
             if (lastObjectIndex == parentConceptObjects.size()) {
                 std::vector<int>& attributes = formalConcepts[parentConceptIndex].getAttributes();
                 attributes.push_back(j);
             }
+            // Case B: Extent is a smaller non-empty intersection -> Check if this forms a new canonical concept
             else if (isCannonical(
                 contextMatrix,
                 cellSize,
@@ -112,15 +133,18 @@ void inCloseImpl(
                 formalConcepts.emplace_back();
                 FormalConcept& newConcept = formalConcepts.back();
 
+                // Inherit parent attributes and add the new qualifying attribute j
                 std::vector<int> newIntent = formalConcepts[parentConceptIndex].getAttributesCopy();
                 newIntent.push_back(j);
                 newConcept.setAttributes(newIntent);
 
+                // Set the newly filtered objects as the extent
                 std::vector<int> newExtent(newExtentBuffer.begin(), newExtentBuffer.begin() + lastObjectIndex);
                 newConcept.setObjects(newExtent);
 
                 newConcept.setAttribute(j);
 
+                // Queue this concept for further recursive calls
                 conceptsQueue.push(formalConcepts.size() - 1);
             }
         }
@@ -131,6 +155,7 @@ void inCloseImpl(
     int progressStepsCount = conceptsQueue.size() + 1;
 #endif
 
+    // Recursively process each new concept discovered in the loop above
     while (!conceptsQueue.empty()) {
         int conceptIndex = conceptsQueue.front();
 
@@ -176,9 +201,11 @@ void inClose(
 
     long long startTime = nowMills();
 
+    // Temporary buffer to reuse memory for extent calculations
     std::vector<int> newExtentBuffer;
     newExtentBuffer.resize(contextObjectsCount);
 
+    // Create the initial concept: contains all objects, intent is empty
     std::vector<int> initialConceptObjects;
     initialConceptObjects.reserve(contextObjectsCount);
     for (int i = 0; i < contextObjectsCount; i++) {
@@ -191,6 +218,7 @@ void inClose(
 
     result.value.push_back(initialConcept);
 
+    // Start recursive processing from the first concept (index 0)
     inCloseImpl(
         contextMatrix,
         cellSize,
@@ -207,6 +235,7 @@ void inClose(
 #endif
         );
 
+    // Edge case: Handle the concept containing all attributes if no object possesses all of them
     if (!hasObjectWithAllAttributes(
         contextMatrix,
         cellSize,

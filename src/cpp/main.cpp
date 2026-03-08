@@ -1,5 +1,4 @@
 #include "types/FormalConcept.h"
-#include "types/FormalContext.h"
 #include "types/TimedResult.h"
 #include "types/OnProgressCallback.h"
 
@@ -12,7 +11,6 @@
 #include <chrono>
 
 #include "utils.cpp"
-#include "burmeister.cpp"
 #include "inClose.cpp"
 #include "conceptsCover.cpp"
 #include "layout/utils.cpp"
@@ -48,14 +46,6 @@ EMSCRIPTEN_BINDINGS(my_module) {
 
     emscripten::function("getFloatVectorAddress", &getFloatVectorAddress);
 
-    emscripten::class_<FormalContext>("FormalContext")
-        .constructor()
-        .property("cellSize", &FormalContext::getCellSize, &FormalContext::setCellSize)
-        .property("cellsPerObject", &FormalContext::getCellsPerObject, &FormalContext::setCellsPerObject)
-        .property("objects", &FormalContext::getObjectsCopy, &FormalContext::setObjects)
-        .property("attributes", &FormalContext::getAttributesCopy, &FormalContext::setAttributes)
-        .property("context", &FormalContext::getContextCopy, &FormalContext::setContext);
-
     emscripten::class_<FormalConcept>("FormalConcept")
         .constructor()
         .property("objects", &FormalConcept::getObjectsCopy, &FormalConcept::setObjects)
@@ -86,7 +76,6 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .property("value", &TimedResult<std::vector<float>>::value)
         .property("time", &TimedResult<std::vector<float>>::time);
 
-    emscripten::function("parseBurmeister", &parseBurmeister);
     emscripten::function("formalContextHasAttribute", &formalContextHasAttribute);
     emscripten::function("inClose", &inClose);
     emscripten::function("conceptsCover", &conceptsCover);

@@ -1,7 +1,8 @@
 import { expect, test } from "vitest";
 import Module from "../../../src/cpp";
 import { DIGITS, LATTICE, LIVEINWATER, TEALADY, TestValue } from "../../constants/flowTestValues";
-import { cppFormalConceptArrayToJs, cppIntMultiArrayToJs, jsArrayToCppSimpleFormalConceptArray } from "../../../src/utils/cpp";
+import { cppFormalConceptArrayToJs, cppIntMultiArrayToJs, jsArrayToCppSimpleFormalConceptArray, jsArrayToCppUIntArray } from "../../../src/utils/cpp";
+import parseBurmeister from "../../../src/services/parsing/burmeister";
 
 test.each<TestValue>([
     DIGITS,
@@ -11,18 +12,19 @@ test.each<TestValue>([
     //NOM5SHUTTLE,
 ])("concepts cover", async (value) => {
     const module = await Module();
-    const context = module.parseBurmeister(value.fileContent);
+    const context = parseBurmeister(value.fileContent);
+    const uIntContext = jsArrayToCppUIntArray(module, context.relation);
     const conceptsResult = new module.FormalConceptsTimedResult();
-    module.inClose(conceptsResult, context.context, context.cellSize, context.cellsPerObject, context.objects.size(), context.attributes.size(), undefined);
+    module.inClose(conceptsResult, uIntContext, context.cellSize, context.cellsPerObject, context.objects.length, context.attributes.length, undefined);
     const latticeResult = new module.IntMultiArrayTimedResult();
     module.conceptsCover(
         latticeResult,
         jsArrayToCppSimpleFormalConceptArray(module, [...cppFormalConceptArrayToJs(conceptsResult.value, true)]),
-        context.context,
+        uIntContext,
         context.cellSize,
         context.cellsPerObject,
-        context.objects.size(),
-        context.attributes.size(),
+        context.objects.length,
+        context.attributes.length,
         undefined
     );
     const lattice = [...cppIntMultiArrayToJs(latticeResult.value, true)];
@@ -35,5 +37,5 @@ test.each<TestValue>([
     conceptsResult.delete();
     latticeResult.delete();
 
-    context.delete();
+    uIntContext.delete();
 }, 60000);
