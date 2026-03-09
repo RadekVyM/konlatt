@@ -8,6 +8,9 @@
 #include <unordered_map>
 #include <algorithm>
 
+/**
+ * Helper to add a directed edge to a relation map.
+ */
 void addEdgeToRelation(std::unordered_map<int, std::vector<int>> & relation, int from, int to) {
     if (relation.count(from) == 1) {
         std::vector<int>& subconcepts = relation[from];
@@ -18,6 +21,10 @@ void addEdgeToRelation(std::unordered_map<int, std::vector<int>> & relation, int
     }
 }
 
+/**
+ * Iterates through all edges and inserts dummy nodes for any edge spanning more than one layer.
+ * This ensures all edges become length 1.
+ */
 void addDummiesToLayers(
     int conceptsCount,
     const std::vector<std::unordered_set<int>>& subconceptsRelation,
@@ -46,15 +53,18 @@ void addDummiesToLayers(
                 continue;
             }
 
-            // Dummies need to be added 
+            // Dummies need to be added
+            // Create a chain of dummy nodes to break the long edge
             int previousSuperconcept = from;
 
             for (int i = 1; i <= diff - 1; i++) {
+                // Interpolate horizontal position for the dummy node
                 float ratio = (float)i / (toLayer - fromLayer);
                 int newDummyHorizontalPosition = (int)round(
                     (ratio * (horizontalPositions[to] - horizontalPositions[from])) + horizontalPositions[from]);
                 std::vector<int>& targetLayer = layersWithDummies[fromLayer + i];
 
+                // Insert dummy into the specific layer at the calculated X-position
                 if (newDummyHorizontalPosition + 1 > targetLayer.size()) {
                     targetLayer.push_back(newDummy);
                 }
@@ -68,6 +78,7 @@ void addDummiesToLayers(
                     horizontalPositions[targetLayer[j]]++;
                 }
 
+                // Link the chain: Previous Node -> Current Dummy
                 addEdgeToRelation(dummySubconceptsRelation, previousSuperconcept, newDummy);
                 addEdgeToRelation(dummySuperconceptsRelation, newDummy, previousSuperconcept);
 
@@ -75,9 +86,11 @@ void addDummiesToLayers(
                 newDummy++;
             }
 
+            // Link the final dummy in the chain to the original 'to' node
             addEdgeToRelation(dummySubconceptsRelation, previousSuperconcept, to);
             addEdgeToRelation(dummySuperconceptsRelation, to, previousSuperconcept);
 
+            // Mark the original long edge for removal
             addEdgeToRelation(subconceptsToRemove, from, to);
             addEdgeToRelation(superconceptsToRemove, to, from);
         }
@@ -88,6 +101,9 @@ void addDummiesToLayers(
     progress.finishBlock();
 }
 
+/**
+ * Merges newly created dummy edges into the main relation sets.
+ */
 void mergeRelations(
     std::vector<std::unordered_set<int>>& relation,
     std::unordered_map<int, std::vector<int>>& dummyRelation
@@ -99,6 +115,9 @@ void mergeRelations(
     }
 }
 
+/**
+ * Removes original long edges that have been replaced by dummy chains.
+ */
 void removeEdgesFromRelation(
     std::vector<std::unordered_set<int>>& relation,
     std::unordered_map<int, std::vector<int>>& edgesToRemove
@@ -110,6 +129,9 @@ void removeEdgesFromRelation(
     }
 }
 
+/**
+ * Primary function to process the graph, add dummies, and update relations.
+ */
 std::unique_ptr<std::tuple<
     std::vector<std::vector<int>>,
     std::vector<int>
@@ -126,6 +148,7 @@ std::unique_ptr<std::tuple<
         std::vector<int>>>();
     auto& [layersWithDummies, horizontalPositions] = *result;
 
+    // Buffers to track changes without mutating the original sets during iteration
     std::unordered_map<int, std::vector<int>> dummySubconceptsRelation;
     std::unordered_map<int, std::vector<int>> subconceptsToRemove;
     std::unordered_map<int, std::vector<int>> dummySuperconceptsRelation;
@@ -136,6 +159,7 @@ std::unique_ptr<std::tuple<
 
     int maxLayerSize = maxSizeOfSets(layers);
 
+    // Center the original nodes in each layer
     for (int i = 0; i < layers.size(); i++) {
         std::unordered_set<int>& layer = layers[i];
         float offset = (float)(maxLayerSize - layer.size()) / 2;
@@ -152,6 +176,7 @@ std::unique_ptr<std::tuple<
         layersWithDummies[i].insert(layersWithDummies[i].end(), layer.begin(), layer.end());
     }
 
+    // Process all edges to insert dummies
     addDummiesToLayers(
         conceptsCount,
         subconceptsRelation,
@@ -177,6 +202,7 @@ std::unique_ptr<std::tuple<
     // Make the coords precise
     int maxWithDummies = maxSizeOfVectors(layersWithDummies);
 
+    // Re-center horizontal positions based on the new layer widths including dummies
     for (int i = 0; i < layersWithDummies.size(); i++) {
         std::unordered_set<int>& layer = layers[i];
         float offset = (float)(maxWithDummies - layer.size()) / 2;

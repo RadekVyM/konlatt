@@ -22,6 +22,7 @@ void simplePlacement(
 
     for (int i = 0; i < layers.size(); i++) {
         std::vector<int>& layer = layers[i];
+        // Calculate initial X offset to horizontally center the current layer around X=0
         float left = (float)(layer.size() - 1) / -2;
 
         for (int node : layer) {

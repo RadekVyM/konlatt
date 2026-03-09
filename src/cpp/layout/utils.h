@@ -23,17 +23,4 @@ std::unique_ptr<std::unordered_set<int>> getComparableConcepts(
     std::vector<std::unordered_set<int>>& superconceptsRelation
 );
 
-void tryTriggerProgress(
-    double totalIterationsCount,
-    double currentIteration,
-    double& previousRecordedIteration,
-    std::function<void(double)> onProgress
-);
-
-void tryTriggerBlockProgress(
-    double totalIterationsCount,
-    double blockIterationsCount,
-    double& previousRecordedIteration
-);
-
 #endif

@@ -18,6 +18,10 @@
 using Conflicts = std::unordered_map<int, std::unordered_set<int>>;
 using NodesList = std::vector<int>;
 
+/**
+ * Initializes the relative horizontal index for each node within its layer
+ * and identifies the node immediately to its left (predecessor).
+ */
 void setupHorizontalOrder(
     std::vector<int>& horizontalOrder,
     std::vector<int>& predecessors,
@@ -37,6 +41,10 @@ bool isDummy(int node, int conceptsCount) {
     return node >= conceptsCount;
 }
 
+/**
+ * Finds the "other half" of a dummy edge segment.
+ * If node is a dummy, find its connected dummy in the layer above.
+ */
 std::optional<int> findOtherInnerSegmentNode(
     int node,
     std::vector<std::unordered_set<int>>& superconceptsRelation,
@@ -83,6 +91,10 @@ bool hasConflict(
         conflicts[from].find(to) != conflicts[from].end();
 }
 
+/**
+ * Marks edges that should not be aligned vertically because they would 
+ * cause edge crossings or bend "inner segments" (edges between dummy nodes).
+ */
 void markConflicts(
     std::vector<std::vector<int>>& layers,
     std::vector<std::unordered_set<int>>& superconceptsRelation,
@@ -109,6 +121,7 @@ void markConflicts(
             iteration++;
             int node = layer[nodeIndex];
             auto otherInnerSegmentNode = findOtherInnerSegmentNode(node, superconceptsRelation, conceptsCount);
+            // Get the horizontal index of the dummy node in the previous layer
             int otherInnerSegmentNodeOrder = otherInnerSegmentNode ?
                 horizontalOrder[otherInnerSegmentNode.value()] :
                 layers[layerIndex - 1].size();
@@ -125,7 +138,7 @@ void markConflicts(
                 for (auto superNode : superconceptsRelation[scanNode]) {
                     int superOrder = horizontalOrder[superNode];
 
-                    // type 1
+                    // Type 1 conflict: An edge crosses an inner segment (dummy-to-dummy edge)
                     if ((superOrder < lastOtherInnerSegmentNodeOrder || otherInnerSegmentNodeOrder < superOrder) &&
                         !(isDummy(superOrder, conceptsCount) && isDummy(scanNode, conceptsCount))) {
                         addConflict(conflicts, superNode, scanNode);
@@ -133,7 +146,7 @@ void markConflicts(
                 }
             }
 
-            // type 2
+            // Type 2 conflict: Two inner segments crossing
             if (otherInnerSegmentNodeOrder < lastOtherInnerSegmentNodeOrder) {
                 addConflict(conflicts, otherInnerSegmentNode.value(), node);
             }
@@ -154,6 +167,10 @@ bool isAlignmentLeft(int alignment) {
     return alignment % 2 == 1;
 }
 
+/**
+ * Finds median neighbors. We prefer to align a node with its median 
+ * neighbor to keep the edges as straight and centered as possible.
+ */
 std::vector<int> findMediansDestructive(
     std::vector<int>& nodes,
     std::vector<int>& horizontalOrder,
@@ -193,6 +210,9 @@ std::vector<int> findMediansDestructive(
     return { lowerMedian, upperMedian };
 }
 
+/**
+ * Vertically aligns nodes into "blocks" by greedily picking median neighbors.
+ */
 void verticalAlignment(
     std::vector<std::vector<int>>& layers,
     std::vector<std::unordered_set<int>>& subconceptsRelation,
@@ -223,6 +243,7 @@ void verticalAlignment(
         return;
     }
 
+    // Directional setup: decide if we look at parents or children
     int startLayerIndex = up ? layers.size() - 2 : 1;
     int layerIncrease = up ? -1 : 1;
     auto& neighborsMapping = up ? subconceptsRelation : superconceptsRelation;
@@ -243,6 +264,7 @@ void verticalAlignment(
             auto& neighborsSet = neighborsMapping[node];
             auto neighbors = std::vector<int>(neighborsSet.begin(), neighborsSet.end());
 
+            // Try to align this node with its median neighbor in the adjacent layer
             for (int median : findMediansDestructive(neighbors, horizontalOrder, left)) {
                 if (alignedNodes[node] == node &&
                     (left ?
@@ -263,6 +285,9 @@ void verticalAlignment(
     progress.finishBlock();
 }
 
+/**
+ * Recursive helper to calculate the relative X coordinate of a block.
+ */
 void placeBlock(
     int node,
     NodesList& alignedNodes,
@@ -282,6 +307,7 @@ void placeBlock(
     int alignedNode = node;
 
     do {
+        // If there is a neighbor to the left, we must place its block first
         if (horizontalOrder[alignedNode] > 0) {
             int pred = predecessors[alignedNode];
             int predBlockRoot = roots[pred];
@@ -301,6 +327,7 @@ void placeBlock(
                 sink[node] = sink[predBlockRoot];
             }
             if (sink[node] != sink[predBlockRoot]) {
+                // Determine how much this block can "shift" relative to its neighbor
                 shift[sink[predBlockRoot]] = std::min(
                     shift[sink[predBlockRoot]],
                     horizontalCoords[node] - horizontalCoords[predBlockRoot] - delta);
@@ -314,6 +341,9 @@ void placeBlock(
     } while (node != alignedNode);
 }
 
+/**
+ * "Squeezes" the vertical blocks together horizontally.
+ */
 void horizontalCompaction(
     NodesList& alignedNodes,
     NodesList& roots,
@@ -338,6 +368,7 @@ void horizontalCompaction(
         sink[node] = node;
     }
 
+    // Calculate initial coordinates for each block
     for (int node = 0; node < nodesCount; node++) {
         if (roots[node] == node) {
             placeBlock(
@@ -355,6 +386,7 @@ void horizontalCompaction(
         progress.progress(node + 1);
     }
 
+    // Apply shifts and propagate root coordinates to all nodes in the block
     for (int node = 0; node < nodesCount; node++) {
         horizontalCoords[node] = horizontalCoords[roots[node]];
         float nodeShift = shift[sink[roots[node]]];
@@ -367,6 +399,11 @@ void horizontalCompaction(
     progress.finishBlock();
 }
 
+/**
+ * Scans all 4 calculated layouts (UL, UR, DL, DR) to find which one
+ * resulted in the smallest total horizontal width.
+ * This is used as the "anchor" to align the other three.
+ */
 std::pair<int, float> getMinWidthCoords(
     std::array<std::vector<float>, 4>& horizontalCoords
 ) {
@@ -394,6 +431,10 @@ std::pair<int, float> getMinWidthCoords(
     return { alignmentIndex, minWidth };
 }
 
+/**
+ * Normalizes all four layout versions so they share the same coordinate space.
+ * Left-aligned layouts are shifted to the right, and vice versa.
+ */
 void alignHorizontalCoords(
     std::array<std::vector<float>, 4>& horizontalCoords,
     int minWidthIndex,
@@ -433,6 +474,10 @@ void alignHorizontalCoords(
     progress.finishBlock();
 }
 
+/**
+ * Combines the 4 layout versions (UL, UR, DL, DR) by taking the average 
+ * of the two median values for each node.
+ */
 void balance(
     std::array<std::vector<float>, 4>& horizontalCoords,
     ProgressData& progress
@@ -469,6 +514,7 @@ void balance(
 
 /**
  * Places the nodes using Brandes and Köpf, "Fast and Simple Horizontal Coordinate Assignment."
+ * Orchestrates the full process: Conflict marking -> 4 iterations of Align+Compact -> Balance.
  * 
  * Layers need to be sorted from top to bottom.
  */
@@ -496,6 +542,7 @@ void bkPlacement(
 
     std::array<std::vector<float>, 4> horizontalCoords;
 
+    // Run the algorithm 4 times for different symmetries
     for (int i = 0; i < 4; i++) {
         bool up = isAlignmentUp(i);
         bool left = isAlignmentLeft(i);
@@ -527,10 +574,12 @@ void bkPlacement(
             progress);
     }
 
+    // Align all 4 layouts to a common origin, then blend them
     auto [minWidthIndex, minWidth] = getMinWidthCoords(horizontalCoords);
     alignHorizontalCoords(horizontalCoords, minWidthIndex, progress);
     balance(horizontalCoords, progress);
 
+    // Assign results to the output vector with centering offsets
     auto& finalHorizontalCoords = horizontalCoords[0];
     float top = (float)(layers.size() - 1) / -2;
     float minCoord = *std::min_element(finalHorizontalCoords.begin(), finalHorizontalCoords.end());

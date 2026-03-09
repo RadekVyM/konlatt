@@ -29,41 +29,49 @@ using PlacementDelegate = std::function<void(
 
 #define MAX_ITERATIONS_COUNT 5
 
+/**
+ * Calculates the average horizontal position of neighbors for each node in a layer.
+ * This is the core of the Barycenter heuristic to reduce edge crossings.
+ */
 void calculateAveragePositionsOfLayer(
     std::vector<int>& layer,
     std::vector<float>& averages,
-    std::vector<std::unordered_set<int>>& firstMapping,
-    std::vector<std::unordered_set<int>>& secondMapping,
+    std::vector<std::unordered_set<int>>& firstRelation,
+    std::vector<std::unordered_set<int>>& secondRelation,
     std::vector<int>& horizontalPositions,
     bool useBoth
 ) {
-    for (int node : layer)
-    {
+    for (int node : layer) {
         int sum = 0;
         int count = 0;
 
-        for (int subnode : firstMapping[node])
+        // Calculate sum of positions of connected nodes in the adjacent layer
+        for (int subnode : firstRelation[node])
             sum += horizontalPositions[subnode];
 
-        count += firstMapping[node].size();
+        count += firstRelation[node].size();
 
-        if (useBoth)
-        {
-            for (int subnode : secondMapping[node])
+        // Optionally include neighbors from the other side as well
+        if (useBoth) {
+            for (int subnode : secondRelation[node])
                 sum += horizontalPositions[subnode];
 
-            count += secondMapping[node].size();
+            count += secondRelation[node].size();
         }
 
-        averages[node] = (float)sum / count;
+        averages[node] = (count == 0) ? (float)horizontalPositions[node] : (float)sum / count;
     }
 }
 
-std::unique_ptr<std::vector<std::vector<int>>> reduceCrossingsUsingAveragePass(
+/**
+ * Performs a single sweep (top-to-bottom or bottom-to-top) across all layers
+ * to reorder nodes based on their barycenters.
+ */
+std::unique_ptr<std::vector<std::vector<int>>> applyBarycenterPass(
     std::vector<std::vector<int>>& layers,
     std::vector<int>& horizontalPositions,
-    std::vector<std::unordered_set<int>>& firstMapping,
-    std::vector<std::unordered_set<int>>& secondMapping,
+    std::vector<std::unordered_set<int>>& firstRelation,
+    std::vector<std::unordered_set<int>>& secondRelation,
     bool topToBottom,
     bool useBoth,
     ProgressData& progress
@@ -79,7 +87,7 @@ std::unique_ptr<std::vector<std::vector<int>>> reduceCrossingsUsingAveragePass(
     std::vector<float> averages;
     averages.resize(horizontalPositions.size());
 
-    // Starting points
+    // Determine traversal direction
     int first = topToBottom ? 0 : layers.size() - 1;
     int second = topToBottom ? 1 : layers.size() - 2;
     int increase = topToBottom ? 1 : -1;
@@ -99,8 +107,8 @@ std::unique_ptr<std::vector<std::vector<int>>> reduceCrossingsUsingAveragePass(
         calculateAveragePositionsOfLayer(
             layer,
             averages,
-            firstMapping,
-            secondMapping,
+            firstRelation,
+            secondRelation,
             horizontalPositions,
             useBoth);
 
@@ -125,14 +133,18 @@ std::unique_ptr<std::vector<std::vector<int>>> reduceCrossingsUsingAveragePass(
     return reducedLayers;
 }
 
-std::unique_ptr<std::vector<std::vector<int>>> reduceCrossingsUsingAverage(
+/**
+ * Orchestrates a full Barycenter "round": downward pass, upward pass, and a combined pass.
+ */
+std::unique_ptr<std::vector<std::vector<int>>> applyBarycenter(
     std::vector<std::vector<int>>& layersWithDummies,
     std::vector<int>& horizontalPositions,
     std::vector<std::unordered_set<int>>& subconceptsRelation,
     std::vector<std::unordered_set<int>>& superconceptsRelation,
     ProgressData& progress
 ) {
-    auto orderedLayers = reduceCrossingsUsingAveragePass(
+    // Top-to-bottom pass while taking only top neighbors into account
+    auto orderedLayers = applyBarycenterPass(
         layersWithDummies,
         horizontalPositions,
         superconceptsRelation,
@@ -140,7 +152,8 @@ std::unique_ptr<std::vector<std::vector<int>>> reduceCrossingsUsingAverage(
         true,
         false,
         progress);
-    orderedLayers = reduceCrossingsUsingAveragePass(
+    // Bottom-to-top pass while taking only bottom neighbors into account
+    orderedLayers = applyBarycenterPass(
         *orderedLayers,
         horizontalPositions,
         subconceptsRelation,
@@ -148,7 +161,8 @@ std::unique_ptr<std::vector<std::vector<int>>> reduceCrossingsUsingAverage(
         false,
         false,
         progress);
-    orderedLayers = reduceCrossingsUsingAveragePass(
+    // Top-to-bottom pass while taking all neighbors into account
+    orderedLayers = applyBarycenterPass(
         *orderedLayers,
         horizontalPositions,
         superconceptsRelation,
@@ -160,6 +174,10 @@ std::unique_ptr<std::vector<std::vector<int>>> reduceCrossingsUsingAverage(
     return orderedLayers;
 }
 
+/**
+ * Iteratively reduces edge crossings by repeatedly applying the barycenter heuristic
+ * until convergence or max iterations reached.
+ */
 std::unique_ptr<std::vector<std::vector<int>>> reduceCrossings(
     std::vector<std::vector<int>>& layersWithDummies,
     std::vector<int>& horizontalPositions,
@@ -169,7 +187,7 @@ std::unique_ptr<std::vector<std::vector<int>>> reduceCrossings(
 ) {
     CrossCountDataStructures crossCountDataStructures;
 
-    auto bestOrderedLayers = reduceCrossingsUsingAverage(
+    auto bestOrderedLayers = applyBarycenter(
         layersWithDummies,
         horizontalPositions,
         subconceptsRelation,
@@ -188,7 +206,7 @@ std::unique_ptr<std::vector<std::vector<int>>> reduceCrossings(
                 break;
             }
 
-            lastOrderedLayers = std::move(reduceCrossingsUsingAverage(
+            lastOrderedLayers = std::move(applyBarycenter(
                 lastOrderedLayers == nullptr ? *bestOrderedLayers : *lastOrderedLayers,
                 horizontalPositions,
                 subconceptsRelation,
@@ -199,7 +217,7 @@ std::unique_ptr<std::vector<std::vector<int>>> reduceCrossings(
 
             iteration++;
 
-            if (newCount == lastCount || newCount < 0) {
+            if (newCount >= lastCount || newCount < 0) {
                 break;
             }
 
@@ -227,6 +245,9 @@ std::unique_ptr<std::vector<std::vector<int>>> reduceCrossings(
     return bestOrderedLayers;
 }
 
+/**
+ * Final step: maps the logical layer/node structure into actual float coordinates.
+ */
 void createLayout(
     TimedResult<std::vector<float>>& result,
     int conceptsCount,
@@ -240,6 +261,9 @@ void createLayout(
     placement(result.value, layers, subconceptsRelation, superconceptsRelation, conceptsCount, progress);
 }
 
+/**
+ * Factory for selecting coordinate assignment algorithms (e.g., Brandes-Köpf).
+ */
 PlacementDelegate getPlacementFunc(std::string placement) {
     if (placement == "bk") {
         return bkPlacement;
@@ -250,6 +274,9 @@ PlacementDelegate getPlacementFunc(std::string placement) {
     return simplePlacement;
 }
 
+/**
+ * Main entry point for the layered layout computation.
+ */
 void computeLayeredLayout(
     TimedResult<std::vector<float>>& result,
     int supremum,
@@ -269,6 +296,7 @@ void computeLayeredLayout(
     auto layersResult = assignNodesToLayersByLongestPath(supremum, subconceptsRelation);
     auto& [layersMapping, layers] = *layersResult;
 
+    // Add dummy nodes for edges spanning multiple layers
     auto dummiesResult = addDummies(
         conceptsCount,
         subconceptsRelation,
@@ -278,6 +306,7 @@ void computeLayeredLayout(
         progress);
     auto& [layersWithDummies, horizontalPositions] = *dummiesResult;
 
+    // Reorder nodes within layers to minimize crossings (X-ordering)
     auto orderedLayers = reduceCrossings(
         layersWithDummies,
         horizontalPositions,
@@ -285,6 +314,7 @@ void computeLayeredLayout(
         superconceptsRelation,
         progress);
 
+    // Final coordinate assignment
     createLayout(
         result,
         conceptsCount,

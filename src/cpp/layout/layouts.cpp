@@ -12,6 +12,10 @@
 #include <memory>
 #include <unordered_set>
 
+/**
+ * Efficiently copies a JavaScript TypedArray (e.g., Int32Array) into a C++ std::vector.
+ * Uses the Emscripten HEAP view to perform a direct memory copy.
+ */
 std::unique_ptr<std::vector<int>> jsTypedArrayToVector(const emscripten::val& intArray) {
     auto vec = std::make_unique<std::vector<int>>();
 
@@ -24,6 +28,11 @@ std::unique_ptr<std::vector<int>> jsTypedArrayToVector(const emscripten::val& in
     return vec;
 }
 
+/**
+ * Converts a flat representation of the subconcept relation (from JS) into 
+ * C++ adjacency lists (sets) for both subconcepts and superconcepts.
+ * * Input format: [count, val1, val2, ..., count, val1, ...]
+ */
 std::unique_ptr<std::tuple<
     std::vector<std::unordered_set<int>>,
     std::vector<std::unordered_set<int>>
@@ -44,7 +53,9 @@ std::unique_ptr<std::tuple<
     int i = 0;
     int currentConcept = 0;
 
+    // Parse the flat vector into adjacency sets
     while (i < flatSubconceptsRelation->size()) {
+        // Number of relations for this concept
         int count = (*flatSubconceptsRelation)[i];
         i++;
 
@@ -62,6 +73,9 @@ std::unique_ptr<std::tuple<
     return result;
 }
 
+/**
+ * JS wrapper for the layered layout algorithm.
+ */
 void computeLayeredLayoutJs(
     TimedResult<std::vector<float>>& result,
     int supremum,
@@ -93,6 +107,9 @@ void computeLayeredLayoutJs(
         onProgressCallback);
 }
 
+/**
+ * JS wrapper for the Freese layout algorithm.
+ */
 void computeFreeseLayoutJs(
     TimedResult<std::vector<float>>& result,
     int supremum,
@@ -124,6 +141,9 @@ void computeFreeseLayoutJs(
         onProgressCallback);
 }
 
+/**
+ * JS wrapper for the ReDraw layout algorithm.
+ */
 void computeReDrawLayoutJs(
     TimedResult<std::vector<float>>& result,
     int supremum,

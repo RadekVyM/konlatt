@@ -25,6 +25,10 @@ void setZ(std::vector<float>& layout, int index, float value) {
     layout[index * COORDS_COUNT + 2] = value;
 }
 
+/**
+ * Recursive DFS for topological sort.
+ * Fills the topologicalOrder array from back to front.
+ */
 void topologicalSortImpl(
     int currentIndex,
     std::vector<std::unordered_set<int>>& coverRelation,
@@ -52,9 +56,13 @@ void topologicalSortImpl(
     *sortedLastIndex = *sortedLastIndex - 1;
 }
 
+/**
+ * Recursive DFS for topological sort.
+ */
 std::unique_ptr<std::vector<int>> topologicalSort(int startConceptIndex, std::vector<std::unordered_set<int>>& coverRelation) {
     std::unique_ptr<std::vector<int>> topologicalOrder = std::make_unique<std::vector<int>>();
     std::vector<bool> visited;
+    // Shared pointer used here to track the insertion index across recursive calls
     std::shared_ptr<int> sortedLastIndex = std::make_shared<int>();
 
     visited.resize(coverRelation.size());
@@ -71,6 +79,9 @@ std::unique_ptr<std::vector<int>> topologicalSort(int startConceptIndex, std::ve
     return topologicalOrder;
 }
 
+/**
+ * BFS traversal to find all reachable nodes in a specific direction (up or down).
+ */
 void getComparableConceptsOneWay(
     std::unordered_set<int>& comparableConcepts,
     int conceptIndex,
@@ -95,6 +106,9 @@ void getComparableConceptsOneWay(
     }
 }
 
+/**
+ * Finds all nodes related to a concept by traversing both subconcepts and superconcepts.
+ */
 std::unique_ptr<std::unordered_set<int>> getComparableConcepts(
     int conceptIndex,
     std::vector<std::unordered_set<int>>& subconceptsRelation,
@@ -102,40 +116,17 @@ std::unique_ptr<std::unordered_set<int>> getComparableConcepts(
 ) {
     auto comparableConcepts = std::make_unique<std::unordered_set<int>>();
 
+    // Traverse "down" the graph
     getComparableConceptsOneWay(
         *comparableConcepts,
         conceptIndex,
         subconceptsRelation);
 
+    // Traverse "up" the graph
     getComparableConceptsOneWay(
         *comparableConcepts,
         conceptIndex,
         superconceptsRelation);
 
     return comparableConcepts;
-}
-
-void tryTriggerProgress(
-    double totalIterationsCount,
-    double currentIteration,
-    double& previousRecordedIteration,
-    std::function<void(double)> onProgress
-) {
-    double updatesPerPercent = totalIterationsCount / 100.0;
-
-    if (currentIteration - previousRecordedIteration >= updatesPerPercent) {
-        onProgress(currentIteration / totalIterationsCount);
-        previousRecordedIteration = currentIteration;
-    }
-}
-
-void tryTriggerBlockProgress(
-    double totalIterationsCount,
-    double blockIterationsCount,
-    double& previousRecordedIteration,
-    std::function<void(double)> onProgress
-) {
-    if (blockIterationsCount != previousRecordedIteration) {
-        onProgress(blockIterationsCount / totalIterationsCount);
-    }
 }

@@ -5,6 +5,10 @@
 #include "layers.h"
 #include "utils.h"
 
+/**
+ * Assigns nodes to layers based on their longest path from the start node.
+ * This ensures that for every edge (u, v), layer(u) < layer(v).
+ */
 std::unique_ptr<std::tuple<std::vector<int>, std::vector<std::unordered_set<int>>>> assignNodesToLayersByLongestPath(
     int startConceptIndex,
     std::vector<std::unordered_set<int>>& coverRelation
@@ -14,10 +18,12 @@ std::unique_ptr<std::tuple<std::vector<int>, std::vector<std::unordered_set<int>
 
     layersMapping.resize(coverRelation.size(), -1);
 
+    // Get nodes in topological order to process dependencies before children
     std::unique_ptr<std::vector<int>> topologicalOrder = topologicalSort(
         startConceptIndex,
         coverRelation);
 
+    // Create the first layer with the root node
     layersMapping[startConceptIndex] = 0;
     layers.push_back(std::unordered_set<int>());
     layers[0].insert(startConceptIndex);
@@ -27,6 +33,7 @@ std::unique_ptr<std::tuple<std::vector<int>, std::vector<std::unordered_set<int>
         int newLayer = layersMapping[orderedIndex] + 1;
 
         for (int subconceptIndex : subconcepts) {
+            // Update only if a longer path to this subconcept is found
             if (layersMapping[subconceptIndex] == -1 || newLayer > layersMapping[subconceptIndex]) {
                 if (layers.size() < newLayer + 1) {
                     layers.resize(newLayer + 1);

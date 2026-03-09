@@ -10,6 +10,7 @@ class FormalConcept {
 public:
     FormalConcept() {}
 
+    // Target attribute being processed in the context of FCA algorithms
     int getAttribute() const { return attribute; }
     void setAttribute(int value) { attribute = value; }
 
@@ -27,7 +28,10 @@ private:
     int attribute;
 };
 
-
+/**
+ * A lightweight version of `FormalConcept` without the single attribute pivot.
+ * Used for passing between WASM and JS worlds.
+ */
 class SimpleFormalConcept {
 public:
     SimpleFormalConcept() {}

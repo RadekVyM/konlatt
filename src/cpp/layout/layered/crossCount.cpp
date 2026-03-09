@@ -3,7 +3,6 @@
 
 // Strongly inspired by https://github.com/dagrejs/dagre/blob/master/lib/order/cross-count.js
 
-
 #include "crossCount.h"
 
 #include <vector>
@@ -12,6 +11,10 @@
 #include <iterator>
 #include <numeric>
 
+/**
+ * Calculates crossings between two specific adjacent layers.
+ * Uses a sequence of south-layer positions ordered by their north-layer neighbors.
+ */
 long long twoLayerCrossCount(
     std::vector<int>& northLayer,
     std::vector<int>& southLayer,
@@ -20,7 +23,8 @@ long long twoLayerCrossCount(
     CrossCountDataStructures& datastructures
 ) {
     // Create the permutation
-
+    // For each node in the north layer (in order), collect the horizontal 
+    // positions of its neighbors in the south layer.
     for (int northNode : northLayer) {
         int startIndex = datastructures.permutation.size();
         auto& subnodes = subconceptsRelation[northNode];
@@ -44,25 +48,26 @@ long long twoLayerCrossCount(
     }
 
     // Build the accumulator tree
-
+    // Find the smallest power of 2 that fits the south layer to create a balanced tree
     int firstIndex = 1;
     while (firstIndex < southLayer.size()) {
         firstIndex <<= 1;
     }
 
     int treeSize = 2 * firstIndex - 1;
-    firstIndex -= 1;
+    firstIndex -= 1; // Index where the leaves start
 
     datastructures.tree.resize(treeSize, 0);
 
-    // Calculate the inversions (crossings)
-
+    // Count the inversions (crossings)
     long long count = 0;
 
     for (int position : datastructures.permutation) {
         int index = position + firstIndex;
         datastructures.tree[index]++;
 
+        // Traverse up to the root, adding values from right siblings 
+        // to count edges that have already passed but land to the right (crossings)
         while (index > 0) {
             if (index % 2) {
                 count += datastructures.tree[index + 1];
@@ -80,6 +85,9 @@ long long twoLayerCrossCount(
     return count;
 }
 
+/**
+ * Iterates through all adjacent layers in a multi-level graph to count total crossings.
+ */
 long long crossCount(
     std::vector<std::vector<int>>& layers,
     std::vector<int>& horizontalPositions,
@@ -100,7 +108,8 @@ long long crossCount(
 
     long long count = 0;
 
-    // First and last layers can be ignored, there will not be any crossings
+    // Iterate through layers, comparing layer i with layer i+1.
+    // First and last layers can be ignored, there will not be any crossings.
     for (int i = 1; i < layers.size() - 2; i++) {
         count += twoLayerCrossCount(
             layers[i],
