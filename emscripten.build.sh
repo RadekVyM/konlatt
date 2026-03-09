@@ -73,7 +73,7 @@ echo "============================================="
     -s MODULARIZE=1 \
     -s EXPORT_ES6=1 \
     -s ASSERTIONS=1 \
-    -s EXPORTED_RUNTIME_METHODS=['HEAPU8'] \
+    -s EXPORTED_RUNTIME_METHODS=['HEAPF32','HEAPU8'] \
     -fwasm-exceptions \
     --emit-tsd ./index.d.ts
 
