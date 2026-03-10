@@ -29,6 +29,7 @@
 #define REPULSION_CONSTANT 1
 #define ITERATIONS 30
 
+// Primes used to jitter initial positions to prevent nodes from stacking perfectly
 const int PRIMES[PRIMES_COUNT] = { 3, 5, 7, 11, 13, 17, 19, 23, 29, 31 };
 int nextPrimeIndex = 0;
 
@@ -38,6 +39,10 @@ int nextPrime() {
     return prime;
 }
 
+/**
+ * Calculates the vertical 'rank' of each node.
+ * Rank is derived from the node's distance from both the top (supremum) and bottom (infimum).
+ */
 std::unique_ptr<std::tuple<std::vector<int>, std::unordered_map<int, int>>> assignRanksToNodes(
     int conceptsCount,
     int supremum,
@@ -45,6 +50,7 @@ std::unique_ptr<std::tuple<std::vector<int>, std::unordered_map<int, int>>> assi
     std::vector<std::unordered_set<int>>& subconceptsRelation,
     std::vector<std::unordered_set<int>>& superconceptsRelation
 ) {
+    // Determine depth (dist from top) and height (dist from bottom) using longest path
     auto depthsResult = assignNodesToLayersByLongestPath(supremum, subconceptsRelation);
     auto& [depthsMapping, depthLayers] = *depthsResult;
     auto heightResult = assignNodesToLayersByLongestPath(infimum, superconceptsRelation);
@@ -61,6 +67,7 @@ std::unique_ptr<std::tuple<std::vector<int>, std::unordered_map<int, int>>> assi
 
         ranksMapping[node] = rank;
 
+        // Keep track of how many nodes occupy the same horizontal layer
         int currentCount = rankCounts.count(rank) ? rankCounts.at(rank) : 0;
         rankCounts[rank] = currentCount + 1;
     }
@@ -68,10 +75,15 @@ std::unique_ptr<std::tuple<std::vector<int>, std::unordered_map<int, int>>> assi
     return result;
 }
 
+/** Determines the radius of a rank's circle based on the number of nodes it contains */
 float distanceByRank(int rank, int rankCount) {
     return rankCount == 1 ? 0 : std::sqrt(rankCount) * 2; // rankCount
 }
 
+/**
+ * Places nodes initially in a circular pattern for each rank.
+ * Uses Y-axis for rank (height) and X/Z for the horizontal plane.
+ */
 void initializeLayout(
     std::vector<float>& layout,
     int conceptsCount,
@@ -80,6 +92,7 @@ void initializeLayout(
 ) {
     std::unordered_map<int, int> rankCountsLeft;
 
+    // Center the lattice vertically around Y=0
     auto maxIt = std::max_element(
         rankCounts.begin(),
         rankCounts.end(),
@@ -97,10 +110,12 @@ void initializeLayout(
         float distance = distanceByRank(rank, rankCount);
         float angle = 2 * M_PI / rankCount;
 
-        int left = rankCountsLeft[rank] = rankCountsLeft.count(rank) ?
+        int left = rankCountsLeft.count(rank) ?
             rankCountsLeft[rank] - 1 :
             rankCount - 1;
+        rankCountsLeft[rank] = left;
 
+        // Spread nodes in a circle on the XZ plane with a prime-based jitter
         setX(layout, i, distance * std::cos(left * angle + M_PI / nextPrime()));
         setY(layout, i, rank + topOffset);
         setZ(layout, i, distance * std::sin(left * angle + M_PI / nextPrime()));
@@ -109,6 +124,9 @@ void initializeLayout(
 
 /**
  * Moves nodes so their distances from the center are closer to the ideal distances.
+ * 
+ * Constraints: Prevents nodes from drifting too far from the center of their rank.
+ * Keeps the 'supremum' and 'infimum' strictly centered at (0, y, 0).
  */
 void normalizeDistances(
     std::vector<float>& layout,
@@ -134,6 +152,7 @@ void normalizeDistances(
             continue;
         }
 
+        // Pull node back toward center if it has drifted too far (threshold 1.5x)
         if (currentDistance == 0 || currentDistance <= idealDistance * 1.5) {
             continue;
         }
@@ -145,6 +164,7 @@ void normalizeDistances(
     }
 }
 
+/** Calculates how much the new force aligns with the previous movement */
 float forceCorrelation(ForcePoint& force) {
     float newLength = std::sqrt(force.newX * force.newX + force.newZ * force.newZ);
     float oldLength = std::sqrt(force.oldX * force.oldX + force.oldZ * force.oldZ);
@@ -155,7 +175,7 @@ float forceCorrelation(ForcePoint& force) {
 }
 
 /**
- * Applies current force to the node.
+ * Updates node coordinates based on accumulated forces.
  */
 void applyForce(
     std::vector<float>& layout,
@@ -163,6 +183,7 @@ void applyForce(
     int index
 ) {
     ForcePoint& force = forces[index];
+    // Accelerate if moving in the same direction, decelerate if jittering
     float correction = 1 + CORRECTION_FACTOR * forceCorrelation(force);
 
     setX(layout, index, getX(layout, index) + correction * force.newX);
@@ -175,7 +196,7 @@ void applyForce(
 }
 
 /**
- * Adjusts current force of the node using provided vector.
+ * Adds a vector to the node's current force, with a safety cap to prevent divergence (NaN).
  */
 void adjustForce(
     std::vector<ForcePoint>& forces,
@@ -195,6 +216,9 @@ void adjustForce(
     forces[index].newZ += dz;
 }
 
+/**
+ * Pulls related nodes together
+*/
 void attraction(
     std::vector<ForcePoint>& forces,
     float attractionFactor,
@@ -209,6 +233,9 @@ void attraction(
     adjustForce(forces, second, -dx, -dz);
 }
 
+/**
+ * pushes unrelated nodes away
+*/
 void repulsion(
     std::vector<ForcePoint>& forces,
     float repulsionFactor,
@@ -220,6 +247,7 @@ void repulsion(
     float dy = getY(layout, first) - getY(layout, second);
     float dz = getZ(layout, first) - getZ(layout, second);
 
+    // Avoid division by zero/large numbers when nodes are nearly overlapping
     float denominator = dy == 0 && -0.2 < dx && dx < 0.2 && -0.2 < dz && dz < 0.2 ?
         37 :
         (1 / (std::pow(std::abs(dx), 3) + std::pow(std::abs(dy), 3) + std::pow(std::abs(dz), 3)));
@@ -231,6 +259,10 @@ void repulsion(
     adjustForce(forces, second, -dx, -dz);
 }
 
+/**
+ * A single pass of the force simulation.
+ * Attracts comparable concepts and repels incomparable ones.
+ */
 void update(
     std::vector<float>& layout,
     std::vector<ForcePoint>& forces,
@@ -261,6 +293,9 @@ void update(
     }
 }
 
+/**
+ * Runs multiple update steps and updates the progress observer
+*/
 void multiUpdate(
     int updatesCount,
     std::vector<float>& layout,
@@ -283,6 +318,14 @@ void multiUpdate(
     progress.finishBlock();
 }
 
+/**
+ * Main entry point for the Freese Layout algorithm.
+ * Phases: 
+ * 1. Rank assignment.
+ * 2. Circular initialization.
+ * 3. Force refinement (3 stages with different force weights).
+ * 4. Final normalization.
+ */
 void computeFreeseLayout(
     TimedResult<std::vector<float>>& result,
     int supremum,
@@ -302,6 +345,7 @@ void computeFreeseLayout(
 
     forces->resize(conceptsCount);
 
+    // Normalize factors based on lattice size
     float attractionFactor = ATTRACTION_CONSTANT / std::sqrt(conceptsCount);
     float repulsionFactor = REPULSION_CONSTANT / std::sqrt(conceptsCount);
 
@@ -310,6 +354,7 @@ void computeFreeseLayout(
 
     initializeLayout(result.value, conceptsCount, ranksMapping, rankCounts);
 
+    // Stage 1: Strong repulsion to spread nodes out
     multiUpdate(
         singleIterationUpdatesCount,
         result.value,
@@ -321,6 +366,7 @@ void computeFreeseLayout(
         superconceptsRelation,
         progress);
 
+    // Stage 2: Strong attraction to align the lattice structure
     multiUpdate(
         singleIterationUpdatesCount,
         result.value,
@@ -332,6 +378,7 @@ void computeFreeseLayout(
         superconceptsRelation,
         progress);
 
+    // Stage 3: Balanced forces for final settling
     multiUpdate(
         singleIterationUpdatesCount,
         result.value,

@@ -71,6 +71,10 @@ double cosineSimilarity(const std::vector<float>& first, const std::vector<float
     return dp / (firstMagnitude * secondMagnitude);
 }
 
+/**
+ * Calculates Euclidean distance between two nodes in the layout.
+ * 'offset' and 'count' allow measuring specific dimensions (e.g., only horizontal).
+ */
 double distance(
     std::vector<float>& layout,
     int dimension,
@@ -92,6 +96,9 @@ double distance(
     return std::sqrt(sum);
 }
 
+/**
+ * Calculates the vector difference between two nodes.
+ */
 std::vector<float> difference(
     std::vector<float>& layout,
     int dimension,
@@ -186,6 +193,10 @@ void addHForce(
     }
 }
 
+/**
+ * Updates positions based on forces. 
+ * Includes "boundary correction" to ensure parents stay above children.
+ */
 float applyForces(
     std::vector<float>& layout,
     std::vector<float>& forces,
@@ -200,11 +211,13 @@ float applyForces(
         int start = getStart(dimension, conceptIndex);
         float tempY = layout[start];
 
+        // Apply force
         for (int i = 0; i < dimension; i++) {
             layout[start + i] += forces[start + i];
             forcesSum += std::abs(forces[start + i]);
         }
 
+        // Safety: Prevent nodes from crossing their hierarchy bounds (Y-axis)
         if (forces[start] > 0) {
             float upperb = std::numeric_limits<float>::max();
             bool hasPredecessor = false;
@@ -242,6 +255,9 @@ float applyForces(
     return forcesSum;
 }
 
+/**
+ * Centers the layout horizontally around zero.
+ */
 void correctOffset(
     std::vector<float>& layout,
     int conceptsCount,
@@ -270,6 +286,9 @@ void correctOffset(
     }
 }
 
+/**
+ * Handles vertical hierarchical spacing and horizontal node repulsion.
+ */
 float nodeStep(
     std::vector<float>& layout,
     std::vector<float>& forces,
@@ -298,6 +317,7 @@ float nodeStep(
         auto comparableConcepts = getComparableConcepts(conceptIndex, subconceptsRelation, superconceptsRelation);
 
         // Attracting forces of chains (comparable elements)
+        // Keep comparable elements (chains) relatively close horizontally
         for (int comp : *comparableConcepts) {
             double dist = distance(layout, dimension, conceptIndex, comp, 1, dimension - 1);
             double factor = std::min(std::pow(dist, 2), (double)C_HOR) * DELTA;
@@ -311,6 +331,7 @@ float nodeStep(
         }
 
         // Repelling forces between incomparable elements
+        // Push incomparable elements apart to reduce clutter
         for (int incomp = 0; incomp < conceptsCount; incomp++) {
             if (incomp == conceptIndex || comparableConcepts->count(incomp)) {
                 continue;
@@ -334,6 +355,9 @@ float nodeStep(
     return applyForces(layout, forces, conceptsCount, dimension, subconceptsRelation, superconceptsRelation);
 }
 
+/**
+ * Runs the `nodeStep()` multiple times until convergence or max iterations.
+ */
 void multiNodeStep(
     std::vector<float>& layout,
     std::vector<float>& forces,
@@ -366,6 +390,9 @@ void multiNodeStep(
     progress.finishBlock();
 }
 
+/**
+ * Calculates force needed to make lines more parallel or to fix angles.
+ */
 std::vector<float> calculateLineForce(
     std::vector<float>& layout,
     int dimension,
@@ -397,6 +424,10 @@ std::vector<float> calculateLineForce(
     return result;
 }
 
+/**
+ * Optimization step to make edges (lines) more readable.
+ * Focuses on parallelism and preventing line-node intersections.
+ */
 float lineStep(
     std::vector<float>& layout,
     std::vector<float>& forces,
@@ -405,7 +436,6 @@ float lineStep(
     std::vector<std::unordered_set<int>>& subconceptsRelation,
     std::vector<std::unordered_set<int>>& superconceptsRelation
 ) {
-    // TODO: Check if this is implemented correctly
     for (int firstFrom = 0; firstFrom < conceptsCount; firstFrom++) {
         for (int firstTo : subconceptsRelation[firstFrom]) {
             for (int secondFrom = 0; secondFrom < conceptsCount; secondFrom++) {
@@ -423,6 +453,7 @@ float lineStep(
 
                     double similarity = cosineSimilarity(firstVector, secondVector);
 
+                    // If lines are nearly parallel, align them more perfectly
                     if (similarity < C_PAR) {
                         auto force = calculateLineForce(layout, dimension, firstFrom, firstTo, secondFrom, secondTo, similarity, C_PAR);
                         auto positiveForce = multiplyByScalar(force, DELTA);
@@ -433,7 +464,7 @@ float lineStep(
                         addHForce(positiveForce, forces, dimension, secondFrom);
                         addHForce(negativeForce, forces, dimension, secondTo);
                     }
-
+                    // Handle small angles
                     if (0 < similarity && similarity < C_ANG) {
                         auto force = calculateLineForce(layout, dimension, firstFrom, firstTo, secondFrom, secondTo, similarity, C_ANG);
                         auto positiveForce = multiplyByScalar(force, DELTA);
@@ -451,6 +482,7 @@ float lineStep(
                 }
             }
 
+            // Repel nodes from edges they might be crossing
             for (int conceptIndex = 0; conceptIndex < conceptsCount; conceptIndex++) {
                 float conceptY = layout[getStart(dimension, conceptIndex)];
 
@@ -479,6 +511,9 @@ float lineStep(
     return applyForces(layout, forces, conceptsCount, dimension, subconceptsRelation, superconceptsRelation);
 }
 
+/**
+ * Runs the `lineStep()` multiple times until convergence or max iterations.
+ */
 void multiLineStep(
     std::vector<float>& layout,
     std::vector<float>& forces,
@@ -511,6 +546,10 @@ void multiLineStep(
     progress.finishBlock();
 }
 
+/**
+ * Performs a complete optimization round at the current dimension.
+ * First optimizes node positions, then (optionally) optimizes edge alignment.
+ */
 void round(
     std::vector<float>& layout,
     std::vector<float>& forces,
@@ -544,6 +583,10 @@ void round(
     }
 }
 
+/**
+ * Initializes layout using a topological sort to assign initial Y-levels.
+ * Other dimensions are randomized.
+ */
 void initializeLayout(
     std::vector<float>& layout,
     int conceptsCount,
@@ -574,6 +617,9 @@ void initializeLayout(
     }
 }
 
+/**
+ * Swaps X/Y coordinates to match standard visualization and centers the final result.
+ */
 void finalizeLayout(std::vector<float>& layout, int conceptsCount, int targetDimension) {
     float minX = std::numeric_limits<float>::max();
     float maxX = std::numeric_limits<float>::min();
@@ -613,6 +659,10 @@ void finalizeLayout(std::vector<float>& layout, int conceptsCount, int targetDim
     }
 }
 
+/**
+ * Dimensionality Reduction via Principal Component Analysis (PCA).
+ * Projects the data from 'dimension' to 'dimension - 1' while preserving the y-axis.
+ */
 void reduceDimension(
     std::vector<float>& layout,
     int conceptsCount,
@@ -688,6 +738,10 @@ void reduceDimension(
     layout.resize(conceptsCount * getLayoutDimension(newDimension));
 }
 
+/**
+ * Main entry point for ReDraw layout.
+ * Iteratively optimizes in high dimensions and reduces down to target dimension.
+ */
 void computeReDrawLayout(
     TimedResult<std::vector<float>>& result,
     int supremum,
@@ -709,6 +763,7 @@ void computeReDrawLayout(
     initializeLayout(result.value, conceptsCount, INITIAL_DIMENSION, infimum, superconceptsRelation, seed);
     std::vector<float> forces;
 
+    // Progressive optimization and reduction
     for (int dimension = INITIAL_DIMENSION; dimension >= targetDimension; dimension--) {
         round(
             result.value,
