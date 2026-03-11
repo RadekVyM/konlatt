@@ -12,14 +12,24 @@ import { LayoutComputationOptions } from "../types/diagram/LayoutComputationOpti
 import { LayoutWorkerResponse } from "../types/diagram/LayoutWorkerResponse";
 import { ConceptLatticeLayout } from "../types/diagram/ConceptLatticeLayout";
 
+// Main worker of the app that handles all parallel (asynchronous) calculations
+
+// Persistent worker state 
+// These variables persist across multiple postMessage calls until the worker is terminated
 let formalContext: FormalContext | null = null;
 let formalConcepts: FormalConcepts | null = null;
 let conceptLattice: ConceptLattice | null = null;
+
+/**
+ * Tracks active sub-worker instances (DiagramLayoutWorker) by jobId 
+ * to allow for cancellation/termination.
+ */
 const workerInstances = new Map<number, { worker: Worker, reject?: (reason?: any) => void }>();
 
 self.onmessage = async (event: MessageEvent<CompleteMainWorkerRequest>) => {
     console.log(`[${event.data.type}] sending arguments: ${new Date().getTime() - event.data.time} ms`);
 
+    // Update local state if the main thread provided missing data in the request
     tryGetIncomingData(event);
 
     try {
@@ -79,12 +89,16 @@ self.onmessage = async (event: MessageEvent<CompleteMainWorkerRequest>) => {
         return;
     }
 
+    // Notify UI that the specific job sequence is complete
     postStatusMessage(event.data.jobId, null);
     postFinished(event.data.jobId);
-    // self.close();
 };
 
 
+/**
+ * Parses raw file string into a FormalContext.
+ * If data is already parsed, it returns the cached version.
+ */
 async function parseFileContent(jobId: number, fileContent: string, format: ImportFormat, separator?: CsvSeparator) {
     postStatusMessage(jobId, "Parsing file");
 
@@ -105,6 +119,9 @@ async function parseFileContent(jobId: number, fileContent: string, format: Impo
     self.postMessage(createContextParsingResponse(jobId, formalContext));
 }
 
+/**
+ * Computes all formal concepts from the context.
+ */
 async function calculateConcepts(jobId: number, context: FormalContext) {
     postStatusMessage(jobId, "Computing concepts");
 
@@ -122,6 +139,9 @@ async function calculateConcepts(jobId: number, context: FormalContext) {
     self.postMessage(createConceptComputationResponse(jobId, formalConcepts, computationTime));
 }
 
+/**
+ * Computes the concept lattice.
+ */
 async function calculateLattice(jobId: number, concepts: FormalConcepts, context: FormalContext) {
     postStatusMessage(jobId, "Computing lattice");
 
@@ -139,6 +159,10 @@ async function calculateLattice(jobId: number, concepts: FormalConcepts, context
     self.postMessage(createLatticeComputationResponse(jobId, conceptLattice, computationTime));
 }
 
+/**
+ * Offloads visual layout computation to a dedicated sub-worker.
+ * Uses `Transferable` objects (`ArrayBuffer`) for high performance.
+ */
 async function calculateLayout(
     jobId: number,
     concepts: FormalConcepts,
@@ -157,6 +181,7 @@ async function calculateLayout(
         lowerConeOnlyConceptIndex,
         options);
 
+    // Transfer the underlying buffer to the sub-worker to avoid cloning overhead
     worker.postMessage(request, [request.subconceptsRelationArrayBuffer.buffer]);
 
     await tryThrow(new Promise((resolve, reject) => {
@@ -264,6 +289,10 @@ function createLatticeComputationResponse(jobId: number, lattice: ConceptLattice
     };
 }
 
+/**
+ * Prepares the request for the `DiagramLayoutWorker`. 
+ * Handles sub-lattice filtering and flattens relations into an `Int32Array`.
+ */
 function createCompleteLayoutComputationRequest(
     concepts: FormalConcepts,
     lattice: ConceptLattice,
@@ -277,7 +306,8 @@ function createCompleteLayoutComputationRequest(
     const sublatticeConceptIndexes = calculateConeConceptIndexes(upperConeOnlyConceptIndex, lowerConeOnlyConceptIndex, lattice);
 
     if (sublatticeConceptIndexes === null) {
-        // TODO: use iterators when available: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Iterator/flatMap
+        // TODO: use iterators when available:
+        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Iterator/flatMap
         return {
             request: {
                 type: "layout",
@@ -285,13 +315,19 @@ function createCompleteLayoutComputationRequest(
                 conceptsCount: concepts.length,
                 supremum: getSupremum(concepts).index,
                 infimum: getInfimum(concepts).index,
+                // Flattening Set<number>[] into [size, ...elements] for efficient binary transfer
                 subconceptsRelationArrayBuffer: new Int32Array(lattice.subconceptsRelation.flatMap((set) => [set.size, ...set])),
             },
             reverseIndexMapping: null,
         };
     }
 
-    const { reverseIndexMapping, subconceptsRelation, supremum, infimum } = calculateSublattice(sublatticeConceptIndexes, lattice, getSupremum(concepts).index);
+    const {
+        reverseIndexMapping,
+        subconceptsRelation,
+        supremum,
+        infimum,
+    } = calculateSublattice(sublatticeConceptIndexes, lattice, getSupremum(concepts).index);
 
     return {
         request: {
@@ -300,12 +336,16 @@ function createCompleteLayoutComputationRequest(
             conceptsCount: subconceptsRelation.length,
             supremum,
             infimum,
+            // Flattening Set<number>[] into [size, ...elements] for efficient binary transfer
             subconceptsRelationArrayBuffer: new Int32Array(subconceptsRelation.flatMap((set) => [set.size, ...set])),
         },
         reverseIndexMapping,
     };
 }
 
+/**
+ * Maps flat `Float32Array` coordinates back to `ConceptPoint` objects.
+ */
 function convertToConceptLatticeLayout(
     layout: Float32Array,
     conceptsCount: number,
@@ -350,6 +390,9 @@ function tryRequestDataFromMainThread(request: CompleteMainWorkerRequest, reques
     self.postMessage(response);
 }
 
+/**
+ * Populates worker state from a request if the main thread provided them.
+ */
 function tryGetIncomingData(event: MessageEvent<CompleteMainWorkerRequest>) {
     if (event.data.context) {
         formalContext = event.data.context;
@@ -362,6 +405,9 @@ function tryGetIncomingData(event: MessageEvent<CompleteMainWorkerRequest>) {
     }
 }
 
+/**
+ * Simple async wrapper for consistent error handling and user-friendly error messages.
+ */
 async function tryThrow<T>(promise: Promise<T>, message: string) {
     try {
         return await promise;

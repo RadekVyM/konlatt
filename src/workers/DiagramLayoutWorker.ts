@@ -2,6 +2,9 @@ import { LayoutWorkerProgressResponse, LayoutWorkerResultResponse } from "../typ
 import { CompleteLayoutComputationRequest } from "../types/workers/MainWorkerRequest";
 import { hashString } from "../utils/string";
 
+// Worker that handles layout comptutation
+// It can be always canceled when necessary
+
 self.onmessage = async (event: MessageEvent<CompleteLayoutComputationRequest>) => {
     let result: {
         layout: Float32Array,

@@ -1,6 +1,13 @@
 import { useCallback, useState } from "react";
 import useEventListener from "./useEventListener";
 
+/**
+ * A hook to manage the visibility state of a popover element with built-in 
+ * accessibility features like keyboard (Escape) and focus-loss handling.
+ * @param containerRef - A React ref to the popover's container element to monitor focus and events.
+ * @param disabled - If true, keyboard interactions (Escape key) will be ignored.
+ * @returns A tuple containing:
+ */
 export function usePopover(containerRef: React.RefObject<HTMLElement | null>, disabled?: boolean):
     [boolean, () => void, () => void, () => void] {
     const [isOpen, setIsOpen] = useState(false);

@@ -4,7 +4,7 @@ import { FullscreenState } from "../types/FullscreenState";
 import { isCtrl, isEditableElement } from "../utils/html";
 
 /**
- * Hook that returns operations controlling whether an element is in fullscreen mode or not.
+ * A hook that returns operations controlling whether an element is in fullscreen mode or not.
  * @param element Reference object with an HTML element
  * @returns Operations controlling whether an element is in fullscreen mode or not
  */

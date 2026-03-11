@@ -1,7 +1,7 @@
 import { RefObject, useEffect, useState } from "react";
 
 /**
- * Hook that creates operations for managing lazily loaded lists. Returns a number of currently displayed items.
+ * A hook that creates operations for managing lazily loaded lists. Returns a number of currently displayed items.
  * @param totalCount Total number of items in the list
  * @param countIncrease Number of items that is added on displayed count increase
  * @param observerTarget Element that is observed. When this element is visible in the viewport, displayed count is increased 

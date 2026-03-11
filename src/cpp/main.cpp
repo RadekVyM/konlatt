@@ -49,7 +49,9 @@ EMSCRIPTEN_BINDINGS(my_module) {
     emscripten::class_<FormalConcept>("FormalConcept")
         .constructor()
         .property("objects", &FormalConcept::getObjectsCopy, &FormalConcept::setObjects)
-        .property("attributes", &FormalConcept::getAttributesCopy, &FormalConcept::setAttributes);
+        .property("attributes", &FormalConcept::getAttributesCopy, &FormalConcept::setAttributes)
+        .function("getObjects", &FormalConcept::getObjects, emscripten::allow_raw_pointers())
+        .function("getAttributes", &FormalConcept::getAttributes, emscripten::allow_raw_pointers());;
 
     emscripten::class_<SimpleFormalConcept>("SimpleFormalConcept")
         .constructor()

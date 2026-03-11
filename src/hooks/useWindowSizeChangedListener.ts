@@ -7,6 +7,11 @@ type Size = {
 
 const DELAY = 100;
 
+/**
+ * A hook that listens for changes to the document body's size using `ResizeObserver`.
+ * It includes a throttling mechanism to prevent excessive updates during rapid resizing.
+ * @param handler - A callback function invoked when the window/body size changes.
+ */
 export default function useWindowSizeChangedListener(handler: (size: Size) => void) {
     const lastValueAlreadySetRef = useRef<boolean>(false);
     const lastValueRef = useRef<Size>({ width: 0, height: 0 });

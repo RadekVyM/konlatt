@@ -5,10 +5,15 @@ import { ExportDiagramWorkerRequest } from "../types/workers/ExportDiagramWorker
 import { BlobResponse, DrawDoneResponse } from "../types/workers/ExportDiagramWorkerResponse";
 import { drawLabels } from "../utils/drawing";
 
+// Worker that handles export diagram drawing using OffscreenCanvas
+
 const LAYOUT_ENTRIES_COUNT = 2;
 const LINKS_ENTRIES_COUNT = 2;
 const DEBOUNCE_DELAY = 200;
 
+// Worker state:
+// Maintained across message calls to allow incremental 
+// updates without re-sending the entire dataset
 let canvas: OffscreenCanvas | null = null;
 let width = 0;
 let height = 0;
@@ -40,6 +45,7 @@ self.onmessage = async (event: MessageEvent<ExportDiagramWorkerRequest>) => {
             canvas = event.data.canvas;
             break;
         case "init-layout":
+            // Invalidate labels if layout changes
             labelGroups = null;
             layout = new Float64Array(event.data.layout);
             break;
@@ -79,6 +85,7 @@ self.onmessage = async (event: MessageEvent<ExportDiagramWorkerRequest>) => {
             return;
     }
 
+    // Debounce drawing to prevent UI lag during rapid property updates
     if (timeout !== null) {
         clearTimeout(timeout);
     }
@@ -86,6 +93,9 @@ self.onmessage = async (event: MessageEvent<ExportDiagramWorkerRequest>) => {
     timeout = setTimeout(draw, DEBOUNCE_DELAY);
 }
 
+/**
+ * Converts the current OffscreenCanvas state to a Blob and sends it back.
+ */
 function exportCanvas(type: string) {
     if (!canvas) {
         postMessage(createBlobResponse(null));

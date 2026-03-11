@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import Loop from "../services/Loop";
 
+/**
+ * A hook that manages a time-based loop to provide the current timestamp.
+ */
 export default function useCurrentTime(loop: boolean) {
     const loopRef = useRef<Loop | null>(null);
     const [currentTime, setCurrentTime] = useState<number>(0);

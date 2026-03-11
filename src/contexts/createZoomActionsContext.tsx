@@ -1,11 +1,21 @@
 import { createContext, useRef } from "react";
 
+/**
+ * Defines the imperative API for controlling zoom behavior 
+ * within a specific viewport or canvas.
+ */
 type ZoomActions = {
     zoomToConcept: (conceptIndex: number) => void,
     zoomBy: (scale: number) => void,
     reset: () => void,
 }
 
+/**
+ * A factory function that creates a React Context and Provider pair 
+ * for managing ZoomActions via a Ref.
+ * @example
+ * const { ZoomActionsContext, ZoomActionsContextProvider } = createZoomActionsContext();
+ */
 export default function createZoomActionsContext() {
     const ZoomActionsContext = createContext<React.RefObject<ZoomActions | null>>(null!);
 

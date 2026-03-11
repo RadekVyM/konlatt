@@ -4,6 +4,10 @@ import { dispatchTopLayerChanged } from "../components/toast";
 
 const ANIMATION_LENGTH = 150;
 
+/**
+ * A hook to manage the state and animations of a native HTML Dialog element.
+ * Handles displaying, top-layer events, and CSS animation timing.
+ */
 export default function useDialog(
     openAnimation?: string,
     hideAnimation?: string
