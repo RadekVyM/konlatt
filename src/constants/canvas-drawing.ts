@@ -40,12 +40,12 @@ export const MAX_SEED_LENGTH_REDRAW = 9;
 
 // https://codesandbox.io/p/sandbox/react-three-fiber-poc-segments-with-instancedmesh-and-hightlight-drag-2vcl9i
 // Base geometry for flat 2D lines (a thin rectangle)
-export const LINE_BASE_SEGMENT = new Shape();
-LINE_BASE_SEGMENT.moveTo(0, 0.5);
-LINE_BASE_SEGMENT.lineTo(1, 0.5);
-LINE_BASE_SEGMENT.lineTo(1, -0.5);
-LINE_BASE_SEGMENT.lineTo(0, -0.5);
-LINE_BASE_SEGMENT.lineTo(0, 0.5);
+export const FLAT_LINE_SHAPE = new Shape();
+FLAT_LINE_SHAPE.moveTo(0, 0.5);
+FLAT_LINE_SHAPE.lineTo(1, 0.5);
+FLAT_LINE_SHAPE.lineTo(1, -0.5);
+FLAT_LINE_SHAPE.lineTo(0, -0.5);
+FLAT_LINE_SHAPE.lineTo(0, 0.5);
 
 // Base curve for 3D tube lines
 export const TUBE_LINE_CURVE = new LineCurve3(new Vector3(0, 0, 0), new Vector3(1, 0, 0));

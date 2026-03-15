@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from "react";
+import { RefObject, useLayoutEffect, useRef } from "react";
 import useExplorerStore from "../../../stores/explorer/useExplorerStore";
 import { InstancedMesh, Matrix4, Mesh, Object3D } from "three";
 import { ThreeEvent, useThree } from "@react-three/fiber";
@@ -21,12 +21,13 @@ const tempObject = new Object3D();
 export default function Nodes() {
     const instancedMeshRef = useRef<InstancedMesh>(null);
     const hoverSphereRef = useRef<Mesh>(null);
-    const hoveredIdRef = useRef<number | undefined>(undefined);
     const concepts = useExplorerStore((state) => state.concepts);
     const selectedConceptIndex = useExplorerStore((state) => state.selectedConceptIndex);
     const filteredConceptIndexes = useExplorerStore((state) => state.filteredConceptIndexes);
     const currentTheme = useGlobalsStore((state) => state.currentTheme);
     const invalidate = useThree((state) => state.invalidate);
+
+    const { hoveredIdRef, onClick, onPointerLeave, onPointerMove } = useNodeEvents(instancedMeshRef, hoverSphereRef);
 
     useLayoutEffect(() => {
         if (!instancedMeshRef.current || !concepts) {
@@ -77,6 +78,42 @@ export default function Nodes() {
         hoveredIdRef.current = undefined;
         useExplorerStore.getState().setHoveredConceptIndex(null);
     }, [selectedConceptIndex]);
+
+    return (
+        <>
+            <instancedMesh
+                key={concepts.length}
+                ref={instancedMeshRef}
+                args={[undefined, undefined, concepts.length]}
+                frustumCulled={false}
+                onClick={onClick}
+                onPointerMove={onPointerMove}
+                onPointerLeave={onPointerLeave}>
+                <sphereGeometry args={[0.1, 8, 8]} />
+                <meshBasicMaterial />
+            </instancedMesh>
+
+            <mesh
+                ref={hoverSphereRef}
+                name={HOVERED_MESH_NAME}
+                visible={false}
+                onClick={onClick}>
+                <sphereGeometry args={[0.195, 10, 10]}/>
+                <meshBasicMaterial
+                    opacity={0.3}
+                    transparent
+                    color={themedColor(PRIMARY_COLOR_LIGHT, PRIMARY_COLOR_DARK, currentTheme)} />
+            </mesh>
+        </>
+    );
+}
+
+function useNodeEvents(
+    instancedMeshRef: RefObject<InstancedMesh | null>,
+    hoverSphereRef: RefObject<Mesh | null>,
+) {
+    const hoveredIdRef = useRef<number | undefined>(undefined);
+    const invalidate = useThree((state) => state.invalidate);
 
     function onClick(e: ThreeEvent<MouseEvent>) {
         e.stopPropagation();
@@ -129,31 +166,10 @@ export default function Nodes() {
         explorerStore.setSelectedConceptIndex(conceptIndex);
     }
 
-    return (
-        <>
-            <instancedMesh
-                key={concepts.length}
-                ref={instancedMeshRef}
-                args={[undefined, undefined, concepts.length]}
-                frustumCulled={false}
-                onClick={onClick}
-                onPointerMove={onPointerMove}
-                onPointerLeave={onPointerLeave}>
-                <sphereGeometry args={[0.1, 8, 8]} />
-                <meshBasicMaterial />
-            </instancedMesh>
-
-            <mesh
-                ref={hoverSphereRef}
-                name={HOVERED_MESH_NAME}
-                visible={false}
-                onClick={onClick}>
-                <sphereGeometry args={[0.195, 10, 10]}/>
-                <meshBasicMaterial
-                    opacity={0.3}
-                    transparent
-                    color={themedColor(PRIMARY_COLOR_LIGHT, PRIMARY_COLOR_DARK, currentTheme)} />
-            </mesh>
-        </>
-    );
+    return {
+        hoveredIdRef,
+        onClick,
+        onPointerLeave,
+        onPointerMove,
+    };
 }

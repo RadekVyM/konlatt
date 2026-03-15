@@ -1,6 +1,6 @@
 import { useLayoutEffect, useMemo, useRef } from "react";
-import { FrontSide, InstancedMesh, Object3D, Vector3 } from "three";
-import { LINE_BASE_SEGMENT, LINE_THICKNESS, SEMITRANSPARENT_LINK_COLOR_DARK, SEMITRANSPARENT_LINK_COLOR_LIGHT } from "../../../constants/canvas-drawing";
+import { InstancedMesh, Object3D, Vector3 } from "three";
+import { FLAT_LINE_SHAPE, LINE_THICKNESS, SEMITRANSPARENT_LINK_COLOR_DARK, SEMITRANSPARENT_LINK_COLOR_LIGHT } from "../../../constants/canvas-drawing";
 import useExplorerStore from "../../../stores/explorer/useExplorerStore";
 import { Point } from "../../../types/Point";
 import { setupLinkTransform } from "../../../utils/diagram";
@@ -18,9 +18,27 @@ type ExplorerLink = {
  * and all its neighbors in a 3D scene using an {@link InstancedMesh}.
 */
 export default function Links() {
+    const currentTheme = useGlobalsStore((state) => state.currentTheme);
+    const { links, instancedMeshRef } = useLinksLogic();
+
+    return (
+        <instancedMesh
+            key={links.length}
+            ref={instancedMeshRef}
+            args={[undefined, undefined, links.length]}
+            frustumCulled={false}>
+            <shapeGeometry args={[FLAT_LINE_SHAPE]} />
+            <meshBasicMaterial
+                transparent
+                opacity={0.3}
+                color={themedColor(SEMITRANSPARENT_LINK_COLOR_LIGHT, SEMITRANSPARENT_LINK_COLOR_DARK, currentTheme)} />
+        </instancedMesh>
+    );
+}
+
+function useLinksLogic() {
     const instancedMeshRef = useRef<InstancedMesh>(null);
     const links = useLinks();
-    const currentTheme = useGlobalsStore((state) => state.currentTheme);
     const invalidate = useThree((state) => state.invalidate);
 
     useLayoutEffect(() => {
@@ -42,20 +60,10 @@ export default function Links() {
         invalidate();
     }, [links]);
 
-    return (
-        <instancedMesh
-            key={links.length}
-            ref={instancedMeshRef}
-            args={[undefined, undefined, links.length]}
-            frustumCulled={false}>
-            <shapeGeometry args={[LINE_BASE_SEGMENT]} />
-            <meshBasicMaterial
-                transparent
-                opacity={0.3}
-                side={FrontSide}
-                color={themedColor(SEMITRANSPARENT_LINK_COLOR_LIGHT, SEMITRANSPARENT_LINK_COLOR_DARK, currentTheme)} />
-        </instancedMesh>
-    );
+    return {
+        instancedMeshRef,
+        links,
+    };
 }
 
 function useLinks() {

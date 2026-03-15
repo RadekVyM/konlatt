@@ -5,7 +5,7 @@ import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import useDataStructuresStore from "../../../stores/useDataStructuresStore";
 import { createPoint, Point } from "../../../types/Point";
 import { CameraType } from "../../../types/diagram/CameraType";
-import { LINE_BASE_SEGMENT, LINE_THICKNESS, OPAQUE_COLORED_LINK_COLOR_DARK, OPAQUE_COLORED_LINK_COLOR_LIGHT, OPAQUE_DIM_LINK_COLOR_DARK, OPAQUE_DIM_LINK_COLOR_LIGHT, OPAQUE_HIGHLIGHTED_LINK_COLOR_DARK, OPAQUE_HIGHLIGHTED_LINK_COLOR_LIGHT, OPAQUE_LINK_COLOR_DARK, OPAQUE_LINK_COLOR_LIGHT, PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT, SEMITRANSPARENT_DIM_LINK_COLOR_DARK, SEMITRANSPARENT_DIM_LINK_COLOR_LIGHT, SEMITRANSPARENT_HIGHLIGHTED_LINK_COLOR_DARK, SEMITRANSPARENT_HIGHLIGHTED_LINK_COLOR_LIGHT, SEMITRANSPARENT_LINK_COLOR_DARK, SEMITRANSPARENT_LINK_COLOR_LIGHT, TUBE_LINE_CURVE } from "../../../constants/canvas-drawing";
+import { FLAT_LINE_SHAPE, LINE_THICKNESS, OPAQUE_COLORED_LINK_COLOR_DARK, OPAQUE_COLORED_LINK_COLOR_LIGHT, OPAQUE_DIM_LINK_COLOR_DARK, OPAQUE_DIM_LINK_COLOR_LIGHT, OPAQUE_HIGHLIGHTED_LINK_COLOR_DARK, OPAQUE_HIGHLIGHTED_LINK_COLOR_LIGHT, OPAQUE_LINK_COLOR_DARK, OPAQUE_LINK_COLOR_LIGHT, PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT, SEMITRANSPARENT_DIM_LINK_COLOR_DARK, SEMITRANSPARENT_DIM_LINK_COLOR_LIGHT, SEMITRANSPARENT_HIGHLIGHTED_LINK_COLOR_DARK, SEMITRANSPARENT_HIGHLIGHTED_LINK_COLOR_LIGHT, SEMITRANSPARENT_LINK_COLOR_DARK, SEMITRANSPARENT_LINK_COLOR_LIGHT, TUBE_LINE_CURVE } from "../../../constants/canvas-drawing";
 import { ConceptLatticeLayout } from "../../../types/diagram/ConceptLatticeLayout";
 import useGlobalsStore from "../../../stores/useGlobalsStore";
 import { useThree } from "@react-three/fiber";
@@ -23,6 +23,34 @@ import { getDiagramLinks, setupLinkTransform } from "../../../utils/diagram";
  * - Dynamically switching between 2D flat lines and 3D tube geometries based on camera mode.
  */
 export default function Links() {
+    const {
+        instancedMeshRef,
+        links,
+        useFlatLinks,
+        linksVisibleEnabled,
+        semitransparentLinksEnabled,
+    } = useLinksLogic();
+
+    return (
+        <instancedMesh
+            ref={instancedMeshRef}
+            args={[undefined, undefined, links.length]}
+            visible={linksVisibleEnabled}
+            frustumCulled={false}>
+            {useFlatLinks ?
+                <shapeGeometry
+                    args={[FLAT_LINE_SHAPE]} /> :
+                <tubeGeometry
+                    args={[TUBE_LINE_CURVE, 1, 0.5, 3, false]} />}
+            <meshBasicMaterial 
+                transparent={semitransparentLinksEnabled} 
+                opacity={semitransparentLinksEnabled ? 0.3 : 1} 
+                side={useFlatLinks ? DoubleSide : FrontSide} />
+        </instancedMesh>
+    );
+}
+
+function useLinksLogic() {
     const instancedMeshRef = useRef<InstancedMesh>(null);
 
     // Refs to track state changes manually for optimized useMemo logic
@@ -51,6 +79,7 @@ export default function Links() {
     const hoveredConceptIndex = useDiagramStore((state) => state.hoveredConceptIndex);
     const hoveredLinksHighlightingEnabled = useDiagramStore((state) => state.hoveredLinksHighlightingEnabled);
     const selectedLinksHighlightingEnabled = useDiagramStore((state) => state.selectedLinksHighlightingEnabled);
+
     const invalidate = useThree((state) => state.invalidate);
 
     // Logic to determine if any links should be visually "highlighted" vs "dimmed"
@@ -204,26 +233,13 @@ export default function Links() {
         }
     }, [links, noHighlightedLinks, semitransparentLinksEnabled, currentTheme]);
 
-    return (
-        <instancedMesh
-            ref={instancedMeshRef}
-            args={[undefined, undefined, links.length]}
-            visible={linksVisibleEnabled}
-            frustumCulled={false}>
-            {useFlatLinks ?
-                <shapeGeometry args={[LINE_BASE_SEGMENT]} /> :
-                <tubeGeometry
-                    args={[TUBE_LINE_CURVE, 1, 0.5, 3, false]} />}
-            {semitransparentLinksEnabled ? 
-                <meshBasicMaterial
-                    transparent
-                    opacity={0.3}
-                    side={useFlatLinks ? DoubleSide : FrontSide} /> :
-                <meshBasicMaterial
-                    side={useFlatLinks ? DoubleSide : FrontSide}
-                    color={"#ffffff"} />}
-        </instancedMesh>
-    );
+    return {
+        instancedMeshRef,
+        links,
+        useFlatLinks,
+        linksVisibleEnabled,
+        semitransparentLinksEnabled,
+    };
 }
 
 /**

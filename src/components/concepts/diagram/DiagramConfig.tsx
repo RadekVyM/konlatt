@@ -220,9 +220,13 @@ function LayoutSection() {
 
 function PerformanceSection() {
     const antialiasEnabled = useDiagramStore((state) => state.antialiasEnabled);
-    const movementRegressionEnabled = useDiagramStore((state) => state.movementRegressionEnabled);
     const setAntialiasEnabled = useDiagramStore((state) => state.setAntialiasEnabled);
+    // Movement regression does not seem to have significant effect
+    // But keeping it in the code if I decide to return it
+    /*
+    const movementRegressionEnabled = useDiagramStore((state) => state.movementRegressionEnabled);
     const setMovementRegressionEnabled = useDiagramStore((state) => state.setMovementRegressionEnabled);
+    */
 
     return (
         <ConfigSection
@@ -233,11 +237,13 @@ function PerformanceSection() {
                 onChange={(e) => setAntialiasEnabled(e.currentTarget.checked)}>
                 Smooth edges (antialiasing)
             </ToggleSwitch>
+            {/*
             <ToggleSwitch
                 checked={movementRegressionEnabled}
                 onChange={(e) => setMovementRegressionEnabled(e.currentTarget.checked)}>
                 Movement regression
             </ToggleSwitch>
+            */}
         </ConfigSection>
     );
 }
