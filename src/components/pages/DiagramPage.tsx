@@ -116,7 +116,7 @@ function Concepts(props: {
             <ConceptsList
                 className={cn(selectedConceptIndex !== null && "hidden")}
                 exportConceptsButton={ExportDiagramConceptsButton}
-                route="/project/diagram"
+                route="/diagram"
                 setSelectedConceptIndex={setSelectedConceptIndex}
                 updateSearchInput={updateSearchInput}
                 filteredConcepts={filteredConcepts}
@@ -144,7 +144,7 @@ function Concepts(props: {
                         <ConceptDiagramControls
                             selectedConceptIndex={selectedConceptIndex}
                             sublatticeConceptIndexes={sublatticeConceptIndexes} />}
-                    route="/project/diagram"
+                    route="/diagram"
                     selectedConceptIndex={selectedConceptIndex}
                     onBackClick={() => setSelectedConceptIndex(null)} />}
         </CardContainer>

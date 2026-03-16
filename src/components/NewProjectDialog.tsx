@@ -78,7 +78,7 @@ export default function NewProjectDialog(props: {
             selectedCsvSeparator,
             withoutExtension(selectedFile.name),
             async () => {
-                navigate("/project/context", { replace: true });
+                navigate("/context", { replace: true });
                 setDisabled(false);
                 await props.state.hide();
             },

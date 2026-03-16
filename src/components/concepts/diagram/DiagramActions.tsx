@@ -83,7 +83,7 @@ export default function DiagramActions(props: {
                     "absolute top-0 right-0 flex gap-2 pointer-events-auto",
                     props.fullscreenState.isFullscreen ? "my-4 mx-4 md:mx-3" : "m-3")}>
                 <ExportDiagramButton
-                    route="/project/diagram/export" />
+                    route="/diagram/export" />
                 
                 {props.fullscreenState.isFullscreen &&
                     <RightPanelToggle

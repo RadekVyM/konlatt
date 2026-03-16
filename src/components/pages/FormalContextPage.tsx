@@ -21,10 +21,10 @@ export default function FormalContextPage() {
 
             <ObjectsList
                 className="lg:col-start-2 lg:col-end-3 lg:min-w-48"
-                route="/project/context" />
+                route="/context" />
             <AttributesList
                 className="lg:col-start-3 lg:col-end-4 lg:min-w-48"
-                route="/project/context" />
+                route="/context" />
         </PageContainer>
     );
 }
@@ -43,7 +43,7 @@ function Context(props: {
                 <CardSectionTitle className="mx-4">Context</CardSectionTitle>
                 <ExportContextButton
                     className="mr-4"
-                    route="/project/context/export" />
+                    route="/context/export" />
             </header>
             {context ?
                 <ContextTable

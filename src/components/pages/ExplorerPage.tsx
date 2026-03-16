@@ -56,7 +56,7 @@ function Concepts(props: {
         <CardContainer
             className={props.className}>
             <ConceptsList
-                route="/project/explorer"
+                route="/explorer"
                 exportConceptsButton={ExportExplorerConceptsButton}
                 setSelectedConceptIndex={setSelectedConceptIndex}
                 updateSearchInput={updateSearchInput}
@@ -94,7 +94,7 @@ function Concept(props: {
                 <ConceptDetail
                     key={selectedConceptIndex}
                     exportConceptButton={ExportExplorerConceptButton}
-                    route="/project/explorer"
+                    route="/explorer"
                     selectedConceptIndex={selectedConceptIndex} /> :
                 <div
                     className="h-full grid place-content-center">

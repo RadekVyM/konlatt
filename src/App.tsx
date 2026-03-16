@@ -27,17 +27,17 @@ const router = createBrowserRouter([
                 errorElement: <ErrorPage />,
                 children: [
                     {
-                        path: "/project/context/*",
+                        path: "/context/*",
                         element: <FormalContextPage />,
                         errorElement: <ErrorPage />,
                     },
                     {
-                        path: "/project/diagram/*",
+                        path: "/diagram/*",
                         element: <DiagramPage />,
                         errorElement: <ErrorPage />,
                     },
                     {
-                        path: "/project/explorer/*",
+                        path: "/explorer/*",
                         element: <ExplorerPage />,
                         errorElement: <ErrorPage />,
                     },

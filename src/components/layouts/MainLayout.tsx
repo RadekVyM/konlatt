@@ -16,17 +16,17 @@ type NavLink = {
 
 const NAV_LINKS: Array<NavLink> = [
     {
-        to: "/project/context",
+        to: "/context",
         title: "Context",
         icon: <LuTable2 />
     },
     {
-        to: "/project/diagram",
+        to: "/diagram",
         title: "Diagram",
         icon: <LatticeIcon />
     },
     {
-        to: "/project/explorer",
+        to: "/explorer",
         title: "Explorer",
         icon: <LuRoute />
     },

@@ -3,7 +3,10 @@ import { ExplorerConcept } from "../../types/explorer/ExplorerConcept";
 import { withFallback } from "../../utils/stores";
 import { ExplorerStore } from "./useExplorerStore";
 
-export default function withLayoutBox(newState: Partial<ExplorerStore>, oldState: ExplorerStore): Partial<ExplorerStore> {
+export default function withLayoutBox(
+    newState: Partial<ExplorerStore>,
+    oldState: ExplorerStore
+): Partial<ExplorerStore> {
     const concepts = withFallback(newState.concepts, oldState.concepts);
 
     return {
