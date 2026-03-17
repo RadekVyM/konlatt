@@ -1,5 +1,5 @@
 import { PivotControls } from "@react-three/drei";
-import { useLayoutEffect, useMemo, useRef } from "react";
+import { RefObject, useLayoutEffect, useMemo, useRef } from "react";
 import { Group, InstancedMesh, Matrix4, Object3D } from "three";
 import { getPoint, themedColor } from "./utils";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
@@ -14,8 +14,34 @@ import { PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT } from "../../../constants/canv
 */
 export default function NodesToMove() {
     const instancedMeshRef = useRef<InstancedMesh>(null);
-    const pivotControlsRef = useRef<Group>(null);
     const currentTheme = useGlobalsStore((state) => state.currentTheme);
+
+    const points = usePoints();
+    useNodesTransformation(instancedMeshRef, points);
+
+    return (
+        <>
+            <PivotControlsInternal
+                points={points} />
+
+            <instancedMesh
+                ref={instancedMeshRef}
+                args={[undefined, undefined, points.length]}
+                frustumCulled={false}>
+                <sphereGeometry args={[0.2, 10, 10]}/>
+                <meshBasicMaterial
+                    opacity={0.3}
+                    transparent
+                    color={themedColor(PRIMARY_COLOR_LIGHT, PRIMARY_COLOR_DARK, currentTheme)} />
+            </instancedMesh>
+        </>
+    );
+}
+
+function PivotControlsInternal(props: {
+    points: ReadonlyArray<Point>,
+}) {
+    const pivotControlsRef = useRef<Group>(null);
     const layout = useDiagramStore((state) => state.layout);
     const diagramOffsets = useDiagramStore((state) => state.diagramOffsets);
     const dragOffset = useDiagramStore((state) => state.dragOffset);
@@ -30,8 +56,106 @@ export default function NodesToMove() {
     const updateNodeOffsets = useDiagramStore((state) => state.updateNodeOffsets);
 
     const activeAxes: [boolean, boolean, boolean] | undefined = cameraType === "2d" ? [true, true, false] : undefined;
+    
+    useLayoutEffect(() => {
+        if (!pivotControlsRef.current || conceptsToMoveIndexes.size === 0) {
+            return;
+        }
 
-    const points = useMemo(() => {
+        let minX = Number.MAX_SAFE_INTEGER;
+        let maxX = Number.MIN_SAFE_INTEGER;
+        let minY = Number.MAX_SAFE_INTEGER;
+        let maxY = Number.MIN_SAFE_INTEGER;
+        let minZ = Number.MAX_SAFE_INTEGER;
+        let maxZ = Number.MIN_SAFE_INTEGER;
+
+        for (const point of props.points) {
+            minX = Math.min(minX, point[0]);
+            maxX = Math.max(maxX, point[0]);
+            minY = Math.min(minY, point[1]);
+            maxY = Math.max(maxY, point[1]);
+            minZ = Math.min(minZ, point[2]);
+            maxZ = Math.max(maxZ, point[2]);
+        }
+
+        pivotControlsRef.current.position.set(
+            (maxX + minX) / 2,
+            (maxY + minY) / 2,
+            (maxZ + minZ) / 2);
+        pivotControlsRef.current.updateMatrix();
+        // This dependency array needs to be like this
+        // This effect cannot be run on dragOffset changes
+    }, [conceptsToMoveIndexes, layout, cameraType, diagramOffsets, isDraggingNodes, horizontalScale, verticalScale, rotationDegrees]);
+
+    function onDragStart() {
+        setIsDraggingNodes(true);
+    }
+
+    function onDrag(_: Matrix4, delta: Matrix4) {
+        setDragOffset([delta.elements[12], delta.elements[13], delta.elements[14]]);
+    }
+
+    function onDragEnd() {
+        const distance = Math.sqrt(Math.pow(dragOffset[0], 2) + Math.pow(dragOffset[1], 2) + Math.pow(dragOffset[2], 2));
+
+        if (distance > 0.001) {
+            updateNodeOffsets(conceptsToMoveIndexes, dragOffset);
+        }
+
+        setDragOffset([0, 0, 0]);
+        setIsDraggingNodes(false);
+    }
+
+    return (
+        <PivotControls
+            ref={pivotControlsRef}
+            enabled={conceptsToMoveIndexes.size > 0}
+            disableRotations
+            disableScaling
+            depthTest={false}
+            activeAxes={activeAxes}
+            onDragStart={onDragStart}
+            onDrag={onDrag}
+            onDragEnd={onDragEnd}>
+        </PivotControls>
+    );
+}
+
+function useNodesTransformation(
+    instancedMeshRef: RefObject<InstancedMesh | null>,
+    points: ReadonlyArray<Point>,
+) {
+    useLayoutEffect(() => {
+        if (!instancedMeshRef.current) {
+            return;
+        }
+
+        const temp = new Object3D();
+        
+        for (let i = 0; i < points.length; i++) {
+            const point = points[i];
+
+            temp.position.set(...point);
+            temp.updateMatrix();
+
+            instancedMeshRef.current.setMatrixAt(i, temp.matrix);
+        }
+
+        instancedMeshRef.current.instanceMatrix.needsUpdate = true;
+    }, [points]);
+}
+
+function usePoints() {
+    const layout = useDiagramStore((state) => state.layout);
+    const diagramOffsets = useDiagramStore((state) => state.diagramOffsets);
+    const dragOffset = useDiagramStore((state) => state.dragOffset);
+    const conceptsToMoveIndexes = useDiagramStore((state) => state.conceptsToMoveIndexes);
+    const cameraType = useDiagramStore((state) => state.cameraType);
+    const horizontalScale = useDiagramStore((state) => state.horizontalScale);
+    const verticalScale = useDiagramStore((state) => state.verticalScale);
+    const rotationDegrees = useDiagramStore((state) => state.rotationDegrees);
+
+    return useMemo(() => {
         const conceptToLayoutIndexesMapping = useDiagramStore.getState().conceptToLayoutIndexesMapping;
         const newPoints = new Array<Point>();
 
@@ -61,99 +185,4 @@ export default function NodesToMove() {
 
         return newPoints;
     }, [conceptsToMoveIndexes, layout, cameraType, diagramOffsets, dragOffset, horizontalScale, verticalScale, rotationDegrees]);
-
-    useLayoutEffect(() => {
-        if (!pivotControlsRef.current || conceptsToMoveIndexes.size === 0) {
-            return;
-        }
-
-        let minX = Number.MAX_SAFE_INTEGER;
-        let maxX = Number.MIN_SAFE_INTEGER;
-        let minY = Number.MAX_SAFE_INTEGER;
-        let maxY = Number.MIN_SAFE_INTEGER;
-        let minZ = Number.MAX_SAFE_INTEGER;
-        let maxZ = Number.MIN_SAFE_INTEGER;
-
-        for (const point of points) {
-            minX = Math.min(minX, point[0]);
-            maxX = Math.max(maxX, point[0]);
-            minY = Math.min(minY, point[1]);
-            maxY = Math.max(maxY, point[1]);
-            minZ = Math.min(minZ, point[2]);
-            maxZ = Math.max(maxZ, point[2]);
-        }
-
-        pivotControlsRef.current.position.set(
-            (maxX + minX) / 2,
-            (maxY + minY) / 2,
-            (maxZ + minZ) / 2);
-        pivotControlsRef.current.updateMatrix();
-        // This dependency array needs to be like this
-        // This effect cannot be run on dragOffset changes
-    }, [conceptsToMoveIndexes, layout, cameraType, diagramOffsets, isDraggingNodes, horizontalScale, verticalScale, rotationDegrees]);
-
-    useLayoutEffect(() => {
-        if (!instancedMeshRef.current) {
-            return;
-        }
-
-        const temp = new Object3D();
-        
-        for (let i = 0; i < points.length; i++) {
-            const point = points[i];
-
-            temp.position.set(...point);
-            temp.updateMatrix();
-
-            instancedMeshRef.current.setMatrixAt(i, temp.matrix);
-        }
-    
-        instancedMeshRef.current.instanceMatrix.needsUpdate = true;
-    }, [points]);
-
-    function onDragStart() {
-        setIsDraggingNodes(true);
-    }
-
-    function onDrag(_: Matrix4, delta: Matrix4) {
-        setDragOffset([delta.elements[12], delta.elements[13], delta.elements[14]]);
-    }
-
-    function onDragEnd() {
-        const distance = Math.sqrt(Math.pow(dragOffset[0], 2) + Math.pow(dragOffset[1], 2) + Math.pow(dragOffset[2], 2));
-
-        if (distance > 0.001) {
-            updateNodeOffsets(conceptsToMoveIndexes, dragOffset);
-        }
-
-        setDragOffset([0, 0, 0]);
-        setIsDraggingNodes(false);
-    }
-
-    return (
-        <>
-            <PivotControls
-                ref={pivotControlsRef}
-                enabled={conceptsToMoveIndexes.size > 0}
-                disableRotations
-                disableScaling
-                depthTest={false}
-                activeAxes={activeAxes}
-                onDragStart={onDragStart}
-                onDrag={onDrag}
-                onDragEnd={onDragEnd}>
-            </PivotControls>
-
-            <instancedMesh
-                ref={instancedMeshRef}
-                args={[undefined, undefined, conceptsToMoveIndexes.size]}
-                frustumCulled={false}>
-                <sphereGeometry args={[0.2, 10, 10]}/>
-                <meshBasicMaterial
-                    opacity={0.3}
-                    transparent
-                    color={themedColor(PRIMARY_COLOR_LIGHT, PRIMARY_COLOR_DARK, currentTheme)} />
-            </instancedMesh>
-        </>
-    );
 }

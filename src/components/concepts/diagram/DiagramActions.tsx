@@ -1,4 +1,4 @@
-import { LuFocus, LuGrid3X3, LuHand, LuMaximize, LuMinimize, LuPanelBottomClose, LuPanelBottomOpen, LuPanelLeftClose, LuPanelLeftOpen, LuPanelRightClose, LuPanelRightOpen, LuRedo2, LuSquareDashedMousePointer, LuUndo2 } from "react-icons/lu";
+import { LuFocus, LuGrid3X3, LuHand, LuInfo, LuMaximize, LuMinimize, LuPanelBottomClose, LuPanelBottomOpen, LuPanelLeftClose, LuPanelLeftOpen, LuPanelRightClose, LuPanelRightOpen, LuRedo2, LuSquareDashedMousePointer, LuUndo2 } from "react-icons/lu";
 import Button from "../../inputs/Button";
 import { cn } from "../../../utils/tailwind";
 import { useContext, useRef } from "react";
@@ -11,6 +11,8 @@ import { DiagramZoomActionsContext } from "../../../contexts/DiagramZoomActionsC
 import ExportDiagramButton from "../../export/diagram/ExportDiagramButton";
 import ZoomBar from "../../ZoomBar";
 import DiagramLoadingSpinner from "./DiagramLoadingSpinner";
+import useDialog from "../../../hooks/useDialog";
+import DiagramStatsDialog from "./DiagramStatsDialog";
 
 const ZOOM_STEP = 0.1;
 
@@ -82,6 +84,7 @@ export default function DiagramActions(props: {
                 className={cn(
                     "absolute top-0 right-0 flex gap-2 pointer-events-auto",
                     props.fullscreenState.isFullscreen ? "my-4 mx-4 md:mx-3" : "m-3")}>
+                <DiagramStatsButton />
                 <ExportDiagramButton
                     route="/diagram/export" />
                 
@@ -170,6 +173,27 @@ function RightPanelToggle(props: PanelToggleButtonProps) {
                 <LuPanelRightClose /> :
                 <LuPanelRightOpen />}
         </PanelToggleButton>
+    );
+}
+
+function DiagramStatsButton(props: {
+    className?: string,
+}) {
+    const dialogState = useDialog();
+
+    return (
+        <>
+            <Button
+                className={props.className}
+                title="Statistics"
+                variant="icon-secondary"
+                onClick={dialogState.show}>
+                <LuInfo />
+            </Button>
+
+            <DiagramStatsDialog
+                state={dialogState} />
+        </>
     );
 }
 

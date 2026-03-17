@@ -1,5 +1,5 @@
 import { DoubleSide, FrontSide, InstancedMesh, Object3D, Vector3 } from "three";
-import { useLayoutEffect, useMemo, useRef } from "react";
+import { RefObject, useLayoutEffect, useMemo, useRef } from "react";
 import { getPoint, themedColor } from "./utils";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import useDataStructuresStore from "../../../stores/useDataStructuresStore";
@@ -23,48 +23,37 @@ import { getDiagramLinks, setupLinkTransform } from "../../../utils/diagram";
  * - Dynamically switching between 2D flat lines and 3D tube geometries based on camera mode.
  */
 export default function Links() {
-    const {
-        instancedMeshRef,
-        links,
-        useFlatLinks,
-        linksVisibleEnabled,
-        semitransparentLinksEnabled,
-    } = useLinksLogic();
+    const instancedMeshRef = useRef<InstancedMesh>(null);
+    const links = useLinks();
+    const { visible, flat, semitransparent } = useLinksState();
+    useLinksTransformation(instancedMeshRef, links);
+    useLinksColor(instancedMeshRef, links);
 
     return (
         <instancedMesh
             ref={instancedMeshRef}
             args={[undefined, undefined, links.length]}
-            visible={linksVisibleEnabled}
+            visible={visible}
             frustumCulled={false}>
-            {useFlatLinks ?
+            {flat ?
                 <shapeGeometry
                     args={[FLAT_LINE_SHAPE]} /> :
                 <tubeGeometry
                     args={[TUBE_LINE_CURVE, 1, 0.5, 3, false]} />}
             <meshBasicMaterial 
-                transparent={semitransparentLinksEnabled} 
-                opacity={semitransparentLinksEnabled ? 0.3 : 1} 
-                side={useFlatLinks ? DoubleSide : FrontSide} />
+                transparent={semitransparent} 
+                opacity={semitransparent ? 0.3 : 1} 
+                side={flat ? DoubleSide : FrontSide} />
         </instancedMesh>
     );
 }
 
-function useLinksLogic() {
-    const instancedMeshRef = useRef<InstancedMesh>(null);
-
-    // Refs to track state changes manually for optimized useMemo logic
-    const previousHoveredConceptIndexRef = useRef<number | null>(null);
-    const previousSelectedConceptIndexRef = useRef<number | null>(null);
-    const previousHoveredLinksHighlightingEnabledRef = useRef<boolean | null>(null);
-    const previousSelectedLinksHighlightingEnabledRef = useRef<boolean | null>(null);
-
-    const currentTheme = useGlobalsStore((state) => state.currentTheme);
+function useLinksTransformation(
+    instancedMeshRef: RefObject<InstancedMesh | null>,
+    links: ReadonlyArray<Link>,
+) {
     const subconceptsRelation = useDataStructuresStore((state) => state.lattice?.subconceptsRelation);
     const layout = useDiagramStore((state) => state.layout);
-    const sublatticeConceptIndexes = useDiagramStore((state) => state.sublatticeConceptIndexes);
-    const filteredConceptIndexes = useDiagramStore((state) => state.filteredConceptIndexes);
-    const displayHighlightedSublatticeOnly = useDiagramStore((state) => state.displayHighlightedSublatticeOnly);
     const diagramOffsets = useDiagramStore((state) => state.diagramOffsets);
     const dragOffset = useDiagramStore((state) => state.dragOffset);
     const conceptsToMoveIndexes = useDiagramStore((state) => state.conceptsToMoveIndexes);
@@ -72,9 +61,66 @@ function useLinksLogic() {
     const horizontalScale = useDiagramStore((state) => state.horizontalScale);
     const verticalScale = useDiagramStore((state) => state.verticalScale);
     const rotationDegrees = useDiagramStore((state) => state.rotationDegrees);
-    const linksVisibleEnabled = useDiagramStore((state) => state.linksVisibleEnabled);
+
+    const movedLinks = useMemo(() =>
+        links.filter((l) => conceptsToMoveIndexes.has(l.conceptIndex) || conceptsToMoveIndexes.has(l.subconceptIndex)),
+    [links, conceptsToMoveIndexes]);
+
+    // Update transformation matrices for all links when layout or visibility changes
+    useLayoutEffect(() => {
+        if (!instancedMeshRef.current || !layout || !diagramOffsets) {
+            return;
+        }
+
+        const conceptToLayoutIndexesMapping = useDiagramStore.getState().conceptToLayoutIndexesMapping;
+
+        setLinksTransformMatrices(
+            instancedMeshRef.current,
+            conceptToLayoutIndexesMapping,
+            links,
+            new Set(),
+            layout,
+            diagramOffsets,
+            [0, 0, 0],
+            cameraType,
+            horizontalScale,
+            verticalScale,
+            rotationDegrees);
+    }, [links, layout, subconceptsRelation, cameraType, diagramOffsets, horizontalScale, verticalScale, rotationDegrees]);
+
+    // Update matrices specifically for links whose nodes are being moved to maintain sync with nodes
+    useLayoutEffect(() => {
+        if (!instancedMeshRef.current || !layout || !diagramOffsets) {
+            return;
+        }
+
+        const conceptToLayoutIndexesMapping = useDiagramStore.getState().conceptToLayoutIndexesMapping;
+
+        setLinksTransformMatrices(
+            instancedMeshRef.current,
+            conceptToLayoutIndexesMapping,
+            movedLinks,
+            conceptsToMoveIndexes,
+            layout,
+            diagramOffsets,
+            dragOffset,
+            cameraType,
+            horizontalScale,
+            verticalScale,
+            rotationDegrees);
+    }, [movedLinks, layout, subconceptsRelation, conceptsToMoveIndexes, dragOffset, cameraType, diagramOffsets, horizontalScale, verticalScale, rotationDegrees]);
+}
+
+function useLinksColor(
+    instancedMeshRef: RefObject<InstancedMesh | null>,
+    links: ReadonlyArray<Link>,
+) {
+    const currentTheme = useGlobalsStore((state) => state.currentTheme);
+    const subconceptsRelation = useDataStructuresStore((state) => state.lattice?.subconceptsRelation);
+    const sublatticeConceptIndexes = useDiagramStore((state) => state.sublatticeConceptIndexes);
+    const filteredConceptIndexes = useDiagramStore((state) => state.filteredConceptIndexes);
+    const displayHighlightedSublatticeOnly = useDiagramStore((state) => state.displayHighlightedSublatticeOnly);
     const semitransparentLinksEnabled = useDiagramStore((state) => state.semitransparentLinksEnabled);
-    const flatLinksEnabled = useDiagramStore((state) => state.flatLinksEnabled);
     const selectedConceptIndex = useDiagramStore((state) => state.selectedConceptIndex);
     const hoveredConceptIndex = useDiagramStore((state) => state.hoveredConceptIndex);
     const hoveredLinksHighlightingEnabled = useDiagramStore((state) => state.hoveredLinksHighlightingEnabled);
@@ -89,17 +135,80 @@ function useLinksLogic() {
         (!hoveredLinksHighlightingEnabled || hoveredConceptIndex === null) &&
         (!selectedLinksHighlightingEnabled || selectedConceptIndex === null);
 
-    const useFlatLinks = flatLinksEnabled || cameraType === "2d";
+    // Handle color updates
+    useLayoutEffect(() => {
+        if (noHighlightedLinks) {
+            const defaultColor = semitransparentLinksEnabled ?
+                themedColor(SEMITRANSPARENT_LINK_COLOR_LIGHT, SEMITRANSPARENT_LINK_COLOR_DARK, currentTheme) :
+                themedColor(OPAQUE_LINK_COLOR_LIGHT, OPAQUE_LINK_COLOR_DARK, currentTheme);
+
+            for (const link of links) {
+                instancedMeshRef.current?.setColorAt(link.linkId, defaultColor);
+            }
+        }
+        else {
+            const dimColor = semitransparentLinksEnabled ?
+                themedColor(SEMITRANSPARENT_DIM_LINK_COLOR_LIGHT, SEMITRANSPARENT_DIM_LINK_COLOR_DARK, currentTheme) :
+                themedColor(OPAQUE_DIM_LINK_COLOR_LIGHT, OPAQUE_DIM_LINK_COLOR_DARK, currentTheme);
+            const highlightedColor = semitransparentLinksEnabled ?
+                themedColor(SEMITRANSPARENT_HIGHLIGHTED_LINK_COLOR_LIGHT, SEMITRANSPARENT_HIGHLIGHTED_LINK_COLOR_DARK, currentTheme) :
+                themedColor(OPAQUE_HIGHLIGHTED_LINK_COLOR_LIGHT, OPAQUE_HIGHLIGHTED_LINK_COLOR_DARK, currentTheme);
+            const coloredColor = semitransparentLinksEnabled ?
+                themedColor(PRIMARY_COLOR_LIGHT, PRIMARY_COLOR_DARK, currentTheme) :
+                themedColor(OPAQUE_COLORED_LINK_COLOR_LIGHT, OPAQUE_COLORED_LINK_COLOR_DARK, currentTheme);
+
+            for (const link of links) {
+                const color = link.isColored ?
+                    coloredColor :
+                    link.isHighlighted ?
+                        highlightedColor :
+                        dimColor;
+
+                instancedMeshRef.current?.setColorAt(link.linkId, color);
+            }
+        }
+
+        if (instancedMeshRef.current?.instanceColor) {
+            instancedMeshRef.current.instanceColor.needsUpdate = true;
+            invalidate();
+        }
+    }, [links, noHighlightedLinks, semitransparentLinksEnabled, currentTheme]);
+}
+
+function useLinksState() {
+    const cameraType = useDiagramStore((state) => state.cameraType);
+    const flatLinksEnabled = useDiagramStore((state) => state.flatLinksEnabled);
+    const linksVisibleEnabled = useDiagramStore((state) => state.linksVisibleEnabled);
+    const semitransparentLinksEnabled = useDiagramStore((state) => state.semitransparentLinksEnabled);
+    
+    return {
+        visible: linksVisibleEnabled,
+        flat: flatLinksEnabled || cameraType === "2d",
+        semitransparent: semitransparentLinksEnabled,
+    };
+}
+
+function useLinks() {
+    // Refs to track state changes manually for optimized useMemo logic
+    const previousHoveredConceptIndexRef = useRef<number | null>(null);
+    const previousSelectedConceptIndexRef = useRef<number | null>(null);
+    const previousHoveredLinksHighlightingEnabledRef = useRef<boolean | null>(null);
+    const previousSelectedLinksHighlightingEnabledRef = useRef<boolean | null>(null);
+
+    const selectedConceptIndex = useDiagramStore((state) => state.selectedConceptIndex);
+    const hoveredConceptIndex = useDiagramStore((state) => state.hoveredConceptIndex);
+    const hoveredLinksHighlightingEnabled = useDiagramStore((state) => state.hoveredLinksHighlightingEnabled);
+    const selectedLinksHighlightingEnabled = useDiagramStore((state) => state.selectedLinksHighlightingEnabled);
 
     const prepLinks = useDiagramLinks();
 
     // When there are lots of links, lots of data has to be transfered to the GPU which takes some time
     // This is especially noticable on node hovering
 
-    // This is here to reduce CPU to GPU trafic.
+    // This useMemo() is here to reduce CPU to GPU trafic.
     // Compares previous interaction states to skip creation of a new array instance (which would cause rerender)
     // and heavy array iterations when highlighting is disabled or irrelevant.
-    const links = useMemo(() => {
+    return useMemo(() => {
         const initialRender = previousSelectedLinksHighlightingEnabledRef.current === null &&
             previousHoveredLinksHighlightingEnabledRef.current === null &&
             previousSelectedConceptIndexRef.current === null &&
@@ -145,101 +254,6 @@ function useLinksLogic() {
 
         return [...prepLinks];
     }, [prepLinks, hoveredConceptIndex, selectedConceptIndex, hoveredLinksHighlightingEnabled, selectedLinksHighlightingEnabled]);
-
-    const selectedLinks = useMemo(() =>
-        links.filter((l) => conceptsToMoveIndexes.has(l.conceptIndex) || conceptsToMoveIndexes.has(l.subconceptIndex)),
-    [links, conceptsToMoveIndexes]);
-
-    // Update transformation matrices for all links when layout or visibility changes
-    useLayoutEffect(() => {
-        if (!instancedMeshRef.current || !layout || !diagramOffsets) {
-            return;
-        }
-
-        const conceptToLayoutIndexesMapping = useDiagramStore.getState().conceptToLayoutIndexesMapping;
-
-        setLinksTransformMatrices(
-            instancedMeshRef.current,
-            conceptToLayoutIndexesMapping,
-            links,
-            new Set(),
-            layout,
-            diagramOffsets,
-            [0, 0, 0],
-            cameraType,
-            horizontalScale,
-            verticalScale,
-            rotationDegrees);
-    }, [links, layout, subconceptsRelation, cameraType, diagramOffsets, horizontalScale, verticalScale, rotationDegrees]);
-
-    // Update matrices specifically for links whose nodes are being moved to maintain sync with nodes
-    useLayoutEffect(() => {
-        if (!instancedMeshRef.current || !layout || !diagramOffsets) {
-            return;
-        }
-
-        const conceptToLayoutIndexesMapping = useDiagramStore.getState().conceptToLayoutIndexesMapping;
-
-        setLinksTransformMatrices(
-            instancedMeshRef.current,
-            conceptToLayoutIndexesMapping,
-            selectedLinks,
-            conceptsToMoveIndexes,
-            layout,
-            diagramOffsets,
-            dragOffset,
-            cameraType,
-            horizontalScale,
-            verticalScale,
-            rotationDegrees);
-    }, [selectedLinks, layout, subconceptsRelation, conceptsToMoveIndexes, dragOffset, cameraType, diagramOffsets, horizontalScale, verticalScale, rotationDegrees]);
-
-    // Handle color updates
-    useLayoutEffect(() => {
-        if (noHighlightedLinks) {
-            const defaultColor = semitransparentLinksEnabled ?
-                themedColor(SEMITRANSPARENT_LINK_COLOR_LIGHT, SEMITRANSPARENT_LINK_COLOR_DARK, currentTheme) :
-                themedColor(OPAQUE_LINK_COLOR_LIGHT, OPAQUE_LINK_COLOR_DARK, currentTheme);
-
-            for (const link of links) {
-                instancedMeshRef.current?.setColorAt(link.linkId, defaultColor);
-            }
-        }
-        else {
-            const dimColor = semitransparentLinksEnabled ?
-                themedColor(SEMITRANSPARENT_DIM_LINK_COLOR_LIGHT, SEMITRANSPARENT_DIM_LINK_COLOR_DARK, currentTheme) :
-                themedColor(OPAQUE_DIM_LINK_COLOR_LIGHT, OPAQUE_DIM_LINK_COLOR_DARK, currentTheme);
-            const highlightedColor = semitransparentLinksEnabled ?
-                themedColor(SEMITRANSPARENT_HIGHLIGHTED_LINK_COLOR_LIGHT, SEMITRANSPARENT_HIGHLIGHTED_LINK_COLOR_DARK, currentTheme) :
-                themedColor(OPAQUE_HIGHLIGHTED_LINK_COLOR_LIGHT, OPAQUE_HIGHLIGHTED_LINK_COLOR_DARK, currentTheme);
-            const coloredColor = semitransparentLinksEnabled ?
-                themedColor(PRIMARY_COLOR_LIGHT, PRIMARY_COLOR_DARK, currentTheme) :
-                themedColor(OPAQUE_COLORED_LINK_COLOR_LIGHT, OPAQUE_COLORED_LINK_COLOR_DARK, currentTheme);
-
-            for (const link of links) {
-                const color = link.isColored ?
-                    coloredColor :
-                    link.isHighlighted ?
-                        highlightedColor :
-                        dimColor;
-
-                instancedMeshRef.current?.setColorAt(link.linkId, color);
-            }
-        }
-
-        if (instancedMeshRef.current?.instanceColor) {
-            instancedMeshRef.current.instanceColor.needsUpdate = true;
-            invalidate();
-        }
-    }, [links, noHighlightedLinks, semitransparentLinksEnabled, currentTheme]);
-
-    return {
-        instancedMeshRef,
-        links,
-        useFlatLinks,
-        linksVisibleEnabled,
-        semitransparentLinksEnabled,
-    };
 }
 
 /**

@@ -22,62 +22,12 @@ export default function Nodes() {
     const instancedMeshRef = useRef<InstancedMesh>(null);
     const hoverSphereRef = useRef<Mesh>(null);
     const concepts = useExplorerStore((state) => state.concepts);
-    const selectedConceptIndex = useExplorerStore((state) => state.selectedConceptIndex);
-    const filteredConceptIndexes = useExplorerStore((state) => state.filteredConceptIndexes);
     const currentTheme = useGlobalsStore((state) => state.currentTheme);
-    const invalidate = useThree((state) => state.invalidate);
 
     const { hoveredIdRef, onClick, onPointerLeave, onPointerMove } = useNodeEvents(instancedMeshRef, hoverSphereRef);
-
-    useLayoutEffect(() => {
-        if (!instancedMeshRef.current || !concepts) {
-            return;
-        }
-
-        for (let i = 0; i < concepts.length; i++) {
-            const concept = concepts[i];
-            const color = getNodeColor(concept.conceptIndex, selectedConceptIndex, filteredConceptIndexes, currentTheme);
-
-            instancedMeshRef.current?.setColorAt(i, color);
-        }
-
-        if (instancedMeshRef.current.instanceColor) {
-            instancedMeshRef.current.instanceColor.needsUpdate = true;
-            invalidate();
-        }
-    }, [concepts, selectedConceptIndex, filteredConceptIndexes, currentTheme]);
-
-    useLayoutEffect(() => {
-        if (!instancedMeshRef.current || !concepts) {
-            return;
-        }
-
-        for (let i = 0; i < concepts.length; i++) {
-            const concept = concepts[i];
-
-            tempObject.position.set(concept.position[0], concept.position[1], concept.position[2]);
-            tempObject.updateMatrix();
-
-            instancedMeshRef.current.setMatrixAt(i, tempObject.matrix);
-        }
-
-        instancedMeshRef.current.instanceMatrix.needsUpdate = true;
-
-        instancedMeshRef.current.computeBoundingSphere();
-        instancedMeshRef.current.computeBoundingBox();
-
-        invalidate();
-    }, [concepts]);
-
-    useLayoutEffect(() => {
-        if (hoverSphereRef.current) {
-            hoverSphereRef.current.visible = false;
-            invalidate();
-        }
-
-        hoveredIdRef.current = undefined;
-        useExplorerStore.getState().setHoveredConceptIndex(null);
-    }, [selectedConceptIndex]);
+    useNodesTransformation(instancedMeshRef);
+    useNodesColor(instancedMeshRef);
+    useHoverReset(hoverSphereRef, hoveredIdRef);
 
     return (
         <>
@@ -106,6 +56,81 @@ export default function Nodes() {
             </mesh>
         </>
     );
+}
+
+function useHoverReset(
+    hoverSphereRef: RefObject<Mesh | null>,
+    hoveredIdRef: RefObject<number | undefined>,
+) {
+    const selectedConceptIndex = useExplorerStore((state) => state.selectedConceptIndex);
+    const invalidate = useThree((state) => state.invalidate);
+
+    useLayoutEffect(() => {
+        if (hoverSphereRef.current) {
+            hoverSphereRef.current.visible = false;
+            invalidate();
+        }
+
+        hoveredIdRef.current = undefined;
+        useExplorerStore.getState().setHoveredConceptIndex(null);
+    }, [selectedConceptIndex]);
+}
+
+function useNodesTransformation(
+    instancedMeshRef: RefObject<InstancedMesh | null>,
+) {
+    const concepts = useExplorerStore((state) => state.concepts);
+    const invalidate = useThree((state) => state.invalidate);
+    
+    useLayoutEffect(() => {
+        if (!instancedMeshRef.current || !concepts) {
+            return;
+        }
+
+        for (let i = 0; i < concepts.length; i++) {
+            const concept = concepts[i];
+
+            tempObject.position.set(concept.position[0], concept.position[1], concept.position[2]);
+            tempObject.updateMatrix();
+
+            instancedMeshRef.current.setMatrixAt(i, tempObject.matrix);
+        }
+
+        instancedMeshRef.current.instanceMatrix.needsUpdate = true;
+
+        instancedMeshRef.current.computeBoundingSphere();
+        instancedMeshRef.current.computeBoundingBox();
+
+        invalidate();
+    }, [concepts]);
+}
+
+function useNodesColor(
+    instancedMeshRef: RefObject<InstancedMesh | null>,
+) {
+    const concepts = useExplorerStore((state) => state.concepts);
+    const selectedConceptIndex = useExplorerStore((state) => state.selectedConceptIndex);
+    const filteredConceptIndexes = useExplorerStore((state) => state.filteredConceptIndexes);
+    const currentTheme = useGlobalsStore((state) => state.currentTheme);
+    const invalidate = useThree((state) => state.invalidate);
+
+    useLayoutEffect(() => {
+        if (!instancedMeshRef.current || !concepts) {
+            return;
+        }
+
+        for (let i = 0; i < concepts.length; i++) {
+            const concept = concepts[i];
+            const color = getNodeColor(concept.conceptIndex, selectedConceptIndex, filteredConceptIndexes, currentTheme);
+
+            instancedMeshRef.current?.setColorAt(i, color);
+        }
+
+        if (instancedMeshRef.current.instanceColor) {
+            instancedMeshRef.current.instanceColor.needsUpdate = true;
+            invalidate();
+        }
+    }, [concepts, selectedConceptIndex, filteredConceptIndexes, currentTheme]);
 }
 
 function useNodeEvents(

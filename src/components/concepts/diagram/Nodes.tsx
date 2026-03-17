@@ -28,121 +28,10 @@ export default function Nodes() {
     const hoverSphereRef = useRef<Mesh>(null);
     const currentTheme = useGlobalsStore((state) => state.currentTheme);
     const layout = useDiagramStore((state) => state.layout);
-    const diagramOffsets = useDiagramStore((state) => state.diagramOffsets);
-    const dragOffset = useDiagramStore((state) => state.dragOffset);
-    const selectedConceptIndex = useDiagramStore((state) => state.selectedConceptIndex);
-    const conceptsToMoveIndexes = useDiagramStore((state) => state.conceptsToMoveIndexes);
-    const sublatticeConceptIndexes = useDiagramStore((state) => state.sublatticeConceptIndexes);
-    const lowerConeOnlyConceptIndex = useDiagramStore((state) => state.lowerConeOnlyConceptIndex);
-    const upperConeOnlyConceptIndex = useDiagramStore((state) => state.upperConeOnlyConceptIndex);
-    const filteredConceptIndexes = useDiagramStore((state) => state.filteredConceptIndexes);
-    const displayHighlightedSublatticeOnly = useDiagramStore((state) => state.displayHighlightedSublatticeOnly);
-    const cameraType = useDiagramStore((state) => state.cameraType);
-    const horizontalScale = useDiagramStore((state) => state.horizontalScale);
-    const verticalScale = useDiagramStore((state) => state.verticalScale);
-    const rotationDegrees = useDiagramStore((state) => state.rotationDegrees);
-    const invalidate = useThree((state) => state.invalidate);
 
     const { onClick, onPointerLeave, onPointerMove } = useNodeEvents(instancedMeshRef, hoverSphereRef);
-
-    useLayoutEffect(() => {
-        const layoutToConceptIndexesMapping = useDiagramStore.getState().layoutToConceptIndexesMapping;
-
-        if (!layout) {
-            return;
-        }
-
-        for (let layoutIndex = 0; layoutIndex < layout.length; layoutIndex++) {
-            const conceptIndex = layoutToConceptIndexesMapping.get(layoutIndex);
-            const color = getNodeColor(
-                conceptIndex,
-                selectedConceptIndex,
-                filteredConceptIndexes,
-                currentTheme);
-
-            instancedMeshRef.current?.setColorAt(layoutIndex, color);
-        }
-        if (instancedMeshRef.current?.instanceColor) {
-            instancedMeshRef.current.instanceColor.needsUpdate = true;
-            invalidate();
-        }
-    }, [layout, selectedConceptIndex, filteredConceptIndexes, lowerConeOnlyConceptIndex, upperConeOnlyConceptIndex, currentTheme]);
-
-    useLayoutEffect(() => {
-        if (!instancedMeshRef.current || !layout || !diagramOffsets) {
-            return;
-        }
-
-        const layoutIndexes = createRange(layout.length);
-
-        setNodesTransformMatricesHelper(
-            instancedMeshRef.current,
-            layoutIndexes,
-            sublatticeConceptIndexes,
-            lowerConeOnlyConceptIndex,
-            upperConeOnlyConceptIndex,
-            displayHighlightedSublatticeOnly,
-            layout,
-            diagramOffsets,
-            [0, 0, 0],
-            cameraType,
-            horizontalScale,
-            verticalScale,
-            rotationDegrees);
-
-        invalidate();
-    }, [
-        layout,
-        cameraType,
-        diagramOffsets,
-        sublatticeConceptIndexes,
-        lowerConeOnlyConceptIndex,
-        upperConeOnlyConceptIndex,
-        displayHighlightedSublatticeOnly,
-        horizontalScale,
-        verticalScale,
-        rotationDegrees,
-    ]);
-
-    useLayoutEffect(() => {
-        if (!instancedMeshRef.current || !layout || !diagramOffsets || conceptsToMoveIndexes.size === 0) {
-            return;
-        }
-
-        const conceptToLayoutIndexesMapping = useDiagramStore.getState().conceptToLayoutIndexesMapping;
-        // Be careful here...
-        const layoutIndexes = [...conceptsToMoveIndexes].map((conceptIndex) => conceptToLayoutIndexesMapping.get(conceptIndex)!);
-
-        setNodesTransformMatricesHelper(
-            instancedMeshRef.current,
-            layoutIndexes,
-            sublatticeConceptIndexes,
-            lowerConeOnlyConceptIndex,
-            upperConeOnlyConceptIndex,
-            displayHighlightedSublatticeOnly,
-            layout,
-            diagramOffsets,
-            dragOffset,
-            cameraType,
-            horizontalScale,
-            verticalScale,
-            rotationDegrees);
-
-        invalidate();
-    }, [
-        conceptsToMoveIndexes,
-        dragOffset,
-        layout,
-        cameraType,
-        diagramOffsets,
-        sublatticeConceptIndexes,
-        lowerConeOnlyConceptIndex,
-        upperConeOnlyConceptIndex,
-        displayHighlightedSublatticeOnly,
-        horizontalScale,
-        verticalScale,
-        rotationDegrees,
-    ]);
+    useNodesTransformation(instancedMeshRef);
+    useNodeColors(instancedMeshRef);
 
     // When I change number of instances, onClick stops working
     // Only thing that fixes that is adding a key to the Nodes element
@@ -279,6 +168,135 @@ function ConeHemispheres() {
             </mesh>
         </>
     );
+}
+
+function useNodeColors(
+    instancedMeshRef: RefObject<InstancedMesh | null>,
+) {
+    const currentTheme = useGlobalsStore((state) => state.currentTheme);
+    const layout = useDiagramStore((state) => state.layout);
+    const selectedConceptIndex = useDiagramStore((state) => state.selectedConceptIndex);
+    const lowerConeOnlyConceptIndex = useDiagramStore((state) => state.lowerConeOnlyConceptIndex);
+    const upperConeOnlyConceptIndex = useDiagramStore((state) => state.upperConeOnlyConceptIndex);
+    const filteredConceptIndexes = useDiagramStore((state) => state.filteredConceptIndexes);
+    const invalidate = useThree((state) => state.invalidate);
+
+    useLayoutEffect(() => {
+        const layoutToConceptIndexesMapping = useDiagramStore.getState().layoutToConceptIndexesMapping;
+
+        if (!layout) {
+            return;
+        }
+
+        for (let layoutIndex = 0; layoutIndex < layout.length; layoutIndex++) {
+            const conceptIndex = layoutToConceptIndexesMapping.get(layoutIndex);
+            const color = getNodeColor(
+                conceptIndex,
+                selectedConceptIndex,
+                filteredConceptIndexes,
+                currentTheme);
+
+            instancedMeshRef.current?.setColorAt(layoutIndex, color);
+        }
+        if (instancedMeshRef.current?.instanceColor) {
+            instancedMeshRef.current.instanceColor.needsUpdate = true;
+            invalidate();
+        }
+    }, [layout, selectedConceptIndex, filteredConceptIndexes, lowerConeOnlyConceptIndex, upperConeOnlyConceptIndex, currentTheme]);
+}
+
+function useNodesTransformation(
+    instancedMeshRef: RefObject<InstancedMesh | null>,
+) {
+    const layout = useDiagramStore((state) => state.layout);
+    const diagramOffsets = useDiagramStore((state) => state.diagramOffsets);
+    const dragOffset = useDiagramStore((state) => state.dragOffset);
+    const conceptsToMoveIndexes = useDiagramStore((state) => state.conceptsToMoveIndexes);
+    const sublatticeConceptIndexes = useDiagramStore((state) => state.sublatticeConceptIndexes);
+    const lowerConeOnlyConceptIndex = useDiagramStore((state) => state.lowerConeOnlyConceptIndex);
+    const upperConeOnlyConceptIndex = useDiagramStore((state) => state.upperConeOnlyConceptIndex);
+    const displayHighlightedSublatticeOnly = useDiagramStore((state) => state.displayHighlightedSublatticeOnly);
+    const cameraType = useDiagramStore((state) => state.cameraType);
+    const horizontalScale = useDiagramStore((state) => state.horizontalScale);
+    const verticalScale = useDiagramStore((state) => state.verticalScale);
+    const rotationDegrees = useDiagramStore((state) => state.rotationDegrees);
+    const invalidate = useThree((state) => state.invalidate);
+
+    useLayoutEffect(() => {
+        if (!instancedMeshRef.current || !layout || !diagramOffsets) {
+            return;
+        }
+
+        const layoutIndexes = createRange(layout.length);
+
+        setNodesTransformMatricesHelper(
+            instancedMeshRef.current,
+            layoutIndexes,
+            sublatticeConceptIndexes,
+            lowerConeOnlyConceptIndex,
+            upperConeOnlyConceptIndex,
+            displayHighlightedSublatticeOnly,
+            layout,
+            diagramOffsets,
+            [0, 0, 0],
+            cameraType,
+            horizontalScale,
+            verticalScale,
+            rotationDegrees);
+
+        invalidate();
+    }, [
+        layout,
+        cameraType,
+        diagramOffsets,
+        sublatticeConceptIndexes,
+        lowerConeOnlyConceptIndex,
+        upperConeOnlyConceptIndex,
+        displayHighlightedSublatticeOnly,
+        horizontalScale,
+        verticalScale,
+        rotationDegrees,
+    ]);
+
+    useLayoutEffect(() => {
+        if (!instancedMeshRef.current || !layout || !diagramOffsets || conceptsToMoveIndexes.size === 0) {
+            return;
+        }
+
+        const conceptToLayoutIndexesMapping = useDiagramStore.getState().conceptToLayoutIndexesMapping;
+        // Be careful here...
+        const layoutIndexes = [...conceptsToMoveIndexes].map((conceptIndex) => conceptToLayoutIndexesMapping.get(conceptIndex)!);
+
+        setNodesTransformMatricesHelper(
+            instancedMeshRef.current,
+            layoutIndexes,
+            sublatticeConceptIndexes,
+            lowerConeOnlyConceptIndex,
+            upperConeOnlyConceptIndex,
+            displayHighlightedSublatticeOnly,
+            layout,
+            diagramOffsets,
+            dragOffset,
+            cameraType,
+            horizontalScale,
+            verticalScale,
+            rotationDegrees);
+
+        invalidate();
+    }, [
+        conceptsToMoveIndexes,
+        dragOffset,
+        layout,
+        cameraType,
+        diagramOffsets,
+        sublatticeConceptIndexes,
+        lowerConeOnlyConceptIndex,
+        upperConeOnlyConceptIndex,
+        displayHighlightedSublatticeOnly,
+        horizontalScale,
+        verticalScale,
+        rotationDegrees,
+    ]);
 }
 
 function useNodeEvents(

@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useRef } from "react";
+import { RefObject, useLayoutEffect, useMemo, useRef } from "react";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import { Line, Grid as DreiGrid } from "@react-three/drei";
 import { createPoint, Point } from "../../../types/Point";
@@ -20,54 +20,74 @@ const AXIS_LINE_WIDTH = LINE_WIDTH * 1.2;
 export default function Grid() {
     const gridRef = useRef<Mesh>(null);
     const currentTheme = useGlobalsStore((state) => state.currentTheme);
-    const snapCoords = useDiagramStore((state) => state.snapCoords);
     const isDraggingNodesSnappedToXAxis = useDiagramStore((state) => state.isDraggingNodesSnappedToXAxis);
     const isDraggingNodesSnappedToYAxis = useDiagramStore((state) => state.isDraggingNodesSnappedToYAxis);
     const isDraggingNodesSnappedToZAxis = useDiagramStore((state) => state.isDraggingNodesSnappedToZAxis);
+
+    const axisColor = themedColor(PRIMARY_COLOR_LIGHT, PRIMARY_COLOR_DARK, currentTheme);
+    const isGridVisible = useIsGridVisible();
+    const { xAxis, yAxis, zAxis } = useAxes();
+
+    useGridTransformation(gridRef, isGridVisible);
+
+    return (
+        <>
+            <DreiGrid
+                ref={gridRef}
+                visible={isGridVisible}
+                side={DoubleSide}
+                infiniteGrid
+                followCamera
+                fadeDistance={10000}
+                cellSize={1}
+                cellThickness={1.5}
+                cellColor={themedColor(GRID_COLOR_LIGHT, GRID_COLOR_DARK, currentTheme)}
+                sectionThickness={0} />
+
+            {isDraggingNodesSnappedToXAxis && xAxis &&
+                <Line
+                    points={xAxis}
+                    color={axisColor}
+                    opacity={OPACITY}
+                    lineWidth={AXIS_LINE_WIDTH}
+                    transparent
+                    segments
+                    depthTest={false}
+                    renderOrder={10} />}
+            {isDraggingNodesSnappedToYAxis && yAxis &&
+                <Line
+                    points={yAxis}
+                    color={axisColor}
+                    opacity={OPACITY}
+                    lineWidth={AXIS_LINE_WIDTH}
+                    transparent
+                    segments
+                    depthTest={false}
+                    renderOrder={10} />}
+            {isDraggingNodesSnappedToZAxis && zAxis &&
+                <Line
+                    points={zAxis}
+                    color={axisColor}
+                    opacity={OPACITY}
+                    lineWidth={AXIS_LINE_WIDTH}
+                    transparent
+                    segments
+                    depthTest={false}
+                    renderOrder={10} />}
+        </>
+    );
+}
+
+function useGridTransformation(
+    gridRef: RefObject<Mesh | null>,
+    isGridVisible: boolean,
+) {
     const isDraggingNodesInXYPlane = useDiagramStore((state) => state.isDraggingNodesInXYPlane);
     const isDraggingNodesInXZPlane = useDiagramStore((state) => state.isDraggingNodesInXZPlane);
     const isDraggingNodesInYZPlane = useDiagramStore((state) => state.isDraggingNodesInYZPlane);
     const conceptsToMoveBox = useDiagramStore((state) => state.conceptsToMoveBox);
     const cameraType = useDiagramStore((state) => state.cameraType);
-    const gridWhileEditingEnabled = useDiagramStore((state) => state.gridWhileEditingEnabled);
-    const editingEnabled = useDiagramStore((state) => state.editingEnabled);
-
     const invalidate = useThree((state) => state.invalidate);
-
-    const isGridVisible = editingEnabled &&
-        gridWhileEditingEnabled &&
-        (cameraType === "2d" || !!(isDraggingNodesInXYPlane || isDraggingNodesInXZPlane || isDraggingNodesInYZPlane));
-
-    const color = themedColor(PRIMARY_COLOR_LIGHT, PRIMARY_COLOR_DARK, currentTheme);
-
-    const { xAxis, yAxis, zAxis } = useMemo(() => {
-        const maxDistance = 100000;
-
-        const xAxis: AxisLine | null = snapCoords === null ?
-            null :
-            [
-                createPoint(-maxDistance, snapCoords[1], snapCoords[2]),
-                createPoint(maxDistance, snapCoords[1], snapCoords[2]),
-            ];
-        const yAxis: AxisLine | null = snapCoords === null ?
-            null :
-            [
-                createPoint(snapCoords[0], -maxDistance, snapCoords[2]),
-                createPoint(snapCoords[0], maxDistance, snapCoords[2]),
-            ];
-        const zAxis: AxisLine | null = snapCoords === null ?
-            null :
-            [
-                createPoint(snapCoords[0], snapCoords[1], -maxDistance),
-                createPoint(snapCoords[0], snapCoords[1], maxDistance),
-            ];
-
-        return {
-            xAxis,
-            yAxis,
-            zAxis,
-        };
-    }, [snapCoords?.[0], snapCoords?.[1], snapCoords?.[2]]);
 
     useLayoutEffect(() => {
         if (!gridRef.current) {
@@ -96,51 +116,52 @@ export default function Grid() {
 
         invalidate();
     }, [isDraggingNodesInXYPlane, isDraggingNodesInXZPlane, isDraggingNodesInYZPlane, cameraType, conceptsToMoveBox, isGridVisible]);
+}
 
-    return (
-        <>
-            <DreiGrid
-                ref={gridRef}
-                visible={isGridVisible}
-                side={DoubleSide}
-                infiniteGrid
-                followCamera
-                fadeDistance={10000}
-                cellSize={1}
-                cellThickness={1.5}
-                cellColor={themedColor(GRID_COLOR_LIGHT, GRID_COLOR_DARK, currentTheme)}
-                sectionThickness={0} />
+function useIsGridVisible() {
+    const isDraggingNodesInXYPlane = useDiagramStore((state) => state.isDraggingNodesInXYPlane);
+    const isDraggingNodesInXZPlane = useDiagramStore((state) => state.isDraggingNodesInXZPlane);
+    const isDraggingNodesInYZPlane = useDiagramStore((state) => state.isDraggingNodesInYZPlane);
+    const currentZoomLevel = useDiagramStore((state) => state.currentZoomLevel);
+    const cameraType = useDiagramStore((state) => state.cameraType);
+    const gridWhileEditingEnabled = useDiagramStore((state) => state.gridWhileEditingEnabled);
+    const editingEnabled = useDiagramStore((state) => state.editingEnabled);
 
-            {isDraggingNodesSnappedToXAxis && xAxis &&
-                <Line
-                    points={xAxis}
-                    color={color}
-                    opacity={OPACITY}
-                    lineWidth={AXIS_LINE_WIDTH}
-                    transparent
-                    segments
-                    depthTest={false}
-                    renderOrder={10} />}
-            {isDraggingNodesSnappedToYAxis && yAxis &&
-                <Line
-                    points={yAxis}
-                    color={color}
-                    opacity={OPACITY}
-                    lineWidth={AXIS_LINE_WIDTH}
-                    transparent
-                    segments
-                    depthTest={false}
-                    renderOrder={10} />}
-            {isDraggingNodesSnappedToZAxis && zAxis &&
-                <Line
-                    points={zAxis}
-                    color={color}
-                    opacity={OPACITY}
-                    lineWidth={AXIS_LINE_WIDTH}
-                    transparent
-                    segments
-                    depthTest={false}
-                    renderOrder={10} />}
-        </>
-    );
+    return editingEnabled &&
+        gridWhileEditingEnabled &&
+        (cameraType === "2d" || !!(isDraggingNodesInXYPlane || isDraggingNodesInXZPlane || isDraggingNodesInYZPlane)) &&
+        currentZoomLevel > 0.01;
+}
+
+function useAxes() {
+    const snapCoords = useDiagramStore((state) => state.snapCoords);
+
+    return useMemo(() => {
+        const maxDistance = 100000;
+
+        const xAxis: AxisLine | null = snapCoords === null ?
+            null :
+            [
+                createPoint(-maxDistance, snapCoords[1], snapCoords[2]),
+                createPoint(maxDistance, snapCoords[1], snapCoords[2]),
+            ];
+        const yAxis: AxisLine | null = snapCoords === null ?
+            null :
+            [
+                createPoint(snapCoords[0], -maxDistance, snapCoords[2]),
+                createPoint(snapCoords[0], maxDistance, snapCoords[2]),
+            ];
+        const zAxis: AxisLine | null = snapCoords === null ?
+            null :
+            [
+                createPoint(snapCoords[0], snapCoords[1], -maxDistance),
+                createPoint(snapCoords[0], snapCoords[1], maxDistance),
+            ];
+
+        return {
+            xAxis,
+            yAxis,
+            zAxis,
+        };
+    }, [snapCoords?.[0], snapCoords?.[1], snapCoords?.[2]]);
 }

@@ -200,7 +200,7 @@ async function calculateLayout(
                         jobId,
                         time: new Date().getTime(),
                         type: "layout",
-                        layout: convertToConceptLatticeLayout(response.layout, concepts.length, reverseIndexMapping),
+                        layout: convertToConceptLatticeLayout(response.layout, request.conceptsCount, reverseIndexMapping),
                         computationTime: response.computationTime,
                     };
                     self.postMessage(layoutMessage);

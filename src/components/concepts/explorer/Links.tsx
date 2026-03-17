@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useRef } from "react";
+import { RefObject, useLayoutEffect, useMemo, useRef } from "react";
 import { InstancedMesh, Object3D, Vector3 } from "three";
 import { FLAT_LINE_SHAPE, LINE_THICKNESS, SEMITRANSPARENT_LINK_COLOR_DARK, SEMITRANSPARENT_LINK_COLOR_LIGHT } from "../../../constants/canvas-drawing";
 import useExplorerStore from "../../../stores/explorer/useExplorerStore";
@@ -18,8 +18,10 @@ type ExplorerLink = {
  * and all its neighbors in a 3D scene using an {@link InstancedMesh}.
 */
 export default function Links() {
+    const instancedMeshRef = useRef<InstancedMesh>(null);
     const currentTheme = useGlobalsStore((state) => state.currentTheme);
-    const { links, instancedMeshRef } = useLinksLogic();
+    const links = useLinks();
+    useLinksTransformation(instancedMeshRef, links);
 
     return (
         <instancedMesh
@@ -36,9 +38,10 @@ export default function Links() {
     );
 }
 
-function useLinksLogic() {
-    const instancedMeshRef = useRef<InstancedMesh>(null);
-    const links = useLinks();
+function useLinksTransformation(
+    instancedMeshRef: RefObject<InstancedMesh | null>,
+    links: ReadonlyArray<ExplorerLink>,
+) {
     const invalidate = useThree((state) => state.invalidate);
 
     useLayoutEffect(() => {
@@ -59,11 +62,6 @@ function useLinksLogic() {
 
         invalidate();
     }, [links]);
-
-    return {
-        instancedMeshRef,
-        links,
-    };
 }
 
 function useLinks() {
