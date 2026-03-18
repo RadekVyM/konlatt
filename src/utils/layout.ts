@@ -61,7 +61,7 @@ export function rotatePoint(point: Point, rotationDegrees: number) {
  * @param layout - An array of `Point`s to analyze.
  * @returns An object containing the boundaries (left, right, top, bottom) and total dimensions.
  */
-export function layoutRect(layout: Array<Point>) {
+export function layoutRect(layout: ReadonlyArray<Point>) {
     let left = Number.MAX_SAFE_INTEGER;
     let right = Number.MIN_SAFE_INTEGER;
     let top = Number.MIN_SAFE_INTEGER;

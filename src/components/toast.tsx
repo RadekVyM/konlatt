@@ -68,7 +68,7 @@ export function dispatchTopLayerChanged() {
 */
 export function Toasts() {
     const containerRef = useRef<HTMLUListElement>(null);
-    const [toasts, setToasts] = useState<Array<ToastState>>([]);
+    const [toasts, setToasts] = useState<ReadonlyArray<ToastState>>([]);
     const [portal, setPortal] = useState<Element>(document.body);
 
     useEffect(() => {

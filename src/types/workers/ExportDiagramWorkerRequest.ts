@@ -46,7 +46,7 @@ export type AppearanceRequest = {
 
 export type LabelGroupsRequest = {
     type: "label-groups",
-    labelGroups: Array<LabelGroup>,
+    labelGroups: ReadonlyArray<LabelGroup>,
 }
 
 export type LabelsAppearanceRequest = {

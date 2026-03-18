@@ -6,7 +6,7 @@ type ProjectStore = {
     progressMessage: string | null,
     name: string | null,
     workerQueue: MainWorkerQueue,
-    statusItems: Array<StatusItem>,
+    statusItems: ReadonlyArray<StatusItem>,
     replaceWorkerQueue: (workerQueue: MainWorkerQueue) => void,
     setProgressMessage: (progressMessage: string | null) => void,
     setName: (name: string) => void,
@@ -64,12 +64,13 @@ const useProjectStore = create<ProjectStore>((set) => ({
             return state;
         }
 
-        state.statusItems[statusItemIndex] = {
-            ...state.statusItems[statusItemIndex],
+        const newStatusItems = [...state.statusItems];
+        newStatusItems[statusItemIndex] = {
+            ...newStatusItems[statusItemIndex],
             ...item,
         };
 
-        return { statusItems: [...state.statusItems] };
+        return { statusItems: newStatusItems };
     }),
     removeStatusItem: (jobId: number) => set((old) => ({ statusItems: old.statusItems.filter((item) => item.jobId !== jobId) })),
 }));

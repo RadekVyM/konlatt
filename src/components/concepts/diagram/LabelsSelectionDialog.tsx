@@ -39,8 +39,8 @@ export default function LabelsSelectionDialog(props: {
     const context = useDataStructuresStore((state) => state.context);
     const objects = context?.objects.map((title, index) => ({ index, title, })) || [];
     const attributes = context?.attributes.map((title, index) => ({ index, title, })) || [];
-    const [selectedObjects, setSelectedObjects] = useSetupState<Set<number>>(() => new Set(props.selectedObjectLabels), props.state.isOpen);
-    const [selectedAttributes, setSelectedAttributes] = useSetupState<Set<number>>(() => new Set(props.selectedAttributeLabels), props.state.isOpen);
+    const [selectedObjects, setSelectedObjects] = useSetupState<ReadonlySet<number>>(() => new Set(props.selectedObjectLabels), props.state.isOpen);
+    const [selectedAttributes, setSelectedAttributes] = useSetupState<ReadonlySet<number>>(() => new Set(props.selectedAttributeLabels), props.state.isOpen);
 
     const allObjectsSelected = objects?.length === selectedObjects.size;
     const allAttributesSelected = attributes?.length === selectedAttributes.size;

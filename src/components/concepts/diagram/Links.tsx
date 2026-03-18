@@ -262,11 +262,11 @@ function useLinks() {
  */
 function setLinksTransformMatrices(
     instancedMesh: InstancedMesh,
-    conceptToLayoutIndexesMapping: Map<number, number>,
+    conceptToLayoutIndexesMapping: ReadonlyMap<number, number>,
     links: Iterable<Link>,
-    conceptsToMoveIndexes: Set<number>,
+    conceptsToMoveIndexes: ReadonlySet<number>,
     layout: ConceptLatticeLayout,
-    diagramOffsets: Array<Point>,
+    diagramOffsets: ReadonlyArray<Point>,
     dragOffset: Point,
     cameraType: CameraType,
     horizontalScale: number,

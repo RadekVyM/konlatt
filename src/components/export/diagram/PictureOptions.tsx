@@ -113,7 +113,8 @@ function TemplateSelection() {
     const maxWidth = useExportDiagramStore((state) => state.maxWidth);
     const maxHeight = useExportDiagramStore((state) => state.maxHeight);
     const setDimensions = useExportDiagramStore((state) => state.setDimensions);
-    const templates: Array<DropDownMenuItem<DiagramExportDimensionsTemplateKey>> = [
+
+    const templates: ReadonlyArray<DropDownMenuItem<DiagramExportDimensionsTemplateKey>> = [
         { key: "custom", label: "Custom", disabled: true },
         ...EXPORT_DIMENSIONS_TEMPLATES.map((template) => ({
             key: template.key,

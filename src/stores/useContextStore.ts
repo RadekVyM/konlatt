@@ -8,21 +8,21 @@ import { withFallback } from "../utils/stores";
 
 type ContextStoreState = {
     debouncedObjectsSearchInput: string,
-    objectsSearchTerms: Array<string>,
+    objectsSearchTerms: ReadonlyArray<string>,
     objectsSortType: ItemSortType,
     objectsSortDirection: SortDirection,
     debouncedAttributesSearchInput: string,
-    attributesSearchTerms: Array<string>,
+    attributesSearchTerms: ReadonlyArray<string>,
     attributesSortType: ItemSortType,
     attributesSortDirection: SortDirection,
     selectedObject: number | null,
     strictSelectedFilterAttributes: boolean,
     selectedFilterAttributes: ReadonlyArray<number>,
-    filteredObjects: Set<number> | null,
+    filteredObjects: ReadonlySet<number> | null,
     selectedAttribute: number | null,
     strictSelectedFilterObjects: boolean,
     selectedFilterObjects: ReadonlyArray<number>,
-    filteredAttributes: Set<number> | null,
+    filteredAttributes: ReadonlySet<number> | null,
 }
 
 type ContextStoreActions = {
@@ -139,7 +139,7 @@ function withFilteredAttributes(newState: Partial<ContextStore>, oldState: Conte
     };
 }
 
-function filterItems(items: ReadonlyArray<string>, searchTerms: Array<string>, selectedItems: Set<number>) {
+function filterItems(items: ReadonlyArray<string>, searchTerms: ReadonlyArray<string>, selectedItems: ReadonlySet<number>) {
     const filteredItems = new Array<number>();
 
     for (let item = 0; item < items.length; item++) {

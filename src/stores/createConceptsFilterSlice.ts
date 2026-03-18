@@ -8,10 +8,10 @@ import useDataStructuresStore from "./useDataStructuresStore";
 
 type ConceptsFilterSliceState = {
     debouncedSearchInput: string,
-    searchTerms: Array<string>,
+    searchTerms: ReadonlyArray<string>,
     sortType: ConceptSortType,
     sortDirection: SortDirection,
-    filteredConceptIndexes: Set<number> | null,
+    filteredConceptIndexes: ReadonlySet<number> | null,
     filteredConcepts: FormalConcepts | null,
     strictSelectedObjects: boolean,
     strictSelectedAttributes: boolean,
@@ -154,7 +154,7 @@ function withFilteredConceptIndexes(newState: Partial<ConceptsFilterSlice>, oldS
 
 function conceptFilter(
     concept: FormalConcept,
-    searchTerms: Array<string>,
+    searchTerms: ReadonlyArray<string>,
     context: FormalContext,
     strictSelectedObjects: boolean,
     strictSelectedAttributes: boolean,

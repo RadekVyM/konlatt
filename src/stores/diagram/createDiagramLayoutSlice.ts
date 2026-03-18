@@ -19,12 +19,12 @@ type DiagramLayoutSliceState = {
     layout: ConceptLatticeLayout | null,
     /** This ID is used to trigger rerender of some React components using the `key` property */
     layoutId: string,
-    conceptToLayoutIndexesMapping: Map<number, number>,
-    layoutToConceptIndexesMapping: Map<number, number>,
-    layoutCache: Map<string, ConceptLatticeLayoutCacheItem>,
+    conceptToLayoutIndexesMapping: ReadonlyMap<number, number>,
+    layoutToConceptIndexesMapping: ReadonlyMap<number, number>,
+    layoutCache: ReadonlyMap<string, ConceptLatticeLayoutCacheItem>,
     currentLayoutJobId: number | null,
     currentLayoutJobStateId: string | null,
-    diagramOffsets: Array<Point> | null,
+    diagramOffsets: ReadonlyArray<Point> | null,
     diagramOffsetMementos: DiagramOffsetMementos,
     canUndo: boolean,
     canRedo: boolean,
@@ -184,12 +184,12 @@ function withNodeOffsetsUpdated(
 }
 
 function updateLayoutCache(
-    layoutCache: Map<string, ConceptLatticeLayoutCacheItem>,
+    layoutCache: ReadonlyMap<string, ConceptLatticeLayoutCacheItem>,
     newLayout: ConceptLatticeLayout,
-    diagramOffsets: Array<Point>,
+    diagramOffsets: ReadonlyArray<Point>,
     diagramOffsetMementos: DiagramOffsetMementos,
     layoutState: DiagramLayoutState,
-): Map<string, ConceptLatticeLayoutCacheItem> {
+): ReadonlyMap<string, ConceptLatticeLayoutCacheItem> {
     const stateId = createDiagramLayoutStateId(layoutState);
     const newCache = new Map<string, ConceptLatticeLayoutCacheItem>(layoutCache);
     newCache.set(stateId, { layout: newLayout, stateId, diagramOffsetMementos, diagramOffsets, createdAt: new Date() });
@@ -222,7 +222,7 @@ function updateLayoutCache(
     return newCache;
 }
 
-function applyOffset(offsets: Array<Point>, nodes: Array<number>, offset: Point, factor: number = 1) {
+function applyOffset(offsets: Array<Point>, nodes: ReadonlyArray<number>, offset: Point, factor: number = 1) {
     for (const node of nodes) {
         const currentValue = offsets[node];
         offsets[node] = createPoint(

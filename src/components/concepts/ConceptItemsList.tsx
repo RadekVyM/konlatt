@@ -42,7 +42,7 @@ function useGroupedItems(
     filterItems: ReadonlySet<number>,
     searchRegex?: RegExp,
     maxTextLength?: number,
-): Array<React.ReactNode> {
+): ReadonlyArray<React.ReactNode> {
     return useMemo(() => {
         const result = new Array<React.ReactNode>();
         let nonhighlightedItems = new Array<string>();

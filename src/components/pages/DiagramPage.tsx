@@ -91,6 +91,8 @@ function Concepts(props: {
 }) {
     const sublatticeConceptIndexes = useDiagramStore((state) => state.sublatticeConceptIndexes);
     const selectedConceptIndex = useDiagramStore((state) => state.selectedConceptIndex);
+    const lowerConeOnlyConceptIndex = useDiagramStore((state) => state.lowerConeOnlyConceptIndex);
+    const upperConeOnlyConceptIndex = useDiagramStore((state) => state.upperConeOnlyConceptIndex);
     const filteredConcepts = useDiagramStore((state) => state.filteredConcepts);
     const searchTerms = useDiagramStore((state) => state.searchTerms);
     const debouncedSearchInput = useDiagramStore((state) => state.debouncedSearchInput);
@@ -110,6 +112,9 @@ function Concepts(props: {
     const maxAttributesCount = useDiagramStore((state) => state.maxAttributesCount);
     const setSelectedFilters = useDiagramStore((state) => state.setSelectedFilters);
 
+    const highlightedConceptIndexes = new Set<number>(
+        [lowerConeOnlyConceptIndex, upperConeOnlyConceptIndex].filter((index) => index !== null));
+
     return (
         <CardContainer
             className={props.className}>
@@ -127,6 +132,7 @@ function Concepts(props: {
                 onSortTypeChange={setSortType}
                 onSortDirectionChange={setSortDirection}
                 sublatticeConceptIndexes={sublatticeConceptIndexes}
+                sublatticeBoundConceptIndexes={highlightedConceptIndexes}
                 strictSelectedObjects={strictSelectedObjects}
                 strictSelectedAttributes={strictSelectedAttributes}
                 selectedFilterObjects={selectedFilterObjects}

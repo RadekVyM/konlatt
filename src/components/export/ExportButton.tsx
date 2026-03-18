@@ -12,7 +12,7 @@ import { SelectedFormatStoreType } from "../../stores/export/types/SelectedForma
  */
 export default function ExportButton<TKey extends string>(props: {
     isHighlighted?: boolean,
-    items: Array<ExportItem<TKey>>,
+    items: ReadonlyArray<ExportItem<TKey>>,
     useSelectedFormatStore: SelectedFormatStoreType<TKey>,
     disabled?: boolean,
     content?: React.ReactNode,

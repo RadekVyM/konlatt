@@ -11,7 +11,7 @@ import Container from "../layouts/Container";
  */
 export default function ExportDialog<TKey extends string>(props: {
     route: string,
-    items: Array<ExportItem<TKey>>,
+    items: ReadonlyArray<ExportItem<TKey>>,
     useSelectedFormatStore: SelectedFormatStoreType<TKey>,
     content?: React.ReactNode,
     onShowing?: () => void,

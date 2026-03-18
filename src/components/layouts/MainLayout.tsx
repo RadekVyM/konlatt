@@ -14,7 +14,7 @@ type NavLink = {
     icon: React.ReactNode,
 }
 
-const NAV_LINKS: Array<NavLink> = [
+const NAV_LINKS: ReadonlyArray<NavLink> = [
     {
         to: "/context",
         title: "Context",

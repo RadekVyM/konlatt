@@ -127,7 +127,7 @@ function useLabelsInternal(
     horizontalScale: number,
     verticalScale: number,
     rotationDegrees: number,
-    diagramOffsets: Array<Point> | null,
+    diagramOffsets: ReadonlyArray<Point> | null,
     placement: "top" | "bottom",
 ) {
     return useMemo(() => {

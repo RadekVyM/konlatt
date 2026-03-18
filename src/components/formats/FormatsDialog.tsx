@@ -79,7 +79,7 @@ type ExportedObject = {
     id: ExportedObjectId,
     title: string,
     defaultFormatId: FormatId,
-    formats: Array<Format>,
+    formats: ReadonlyArray<Format>,
     description?: React.ReactNode,
 }
 
@@ -92,7 +92,7 @@ type FormatBase = {
 }
 
 type Format = {
-    example: Array<string>,
+    example: ReadonlyArray<string>,
     description?: React.ReactNode,
 } & FormatBase
 
@@ -114,7 +114,7 @@ const KONLATT_CSV: FormatBase = {
     suffix: "csv",
 }
 
-const EXPORTED_OBJECTS: Array<ExportedObject> = [
+const EXPORTED_OBJECTS: ReadonlyArray<ExportedObject> = [
     {
         id: "context",
         title: "Formal context",

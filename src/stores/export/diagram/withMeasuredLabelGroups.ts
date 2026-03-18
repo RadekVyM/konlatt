@@ -35,9 +35,9 @@ export default function withMeasuredLabelGroups(
 
 function addLabelsToGroups(
     groups: Array<LabelGroup>,
-    labels: Array<ConceptLabel>,
+    labels: ReadonlyArray<ConceptLabel>,
     context: OffscreenCanvasRenderingContext2D,
-    conceptToLayoutIndexesMapping: Map<number, number>,
+    conceptToLayoutIndexesMapping: ReadonlyMap<number, number>,
 ) {
     let maxHeightDiff = 0;
 

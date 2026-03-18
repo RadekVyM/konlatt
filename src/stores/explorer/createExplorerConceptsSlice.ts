@@ -6,8 +6,8 @@ import withExplorerConcepts from "./withExplorerConcepts";
 type ExplorerConceptsSliceState = {
     lattice: ConceptLattice | null, // I do not like this
     concepts: ReadonlyArray<ExplorerConcept>,
-    conceptToLayoutIndexesMapping: Map<number, number>,
-    layoutToConceptIndexesMapping: Map<number, number>,
+    conceptToLayoutIndexesMapping: ReadonlyMap<number, number>,
+    layoutToConceptIndexesMapping: ReadonlyMap<number, number>,
 }
 
 type ExplorerConceptsSliceActions = {

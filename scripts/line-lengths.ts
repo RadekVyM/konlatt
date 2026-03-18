@@ -24,9 +24,10 @@ import { FormalContext } from "../src/types/FormalContext";
 import { createPoint, Point } from "../src/types/Point";
 import { Link } from "../src/types/Link";
 import { ConceptLabel } from "../src/types/ConceptLabel";
-import { createLabels, getLinks } from "../src/utils/diagram";
+import { createLabels, getDiagramLinks } from "../src/utils/diagram";
 import { LabelGroup } from "../src/types/export/LabelGroup";
 import { HsvaColor } from "../src/types/HsvaColor";
+import { Relation } from "../src/types/Relation";
 
 /**
  * Tracks string length metrics for different export formats.
@@ -71,7 +72,7 @@ for (const dataset of datasets) {
     const { concepts } = await computeConcepts(context);
     const { lattice } = await conceptsToLattice(concepts, context);
     const { layout, conceptToLayoutIndexesMapping } = generateLayout(concepts.length);
-    const links = getLinks(concepts.map((c) => ({ conceptIndex: c.index })), lattice.subconceptsRelation, null, null, false);
+    const links = getDiagramLinks(concepts.map((c) => ({ conceptIndex: c.index })), lattice.subconceptsRelation, null, null, false);
 
     measureConcepts(context, concepts, lattice.subconceptsRelation);
 
@@ -125,8 +126,8 @@ function generateLayout(nodesCount: number) {
  */
 function measureConcepts(
     context: FormalContext,
-    concepts: Array<FormalConcept>,
-    latticeRelation: ReadonlyArray<Set<number>>
+    concepts: ReadonlyArray<FormalConcept>,
+    latticeRelation: Relation,
 ) {
     const name = "Just a name";
 
@@ -169,7 +170,7 @@ function measureConcepts(
 function measureDiagram(
     layout: Array<Point>,
     links: Array<Link>,
-    conceptToLayoutIndexesMapping: Map<number, number>,
+    conceptToLayoutIndexesMapping: ReadonlyMap<number, number>,
     attributeLabels: Array<ConceptLabel>,
     objectLabels: Array<ConceptLabel>
 ) {

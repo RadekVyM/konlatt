@@ -4,7 +4,7 @@ import { FormalConcept } from "../types/FormalConcepts";
 import { cppFormalConceptArrayToJs, jsArrayToCppUIntArray } from "../utils/cpp";
 
 export async function computeConcepts(context: FormalContext, onProgress?: (progress: number) => void): Promise<{
-    concepts: Array<FormalConcept>,
+    concepts: ReadonlyArray<FormalConcept>,
     computationTime: number,
 }> {
     const module = await Module();
@@ -20,7 +20,7 @@ export async function computeConcepts(context: FormalContext, onProgress?: (prog
         context.attributes.length,
         onProgress);
 
-    const concepts: Array<FormalConcept> = [...cppFormalConceptArrayToJs(result.value, true)];
+    const concepts: ReadonlyArray<FormalConcept> = [...cppFormalConceptArrayToJs(result.value, true)];
     const computationTime = result.time;
     console.log(`InClose: ${computationTime}ms`);
 

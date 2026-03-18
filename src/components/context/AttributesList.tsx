@@ -93,7 +93,7 @@ function getContextAttribute(context: FormalContext, attributeIndex: number): Co
     }
 
     const title = context.attributes[attributeIndex];
-    const objects: Array<ContextItem> = getAttributeObjects(context, attributeIndex).map((object) => ({
+    const objects: ReadonlyArray<ContextItem> = getAttributeObjects(context, attributeIndex).map((object) => ({
         index: object,
                 title: context.objects[object],
     }));

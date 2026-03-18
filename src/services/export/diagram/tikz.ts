@@ -10,11 +10,11 @@ import { INDENTATION } from "../constants";
 const SCALE = 50;
 
 export function convertToTikz(
-    transformedLayout: Array<Point> | null,
-    links: Array<Link>,
-    conceptToLayoutIndexesMapping: Map<number, number>,
-    attributeLabels: Array<ConceptLabel>,
-    objectLabels: Array<ConceptLabel>,
+    transformedLayout: ReadonlyArray<Point> | null,
+    links: ReadonlyArray<Link>,
+    conceptToLayoutIndexesMapping: ReadonlyMap<number, number>,
+    attributeLabels: ReadonlyArray<ConceptLabel>,
+    objectLabels: ReadonlyArray<ConceptLabel>,
 ) {
     const lines = new Array<string>();
     const collapseRegions = createCollapseRegions();
@@ -112,9 +112,9 @@ function pushEndPicture(lines: Array<string>) {
 function pushLinks(
     lines: Array<string>,
     collapseRegions: CollapseRegions,
-    links: Array<Link>,
-    layout: Array<Point>,
-    conceptToLayoutIndexesMapping: Map<number, number>,
+    links: ReadonlyArray<Link>,
+    layout: ReadonlyArray<Point>,
+    conceptToLayoutIndexesMapping: ReadonlyMap<number, number>,
 ) {
     if (links.length === 0) {
         return;
@@ -147,7 +147,7 @@ function pushLinks(
 function pushNodes(
     lines: Array<string>,
     collapseRegions: CollapseRegions,
-    layout: Array<Point>,
+    layout: ReadonlyArray<Point>,
 ) {
     if (layout.length === 0) {
         return;
@@ -172,8 +172,8 @@ function pushNodes(
 function pushAttributeLabels(
     lines: Array<string>,
     collapseRegions: CollapseRegions,
-    conceptToLayoutIndexesMapping: Map<number, number>,
-    attributeLabels: Array<ConceptLabel>,
+    conceptToLayoutIndexesMapping: ReadonlyMap<number, number>,
+    attributeLabels: ReadonlyArray<ConceptLabel>,
 ) {
     if (attributeLabels.length === 0) {
         return;
@@ -198,8 +198,8 @@ function pushAttributeLabels(
 function pushObjectLabels(
     lines: Array<string>,
     collapseRegions: CollapseRegions,
-    conceptToLayoutIndexesMapping: Map<number, number>,
-    objectLabels: Array<ConceptLabel>,
+    conceptToLayoutIndexesMapping: ReadonlyMap<number, number>,
+    objectLabels: ReadonlyArray<ConceptLabel>,
 ) {
     if (objectLabels.length === 0) {
         return;

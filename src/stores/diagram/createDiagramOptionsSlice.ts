@@ -33,7 +33,7 @@ type DiagramOptionsSliceState = {
     antialiasEnabled: boolean,
     flatLinksEnabled: boolean,
     /** Concept indexes of the currently highlighted sublattice. */
-    sublatticeConceptIndexes: Set<number> | null,
+    sublatticeConceptIndexes: ReadonlySet<number> | null,
 } & DiagramLayoutState
 
 type DiagramOptionsSliceActions = {

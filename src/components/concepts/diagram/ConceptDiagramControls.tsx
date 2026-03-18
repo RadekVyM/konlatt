@@ -14,7 +14,7 @@ import { isInfimum, isSupremum } from "../../../types/FormalConcepts";
 */
 export default function ConceptDiagramControls(props: {
     selectedConceptIndex: number,
-    sublatticeConceptIndexes: Set<number> | null,
+    sublatticeConceptIndexes: ReadonlySet<number> | null,
 }) {
     const concepts = useDataStructuresStore((state) => state.concepts);
     const context = useDataStructuresStore((state) => state.context);
@@ -81,7 +81,7 @@ function FocusButton(props: {
 
 function Controls(props: {
     selectedConceptIndex: number,
-    sublatticeConceptIndexes: Set<number> | null,
+    sublatticeConceptIndexes: ReadonlySet<number> | null,
 }) {
     const lattice = useDataStructuresStore((state) => state.lattice);
     const upperConeOnlyConceptIndex = useDiagramStore((state) => state.upperConeOnlyConceptIndex);

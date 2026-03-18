@@ -149,8 +149,8 @@ export default function NodesMultiselectionBox() {
 function getSelectedConceptIndexes(
     dragSelectionRect: Rect,
     layout: ConceptLatticeLayout,
-    diagramOffsets: Array<Point>,
-    layoutToConceptIndexesMapping: Map<number, number>,
+    diagramOffsets: ReadonlyArray<Point>,
+    layoutToConceptIndexesMapping: ReadonlyMap<number, number>,
     cameraType: CameraType,
     horizontalScale: number,
     verticalScale: number,

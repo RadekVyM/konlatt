@@ -62,8 +62,8 @@ export function createDefaultDiagramOffsets(length: number) {
 export function calculateLayoutBox(
     conceptIndexes: Iterable<number>,
     layout: ConceptLatticeLayout,
-    diagramOffsets: Array<Point>,
-    conceptToLayoutIndexesMapping: Map<number, number>,
+    diagramOffsets: ReadonlyArray<Point>,
+    conceptToLayoutIndexesMapping: ReadonlyMap<number, number>,
     cameraType: CameraType,
     horizontalScale: number,
     verticalScale: number,

@@ -11,7 +11,7 @@ export type DropDownMenuItem<KeyT> = {
 
 export type DropDownMenuGroup<KeyT extends string> = {
     id: string,
-    items: Array<DropDownMenuItem<KeyT>>,
+    items: ReadonlyArray<DropDownMenuItem<KeyT>>,
     selectedKey: KeyT,
     onKeySelectionChange: (key: KeyT) => void,
 }
@@ -19,7 +19,7 @@ export type DropDownMenuGroup<KeyT extends string> = {
 type DropDownMenuContextType = {
     id: string,
     isOpen: boolean,
-    selectedItemLabels: Array<string>,
+    selectedItemLabels: ReadonlyArray<string>,
     togglePopover: () => void,
     onButtonKeyDown: (e: React.KeyboardEvent<HTMLButtonElement>) => void,
 }
@@ -36,7 +36,7 @@ export default function DropDownMenu<KeyT extends string>(props: {
     children?: React.ReactNode,
     justify?: "stretch" | "left" | "right",
     size?: "default" | "sm",
-    groups: Array<DropDownMenuGroup<KeyT>>,
+    groups: ReadonlyArray<DropDownMenuGroup<KeyT>>,
 }) {
     const divRef = useRef<HTMLDivElement>(null);
     const listRef = useRef<HTMLDivElement>(null);
@@ -161,7 +161,7 @@ export function useDropDownMenuContext() {
     return context as DropDownMenuContextType;
 }
 
-function getSelectedItemLabels<KeyT extends string>(groups: Array<DropDownMenuGroup<KeyT>>) {
+function getSelectedItemLabels<KeyT extends string>(groups: ReadonlyArray<DropDownMenuGroup<KeyT>>) {
     const labels = new Array<string>();
 
     for (const group of groups) {

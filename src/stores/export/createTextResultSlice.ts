@@ -1,8 +1,8 @@
 import { w } from "../../utils/stores";
 
 type TextResultSliceState = {
-    result: Array<string> | null,
-    collapseRegions: Map<number, number> | null,
+    result: ReadonlyArray<string> | null,
+    collapseRegions: ReadonlyMap<number, number> | null,
     charactersCount: number,
     disabledComputation: boolean,
 }

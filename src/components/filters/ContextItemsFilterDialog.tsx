@@ -17,7 +17,7 @@ export default function ContextItemsFilterDialog(props: {
     onApply: (selectedItems: ReadonlyArray<number>, strictSelectedItems: boolean) => void,
 }) {
     const [strictSelectedItems, setStrictSelectedItems] = useSetupState(props.strictSelectedItems, props.state.isOpen);
-    const [selectedItems, setSelectedItems] = useSetupState<Set<number>>(() => new Set(props.selectedItems), props.state.isOpen);
+    const [selectedItems, setSelectedItems] = useSetupState<ReadonlySet<number>>(() => new Set(props.selectedItems), props.state.isOpen);
 
     const filtersChanged = !areArraySetEqual(props.selectedItems, selectedItems) ||
         strictSelectedItems !== props.strictSelectedItems;

@@ -53,7 +53,7 @@ export default function ItemCardContent(props: {
 
 function List(props: {
     className?: string,
-    items: Array<ContextItem>,
+    items: ReadonlyArray<ContextItem>,
 }) {
     const observerTargetRef = useRef<HTMLDivElement>(null);
     const [displayedItemsCount] = useLazyListCount(props.items.length, 20, observerTargetRef);

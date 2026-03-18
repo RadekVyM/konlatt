@@ -428,9 +428,9 @@ function transformHemisphere(
     conceptIndex: number | null,
     layout: ConceptLatticeLayout,
     temp: Object3D,
-    diagramOffsets: Array<Point>,
+    diagramOffsets: ReadonlyArray<Point>,
     dragOffset: Point,
-    conceptsToMoveIndexes: Set<number>,
+    conceptsToMoveIndexes: ReadonlySet<number>,
     cameraType: CameraType,
     horizontalScale: number,
     verticalScale: number,
@@ -466,13 +466,13 @@ function transformHemisphere(
 
 function setNodesTransformMatricesHelper(
     instancedMesh: InstancedMesh,
-    layoutIndexes: Array<number>,
-    sublatticeConceptIndexes: Set<number> | null,
+    layoutIndexes: ReadonlyArray<number>,
+    sublatticeConceptIndexes: ReadonlySet<number> | null,
     lowerConeOnlyConceptIndex: number | null,
     upperConeOnlyConceptIndex: number | null,
     displayHighlightedSublatticeOnly: boolean,
     layout: ConceptLatticeLayout,
-    diagramOffsets: Array<Point>,
+    diagramOffsets: ReadonlyArray<Point>,
     dragOffset: Point,
     cameraType: CameraType,
     horizontalScale: number,
@@ -522,8 +522,8 @@ function setNodesTransformMatricesHelper(
 }
 
 function separateNodes(
-    layoutIndexes: Array<number>,
-    sublatticeConceptIndexes: Set<number> | null,
+    layoutIndexes: ReadonlyArray<number>,
+    sublatticeConceptIndexes: ReadonlySet<number> | null,
     lowerConeOnlyConceptIndex: number | null,
     upperConeOnlyConceptIndex: number | null,
     displayHighlightedSublatticeOnly: boolean,

@@ -11,7 +11,7 @@ import { ExportItem } from "./types/ExportItem";
 
 const TextPreviewer = createTextResultPreviewerComponent(useExportContextStore);
 
-const ITEMS: Array<ExportItem<ContextExportFormat>> = [
+const ITEMS: ReadonlyArray<ExportItem<ContextExportFormat>> = [
     {
         key: "burmeister",
         label: "Burmeister",

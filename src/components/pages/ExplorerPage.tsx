@@ -60,7 +60,7 @@ function Concepts(props: {
                 exportConceptsButton={ExportExplorerConceptsButton}
                 setSelectedConceptIndex={setSelectedConceptIndex}
                 updateSearchInput={updateSearchInput}
-                highlightedConceptIndex={selectedConceptIndex ?? undefined}
+                selectedConceptIndex={selectedConceptIndex ?? undefined}
                 filteredConcepts={filteredConcepts}
                 searchTerms={searchTerms}
                 storedSearchInput={debouncedSearchInput}

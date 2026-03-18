@@ -9,7 +9,7 @@ import { ExportItem } from "./types/ExportItem";
 
 const TextPreviewer = createTextResultPreviewerComponent(useExportAttributesStore);
 
-const ITEMS: Array<ExportItem<ContextItemExportFormat>> = [
+const ITEMS: ReadonlyArray<ExportItem<ContextItemExportFormat>> = [
     {
         key: "json",
         label: "JSON",

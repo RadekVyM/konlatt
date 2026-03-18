@@ -26,11 +26,11 @@ type Options = {
 }
 
 export function convertToSvg(
-    transformedLayout: Array<Point> | null,
-    links: Array<Link>,
-    conceptToLayoutIndexesMapping: Map<number, number>,
+    transformedLayout: ReadonlyArray<Point> | null,
+    links: ReadonlyArray<Link>,
+    conceptToLayoutIndexesMapping: ReadonlyMap<number, number>,
     canvasDimensions: CanvasDimensions | null,
-    labelGroups: Array<LabelGroup>,
+    labelGroups: ReadonlyArray<LabelGroup>,
     options: Options,
 ) {
     const lines = new Array<string>();
@@ -120,7 +120,7 @@ function pushStyles(lines: Array<string>, collapseRegions: CollapseRegions, opti
     collapseRegions.nextRegionStart += newLinesCount;
 }
 
-function pushCssRule(lines: Array<string>, selector: string, indentation: string, properties: Array<[string, any] | undefined>) {
+function pushCssRule(lines: Array<string>, selector: string, indentation: string, properties: ReadonlyArray<[string, any] | undefined>) {
     lines.push(`${indentation}${selector} {`);
 
     for (const prop of properties) {
@@ -146,9 +146,9 @@ function pushBackground(
 function pushLinks(
     lines: Array<string>,
     collapseRegions: CollapseRegions,
-    links: Array<Link>,
-    layout: Array<Point>,
-    conceptToLayoutIndexesMapping: Map<number, number>,
+    links: ReadonlyArray<Link>,
+    layout: ReadonlyArray<Point>,
+    conceptToLayoutIndexesMapping: ReadonlyMap<number, number>,
     canvasDimensions: CanvasDimensions,
 ) {
     if (links.length === 0) {
@@ -182,7 +182,7 @@ function pushLinks(
 function pushNodes(
     lines: Array<string>,
     collapseRegions: CollapseRegions,
-    layout: Array<Point>,
+    layout: ReadonlyArray<Point>,
     canvasDimensions: CanvasDimensions,
     options: Options,
 ) {
@@ -210,9 +210,9 @@ function pushLabels(
     lines: Array<string>,
     collapseRegions: CollapseRegions,
     indentation: string,
-    layout: Array<Point>,
+    layout: ReadonlyArray<Point>,
     canvasDimensions: CanvasDimensions,
-    labelGroups: Array<LabelGroup>,
+    labelGroups: ReadonlyArray<LabelGroup>,
     options: Options,
 ) {
     const startLinesCount = lines.length;

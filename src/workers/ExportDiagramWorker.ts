@@ -26,7 +26,7 @@ let backgroundColorHexa = "";
 let defaultNodeColorHexa = "";
 let defaultLinkColorHexa = "";
 
-let labelGroups: Array<LabelGroup> | null = null;
+let labelGroups: ReadonlyArray<LabelGroup> | null = null;
 let textSize = 10;
 let font: Font | null = null;
 let textBackgroundType: TextBackgroundType | null = null;

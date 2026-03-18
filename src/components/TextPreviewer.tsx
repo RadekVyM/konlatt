@@ -21,8 +21,8 @@ const BOTTOM_DISPLAYED_LINES_BUFFER_COUNT = 5;
  * Efficiently renders only the visible portion of large text arrays to maintain performance.
 */
 export default function TextPreviewer(props: {
-    lines: Array<string>,
-    collapseRegions: Map<number, number> | null,
+    lines: ReadonlyArray<string>,
+    collapseRegions: ReadonlyMap<number, number> | null,
     className?: string,
 }) {
     const lineHeight = 22.5;
@@ -93,12 +93,12 @@ function Line(props: {
 }
 
 function useLines(
-    lines: Array<string>,
-    collapseRegions: Map<number, number> | null,
+    lines: ReadonlyArray<string>,
+    collapseRegions: ReadonlyMap<number, number> | null,
     skippedLinesCount: number,
     visibleLinesCount: number,
 ) {
-    const [collapsedLines, setCollapsedLines] = useState<Set<number>>(new Set());
+    const [collapsedLines, setCollapsedLines] = useState<ReadonlySet<number>>(new Set());
 
     const sortedCollapsedLines = useMemo(() => {
         const sorted = [...collapsedLines.values()];

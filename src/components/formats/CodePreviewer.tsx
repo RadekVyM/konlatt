@@ -5,7 +5,7 @@ import "./CodePreviewer.css";
  */
 export default function CodePreviewer(props: {
     title: string,
-    content: Array<string>,
+    content: ReadonlyArray<string>,
 }) {
     return (
         <div

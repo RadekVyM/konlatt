@@ -19,7 +19,7 @@ export default function createExportConceptsButton(
     const Options = options;
     const TextPreviewer = createTextResultPreviewerComponent(useStore);
 
-    const ITEMS: Array<ExportItem<ConceptExportFormat>> = [
+    const ITEMS: ReadonlyArray<ExportItem<ConceptExportFormat>> = [
         {
             key: "json",
             label: "JSON",

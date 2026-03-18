@@ -20,7 +20,7 @@ import InputLabel from "./inputs/InputLabel";
 import { triggerInitialization } from "../services/triggers";
 
 const DEFAULT_FILE_FORMAT: ImportFormat = "burmeister";
-const FILE_TYPES: Array<{ key: ImportFormat, label: string, idealExtension: string }> = [
+const FILE_TYPES: ReadonlyArray<{ key: ImportFormat, label: string, idealExtension: string }> = [
     { key: "burmeister", label: "Burmeister (.cxt)", idealExtension: ".cxt" },
     { key: "json", label: "Konlatt JSON (.json)", idealExtension: ".json" },
     { key: "xml", label: "Konlatt XML (.xml)", idealExtension: ".xml" },

@@ -13,7 +13,7 @@ export function setNodesTransformMatrices(
     instancedMesh: InstancedMesh,
     layoutIndexes: Iterable<number>,
     layout: ConceptLatticeLayout,
-    diagramOffsets: Array<Point>,
+    diagramOffsets: ReadonlyArray<Point>,
     dragOffset: Point,
     cameraType: CameraType,
     horizontalScale: number,
@@ -61,7 +61,7 @@ export function setupNodeTransform(
     temp: Object3D,
     layout: ConceptLatticeLayout,
     layoutIndex: number,
-    diagramOffsets: Array<Point>,
+    diagramOffsets: ReadonlyArray<Point>,
     dragOffset: Point,
     scale: number,
     cameraType: CameraType,
@@ -97,7 +97,7 @@ export function setupTransform(
 /**
  * Safely retrieves a {@link Point} from an array by index, returning a zero-point if `undefined`.
 */
-export function getPoint(points: Array<Point>, index: number): Point {
+export function getPoint(points: ReadonlyArray<Point>, index: number): Point {
     return points[index] || [0, 0, 0];
 }
 

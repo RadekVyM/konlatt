@@ -4,5 +4,5 @@ export type ContextItem = {
 }
 
 export type ContextCompleteItem = {
-    items: Array<ContextItem>
+    items: ReadonlyArray<ContextItem>
 } & ContextItem

@@ -13,7 +13,11 @@ import { assignNodesToLayersByLongestPath } from "./layers";
  * @param concepts 
  * @returns Array of indexes of children of each concept
  */
-export async function conceptsToLattice(concepts: FormalConcepts, context: FormalContext, onProgress?: (progress: number) => void): Promise<{
+export async function conceptsToLattice(
+    concepts: FormalConcepts,
+    context: FormalContext,
+    onProgress?: (progress: number) => void,
+): Promise<{
     lattice: ConceptLattice,
     computationTime: number,
 }> {
@@ -62,7 +66,7 @@ export async function conceptsToLattice(concepts: FormalConcepts, context: Forma
     };
 }
 
-function reverseRelation(relation: Array<Set<number>>) {
+function reverseRelation(relation: Relation) {
     const reversedRelation = new Array<Set<number>>(relation.length);
 
     for (let i = 0; i < relation.length; i++) {
@@ -89,7 +93,7 @@ function reverseRelation(relation: Array<Set<number>>) {
 export function getObjectsLabeling(
     concepts: FormalConcepts,
     superconceptsRelation: Relation,
-    sublatticeConceptIndexes?: Set<number>,
+    sublatticeConceptIndexes?: ReadonlySet<number>,
 ): ConceptLatticeLabeling {
     const infimum = getInfimum(concepts);
 
@@ -99,15 +103,18 @@ export function getObjectsLabeling(
 export function getAttributesLabeling(
     concepts: FormalConcepts,
     subconceptsRelation: Relation,
-    sublatticeConceptIndexes?: Set<number>,
+    sublatticeConceptIndexes?: ReadonlySet<number>,
 ): ConceptLatticeLabeling {
     const supremum = getSupremum(concepts);
 
     return getLabeling(concepts, supremum, subconceptsRelation, (concept) => concept.attributes, sublatticeConceptIndexes);
 }
 
-
-export function calculateConeConceptIndexes(upperConeOnlyConceptIndex: number | null, lowerConeOnlyConceptIndex: number | null, lattice: ConceptLattice | null) {
+export function calculateConeConceptIndexes(
+    upperConeOnlyConceptIndex: number | null,
+    lowerConeOnlyConceptIndex: number | null,
+    lattice: ConceptLattice | null,
+) {
     if (upperConeOnlyConceptIndex === null && lowerConeOnlyConceptIndex === null) {
         return null;
     }
@@ -141,10 +148,14 @@ export function calculateConeConceptIndexes(upperConeOnlyConceptIndex: number | 
     return new Set(intersection);
 }
 
-export function calculateSublattice(sublatticeConceptIndexes: Set<number>, lattice: ConceptLattice, supremumIndex: number) {
+export function calculateSublattice(
+    sublatticeConceptIndexes: ReadonlySet<number>,
+    lattice: ConceptLattice,
+    supremumIndex: number,
+) {
     const indexMapping = new Map<number, number>();
     const reverseIndexMapping = new Map<number, number>();
-    const subconceptsRelation = new Array<Set<number>>();
+    const subconceptsRelation = new Array<ReadonlySet<number>>();
     const { layers } = assignNodesToLayersByLongestPath(supremumIndex, lattice.subconceptsRelation);
 
     let infimum = 0;
@@ -196,7 +207,12 @@ function collectIndexes(startIndex: number, relation: Relation) {
     return set;
 }
 
-function getMappedIndex(mapping: Map<number, number>, reverseIndexMapping: Map<number, number>, conceptIndex: number, nextUsableIndex: number) {
+function getMappedIndex(
+    mapping: Map<number, number>,
+    reverseIndexMapping: Map<number, number>,
+    conceptIndex: number,
+    nextUsableIndex: number,
+) {
     let index = mapping.get(conceptIndex);
 
     if (index === undefined) {
@@ -214,7 +230,7 @@ function getLabeling(
     startConcept: FormalConcept,
     coverRelation: Relation,
     conceptItems: (concept: FormalConcept) => ReadonlyArray<number>,
-    sublatticeConceptIndexes?: Set<number>,
+    sublatticeConceptIndexes?: ReadonlySet<number>,
 ): ConceptLatticeLabeling {
     const labeling = new Map<number, ReadonlyArray<number>>();
     const alreadyAppeared = new Set<number>();

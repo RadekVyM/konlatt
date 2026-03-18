@@ -30,6 +30,6 @@ export function fillWith<T>(array: Array<T>, value: T) {
  * @param addition - An optional constant to add to the length of each string (defaults to 0).
  * @returns The cumulative sum of lengths and additions.
  */
-export function sumLengths(stringArray: Array<string>, addition: number = 0) {
+export function sumLengths(stringArray: ReadonlyArray<string>, addition: number = 0) {
     return stringArray.reduce((prev, current) => prev + current.length + addition, 0);
 }

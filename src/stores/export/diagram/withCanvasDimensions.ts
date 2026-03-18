@@ -74,8 +74,8 @@ export default function withCanvasDimensions(
 }
 
 function getPeripheralLabelPaddings(
-    labelGroups: Array<LabelGroup>,
-    layout: Array<Point>,
+    labelGroups: ReadonlyArray<LabelGroup>,
+    layout: ReadonlyArray<Point>,
     rect: {
         left: number,
         right: number,

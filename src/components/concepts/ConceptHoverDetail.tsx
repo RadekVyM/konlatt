@@ -8,7 +8,7 @@ import Container from "../layouts/Container";
 
 type StoreType = UseBoundStore<Pick<StoreApi<{
     hoveredConceptIndex: number | null,
-    searchTerms: Array<string>,
+    searchTerms: ReadonlyArray<string>,
     selectedFilterObjects: ReadonlySet<number>,
     selectedFilterAttributes: ReadonlySet<number>,
 }>, 'getState' | 'getInitialState' | 'subscribe'>>

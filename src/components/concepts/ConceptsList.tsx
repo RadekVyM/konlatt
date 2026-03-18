@@ -31,9 +31,9 @@ const MAX_TEXT_LENGTH = 500;
 export default function ConceptsList(props: {
     className?: string,
     route: string,
-    sublatticeConceptIndexes?: Set<number> | null,
+    sublatticeConceptIndexes?: ReadonlySet<number> | null,
     filteredConcepts: FormalConcepts | null,
-    searchTerms: Array<string>,
+    searchTerms: ReadonlyArray<string>,
     storedSearchInput: string,
     sortType: ConceptSortType,
     sortDirection: SortDirection,
@@ -45,7 +45,8 @@ export default function ConceptsList(props: {
     maxObjectsCount: number | null,
     minAttributesCount: number | null,
     maxAttributesCount: number | null,
-    highlightedConceptIndex?: number,
+    selectedConceptIndex?: number,
+    sublatticeBoundConceptIndexes?: ReadonlySet<number>,
     exportConceptsButton: (props: ExportButtonProps) => React.ReactNode,
     onSortTypeChange: (key: ConceptSortType) => void,
     onSortDirectionChange: (key: SortDirection) => void,
@@ -120,10 +121,11 @@ export default function ConceptsList(props: {
                 className="flex-1"
                 filteredConcepts={groupedFilteredConcepts}
                 searchTerms={props.searchTerms}
-                highlightedConceptIndex={props.highlightedConceptIndex}
+                selectedConceptIndex={props.selectedConceptIndex}
                 selectedFilterObjects={props.selectedFilterObjects}
                 selectedFilterAttributes={props.selectedFilterAttributes}
                 sublatticeConceptIndexes={props.sublatticeConceptIndexes}
+                sublatticeBoundConceptIndexes={props.sublatticeBoundConceptIndexes}
                 setSelectedConceptIndex={props.setSelectedConceptIndex} />
         </CardSection>
     );
@@ -218,16 +220,19 @@ function Search(props: {
 function List(props: {
     className?: string,
     filteredConcepts: ReadonlyArray<FormalConcept>,
-    searchTerms: Array<string>,
+    searchTerms: ReadonlyArray<string>,
     selectedFilterObjects: ReadonlySet<number>,
     selectedFilterAttributes: ReadonlySet<number>,
-    sublatticeConceptIndexes?: Set<number> | null,
-    highlightedConceptIndex?: number,
+    sublatticeConceptIndexes?: ReadonlySet<number> | null,
+    selectedConceptIndex?: number,
+    sublatticeBoundConceptIndexes?: ReadonlySet<number>,
     setSelectedConceptIndex: (index: number | null) => void,
 }) {
     const observerTargetRef = useRef<HTMLDivElement>(null);
     const concepts = useDataStructuresStore((state) => state.concepts);
     const context = useDataStructuresStore((state) => state.context);
+    const infimumIndex = useDataStructuresStore((state) => state.infimumIndex);
+    const supremumIndex = useDataStructuresStore((state) => state.supremumIndex);
     const [displayedItemsCount] = useLazyListCount(props.filteredConcepts.length, 20, observerTargetRef);
     const displayedItems = props.filteredConcepts.slice(0, displayedItemsCount);
     const searchRegex = searchTermsToRegex(props.searchTerms);
@@ -249,7 +254,7 @@ function List(props: {
                     className={cn(
                         "px-1 py-0.5 concept-list-item",
                         index < props.filteredConcepts.length - 1 && "border-b border-outline-variant")}>
-                    {props.highlightedConceptIndex === item.index ?
+                    {props.selectedConceptIndex === item.index ?
                         <div
                             className="w-full py-1.5 px-2.5 border border-transparent rounded-md bg-secondary">
                             <ListItemContent
@@ -257,6 +262,7 @@ function List(props: {
                                 item={item}
                                 context={context}
                                 searchRegex={searchRegex}
+                                tags={getTags(item.index, infimumIndex, supremumIndex, props.sublatticeBoundConceptIndexes)}
                                 selectedFilterObjects={props.selectedFilterObjects}
                                 selectedFilterAttributes={props.selectedFilterAttributes} />
                         </div> :
@@ -268,6 +274,7 @@ function List(props: {
                                 item={item}
                                 context={context}
                                 searchRegex={searchRegex}
+                                tags={getTags(item.index, infimumIndex, supremumIndex, props.sublatticeBoundConceptIndexes)}
                                 selectedFilterObjects={props.selectedFilterObjects}
                                 selectedFilterAttributes={props.selectedFilterAttributes} />
                         </Button>}
@@ -281,12 +288,23 @@ function ListItemContent(props: {
     item: FormalConcept,
     context: FormalContext,
     searchRegex: RegExp | undefined,
+    tags?: ReadonlyArray<string>,
     selectedFilterObjects: ReadonlySet<number>,
     selectedFilterAttributes: ReadonlySet<number>,
 }) {
     return (
         <div
             className={props.className}>
+            {props.tags && props.tags.length > 0 &&
+                <div
+                    className="-mx-1 mb-1 flex flex-wrap gap-1">
+                    {props.tags.map((tag, index) =>
+                        <div
+                            key={index}
+                            className="text-xs text-primary-dim bg-primary-lite w-fit px-1 pt-px rounded-sm">
+                            {tag}
+                        </div>)}
+                </div>}
             <div className="mb-0.5 text-sm line-clamp-3">
                 <ConceptItemsList
                     noItemsText="No objects"
@@ -311,7 +329,7 @@ function ListItemContent(props: {
 
 function useGroupedAndSorted(
     concepts: ReadonlyArray<FormalConcept>,
-    sublatticeConceptIndexes: Set<number> | null | undefined,
+    sublatticeConceptIndexes: ReadonlySet<number> | null | undefined,
     sortType: ConceptSortType,
     sortDirection: SortDirection,
 ) {
@@ -337,7 +355,7 @@ function useGroupedAndSorted(
 
 function useGroupedByVisibility(
     concepts: ReadonlyArray<FormalConcept>,
-    sublatticeConceptIndexes: Set<number> | null | undefined,
+    sublatticeConceptIndexes: ReadonlySet<number> | null | undefined,
 ) {
     if (!sublatticeConceptIndexes) {
         return {
@@ -362,4 +380,25 @@ function useGroupedByVisibility(
         start,
         end,
     };
+}
+
+function getTags(
+    conceptIndex: number,
+    infimumIndex: number | null,
+    supremumIndex: number | null,
+    sublatticeBoundConceptIndexes?: ReadonlySet<number>,
+) {
+    const tags = new Array<string>();
+
+    if (infimumIndex === conceptIndex) {
+        tags.push("Most specific");
+    }
+    if (supremumIndex === conceptIndex) {
+        tags.push("Most general");
+    }
+    if (sublatticeBoundConceptIndexes?.has(conceptIndex)) {
+        tags.push("Sublattice bound");
+    }
+
+    return tags;
 }

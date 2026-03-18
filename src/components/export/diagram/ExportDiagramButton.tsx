@@ -23,7 +23,7 @@ const SvgDownloadButtons = createDownloadButtonsComponent(useExportDiagramStore,
 
 const TikzDownloadButtons = createDownloadButtonsComponent(useExportDiagramStore, "exported-diagram.tex", "\n", true);
 
-const ITEMS: Array<ExportItem<DiagramExportFormat>> = [
+const ITEMS: ReadonlyArray<ExportItem<DiagramExportFormat>> = [
     {
         key: "png",
         label: "PNG",

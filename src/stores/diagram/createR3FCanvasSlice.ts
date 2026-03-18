@@ -18,7 +18,7 @@ type R3FCanvasSliceState = {
     isDraggingNodesInXZPlane: boolean | null,
     isDraggingNodesInYZPlane: boolean | null,
     dragOffset: Point,
-    conceptsToMoveIndexes: Set<number>,
+    conceptsToMoveIndexes: ReadonlySet<number>,
     conceptsToMoveBox: Box | null,
     snapCoords: Point | null,
     hoveredConceptIndex: number | null,
@@ -29,7 +29,7 @@ type R3FCanvasSliceActions = {
     setIsDraggingNodes: (isDraggingNodes: boolean) => void,
     setIsCameraMoving: (isCameraMoving: boolean) => void,
     setDragOffset: (dragOffset: Point) => void,
-    setConceptsToMoveIndexes: React.Dispatch<React.SetStateAction<Set<number>>>,
+    setConceptsToMoveIndexes: React.Dispatch<React.SetStateAction<ReadonlySet<number>>>,
     setHoveredConceptIndex: (hoveredConceptIndex: number | null) => void,
     setCurrentZoomLevel: (currentZoomLevel: number) => void,
 }

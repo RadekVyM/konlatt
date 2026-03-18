@@ -111,7 +111,7 @@ function readConceptObjectsAttributes(concept: any, objectsCount: number, attrib
 
 function tryReadLattice(
     concepts: FormalConcepts,
-    xmlLattice: Array<any>,
+    xmlLattice: ReadonlyArray<any>,
 ): ConceptLattice {
     const subconceptsRelation = new Array<Set<number>>(concepts.length);
     const superconceptsRelation = new Array<Set<number>>(concepts.length);

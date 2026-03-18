@@ -21,8 +21,8 @@ import toast from "../../../components/toast";
 import withTooLarge from "./withTooLarge";
 
 type ExportDiagramStoreState = {
-    transformedLayout: Array<Point> | null,
-    links: Array<Link> | null,
+    transformedLayout: ReadonlyArray<Point> | null,
+    links: ReadonlyArray<Link> | null,
     canvasDimensions: CanvasDimensions | null,
     maxWidth: number,
     maxHeight: number,

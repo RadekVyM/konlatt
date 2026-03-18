@@ -8,7 +8,7 @@ import { transformedPoint } from "./layout";
  */
 export function transformedLayoutForExport(
     layout: ConceptLatticeLayout | null,
-    diagramOffsets: Array<Point> | null,
+    diagramOffsets: ReadonlyArray<Point> | null,
     horizontalScale: number,
     verticalScale: number,
     rotationDegrees: number,

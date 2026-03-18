@@ -77,7 +77,7 @@ export default function createDownloadButtonsComponent(
     return component;
 }
 
-function createFinalString(lines: Array<string>, joinCharacter: "" | "\n", includeFormatting: boolean) {
+function createFinalString(lines: ReadonlyArray<string>, joinCharacter: "" | "\n", includeFormatting: boolean) {
     return includeFormatting ?
         lines.join("\n") :
         lines.map((line) => line.trimStart()).join(joinCharacter);

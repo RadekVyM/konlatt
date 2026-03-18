@@ -52,7 +52,7 @@ export type LayoutComputationResponse = {
 export type WorkerDataRequestResponse = {
     type: "data-request",
     request: CompleteMainWorkerRequest,
-    requestedObjects: Array<WorkerDataRequestObject>,
+    requestedObjects: ReadonlyArray<WorkerDataRequestObject>,
 } & BaseResponse
 
 export type WorkerDataRequestObject = "context" | "concepts" | "lattice"

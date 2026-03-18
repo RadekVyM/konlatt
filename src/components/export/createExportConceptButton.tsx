@@ -23,7 +23,7 @@ export default function createExportConceptButton(
 ): ExportConceptButtonType {
     const TextPreviewer = createTextResultPreviewerComponent(useStore);
 
-    const ITEMS: Array<ExportItem<ConceptExportFormat>> = [
+    const ITEMS: ReadonlyArray<ExportItem<ConceptExportFormat>> = [
         {
             key: "json",
             label: "JSON",

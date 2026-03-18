@@ -5,7 +5,7 @@ import { Point } from "../Point";
 export type ConceptLatticeLayoutCacheItem = {
     stateId: string,
     layout: ConceptLatticeLayout,
-    diagramOffsets: Array<Point>,
+    diagramOffsets: ReadonlyArray<Point>,
     diagramOffsetMementos: DiagramOffsetMementos,
     createdAt: Date,
 }

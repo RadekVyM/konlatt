@@ -1,11 +1,11 @@
 import { Point } from "../Point";
 
 export type NodeOffsetMemento = {
-    nodes: Array<number>,
+    nodes: ReadonlyArray<number>,
     offset: Point,
 }
 
-export function createNodeOffsetMemento(nodes: Array<number>, offset: Point): NodeOffsetMemento {
+export function createNodeOffsetMemento(nodes: ReadonlyArray<number>, offset: Point): NodeOffsetMemento {
     return {
         nodes,
         offset,

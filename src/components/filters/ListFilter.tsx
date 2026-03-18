@@ -18,13 +18,13 @@ type ItemType = {
  * Searchable, lazy-loaded list component with multi-select capabilities.
  */
 export default function ListFilter<T extends ItemType>(props: {
-    items: Array<T>,
-    selectedItems: Set<number>,
+    items: ReadonlyArray<T>,
+    selectedItems: ReadonlySet<number>,
     searchPlaceholder: string,
     className?: string,
     header?: React.ReactNode,
     searchInputTrail?: React.ReactNode,
-    setSelectedItems: React.Dispatch<React.SetStateAction<Set<number>>>,
+    setSelectedItems: React.Dispatch<React.SetStateAction<ReadonlySet<number>>>,
 }) {
     const observerTargetRef = useRef<HTMLDivElement>(null);
     const [searchInput, setSearchInput] = useState("");

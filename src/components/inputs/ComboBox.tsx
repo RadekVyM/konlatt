@@ -8,7 +8,7 @@ export default function ComboBox<TKey extends string>(props: {
     id: string,
     className?: string,
     disabled?: boolean,
-    items: Array<DropDownMenuItem<TKey>>,
+    items: ReadonlyArray<DropDownMenuItem<TKey>>,
     selectedKey: TKey,
     onKeySelectionChange: (key: TKey) => void,
 }) {

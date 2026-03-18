@@ -21,11 +21,11 @@ type LabelsSliceState = {
     textBackgroundColor: HsvaColor,
     textOutlineColor: HsvaColor,
     textBackgroundType: TextBackgroundType,
-    attributeLabels: Array<ConceptLabel>,
-    objectLabels: Array<ConceptLabel>,
-    measuredLabelGroups: Array<LabelGroup>,
+    attributeLabels: ReadonlyArray<ConceptLabel>,
+    objectLabels: ReadonlyArray<ConceptLabel>,
+    measuredLabelGroups: ReadonlyArray<LabelGroup>,
     measuredBottomLabelPadding: number,
-    positionedLabelGroups: Array<LabelGroup>,
+    positionedLabelGroups: ReadonlyArray<LabelGroup>,
 }
 
 type LabelsSliceActions = {

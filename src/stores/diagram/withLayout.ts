@@ -56,7 +56,7 @@ export default function withLayout(
 }
 
 function tryGetLayoutFromCache(
-    layoutCache: Map<string, ConceptLatticeLayoutCacheItem>,
+    layoutCache: ReadonlyMap<string, ConceptLatticeLayoutCacheItem>,
     stateId: string,
 ): ConceptLatticeLayoutCacheItem | null {
     return layoutCache.get(stateId) || null;

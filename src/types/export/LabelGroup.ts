@@ -2,7 +2,7 @@ import { Rect } from "../Rect";
 
 export type LabelGroup = {
     layoutIndex: number,
-    labels: Array<LabelGroupLine>,
+    labels: ReadonlyArray<LabelGroupLine>,
     placement: "top" | "bottom",
     relativeRect: Rect,
 }

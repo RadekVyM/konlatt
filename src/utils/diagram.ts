@@ -32,7 +32,7 @@ export function setupLinkTransform(temp: Object3D, from: Point, to: Point, initi
 export function getNodeColor(
     conceptIndex: number | null | undefined,
     selectedConceptIndex: number | null,
-    filteredConceptIndexes: Set<number> | null,
+    filteredConceptIndexes: ReadonlySet<number> | null,
     currentTheme: CurrentTheme,
     forceDimColor?: boolean,
 ) {
@@ -58,7 +58,7 @@ export function getNodeColor(
 }
 
 export function getDiagramLinks(
-    concepts: Array<{ conceptIndex: number }> | null,
+    concepts: ReadonlyArray<{ conceptIndex: number }> | null,
     subconceptsRelation: Relation | null,
     sublatticeConceptIndexes: ReadonlySet<number> | null,
     filteredConceptIndexes: ReadonlySet<number> | null,
@@ -136,12 +136,12 @@ export function createLabelsWithPositions(
     itemLabels: ReadonlyArray<string> | undefined,
     latticeLabeling: ConceptLatticeLabeling | null,
     layout: ConceptLatticeLayout | null,
-    conceptToLayoutIndexesMapping: Map<number, number>,
+    conceptToLayoutIndexesMapping: ReadonlyMap<number, number>,
     cameraType: CameraType,
     horizontalScale: number,
     verticalScale: number,
     rotationDegrees: number,
-    diagramOffsets: Array<Point> | null,
+    diagramOffsets: ReadonlyArray<Point> | null,
     placement: "top" | "bottom",
     options?: LabelOptions,
 ) {
@@ -181,10 +181,14 @@ export function createLabelsWithPositions(
     return newLabels;
 }
 
-export function sortedLabelsByPosition(labels: Array<ConceptLabel>, layout: Array<Point>, conceptToLayoutIndexesMapping: Map<number, number>) {
-    labels = [...labels];
+export function sortedLabelsByPosition(
+    labels: ReadonlyArray<ConceptLabel>,
+    layout: ReadonlyArray<Point>,
+    conceptToLayoutIndexesMapping: ReadonlyMap<number, number>,
+) {
+    const newLabels = [...labels];
 
-    labels.sort((a, b) => {
+    newLabels.sort((a, b) => {
         const aLayoutIndex = conceptToLayoutIndexesMapping.get(a.conceptIndex);
         const bLayoutIndex = conceptToLayoutIndexesMapping.get(b.conceptIndex);
 
@@ -205,7 +209,7 @@ export function sortedLabelsByPosition(labels: Array<ConceptLabel>, layout: Arra
         return diff;
     });
 
-    return labels;
+    return newLabels;
 }
 
 function createLabelText(labelIndexes: ReadonlyArray<number>, labels: ReadonlyArray<string>, options?: LabelOptions) {

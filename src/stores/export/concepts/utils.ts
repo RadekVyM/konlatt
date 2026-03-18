@@ -16,7 +16,7 @@ const TOO_LARGE_THRESHOLD = 15_000_000;
 export function withConceptsExportTooLarge(
     newState: Partial<ExportConceptsStore>,
     oldState: ExportConceptsStore,
-    sublatticeConceptIndexes: Array<number>,
+    sublatticeConceptIndexes: ReadonlyArray<number>,
 ): Partial<ExportConceptsStore> {
     const selectedFormat = withFallback(newState.selectedFormat, oldState.selectedFormat);
     const includeLattice = withFallback(newState.includeLattice, oldState.includeLattice);
@@ -49,7 +49,7 @@ export function withConceptsExportTooLarge(
 export function withConceptsExportResult(
     newState: Partial<ExportConceptsStore>,
     oldState: ExportConceptsStore,
-    sublatticeConceptIndexes: Array<number>,
+    sublatticeConceptIndexes: ReadonlyArray<number>,
 ): Partial<ExportConceptsStore> {
     const selectedFormat = newState.selectedFormat !== undefined ? newState.selectedFormat : oldState.selectedFormat;
     const disabledComputation = newState.disabledComputation !== undefined ? newState.disabledComputation : oldState.disabledComputation;
@@ -169,7 +169,7 @@ function remappedRelation(
     coverRelation: Relation,
     conceptIndexesMapping: Map<number, number>,
 ) {
-    const newCoverRelation = new Array<Set<number>>(newConcepts.length);
+    const newCoverRelation = new Array<ReadonlySet<number>>(newConcepts.length);
 
     for (let i = 0; i < sublatticeConceptIndexes.length; i++) {
         const conceptIndex = sublatticeConceptIndexes[i];

@@ -15,7 +15,7 @@ export type TestValue = {
     readonly attributesCount: number,
     readonly conceptsCount: number,
     readonly coverRelationSize: number,
-    readonly byLongestPathLayersCounts: Array<number>,
+    readonly byLongestPathLayersCounts: ReadonlyArray<number>,
 }
 
 export const DIGITS: TestValue = {

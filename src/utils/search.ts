@@ -1,7 +1,7 @@
 /**
  * Checks if a string contains all specified search terms (case-insensitive).
  */
-export function searchStringFilter(item: string, searchTerms: Array<string>): boolean {
+export function searchStringFilter(item: string, searchTerms: ReadonlyArray<string>): boolean {
     return searchTerms
         .map((term) => term.toLowerCase())
         .every((term) => item.toLowerCase().includes(term));
@@ -10,7 +10,7 @@ export function searchStringFilter(item: string, searchTerms: Array<string>): bo
 /**
  * Converts an array of strings into a case-insensitive Regex with indices.
  */
-export function searchTermsToRegex(searchTerms: Array<string>) {
+export function searchTermsToRegex(searchTerms: ReadonlyArray<string>) {
     return searchTerms.length > 0 ?
         new RegExp(`(${searchTerms.map((t) => escapeRegex(t)).join("|")})`, "dig") :
         undefined;

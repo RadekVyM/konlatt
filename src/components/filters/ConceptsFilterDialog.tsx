@@ -66,8 +66,8 @@ export default function ConceptsFilterDialog(props: {
     const [maxAttributesCount, setMaxAttributesCount] = useSetupState(props.maxAttributesCount, props.state.isOpen);
     const [strictSelectedObjects, setStrictSelectedObjects] = useSetupState(props.strictSelectedObjects, props.state.isOpen);
     const [strictSelectedAttributes, setStrictSelectedAttributes] = useSetupState(props.strictSelectedAttributes, props.state.isOpen);
-    const [selectedObjects, setSelectedObjects] = useSetupState<Set<number>>(() => new Set(props.selectedObjects), props.state.isOpen);
-    const [selectedAttributes, setSelectedAttributes] = useSetupState<Set<number>>(() => new Set(props.selectedAttributes), props.state.isOpen);
+    const [selectedObjects, setSelectedObjects] = useSetupState<ReadonlySet<number>>(() => new Set(props.selectedObjects), props.state.isOpen);
+    const [selectedAttributes, setSelectedAttributes] = useSetupState<ReadonlySet<number>>(() => new Set(props.selectedAttributes), props.state.isOpen);
     const selectableObjects = context ? getSelectableItems(context, getAttributeObjects, selectedAttributes) : null;
     const selectableAttributes = context ? getSelectableItems(context, getObjectAttributes, selectedObjects) : null;
 
@@ -177,7 +177,7 @@ export default function ConceptsFilterDialog(props: {
 
 function getSelectableItems(
     context: FormalContext,
-    contextItems: (context: FormalContext, attribute: number) => Array<number>,
+    contextItems: (context: FormalContext, attribute: number) => ReadonlyArray<number>,
     filterItems: ReadonlySet<number>,
 ) {
     const selectedItems = new Set<number>();

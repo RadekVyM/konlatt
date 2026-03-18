@@ -1,5 +1,5 @@
 export type RawFormalConcept = {
-    readonly objects: Array<number>,
-    readonly attributes: Array<number>,
+    readonly objects: ReadonlyArray<number>,
+    readonly attributes: ReadonlyArray<number>,
     readonly attribute: number,
 }

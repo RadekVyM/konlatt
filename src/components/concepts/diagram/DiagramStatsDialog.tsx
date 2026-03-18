@@ -4,6 +4,9 @@ import { DialogState } from "../../../types/DialogState";
 import { cn } from "../../../utils/tailwind";
 import ContentDialog from "../../ContentDialog";
 
+/**
+ * Dialog component that shows basic statistics about the diagram.
+*/
 export default function DiagramStatsDialog(props: {
     state: DialogState,
 }) {
@@ -59,7 +62,7 @@ function Content() {
         }
     }
 
-    const stats: Array<{ title: string, value?: number | boolean, }> = [
+    const stats: ReadonlyArray<{ title: string, value?: number | boolean, }> = [
         { title: "Concepts", value: concepts?.length },
         { title: "Sublattice concepts", value: sublatticeConceptIndexes !== null && sublatticeConceptIndexes.size },
         { title: "Filtered concepts", value: filteredConceptIndexes !== null && filteredConceptIndexes.size },
@@ -83,7 +86,7 @@ function Content() {
                         index !== stats.length - 1 && "border-b border-outline-variant")}>
                     <dt>{stat.title}</dt>
                     <dd
-                        className={cn(typeof stat.value !== "number" && "text-on-surface-container-muted")}>
+                        className={cn(typeof stat.value !== "number" && "text-on-surface-container-muted text-sm")}>
                         {typeof stat.value === "number" ? stat.value : "N/A"}
                     </dd>
                 </div>)}

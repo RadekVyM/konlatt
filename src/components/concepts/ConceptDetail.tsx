@@ -6,7 +6,6 @@ import useLazyListCount from "../../hooks/useLazyListCount";
 import { cn } from "../../utils/tailwind";
 import NothingFound from "../NothingFound";
 import SearchInput from "../inputs/SearchInput";
-import { isInfimum, isSupremum } from "../../types/FormalConcepts";
 import { searchStringFilter, searchTermsToRegex } from "../../utils/search";
 import HighlightedSearchTerms from "../HighlightedSearchTerms";
 import { LuShapes, LuTag, LuTags } from "react-icons/lu";
@@ -34,12 +33,13 @@ export default function ConceptDetail(props: {
     const ExportConceptButton = props.exportConceptButton;
     const [currentTab, setCurrentTab] = useState<TabItem>("objects");
     const concepts = useDataStructuresStore((state) => state.concepts);
-    const context = useDataStructuresStore((state) => state.context);
+    const infimumIndex = useDataStructuresStore((state) => state.infimumIndex);
+    const supremumIndex = useDataStructuresStore((state) => state.supremumIndex);
     const selectedConcept = props.selectedConceptIndex !== null && concepts !== null && props.selectedConceptIndex < concepts.length ?
         concepts[props.selectedConceptIndex] :
         null;
-    const isThisInfimum = selectedConcept && context && isInfimum(selectedConcept, context);
-    const isThisSupremum = selectedConcept && context && isSupremum(selectedConcept, context);
+    const isThisInfimum = selectedConcept?.index === infimumIndex;
+    const isThisSupremum = selectedConcept?.index === supremumIndex;
 
     return (
         <CardSection
@@ -75,9 +75,9 @@ export default function ConceptDetail(props: {
                 {(isThisInfimum || isThisSupremum) &&
                     <small
                         className="mx-4 block text-sm text-on-surface-container-muted">
-                        {isThisInfimum && "most specific"}
+                        {isThisInfimum && "Most specific"}
                         {isThisInfimum && isThisSupremum && " | "}
-                        {isThisSupremum && "most general"}
+                        {isThisSupremum && "Most general"}
                     </small>}
             </header>
             

@@ -28,12 +28,12 @@ export default function ItemsCardContent<TItem extends ContextItem>(props: {
     searchInputPlaceholder: string,
     filterTitle: string,
     sortTitle: string,
-    items: Array<TItem>,
-    filteredItemIndexes: Set<number> | null,
+    items: ReadonlyArray<TItem>,
+    filteredItemIndexes: ReadonlySet<number> | null,
     disabled?: boolean,
     exportButton?: React.ReactNode,
     className?: string,
-    searchTerms: Array<string>,
+    searchTerms: ReadonlyArray<string>,
     storedSearchInput: string,
     sortType: ItemSortType,
     sortDirection: SortDirection,
@@ -164,8 +164,8 @@ function Search(props: {
 
 function List(props: {
     className?: string,
-    searchTerms: Array<string>,
-    items: Array<any>,
+    searchTerms: ReadonlyArray<string>,
+    items: ReadonlyArray<any>,
     itemKey: (item: any) => string | number,
     itemContent: (item: any, searchRegex?: RegExp) => React.ReactNode,
     setSelectedItem: (item: any) => void,
@@ -204,7 +204,7 @@ function List(props: {
 
 function useFilteredItems<T extends ContextItem>(
     items: ReadonlyArray<T>,
-    filteredItemIndexes: Set<number> | null,
+    filteredItemIndexes: ReadonlySet<number> | null,
     sortType: ItemSortType,
     sortDirection: SortDirection,
 ) {

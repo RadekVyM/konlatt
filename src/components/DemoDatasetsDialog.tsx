@@ -15,10 +15,10 @@ import { triggerInitialization } from "../services/triggers";
 type Dataset = {
     name: string,
     url: string,
-    attributes: Array<string>,
+    attributes: ReadonlyArray<string>,
 }
 
-const DATASETS: Array<Dataset> = [
+const DATASETS: ReadonlyArray<Dataset> = [
     {
         name: "Digits",
         url: DIGITS_URL,

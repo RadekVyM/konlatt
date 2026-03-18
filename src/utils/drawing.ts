@@ -17,7 +17,7 @@ import { TextBackgroundType } from "../types/export/TextBackgroundType";
  */
 export function drawLabels(
     context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
-    labelGroups: Array<LabelGroup>,
+    labelGroups: ReadonlyArray<LabelGroup>,
     font: Font,
     textBackgroundType: TextBackgroundType,
     textSize: number,

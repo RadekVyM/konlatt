@@ -349,7 +349,7 @@ function createCompleteLayoutComputationRequest(
 function convertToConceptLatticeLayout(
     layout: Float32Array,
     conceptsCount: number,
-    reverseIndexMapping: Map<number, number> | null,
+    reverseIndexMapping: ReadonlyMap<number, number> | null,
 ): ConceptLatticeLayout {
     const validLayout = new Array<ConceptPoint>();
 
@@ -366,7 +366,7 @@ function convertToConceptLatticeLayout(
     return validLayout;
 }
 
-function tryRequestDataFromMainThread(request: CompleteMainWorkerRequest, requestedObjects: Array<WorkerDataRequestObject>) {
+function tryRequestDataFromMainThread(request: CompleteMainWorkerRequest, requestedObjects: ReadonlyArray<WorkerDataRequestObject>) {
     // This is needed mainly because of Safari... 🤦‍♂️
     // Safari is too efficient (or grasping) and clears data from web workers
     // when it thinks that the workers do not deserve to have the data.
