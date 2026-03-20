@@ -10,6 +10,9 @@
 #include <sstream>
 #include <chrono>
 
+// This project is quite small so using a unity build is just fine
+// Consider other solutions if it grows in size in the future
+
 #include "utils.cpp"
 #include "inClose.cpp"
 #include "conceptsCover.cpp"

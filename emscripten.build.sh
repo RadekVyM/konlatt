@@ -57,6 +57,18 @@ export LDFLAGS="${OPTIMIZE}"
 export CFLAGS="${OPTIMIZE}"
 export CXXFLAGS="${OPTIMIZE}"
 
+ASSERTIONS_VAL=1
+
+echo "============================================="
+
+if [ "$PROD" = "1" ]; then
+    echo "PRODUCTION BUILD"
+    ASSERTIONS_VAL=0
+else
+    echo "DEVELOPMENT BUILD"
+    ASSERTIONS_VAL=1
+fi
+
 echo "============================================="
 echo "Compiling wasm bindings"
 echo "============================================="
@@ -72,12 +84,10 @@ echo "============================================="
     -s MALLOC=emmalloc \
     -s MODULARIZE=1 \
     -s EXPORT_ES6=1 \
-    -s ASSERTIONS=1 \
+    -s ASSERTIONS=${ASSERTIONS_VAL} \
     -s EXPORTED_RUNTIME_METHODS=['HEAPF32','HEAPU8'] \
     -fwasm-exceptions \
     --emit-tsd ./index.d.ts
-
-    # TODO: -s ASSERTIONS=1 should probably be deleted in the release version
 
     # Move artifacts
     mv index.{js,wasm} src/cpp/

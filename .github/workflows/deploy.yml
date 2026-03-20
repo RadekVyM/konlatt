@@ -29,6 +29,8 @@ jobs:
         uses: actions/setup-node@v4
 
       - name: Run WASM Setup Script
+        env:
+          PROD: 1
         run: |
           chmod +x ./emscripten.build.sh
           ./emscripten.build.sh
