@@ -5,6 +5,9 @@ import { getAttributesLabeling, getObjectsLabeling } from "../../lattice";
 import { INVALID_FILE_MESSAGE } from "../constants";
 import { createEmptyContext, formalContextSetAttribute, readObjectsAttributesFromXml } from "../utils";
 
+/**
+ * Parses a structured XML-to-JS object into a `FormalContext` and `FormalConcepts`, and optionally `ConceptLattice`.
+ */
 export default function parseXmlConcepts(xmlContent: {
     context: {
         objects: any,

@@ -25,6 +25,10 @@ type Options = {
     textOutlineColor: HsvaColor,
 }
 
+/**
+ * Converts a latttice layout and its associated labels/links into an SVG string representation divided into a lines array.
+ * Handles indentation and region tracking for UI collapsing.
+ */
 export function convertToSvg(
     transformedLayout: ReadonlyArray<Point> | null,
     links: ReadonlyArray<Link>,

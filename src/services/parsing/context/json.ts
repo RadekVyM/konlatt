@@ -2,6 +2,11 @@ import { FORMAL_CONTEXT_CELL_SIZE, FormalContext } from "../../../types/FormalCo
 import { INVALID_FILE_MESSAGE } from "../constants";
 import { createEmptyContext, formalContextSetAttribute, readObjectsAttributesFromJson } from "../utils";
 
+/**
+ * Parses a JSON object into a `FormalContext`.
+ * Validates the input JSON for objects, attributes, and their relation,
+ * ensuring all indexes are within bounds and formatting is correct.
+ */
 export default function parseJsonContext(jsonContent: {
     objects: any,
     attributes: any,

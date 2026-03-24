@@ -6,6 +6,10 @@ import { INDENTATION } from "../constants";
 import { escapedStringTransformer, pushArray, pushConcepts, pushRelation } from "../json";
 import { generateLatticeRelation } from "../utils";
 
+/**
+ * Converts formal concepts and optionally a lattice relation into a JSON string representation divided into a lines array.
+ * Handles indentation and region tracking for UI collapsing.
+ */
 export function convertToJson(
     objects: ReadonlyArray<string>,
     attributes: ReadonlyArray<string>,

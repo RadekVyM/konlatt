@@ -9,9 +9,12 @@ import { breadthFirstSearch } from "../utils/graphs";
 import { assignNodesToLayersByLongestPath } from "./layers";
 
 /**
- * 
- * @param concepts 
- * @returns Array of indexes of children of each concept
+ * Handles the conversion of formal concepts into a concept lattice.
+ * Calls a C++ WebAssembly module to compute the cover relation (edges) between concepts.
+ * @param concepts - The list of formal concepts.
+ * @param context - The original formal context.
+ * @param onProgress - Optional callback to track the computation progress (0.0 to 1.0).
+ * @returns A promise containing the computed lattice relations, labelings, and the execution time in milliseconds.
  */
 export async function conceptsToLattice(
     concepts: FormalConcepts,
@@ -66,30 +69,11 @@ export async function conceptsToLattice(
     };
 }
 
-function reverseRelation(relation: Relation) {
-    const reversedRelation = new Array<Set<number>>(relation.length);
-
-    for (let i = 0; i < relation.length; i++) {
-        const children = relation[i];
-
-        for (const child of children) {
-            if (reversedRelation[child] === undefined) {
-                reversedRelation[child] = new Set<number>();
-            }
-
-            reversedRelation[child].add(i);
-        }
-    }
-
-    for (let i = 0; i < relation.length; i++) {
-        if (reversedRelation[i] === undefined) {
-            reversedRelation[i] = new Set<number>();
-        }
-    }
-
-    return reversedRelation;
-}
-
+/**
+ * Generates the object labeling for the lattice.
+ * Objects are assigned to the most specific concept (the "lowest" in the lattice) 
+ * that contains them in its extent.
+ */
 export function getObjectsLabeling(
     concepts: FormalConcepts,
     superconceptsRelation: Relation,
@@ -100,6 +84,11 @@ export function getObjectsLabeling(
     return getLabeling(concepts, infimum, superconceptsRelation, (concept) => concept.objects, sublatticeConceptIndexes);
 }
 
+/**
+ * Generates the attribute labeling for the lattice.
+ * Attributes are assigned to the most general concept (the "highest" in the lattice) 
+ * that contains them in its intent.
+ */
 export function getAttributesLabeling(
     concepts: FormalConcepts,
     subconceptsRelation: Relation,
@@ -110,6 +99,14 @@ export function getAttributesLabeling(
     return getLabeling(concepts, supremum, subconceptsRelation, (concept) => concept.attributes, sublatticeConceptIndexes);
 }
 
+/**
+ * Calculates the intersection of an upper cone and a lower cone in the lattice.
+ * Useful for finding all concepts between two specific concepts.
+ * @param upperConeOnlyConceptIndex - The starting index for the upward traversal.
+ * @param lowerConeOnlyConceptIndex - The starting index for the downward traversal.
+ * @param lattice - The lattice.
+ * @returns A `Set` of concept indexes that satisfy the cone constraints, or `null` if no constraints are provided.
+ */
 export function calculateConeConceptIndexes(
     upperConeOnlyConceptIndex: number | null,
     lowerConeOnlyConceptIndex: number | null,
@@ -148,6 +145,14 @@ export function calculateConeConceptIndexes(
     return new Set(intersection);
 }
 
+/**
+ * Extracts a sublattice relation based on a subset of concept indexes.
+ * Maps the original indexes to a new contiguous range.
+ * @param sublatticeConceptIndexes - The set of concept indexes to include in the sublattice.
+ * @param lattice - The source concept lattice.
+ * @param supremumIndex - The index of the top-most concept to start the layer assignment.
+ * @returns An object containing the new subconcept relation and a mapping to original indexes.
+ */
 export function calculateSublattice(
     sublatticeConceptIndexes: ReadonlySet<number>,
     lattice: ConceptLattice,
@@ -197,6 +202,30 @@ export function calculateSublattice(
         supremum: 0,
         infimum,
     };
+}
+
+function reverseRelation(relation: Relation) {
+    const reversedRelation = new Array<Set<number>>(relation.length);
+
+    for (let i = 0; i < relation.length; i++) {
+        const children = relation[i];
+
+        for (const child of children) {
+            if (reversedRelation[child] === undefined) {
+                reversedRelation[child] = new Set<number>();
+            }
+
+            reversedRelation[child].add(i);
+        }
+    }
+
+    for (let i = 0; i < relation.length; i++) {
+        if (reversedRelation[i] === undefined) {
+            reversedRelation[i] = new Set<number>();
+        }
+    }
+
+    return reversedRelation;
 }
 
 function collectIndexes(startIndex: number, relation: Relation) {

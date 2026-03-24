@@ -9,6 +9,10 @@ import { INDENTATION } from "../constants";
 
 const SCALE = 50;
 
+/**
+ * Converts a latttice layout and its associated labels/links into a TikZ string representation divided into a lines array.
+ * Handles indentation and region tracking for UI collapsing.
+ */
 export function convertToTikz(
     transformedLayout: ReadonlyArray<Point> | null,
     links: ReadonlyArray<Link>,

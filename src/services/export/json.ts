@@ -4,6 +4,10 @@ import { escapeJson } from "../../utils/string";
 import { CollapseRegions } from "./CollapseRegions";
 import { INDENTATION } from "./constants";
 
+/**
+ * Pushes a collection of values into the lines array as a formatted JSON.
+ * Handles indentation and optional region tracking for UI collapsing.
+ */
 export function pushArray<T extends {}>(
     lines: Array<string>,
     values: ReadonlyArray<T>,
@@ -54,6 +58,10 @@ export function defaultTransformer<T extends {}>(value: T) {
     return value.toString();
 }
 
+/**
+ * Serializes a relation generator (pairs of indexes) into a multi-line JSON array
+ * and pushes it into the lines array.
+ */
 export function pushRelation(
     lines: Array<string>,
     relation: Generator<[number, number], void, unknown>,
@@ -84,6 +92,10 @@ export function pushRelation(
     }
 }
 
+/**
+ * Iterates through a collection of formal concepts and pushes their JSON representation 
+ * into the lines array, set as a `"concepts"` property.
+ */
 export function pushConcepts(
     lines: Array<string>,
     formalConcepts: FormalConcepts,
@@ -119,6 +131,10 @@ export function pushConcepts(
     }
 }
 
+/**
+ * Serializes a single `FormalConcept` into JSON. 
+ * If a `FormalContext` is provided, indexes are resolved to their escaped string labels.
+ */
 export function pushConcept(
     lines: Array<string>,
     concept: FormalConcept,

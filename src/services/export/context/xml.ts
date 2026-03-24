@@ -5,6 +5,10 @@ import { INDENTATION } from "../constants";
 import { generateContextRelation } from "../utils";
 import { escapedBodyValueTransformer, pushArray, pushXmlDeclaration } from "../xml";
 
+/**
+ * Converts a `FormalContext` into a XML string representation divided into a lines array.
+ * Handles indentation and region tracking for UI collapsing.
+ */
 export function convertToXml(name: string, context: FormalContext) {
     const lines = new Array<string>();
     const collapseRegions = createCollapseRegions();

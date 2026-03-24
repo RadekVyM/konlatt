@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import Loop from "../services/Loop";
+import Loop from "../utils/Loop";
 
 /**
  * A hook that manages a time-based loop to provide the current timestamp.

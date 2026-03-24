@@ -6,6 +6,10 @@ import { INDENTATION } from "../constants";
 import { generateLatticeRelation } from "../utils";
 import { escapedBodyValueTransformer, pushArray, pushConcepts, pushXmlDeclaration } from "../xml";
 
+/**
+ * Converts formal concepts and optionally a lattice relation into a XML string representation divided into a lines array.
+ * Handles indentation and region tracking for UI collapsing.
+ */
 export function convertToXml(
     objects: ReadonlyArray<string>,
     attributes: ReadonlyArray<string>,

@@ -4,6 +4,10 @@ import { escapeXml } from "../../utils/string";
 import { CollapseRegions } from "./CollapseRegions";
 import { INDENTATION } from "./constants";
 
+/**
+ * Pushes a collection of values into the lines array as a formatted XML element block.
+ * Handles indentation, empty elements (self-closing), and optional region tracking for UI collapsing.
+ */
 export function pushArray<T extends {}>(
     lines: Array<string>,
     values: ReadonlyArray<T>,
@@ -49,6 +53,10 @@ export function escapedBodyValueTransformer(value: string, elementName: string) 
     return `<${elementName}>${escapeXml(value)}</${elementName}>`;
 }
 
+/**
+ * Iterates through a collection of formal concepts and pushes their XML representation 
+ * into the lines array, wrapped in a `<concepts>` tag.
+ */
 export function pushConcepts(
     lines: Array<string>,
     formalConcepts: FormalConcepts,
@@ -83,6 +91,10 @@ export function pushConcepts(
     }
 }
 
+/**
+ * Serializes a single `FormalConcept` into XML. 
+ * If a `FormalContext` is provided, indexes are resolved to their escaped string labels.
+ */
 export function pushConcept(
     lines: Array<string>,
     concept: FormalConcept,
@@ -135,6 +147,9 @@ export function pushConcept(
     }
 }
 
+/**
+ * Pushes the standard UTF-8 XML declaration to the start of the lines array.
+ */
 export function pushXmlDeclaration(lines: Array<string>, collapseRegions?: CollapseRegions) {
     if (collapseRegions) {
         collapseRegions.nextRegionStart++;

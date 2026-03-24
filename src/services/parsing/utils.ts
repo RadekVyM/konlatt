@@ -1,6 +1,9 @@
 import { FORMAL_CONTEXT_CELL_SIZE } from "../../types/FormalContext";
 import { INVALID_FILE_MESSAGE } from "./constants";
 
+/**
+ * Sets a specific attribute for an object in the formal context using bitwise operations.
+ */
 export function formalContextSetAttribute(context: Array<number>, cellsPerObject: number, object: number, attribute: number) {
     const cellSize = FORMAL_CONTEXT_CELL_SIZE;
     const cell = (object * cellsPerObject) + Math.floor(attribute / cellSize);
@@ -10,6 +13,9 @@ export function formalContextSetAttribute(context: Array<number>, cellsPerObject
     context[cell] = Number(cellValue | mask);
 }
 
+/**
+ * Initializes a new empty formal context represented as a flat numeric array.
+ */
 export function createEmptyContext(objectsCount: number, attributesCount: number) {
     const cellsPerObjectCount = Math.ceil(attributesCount / FORMAL_CONTEXT_CELL_SIZE);
     const context = new Array<number>(objectsCount * cellsPerObjectCount);
@@ -21,6 +27,9 @@ export function createEmptyContext(objectsCount: number, attributesCount: number
     return { context, cellsPerObjectCount };
 }
 
+/**
+ * Validates and extracts object and attribute names from a JSON-like object.
+ */
 export function readObjectsAttributesFromJson(jsonContent: { objects: any, attributes: any }) {
     let objects: Array<string>;
 
@@ -52,6 +61,9 @@ export function readObjectsAttributesFromJson(jsonContent: { objects: any, attri
     return { attributes, objects };
 }
 
+/**
+ * Validates and extracts object and attribute names from a structured XML-to-JS object.
+*/
 export function readObjectsAttributesFromXml(xmlContent: {
     context: {
         objects: any,

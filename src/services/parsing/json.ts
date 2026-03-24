@@ -5,6 +5,10 @@ import parseJsonConcepts from "./concepts/json";
 import { INVALID_FILE_MESSAGE } from "./constants";
 import parseJsonContext from "./context/json";
 
+/**
+ * Parses a JSON string representing a formal context or a concept lattice.
+ * @returns An object containing the parsed `FormalContext`, and optionally `FormalConcepts` and `ConceptLattice`.
+ */
 export default function parseJson(content: string): {
     context: FormalContext,
     concepts?: FormalConcepts,

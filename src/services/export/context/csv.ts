@@ -2,6 +2,10 @@ import { FormalContext } from "../../../types/FormalContext";
 import { createCollapseRegions } from "../CollapseRegions";
 import { generateContextRelation } from "../utils";
 
+/**
+ * Converts a `FormalContext` into a CSV string representation divided into a lines array.
+ * Handles indentation and region tracking for UI collapsing.
+ */
 export function convertToCsv(context: FormalContext, separator: string = ",") {
     const lines = new Array<string>();
     const collapseRegions = createCollapseRegions();

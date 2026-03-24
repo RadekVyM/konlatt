@@ -1,5 +1,9 @@
 import { escapedBodyValueTransformer, pushArray, pushXmlDeclaration } from "../xml";
 
+/**
+ * Converts objects or attributes collection into a XML string representation divided into a lines array.
+ * Handles indentation.
+ */
 export function convertToXml(items: ReadonlyArray<string>, itemTypeName: "object" | "attribute") {
     const lines = new Array<string>();
 

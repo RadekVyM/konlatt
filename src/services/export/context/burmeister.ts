@@ -1,6 +1,10 @@
 import { FormalContext, formalContextHasAttribute } from "../../../types/FormalContext";
 import { createCollapseRegions } from "../CollapseRegions";
 
+/**
+ * Converts a `FormalContext` into a Burmeister string representation divided into a lines array.
+ * Handles indentation and region tracking for UI collapsing.
+ */
 export function convertToBurmeister(name: string, context: FormalContext) {
     const lines = new Array<string>();
     const collapseRegions = createCollapseRegions();

@@ -20,6 +20,16 @@ import { CsvSeparator } from "../types/CsvSeparator";
 import useExportExplorerConceptsStore from "../stores/export/concepts/useExportExplorerConceptsStore";
 import { DiagramLayoutState } from "../types/diagram/DiagramLayoutState";
 
+/**
+ * Initiates the project initialization process by parsing a file and triggering 
+ * subsequent computations for concepts, lattices, and layouts.
+ * @param fileContent - The raw string content of the file to be parsed.
+ * @param format - The format of the input file.
+ * @param csvSeparator - The character used to separate values if the format is CSV.
+ * @param name - Default name for the project if one isn't found in the file.
+ * @param onSuccess - Callback executed after successful initialization.
+ * @param onError - Callback executed if file parsing or initialization fails.
+ */
 export async function triggerInitialization(
     fileContent: string,
     format: ImportFormat,
@@ -48,6 +58,7 @@ export async function triggerInitialization(
                 endTime: new Date().getTime(),
             });
 
+        // RESET ALL RELEVANT STORES to ensure a clean state for the new project
         useDataStructuresStore.getState().reset();
         useContextStore.getState().reset();
         useDiagramStore.getState().reset();
@@ -75,8 +86,7 @@ export async function triggerInitialization(
         newWorkerQueue.cancelAllJobs();
         newWorkerQueue.dispose();
 
-        // TODO: Handle this better
-        toast(message || "File parsing failed");
+        toast(message || "File parsing failed.");
 
         onError?.();
     });
@@ -92,6 +102,10 @@ function triggerLatticeComputation() {
     enqueueLatticeComputation(workerQueue);
 }
 
+/**
+ * Triggers a new layout computation job. If a layout job is already running, 
+ * it will be cancelled before the new one starts.
+ */
 export function triggerLayoutComputation(state: DiagramLayoutState) {
     const workerQueue = useProjectStore.getState().workerQueue;
     const currentJobId = useDiagramStore.getState().currentLayoutJobId;
@@ -103,6 +117,9 @@ export function triggerLayoutComputation(state: DiagramLayoutState) {
     enqueueLayoutComputation(workerQueue, state);
 }
 
+/**
+ * Cancels a specific job and clears its reference from the diagram store.
+ */
 export function triggerCancellation(jobId: number) {
     useProjectStore.getState().workerQueue.cancelJob(jobId);
     useDiagramStore.getState().setCurrentLayoutJobId(null, null);

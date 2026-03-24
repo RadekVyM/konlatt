@@ -6,6 +6,10 @@ import { INDENTATION } from "../constants";
 import { escapedStringTransformer, pushArray, pushConcepts, pushRelation } from "../json";
 import { generateContextRelation } from "../utils";
 
+/**
+ * Converts a `FormalContext` and optionally `FormalConcepts` into a JSON string representation divided into a lines array.
+ * Handles indentation and region tracking for UI collapsing.
+ */
 export function convertToJson(name: string, context: FormalContext, formalConcepts: FormalConcepts | null = null) {
     const lines = new Array<string>();
     const collapseRegions = createCollapseRegions();

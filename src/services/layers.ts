@@ -1,34 +1,44 @@
 import { Relation } from "../types/Relation";
 
-export function assignNodesToLayersByLongestPath(startConceptIndex: number, coverRelation: Relation) {
+/**
+ * Assigns nodes of a DAG to layers using the longest path method.
+ * @param startNodeIndex - The index of the root or starting node.
+ * @param coverRelation - An adjacency list representing the DAG.
+ * @returns An object containing:
+ * - `layersMapping`: An array where the index is the node ID and the value is its layer depth.
+ * - `layers`: An array of `Set`s, where each `Set` contains the node indices belonging to a specific layer.
+ */
+export function assignNodesToLayersByLongestPath(startNodeIndex: number, coverRelation: Relation) {
     const layersMapping = new Array<number>(coverRelation.length);
     const layers = new Array<Set<number>>();
 
     const topologicalOrder = topologicalSort(
-        startConceptIndex,
+        startNodeIndex,
         coverRelation);
 
-    layersMapping[startConceptIndex] = 0;
+    // Initialize the root at the first layer
+    layersMapping[startNodeIndex] = 0;
     layers[0] = new Set<number>();
-    layers[0].add(startConceptIndex);
+    layers[0].add(startNodeIndex);
 
     for (const orderedIndex of topologicalOrder) {
-        const subconcepts = coverRelation[orderedIndex];
+        const subnodes = coverRelation[orderedIndex];
         const newLayer = layersMapping[orderedIndex] + 1;
 
-        for (const subconceptIndex of subconcepts.values()) {
-            if (layersMapping[subconceptIndex] === undefined || newLayer > layersMapping[subconceptIndex]) {
+        for (const subnodeIndex of subnodes.values()) {
+            // If subnod hasn't been layered, or if we found a longer path to it
+            if (layersMapping[subnodeIndex] === undefined || newLayer > layersMapping[subnodeIndex]) {
                 if (layers[newLayer] === undefined) {
                     layers[newLayer] = new Set<number>();
                 }
-                if (layersMapping[subconceptIndex] !== undefined) {
-                    // Remove the concept from its layer
-                    layers[layersMapping[subconceptIndex]].delete(subconceptIndex);
+                if (layersMapping[subnodeIndex] !== undefined) {
+                    // Remove the node from its layer
+                    layers[layersMapping[subnodeIndex]].delete(subnodeIndex);
                 }
 
-                layersMapping[subconceptIndex] = newLayer;
-                // Add the concept to its new layer
-                layers[newLayer].add(subconceptIndex);
+                layersMapping[subnodeIndex] = newLayer;
+                // Add the node to its new layer
+                layers[newLayer].add(subnodeIndex);
             }
         }
     }

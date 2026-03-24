@@ -8,6 +8,10 @@ import parseCsv from "./csv";
 import parseJson from "./json";
 import parseXml from "./xml";
 
+/**
+ * Parses raw file content string representing a formal context or a concept lattice.
+ * @returns An object containing the parsed `FormalContext`, and optionally `FormalConcepts` and `ConceptLattice`.
+ */
 export async function parseFileContent(content: string, format: ImportFormat, separator?: CsvSeparator): Promise<{
     context: FormalContext,
     concepts?: FormalConcepts,

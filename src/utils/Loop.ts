@@ -1,3 +1,7 @@
+/**
+ * A utility class for managing a recurring execution loop using `requestAnimationFrame`.
+ * Supports an optional delay between iterations.
+ */
 export default class Loop {
     #action: (() => void) | null;
     #isRunning: boolean;

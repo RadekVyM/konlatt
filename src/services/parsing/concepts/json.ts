@@ -5,6 +5,9 @@ import { getAttributesLabeling, getObjectsLabeling } from "../../lattice";
 import { INVALID_FILE_MESSAGE } from "../constants";
 import { createEmptyContext, formalContextSetAttribute, readObjectsAttributesFromJson } from "../utils";
 
+/**
+ * Parses a JSON object into a `FormalContext` and `FormalConcepts`, and optionally `ConceptLattice`.
+ */
 export default function parseJsonConcepts(jsonContent: {
     objects: any,
     attributes: any,

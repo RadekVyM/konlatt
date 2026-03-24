@@ -1,3 +1,6 @@
+/**
+ * Represents a collection of collapsible UI text ranges.
+ */
 export type CollapseRegions = {
     collapseRegions: Map<number, number>,
     nextRegionStart: number,

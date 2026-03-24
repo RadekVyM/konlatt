@@ -6,6 +6,10 @@ import parseXmlContext from "./context/xml";
 import parseXmlConcepts from "./concepts/xml";
 import { ConceptLattice } from "../../types/ConceptLattice";
 
+/**
+ * Parses an XML string representing a formal context or a concept lattice.
+ * @returns An object containing the parsed `FormalContext`, and optionally `FormalConcepts` and `ConceptLattice`.
+ */
 export default function parseXml(content: string): {
     context: FormalContext,
     concepts?: FormalConcepts,

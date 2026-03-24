@@ -4,6 +4,10 @@ import { INVALID_FILE_MESSAGE } from "./constants";
 
 const INVALID_FILE_LINE_MESSAGE = `${INVALID_FILE_MESSAGE} Line:`;
 
+/**
+ * Parses a Burmeister string representing a formal context.
+ * @returns The parsed `FormalContext`.
+ */
 export default function parseBurmeister(content: string): FormalContext {
     content = content.trim();
     const bLine = readLine(content, 0);

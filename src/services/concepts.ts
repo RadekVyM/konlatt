@@ -3,6 +3,12 @@ import Module from "../cpp";
 import { FormalConcept } from "../types/FormalConcepts";
 import { cppFormalConceptArrayToJs, jsArrayToCppUIntArray } from "../utils/cpp";
 
+/**
+ * Computes the set of formal concepts for a given formal context using the InClose algorithm via WebAssembly.
+ * @param context - The formal context.
+ * @param onProgress - Optional callback to track the computation progress (0.0 to 1.0).
+ * @returns A promise resolving to the list of computed concepts and the execution time in milliseconds.
+ */
 export async function computeConcepts(context: FormalContext, onProgress?: (progress: number) => void): Promise<{
     concepts: ReadonlyArray<FormalConcept>,
     computationTime: number,
