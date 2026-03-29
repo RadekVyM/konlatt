@@ -16,12 +16,18 @@ type ContextStoreState = {
     attributesSortType: ItemSortType,
     attributesSortDirection: SortDirection,
     selectedObject: number | null,
+    /** If `true`, performs an intersection. If `false`, performs a union. */
     strictSelectedFilterAttributes: boolean,
+    /** List of attributes used to filter objects. */
     selectedFilterAttributes: ReadonlyArray<number>,
+    /** Set of filtered objects based on selected filter attributes. */
     filteredObjects: ReadonlySet<number> | null,
     selectedAttribute: number | null,
+    /** If `true`, performs an intersection. If `false`, performs a union. */
     strictSelectedFilterObjects: boolean,
+    /** List of objects used to filter attributes. */
     selectedFilterObjects: ReadonlyArray<number>,
+    /** Set of filtered attributes based on selected filter objects. */
     filteredAttributes: ReadonlySet<number> | null,
 }
 
@@ -61,6 +67,9 @@ const initialState: ContextStoreState = {
     filteredAttributes: null,
 };
 
+/**
+ * Store for formal context table. 
+ */
 const useContextStore = create<ContextStore>((set) => ({
     ...initialState,
     setDebouncedObjectsSearchInput: (debouncedObjectsSearchInput) => set((old) => withFilteredObjects({ debouncedObjectsSearchInput }, old)),
@@ -83,6 +92,10 @@ const useContextStore = create<ContextStore>((set) => ({
 
 export default useContextStore;
 
+/**
+ * Calculates the new state for filtered objects based on search terms 
+ * and selected attribute filters.
+ */
 function withFilteredObjects(newState: Partial<ContextStore>, oldState: ContextStore): Partial<ContextStore> {
     const debouncedObjectsSearchInput = withFallback(newState.debouncedObjectsSearchInput, oldState.debouncedObjectsSearchInput);
     const selectedFilterAttributes = withFallback(newState.selectedFilterAttributes, oldState.selectedFilterAttributes);
@@ -111,6 +124,10 @@ function withFilteredObjects(newState: Partial<ContextStore>, oldState: ContextS
     };
 }
 
+/**
+ * Calculates the new state for filtered attributes based on search terms 
+ * and selected object filters.
+ */
 function withFilteredAttributes(newState: Partial<ContextStore>, oldState: ContextStore): Partial<ContextStore> {
     const debouncedAttributesSearchInput = withFallback(newState.debouncedAttributesSearchInput, oldState.debouncedAttributesSearchInput);
     const selectedFilterObjects = withFallback(newState.selectedFilterObjects, oldState.selectedFilterObjects);
@@ -139,6 +156,10 @@ function withFilteredAttributes(newState: Partial<ContextStore>, oldState: Conte
     };
 }
 
+/**
+ * Core filtering logic: iterates through items and checks against 
+ * both search text and selection constraints.
+ */
 function filterItems(items: ReadonlyArray<string>, searchTerms: ReadonlyArray<string>, selectedItems: ReadonlySet<number>) {
     const filteredItems = new Array<number>();
 
@@ -154,6 +175,10 @@ function filterItems(items: ReadonlyArray<string>, searchTerms: ReadonlyArray<st
     return new Set(filteredItems);
 }
 
+/**
+ * @param strictFiltering If `true`, performs an intersection (items related to ALL filters).
+ * If `false`, performs a union (items related to ANY filter).
+ */
 function getSelectedItems(
     context: FormalContext,
     contextItems: (context: FormalContext, item: number | ReadonlyArray<number>) => Array<number>,

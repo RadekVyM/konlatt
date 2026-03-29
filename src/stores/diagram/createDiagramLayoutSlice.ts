@@ -16,23 +16,32 @@ import withDiagramLabeling from "./withDiagramLabeling";
 const CACHE_MAX_SIZE = 5_000_000;
 
 type DiagramLayoutSliceState = {
+    /** The actual lattice layout data */
     layout: ConceptLatticeLayout | null,
     /** This ID is used to trigger rerender of some React components using the `key` property */
     layoutId: string,
     conceptToLayoutIndexesMapping: ReadonlyMap<number, number>,
     layoutToConceptIndexesMapping: ReadonlyMap<number, number>,
+    /** LRU-style cache for storing previous layout states */
     layoutCache: ReadonlyMap<string, ConceptLatticeLayoutCacheItem>,
+    /** ID of the currently running background layout calculation job */
     currentLayoutJobId: number | null,
+    /** The state ID associated with the current layout job */
     currentLayoutJobStateId: string | null,
+    /** Local offsets applied to nodes by the user (manual positioning) */
     diagramOffsets: ReadonlyArray<Point> | null,
+    /** History of offsets for undo/redo functionality */
     diagramOffsetMementos: DiagramOffsetMementos,
     canUndo: boolean,
     canRedo: boolean,
 }
 
 type DiagramLayoutSliceActions = {
+    /** Updates the current layout and resets associated mappings and offsets */
     setLayout: (layout: ConceptLatticeLayout | null) => void,
+    /** Tracks an active layout computation job */
     setCurrentLayoutJobId: (currentLayoutJobId: number | null, layoutState: DiagramLayoutState | null) => void,
+    /** Updates the positional offsets for a set of concepts (e.g., after a drag interaction) */
     updateNodeOffsets: (conceptIndexes: Iterable<number>, offset: Point) => void,
     undo: () => void,
     redo: () => void,
@@ -54,6 +63,10 @@ export const initialState: DiagramLayoutSliceState = {
     canRedo: false,
 };
 
+/**
+ * Slice for a Zustand store that manages the layout, node offsets, and layout caching 
+ * for the concept lattice diagram.
+ */
 export default function createDiagramLayoutSlice(set: (partial: DiagramStore | Partial<DiagramStore> | ((state: DiagramStore) => DiagramStore | Partial<DiagramStore>), replace?: false) => void): DiagramLayoutSlice {
     return {
         ...initialState,
@@ -63,6 +76,7 @@ export default function createDiagramLayoutSlice(set: (partial: DiagramStore | P
 
             return w({
                 layout,
+                // Generate a new ID to trigger component remounting if necessary
                 layoutId: `${layout?.length}-${Math.random()}`,
                 ...createConceptLayoutIndexesRelations(layout),
                 diagramOffsets,
@@ -162,6 +176,9 @@ export default function createDiagramLayoutSlice(set: (partial: DiagramStore | P
     };
 }
 
+/**
+ * Updates node offsets while ensuring the layout cache is kept in sync.
+ */
 function withNodeOffsetsUpdated(
     newState: Partial<DiagramStore>,
     oldState: DiagramStore,
@@ -183,6 +200,9 @@ function withNodeOffsetsUpdated(
     return w(newState, oldState, withConceptsToMoveBox, withCanUndoRedo);
 }
 
+/**
+ * Updates the layout cache, adding new items and removing oldest entries when CACHE_MAX_SIZE is exceeded.
+ */
 function updateLayoutCache(
     layoutCache: ReadonlyMap<string, ConceptLatticeLayoutCacheItem>,
     newLayout: ConceptLatticeLayout,

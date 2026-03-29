@@ -3,6 +3,9 @@ import useDiagramStore from "../../diagram/useDiagramStore";
 import useDataStructuresStore from "../../useDataStructuresStore";
 import { ExportDiagramStore } from "./useExportDiagramStore";
 
+/**
+ * Injects calculated diagram links into the export state.
+ */
 export default function withLinks(
     newState: Partial<ExportDiagramStore>,
     _oldState: ExportDiagramStore,

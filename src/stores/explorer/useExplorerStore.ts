@@ -9,6 +9,10 @@ export type ExplorerStore = {
     reset: () => void,
 } & ConceptsFilterSlice & SelectedConceptSlice & R3FCanvasSlice & ExplorerConceptsSlice
 
+/**
+ * Store that manages the explorer state by composing multiple domain-specific slices, including
+ * concept filtering, concept selection, and R3F canvas configuration.
+ */
 const useExplorerStore = create<ExplorerStore>((set) => ({
     ...createConceptsFilterSlice(set),
     ...createSelectedConceptSlice(set, withExplorerConcepts),

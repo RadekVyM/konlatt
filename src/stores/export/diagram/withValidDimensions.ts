@@ -2,6 +2,9 @@ import { MAX_CANVAS_AREA, MAX_CANVAS_HEIGHT, MAX_CANVAS_WIDTH } from "../../../c
 import { withFallback } from "../../../utils/stores";
 import { ExportDiagramStore } from "./useExportDiagramStore";
 
+/**
+ * Validates and constrains diagram export dimensions to stay within hardware and memory limits.
+ */
 export default function withValidDimensions(
     newState: Partial<ExportDiagramStore>,
     oldState: ExportDiagramStore,

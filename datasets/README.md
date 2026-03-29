@@ -1,6 +1,7 @@
 Sources of the datatasets:
 - https://upriss.github.io/fca/examples.html
-- https://phoenix.inf.upol.cz/~konecnja/fcalad/
+- https://phoenix.inf.upol.cz/~konecnja/fcalad
+- https://sourceforge.net/projects/inclose
 - https://fca-tools-bundle.com/view-context/62c9a84eef7188125735206d
 - https://fca-tools-bundle.com/view-context/6486de92ef7188e196cd7a40
 - https://fca-tools-bundle.com/view-context/5ee4fe8ace557b551c8b4c2f

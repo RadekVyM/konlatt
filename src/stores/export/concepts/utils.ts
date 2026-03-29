@@ -13,6 +13,10 @@ import { ExportConceptsStore } from "./ExportConceptsStore";
 
 const TOO_LARGE_THRESHOLD = 15_000_000;
 
+/**
+ * Checks if the current export configuration would result 
+ * in a payload that is too large for the browser to handle efficiently.
+ */
 export function withConceptsExportTooLarge(
     newState: Partial<ExportConceptsStore>,
     oldState: ExportConceptsStore,
@@ -28,11 +32,13 @@ export function withConceptsExportTooLarge(
         return newState;
     }
 
+    // Extract the subset of data intended for export
     const { objects, attributes, concepts: conceptsToExport, relation } = highlightedConcepts(
         context,
         concepts,
         sublatticeConceptIndexes,
         includeLattice ? lattice : null);
+    // Estimate the number of lines and total characters to avoid freezing the UI
     const linesCountEstimate = objects.length +
         attributes.length +
         conceptsToExport.reduce((prev, current) => prev + current.objects.length + current.attributes.length + 2, 0) +
@@ -46,6 +52,10 @@ export function withConceptsExportTooLarge(
     };
 }
 
+/**
+ * Computes the final export strings (JSON/XML) based on the current selection and format.
+ * This should typically be called after `withConceptsExportTooLarge` has validated the size.
+ */
 export function withConceptsExportResult(
     newState: Partial<ExportConceptsStore>,
     oldState: ExportConceptsStore,
@@ -58,6 +68,7 @@ export function withConceptsExportResult(
     const concepts = useDataStructuresStore.getState().concepts;
     const lattice = useDataStructuresStore.getState().lattice;
 
+    // Abort if data is missing or if the computation was flagged as too large
     if (!context || !concepts || disabledComputation) {
         return newState;
     }
@@ -98,6 +109,9 @@ export function withConceptsExportResult(
     };
 }
 
+/**
+ * Returns the average character length per line for a given format based on benchmarked data.
+ */
 function averageLineLength(format: ConceptExportFormat) {
     // These numbers are experimentally measured on 5 datasets
     switch (format) {
@@ -108,6 +122,10 @@ function averageLineLength(format: ConceptExportFormat) {
     }
 }
 
+/**
+ * Filters and remaps the formal context and concepts based on a selection of indexes.
+ * If no indexes are provided, it prepares the entire context for export.
+ */
 function highlightedConcepts(
     context: FormalContext,
     concepts: FormalConcepts,
@@ -135,6 +153,7 @@ function highlightedConcepts(
     const conceptIndexesMapping = new Map<number, number>();
     const newConcepts = new Array<FormalConcept>();
 
+    // Remap local indexes so the exported subset starts from 0
     for (let i = 0; i < sublatticeConceptIndexes.length; i++) {
         const conceptIndex = sublatticeConceptIndexes[i];
         const concept = concepts[conceptIndex];
@@ -163,6 +182,9 @@ function highlightedConcepts(
     };
 }
 
+/**
+ * Maps the cover relation to the new remapped concept indexes.
+ */
 function remappedRelation(
     newConcepts: ReadonlyArray<FormalConcept>,
     sublatticeConceptIndexes: ReadonlyArray<number>,
@@ -181,6 +203,9 @@ function remappedRelation(
     return newCoverRelation;
 }
 
+/**
+ * Maps original item IDs to new sequential IDs used in the exported subset.
+ */
 function remappedItems(items: ReadonlyArray<number>, mapping: Map<number, number>) {
     return items.map((item) => {
         let newIndex = mapping.get(item);

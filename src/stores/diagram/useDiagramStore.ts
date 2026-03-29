@@ -24,6 +24,10 @@ export type DiagramStore =
 
 const initialState: DiagramStoreState = { };
 
+/**
+ * Store that manages the state of the concept lattice diagram, including layout logic, 
+ * concept filtering, concept selection, and R3F canvas configuration.
+ */
 const useDiagramStore = create<DiagramStore>((set) => ({
     ...createDiagramLayoutSlice(set),
     ...createConceptsFilterSlice(set),

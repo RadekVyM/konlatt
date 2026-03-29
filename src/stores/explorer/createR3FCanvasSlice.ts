@@ -20,6 +20,10 @@ export const initialState: R3FCanvasSliceState = {
     layoutBox: null,
 };
 
+/**
+ * Slice for a Zustand store that manages the React Three Fiber (R3F) canvas state, 
+ * including zoom levels and interaction tracking.
+ */
 export default function createR3FCanvasSlice(set: (partial: ExplorerStore | Partial<ExplorerStore> | ((state: ExplorerStore) => ExplorerStore | Partial<ExplorerStore>), replace?: false) => void): R3FCanvasSlice {
     return {
         ...initialState,

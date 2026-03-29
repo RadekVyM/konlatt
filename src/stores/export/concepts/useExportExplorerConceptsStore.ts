@@ -18,6 +18,10 @@ export type ExportExplorerConceptsStore = ExportConceptsStore &
 const initialState: ExportEplorerConceptsStoreState = {
 };
 
+/**
+ * Store that manages the export state and logic for explorer concepts, 
+ * including lattice inclusion settings and size validation.
+ */
 const useExportExplorerConceptsStore = create<ExportExplorerConceptsStore>((set) => ({
     ...initialState,
     ...includeLatticeInitialState,

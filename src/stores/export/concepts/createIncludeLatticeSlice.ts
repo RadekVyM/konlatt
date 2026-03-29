@@ -14,6 +14,9 @@ export const initialState: IncludeLatticeSliceState = {
     includeLattice: false,
 };
 
+/**
+ * Slice for a Zustand store that manages the inclusion and state of a lattice structure.
+ */
 export default function createIncludeLatticeSlice<TStore extends IncludeLatticeSlice>(
     set: (partial: IncludeLatticeSlice | Partial<IncludeLatticeSlice> | ((state: TStore) => IncludeLatticeSlice | Partial<IncludeLatticeSlice>), replace?: false) => void,
     withResult: (newState: Partial<IncludeLatticeSlice>, oldState: TStore) => Partial<TStore>,

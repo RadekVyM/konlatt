@@ -5,6 +5,10 @@ import useDiagramStore from "../../diagram/useDiagramStore";
 import { ExportDiagramStore } from "./useExportDiagramStore";
 import withPositionedLabelGroups from "./withPositionedLabelGroups";
 
+/**
+ * Calculates the dimensions (width/height) of label groups based on
+ * the current font settings and canvas context.
+ */
 export default function withMeasuredLabelGroups(
     newState: Partial<ExportDiagramStore>,
     oldState: ExportDiagramStore,
@@ -18,7 +22,7 @@ export default function withMeasuredLabelGroups(
     const conceptToLayoutIndexesMapping = useDiagramStore.getState().conceptToLayoutIndexesMapping;
 
     const groups = new Array<LabelGroup>();
-    
+
     const context = measuringCanvas.getContext("2d")!;
     context.font = `${textSize}px ${font}`;
 
@@ -32,7 +36,10 @@ export default function withMeasuredLabelGroups(
     }, oldState);
 }
 
-
+/**
+ * Iterates through raw labels, measures their text dimensions using Canvas API, 
+ * and populates the provided groups array.
+ */
 function addLabelsToGroups(
     groups: Array<LabelGroup>,
     labels: ReadonlyArray<ConceptLabel>,

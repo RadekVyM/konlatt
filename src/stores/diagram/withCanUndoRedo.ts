@@ -1,6 +1,9 @@
 import { withFallback } from "../../utils/stores";
 import { DiagramStore } from "./useDiagramStore";
 
+/**
+ * Computes the availability of undo and redo actions based on the memento history.
+ */
 export function withCanUndoRedo(
     newState: Partial<DiagramStore>,
     oldState: DiagramStore,

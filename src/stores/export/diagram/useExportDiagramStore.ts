@@ -30,6 +30,7 @@ type ExportDiagramStoreState = {
     minPaddingRight: number,
     minPaddingTop: number,
     minPaddingBottom: number,
+    /** Stores the ratio to maintain when maxDimensionsLockedAspecRatio is active */
     lockedAspectRatio: { width: number, height: number } | null,
     maxDimensionsLockedAspecRatio: boolean,
     backgroundColor: HsvaColor,
@@ -37,8 +38,10 @@ type ExportDiagramStoreState = {
     defaultLinkColor: HsvaColor,
     nodeRadius: number,
     linkThickness: number,
+    /** Tracks if the first render of the preview worker has finished */
     isInitialPreviewCanvasDrawDone: boolean,
     isExporting: boolean,
+    /** Dedicated worker for handling heavy canvas drawing operations */
     worker: Worker | null,
 }
 
@@ -55,11 +58,15 @@ type ExportDiagramStoreActions = {
     setDefaultLinkColor: (defaultLinkColor: HsvaColor) => void,
     setNodeRadius: (nodeRadius: number) => void,
     setLinkThickness: (linkThickness: number) => void,
+    /** Sets dimensions based on orientation (landscape vs portrait) */
     setDimensions: (largerSize: number, smallerSize: number) => void,
     setIsInitialPreviewCanvasDrawDone: (isInitialPreviewCanvasDrawDone: boolean) => void,
     setIsExporting: (isExporting: boolean) => void,
+    /** Should be triggered when the export dialog is fully visible */
     onDialogShown: () => void,
+    /** Initializes the worker and state when the dialog starts appearing */
     onDialogShowing: () => void,
+    /** Cleans up workers and state when the dialog is dismissed */
     onDialogHiding: () => void,
     reset: () => void,
 }
@@ -88,6 +95,10 @@ const initialState: ExportDiagramStoreState = {
     worker: null,
 };
 
+/**
+ * Store that manages the export state and logic for the concept lattice diagram.
+ * Handles dimension calculations, padding, color schemes, and offscreen canvas rendering via workers.
+ */
 const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
     ...initialState,
     ...labelsSliceInitialState,
@@ -99,6 +110,7 @@ const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
             return w({ maxWidth }, old, withValidDimensions, withCanvasDimensions, withTextResult);
         }
 
+        // Calculate proportional height based on locked aspect ratio
         const aspectRatio = old.lockedAspectRatio.height / old.lockedAspectRatio.width;
 
         return w({
@@ -113,6 +125,7 @@ const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
             return w({ maxHeight }, old, withValidDimensions, withCanvasDimensions, withTextResult);
         }
 
+        // Calculate proportional width based on locked aspect ratio
         const aspectRatio = old.lockedAspectRatio.width / old.lockedAspectRatio.height;
 
         return w({
@@ -130,6 +143,7 @@ const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
 
         const { width, height } = layoutRect(old.transformedLayout);
 
+        // Assign larger/smaller values based on whether the diagram is landscape or portrait
         return w({
             maxWidth: width > height ? largerSize : smallerSize,
             maxHeight: width > height ? smallerSize : largerSize,
@@ -145,6 +159,7 @@ const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
             maxDimensionsLockedAspecRatio);
 
         return {
+            // Snapshot current dimensions as the reference ratio when locking
             lockedAspectRatio: value ? { width: old.maxWidth, height: old.maxHeight } : null,
             maxDimensionsLockedAspecRatio: value,
         };
@@ -158,6 +173,7 @@ const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
     setIsExporting: (isExporting) => set({ isExporting }),
     onDialogShown: () => set((old) => w({}, old, withTransformedLayout, withLinks, withLabels, withTooLarge, withTextResult)),
     onDialogShowing: () => set((old) => {
+        // Ensure any existing worker is killed before starting a new session
         old.worker?.terminate();
         const worker = new ExportDiagramWorker();
 
@@ -186,6 +202,9 @@ const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
 
 export default useExportDiagramStore;
 
+/**
+ * Message handler for the background worker to update the store state.
+ */
 function handleWorkerResponse(event: MessageEvent<ExportDiagramWorkerResponse>) {
     switch (event.data.type) {
         case "draw-done":

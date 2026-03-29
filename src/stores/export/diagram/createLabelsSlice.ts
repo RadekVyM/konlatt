@@ -60,6 +60,10 @@ export const initialState: LabelsSliceState = {
     positionedLabelGroups: [],
 };
 
+/**
+ * Slice for a Zustand store that manages label configuration, measurement, 
+ * and positioning for diagram exports.
+ */
 export default function createDiagramOptionsSlice(set: (partial: ExportDiagramStore | Partial<ExportDiagramStore> | ((state: ExportDiagramStore) => ExportDiagramStore | Partial<ExportDiagramStore>), replace?: false) => void): LabelsSlice {
     return {
         ...initialState,

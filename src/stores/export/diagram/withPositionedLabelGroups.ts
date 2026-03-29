@@ -3,6 +3,11 @@ import { withFallback } from "../../../utils/stores";
 import { ExportDiagramStore } from "./useExportDiagramStore";
 import withCanvasDimensions from "./withCanvasDimensions";
 
+/**
+ * Calculates and applies the final positions for label groups within a diagram.
+ * This function handles padding, background offsets, and alignment based on the
+ * text background type (outline, box, or none) and placement (top or bottom).
+ */
 export default function withPositionedLabelGroups(
     newState: Partial<ExportDiagramStore>,
     oldState: ExportDiagramStore,
@@ -22,9 +27,11 @@ export default function withPositionedLabelGroups(
     const verticalPadding = textBackgroundType === "outline" ?
         labelOutlineWidth(textSize) :
         0;
+    // "Box" background requires extra height for visual centering/padding
     const heightAddition = textBackgroundType === "box" ? measuredBottomLabelPadding * 0.75 : 0;
 
     const positionedLabelGroups = measuredLabelGroups.map((group) => {
+        // Vertical shift adjustment specifically for non-boxed bottom labels
         const offsetY = group.placement === "bottom" && textBackgroundType !== "box" ? measuredBottomLabelPadding / 2 : 0;
 
         return {

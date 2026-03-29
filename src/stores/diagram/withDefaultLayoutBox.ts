@@ -2,6 +2,12 @@ import { withFallback } from "../../utils/stores";
 import { DiagramStore } from "./useDiagramStore";
 import { calculateLayoutBox, createDefaultDiagramOffsets } from "./utils";
 
+/**
+ * Calculates and attaches a default layout bounding box to the new state.
+ * It compares the incoming state changes with the 
+ * current store to determine if a valid layout exists. If the layout is valid, 
+ * it computes the spatial boundaries for the diagram.
+ */
 export default function withDefaultLayoutBox(newState: Partial<DiagramStore>, oldState: DiagramStore): Partial<DiagramStore> {
     const layout = withFallback(newState.layout, oldState.layout);
     const conceptToLayoutIndexesMapping = withFallback(newState.conceptToLayoutIndexesMapping, oldState.conceptToLayoutIndexesMapping);

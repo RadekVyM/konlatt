@@ -9,12 +9,21 @@ type DiagramLabelingSliceState = {
     filteredAttributesLabeling: ConceptLatticeLabeling | null,
     objectsLabeling: ConceptLatticeLabeling | null,
     filteredObjectsLabeling: ConceptLatticeLabeling | null,
+    /** Set of indexes representing currently active object labels. */
     selectedObjectLabels: ReadonlySet<number>,
+    /** Set of indexes representing currently active attribute labels. */
     selectedAttributeLabels: ReadonlySet<number>,
 }
 
 type DiagramLabelingSliceActions = {
+    /**
+     * Initializes the selection sets based on the formal context.
+     * By default, all labels are selected.
+     */
     setupSelectedLabels: (context: FormalContext) => void,
+    /**
+     * Updates the active selection of labels and triggers re-filtering.
+     */
     setSelectedLabels: (
         selectedObjectLabels: ReadonlySet<number>,
         selectedAttributeLabels: ReadonlySet<number>) => void,
@@ -31,6 +40,9 @@ export const initialState: DiagramLabelingSliceState = {
     selectedAttributeLabels: new Set(),
 };
 
+/**
+ * Slice for a Zustand store that manages the state representing the currently displayed concept labels.
+ */
 export default function createDiagramLabelingSlice(set: (partial: DiagramStore | Partial<DiagramStore> | ((state: DiagramStore) => DiagramStore | Partial<DiagramStore>), replace?: false) => void): DiagramLabelingSlice {
     return {
         ...initialState,

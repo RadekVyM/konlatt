@@ -5,6 +5,10 @@ import { withFallback } from "../../../utils/stores";
 import useDiagramStore from "../../diagram/useDiagramStore";
 import { ExportDiagramStore } from "./useExportDiagramStore";
 
+/**
+ * Computes the textual representation (SVG or TikZ) 
+ * of a diagram whenever relevant export settings or layout data change.
+ */
 export default function withTextResult(newState: Partial<ExportDiagramStore>, oldState: ExportDiagramStore): Partial<ExportDiagramStore> {
     const selectedFormat = withFallback(newState.selectedFormat, oldState.selectedFormat);
     const transformedLayout = withFallback(newState.transformedLayout, oldState.transformedLayout);

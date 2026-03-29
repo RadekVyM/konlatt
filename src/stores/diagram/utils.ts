@@ -5,10 +5,16 @@ import { createPoint, Point } from "../../types/Point";
 import { transformedPoint } from "../../utils/layout";
 import { DiagramLayoutState } from "../../types/diagram/DiagramLayoutState";
 
+/**
+ * Creates an empty memento object for tracking diagram offset history.
+ */
 export function createEmptyDiagramOffsetMementos() {
     return { redos: [], undos: [] };
 }
 
+/**
+ * Creates bidirectional mappings between concept indexes and their indexes in the layout array.
+ */
 export function createConceptLayoutIndexesRelations(layout: ConceptLatticeLayout | null) {
     const conceptToLayoutIndexesMapping = new Map<number, number>();
     const layoutToConceptIndexesMapping = new Map<number, number>();
@@ -27,6 +33,10 @@ export function createConceptLayoutIndexesRelations(layout: ConceptLatticeLayout
     };
 }
 
+/**
+ * Generates a unique string identifier based on the current diagram layout state.
+ * Useful for caching or tracking state changes.
+ */
 export function createDiagramLayoutStateId(state: DiagramLayoutState) {
     const start = state.displayHighlightedSublatticeOnly ?
         `${state.lowerConeOnlyConceptIndex};${state.upperConeOnlyConceptIndex}` :
@@ -49,6 +59,9 @@ export function createDiagramLayoutStateId(state: DiagramLayoutState) {
     return `${start}-${state.layoutMethod}-${state.layoutMethod}-${layoutMethodSegment}`;
 }
 
+/**
+ * Creates an array of zeroed-out `Point` offsets.
+ */
 export function createDefaultDiagramOffsets(length: number) {
     const offsets = new Array<Point>(length);
 
@@ -59,6 +72,10 @@ export function createDefaultDiagramOffsets(length: number) {
     return offsets;
 }
 
+/**
+ * Calculates the bounding box for a set of concepts after applying transformations and offsets.
+ * @returns A `Box` object representing the boundaries, or `null` if no valid points are found.
+ */
 export function calculateLayoutBox(
     conceptIndexes: Iterable<number>,
     layout: ConceptLatticeLayout,
@@ -91,6 +108,7 @@ export function calculateLayoutBox(
 
         const point = transformedPoint(createPoint(conceptPoint.x, conceptPoint.y, conceptPoint.z), offset, nullOffset, horizontalScale, verticalScale, rotationDegrees, cameraType);
 
+        // Update boundaries based on the transformed coordinates
         minX = Math.min(minX, point[0]);
         maxX = Math.max(maxX, point[0]);
         minY = Math.min(minY, point[1]);
@@ -99,6 +117,7 @@ export function calculateLayoutBox(
         maxZ = Math.max(maxZ, point[2]);
     }
 
+    // Check if any points were actually processed
     if (minX === Number.MAX_SAFE_INTEGER || maxX === Number.MIN_SAFE_INTEGER ||
         minY === Number.MAX_SAFE_INTEGER || maxY === Number.MIN_SAFE_INTEGER ||
         minZ === Number.MAX_SAFE_INTEGER || maxZ === Number.MIN_SAFE_INTEGER) {

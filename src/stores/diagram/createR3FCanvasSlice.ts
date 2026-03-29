@@ -26,9 +26,15 @@ type R3FCanvasSliceState = {
 }
 
 type R3FCanvasSliceActions = {
+    /**
+     * Updates the dragging state. When dragging stops, a small delay is introduced 
+     * to prevent race conditions with canvas pointer events.
+     */
     setIsDraggingNodes: (isDraggingNodes: boolean) => void,
+    /** Updates the camera motion state and toggles event handling accordingly. */
     setIsCameraMoving: (isCameraMoving: boolean) => void,
     setDragOffset: (dragOffset: Point) => void,
+    /** Updates the set of indexes for concepts being moved and recalculates their bounding box. */
     setConceptsToMoveIndexes: React.Dispatch<React.SetStateAction<ReadonlySet<number>>>,
     setHoveredConceptIndex: (hoveredConceptIndex: number | null) => void,
     setCurrentZoomLevel: (currentZoomLevel: number) => void,
@@ -56,8 +62,13 @@ export const initialState: R3FCanvasSliceState = {
     currentZoomLevel: 1,
 };
 
+// Tracks the timeout ID for delaying the reset of the dragging state
 let isDraggingNodesTimeout: number | null = null;
 
+/**
+ * Slice for a Zustand store that manages the React Three Fiber (R3F) canvas state,
+ * including camera controls, node dragging interactions, and snapping logic.
+ */
 export default function createR3FCanvasSlice(set: (partial: DiagramStore | Partial<DiagramStore> | ((state: DiagramStore) => DiagramStore | Partial<DiagramStore>), replace?: false) => void): R3FCanvasSlice {
     return {
         ...initialState,
@@ -91,6 +102,10 @@ export default function createR3FCanvasSlice(set: (partial: DiagramStore | Parti
     };
 }
 
+/**
+ * Helper to generate the new state when dragging starts or stops,
+ * ensuring camera controls are enabled/disabled correctly.
+ */
 function createIsDraggingNodesState(isDraggingNodes: boolean, old: DiagramStore): Partial<R3FCanvasSlice> {
     return withCameraControlsEnabled({
         isDraggingNodes,

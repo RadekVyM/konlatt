@@ -5,6 +5,11 @@ import useDataStructuresStore from "../../useDataStructuresStore";
 import { ExportDiagramStore } from "./useExportDiagramStore";
 import withMeasuredLabelGroups from "./withMeasuredLabelGroups";
 
+/**
+ * Enhances the diagram export state by generating and attaching attribute and object labels.
+ * It synchronizes the current data structure context and filtering preferences 
+ * with the export state.
+ */
 export default function withLabels(
     newState: Partial<ExportDiagramStore>,
     oldState: ExportDiagramStore,

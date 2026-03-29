@@ -95,6 +95,9 @@ export function initialState(): DiagramOptionsSliceState {
     };
 }
 
+/**
+ * Slice for a Zustand store that manages the configuration and visual options of the diagram.
+ */
 export default function createDiagramOptionsSlice(set: (partial: DiagramStore | Partial<DiagramStore> | ((state: DiagramStore) => DiagramStore | Partial<DiagramStore>), replace?: false) => void): DiagramOptionsSlice {
     return {
         ...initialState(),

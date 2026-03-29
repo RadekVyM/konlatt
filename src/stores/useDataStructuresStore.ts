@@ -18,6 +18,10 @@ type DataStructuresStore = {
     reset: () => void,
 }
 
+/**
+ * Store for FCA data structures.
+ * Manages the synchronization between the context, concepts, and the resulting lattice.
+ */
 const useDataStructuresStore = create<DataStructuresStore>((set) => ({
     context: null,
     concepts: null,

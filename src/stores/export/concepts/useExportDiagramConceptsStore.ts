@@ -23,6 +23,10 @@ const initialState: ExportDiagramConceptsStoreState = {
     includeHighlightedConceptsOnly: true,
 };
 
+/**
+ * Store that manages the export state and logic for diagram concepts, 
+ * including lattice inclusion settings and size validation.
+ */
 const useExportDiagramConceptsStore = create<ExportDiagramConceptsStore>((set) => ({
     ...initialState,
     ...includeLatticeInitialState,

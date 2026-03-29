@@ -11,6 +11,10 @@ type GlobalsStore = {
     setPreferedColorScheme: (preferedColorScheme: "light" | "dark") => void,
 }
 
+/**
+ * Manages global application state, specifically theme persistence 
+ * and synchronization with browser/OS color schemes.
+ */
 const useGlobalsStore = create<GlobalsStore>((set) => ({
     currentTheme: "light",
     theme: (localStorage.getItem(THEME_STORAGE_KEY) || "system") as Theme,
@@ -61,6 +65,10 @@ function withCurrentTheme(newState: Partial<GlobalsStore>, oldState: GlobalsStor
     };
 }
 
+/**
+ * Injects a <meta name="theme-color"> tag into the document head.
+ * This is used by mobile browsers and some desktop browsers to color the UI chrome.
+ */
 function appendThemeColorMeta(color: string, media?: string) {
     const meta = document.createElement("meta");
     meta.name = "theme-color";

@@ -26,6 +26,9 @@ const initialState: ExportContextStoreState = {
     csvSeparator: ",",
 };
 
+/**
+ * Store that manages the export state and logic for an entire formal context.
+ */
 const useExportContextStore = create<ExportContextStore>((set) => ({
     ...initialState,
     ...createCsvSlice(set, withResult),

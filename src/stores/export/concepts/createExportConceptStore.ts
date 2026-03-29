@@ -9,6 +9,10 @@ import createSelectedConceptSlice, { initialState as initialSelectedConceptSlice
 import { withFallback } from "../../../utils/stores";
 import { ExportConceptStore } from "./ExportConceptStore";
 
+/**
+ * Factory function that creates a Zustand store for exporting an individual formal concept.
+ * Combines selection logic with a base text-result slice.
+ */
 export default function createExportConceptStore() {
     return create<ExportConceptStore>((set) => ({
         ...createSelectedConceptSlice(set),

@@ -11,8 +11,11 @@ type ProjectStore = {
     setProgressMessage: (progressMessage: string | null) => void,
     setName: (name: string) => void,
     clearStatusItems: () => void,
+    /** Prepends a new status item to the list. */
     addStatusItem: (jobId: number, title: string, rest?: StatusItemOptions) => void,
+    /** Finds a specific status item by jobId and merges the provided updates. */
     updateStatusItem: (jobId: number, item: Partial<StatusItem>) => void,
+    /** Removes a status item from the list based on its jobId. */
     removeStatusItem: (jobId: number) => void,
 }
 
@@ -26,6 +29,7 @@ type StatusItemOptions = {
     tag?: string,
 }
 
+/** Manages the current project status and its worker queue. */
 const useProjectStore = create<ProjectStore>((set) => ({
     progressMessage: null,
     name: null,

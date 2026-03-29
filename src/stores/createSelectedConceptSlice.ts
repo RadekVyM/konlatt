@@ -14,6 +14,9 @@ export const initialState: SelectedConceptSliceState = {
     selectedConceptIndex: null,
 };
 
+/**
+ * Slice for a Zustand store that manages the state representing the currently selected formal concept index.
+ */
 export default function createSelectedConceptSlice<TStore extends SelectedConceptSlice>(
     set: (partial: TStore | Partial<TStore> | ((state: TStore) => TStore | Partial<TStore>), replace?: false) => void,
     withSelectedConceptChanged?: (newState: Partial<TStore>, oldState: TStore) => Partial<TStore>,

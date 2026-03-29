@@ -5,6 +5,7 @@ type TextResultExportStoreState = {
 }
 
 type TextResultExportStoreActions = {
+    /** Resets the slice to its initial state, including nested slices. */
     reset: () => void,
 }
 
@@ -13,6 +14,10 @@ export type TextResultExportStore<TKey extends string> = TextResultExportStoreSt
 const initialState: TextResultExportStoreState = {
 };
 
+/**
+ * Slice for a Zustand store that manages the base logic for exporting text results, 
+ * integrating format selection and result state management.
+ */
 export default function createTextResultStoreBaseSlice<
     TKey extends string,
     TStore extends TextResultExportStore<TKey>,

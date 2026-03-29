@@ -2,6 +2,10 @@ import { transformedLayoutForExport } from "../../../utils/export";
 import useDiagramStore from "../../diagram/useDiagramStore";
 import { ExportDiagramStore } from "./useExportDiagramStore";
 
+/**
+ * Injects a transformed layout into the export state based
+ * on the current diagram configuration.
+ */
 export default function withTransformedLayout(
     newState: Partial<ExportDiagramStore>,
     _oldState: ExportDiagramStore,

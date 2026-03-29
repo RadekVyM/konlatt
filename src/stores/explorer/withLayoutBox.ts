@@ -3,6 +3,9 @@ import { ExplorerConcept } from "../../types/explorer/ExplorerConcept";
 import { withFallback } from "../../utils/stores";
 import { ExplorerStore } from "./useExplorerStore";
 
+/**
+ * Calculates and injects the bounding box for the current set of explorer concepts.
+ */
 export default function withLayoutBox(
     newState: Partial<ExplorerStore>,
     oldState: ExplorerStore
@@ -15,6 +18,9 @@ export default function withLayoutBox(
     };
 }
 
+/**
+ * Computes a 3D `Box` that encapsulates all provided concepts based on their positions.
+ */
 function calculateLayoutBox(concepts: ReadonlyArray<ExplorerConcept>) : Box | null {
     if (concepts.length === 0) {
         return null;

@@ -12,6 +12,9 @@ import { withFallback } from "../../utils/stores";
 
 type ExportObjectStore = TextResultExportStore<ContextItemExportFormat>
 
+/**
+ * Store that manages the export state and logic for an individual object within a formal context.
+ */
 const useExportObjectStore = create<ExportObjectStore>((set) => ({
     ...createTextResultStoreBaseSlice<ContextItemExportFormat, ExportObjectStore>(
         "json",

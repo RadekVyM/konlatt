@@ -10,6 +10,9 @@ type SelectedFormatSliceActions<TKey> = {
 
 export type SelectedFormatSlice<TKey> = SelectedFormatSliceState<TKey> & SelectedFormatSliceActions<TKey>
 
+/**
+ * Slice for a Zustand store that manages the selection of a specific format.
+ */
 export default function createSelectedFormatSlice<TKey extends string, TStore extends SelectedFormatSlice<TKey>>(
     defaultFormat: TKey,
     set: (partial: SelectedFormatSlice<TKey> | Partial<SelectedFormatSlice<TKey>> | ((state: TStore) => SelectedFormatSlice<TKey> | Partial<SelectedFormatSlice<TKey>>), replace?: false) => void,

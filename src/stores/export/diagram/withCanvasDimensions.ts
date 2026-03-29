@@ -5,6 +5,10 @@ import { layoutRect } from "../../../utils/layout";
 import { withFallback } from "../../../utils/stores";
 import { ExportDiagramStore } from "./useExportDiagramStore";
 
+/**
+ * Calculates the final canvas dimensions, scaling factors, and center offsets 
+ * for the exported diagram based on the layout, padding, and other constraints.
+ */
 export default function withCanvasDimensions(
     newState: Partial<ExportDiagramStore>,
     oldState: ExportDiagramStore,
@@ -46,6 +50,7 @@ export default function withCanvasDimensions(
         0 :
         Math.ceil(diagramRatio > maxRatio ? maxDiagramWidth / diagramRatio : maxDiagramHeight);
 
+    // Determine the final scale factor to fit the diagram into the calculated box
     const scale = isZeroSizeDiagram ?
         1 :
         diagramWidth === 0 ?
@@ -53,6 +58,7 @@ export default function withCanvasDimensions(
             diagramHeight === 0 ?
                 width / diagramWidth : 
                 Math.min(width / diagramWidth, height / diagramHeight);
+    // Calculate the origin (0,0) offset in the canvas to center the diagram correctly
     const centerX = -rect.left * scale + nodeRadius + minPaddingLeft + labelPadding.left;
     const centerY = rect.top * scale + nodeRadius + minPaddingTop + labelPadding.top;
 
@@ -73,6 +79,10 @@ export default function withCanvasDimensions(
     };
 }
 
+/**
+ * Calculates additional padding required if labels extend beyond the 
+ * bounding box of the diagram nodes.
+ */
 function getPeripheralLabelPaddings(
     labelGroups: ReadonlyArray<LabelGroup>,
     layout: ReadonlyArray<Point>,

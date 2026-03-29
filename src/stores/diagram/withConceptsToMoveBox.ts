@@ -3,6 +3,11 @@ import { DiagramStore } from "./useDiagramStore";
 import { calculateLayoutBox } from "./utils";
 import withDragOffsetSnapping from "./withDragOffsetSnapping";
 
+/**
+ * Calculates the bounding box for concepts currently being moved within the diagram.
+ * It ensures the `conceptsToMoveBox` state is kept in sync whenever layout, 
+ * offsets, or selection indexes change, while wrapping the result with drag-snapping logic.
+ */
 export default function withConceptsToMoveBox(newState: Partial<DiagramStore>, oldState: DiagramStore): Partial<DiagramStore> {
     const layout = withFallback(newState.layout, oldState.layout);
     const diagramOffsets = withFallback(newState.diagramOffsets, oldState.diagramOffsets);

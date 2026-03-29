@@ -18,6 +18,9 @@ export function formalContextHasAttribute(context: FormalContext, object: number
     return (cellValue & mask) !== 0;
 }
 
+/**
+ * Returns the set of attributes common to all given objects.
+ */
 export function getObjectAttributes(context: FormalContext, objects: number | ReadonlyArray<number>): Array<number> {
     const attributes = new Array<number>();
     const objectsArray = typeof objects === "number" ? [objects] : objects;
@@ -31,6 +34,9 @@ export function getObjectAttributes(context: FormalContext, objects: number | Re
     return attributes;
 }
 
+/**
+ * Returns the set of objects common to all given attributes.
+ */
 export function getAttributeObjects(context: FormalContext, attributes: number | ReadonlyArray<number>): Array<number> {
     const objects = new Array<number>();
     const attributesArray = typeof attributes === "number" ? [attributes] : attributes;

@@ -4,6 +4,10 @@ import { ExportDiagramStore } from "./useExportDiagramStore";
 
 const TOO_LARGE_THRESHOLD = 15_000_000;
 
+/**
+ * Checks if the current export configuration would result 
+ * in a payload that is too large for the browser to handle efficiently.
+ */
 export default function withTooLarge(newState: Partial<ExportDiagramStore>, oldState: ExportDiagramStore): Partial<ExportDiagramStore> {
     const selectedFormat = withFallback(newState.selectedFormat, oldState.selectedFormat);
     const transformedLayout = withFallback(newState.transformedLayout, oldState.transformedLayout);
@@ -23,6 +27,9 @@ export default function withTooLarge(newState: Partial<ExportDiagramStore>, oldS
     };
 }
 
+/**
+ * Estimates the number of lines required to render labels based on the export format.
+ */
 function labelLinesCountEstimate(newState: Partial<ExportDiagramStore>, oldState: ExportDiagramStore) {
     const selectedFormat = withFallback(newState.selectedFormat, oldState.selectedFormat);
     const objectLabels = withFallback(newState.objectLabels, oldState.objectLabels);
@@ -39,6 +46,9 @@ function labelLinesCountEstimate(newState: Partial<ExportDiagramStore>, oldState
     return 0;
 }
 
+/**
+ * Returns the average character length per line for a given format based on benchmarked data.
+ */
 function averageLineLength(format: DiagramExportFormat) {
     // These numbers are experimentally measured on 5 datasets
     switch (format) {

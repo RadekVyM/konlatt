@@ -12,6 +12,9 @@ import { withFallback } from "../../utils/stores";
 
 type ExportAttributeStore = TextResultExportStore<ContextItemExportFormat>
 
+/**
+ * Store that manages the export state and logic for an individual attribute within a formal context.
+ */
 const useExportAttributeStore = create<ExportAttributeStore>((set) => ({
     ...createTextResultStoreBaseSlice<ContextItemExportFormat, ExportAttributeStore>(
         "json",

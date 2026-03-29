@@ -8,6 +8,7 @@ type NewProjectStore = {
     setDialogState: (dialogState: DialogState) => void,
 }
 
+/** Manages state related to the new project dialog. */
 const useNewProjectStore = create<NewProjectStore>((set) => ({
     selectedFile: null,
     dialogState: null,

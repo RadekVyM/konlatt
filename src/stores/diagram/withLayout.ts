@@ -8,6 +8,12 @@ import { withCanUndoRedo } from "./withCanUndoRedo";
 import withConceptsToMoveBox from "./withConceptsToMoveBox";
 import withDefaultLayoutBox from "./withDefaultLayoutBox";
 
+/**
+ * Manages the diagram layout lifecycle.
+ * It coordinates between cached layouts, active layout computations (jobs),
+ * and state synchronization. If a layout for the new state exists in the cache, 
+ * it applies it immediately; otherwise, it triggers a background computation.
+ */
 export default function withLayout(
     newState: Partial<DiagramStore>,
     oldState: DiagramStore,
@@ -28,6 +34,7 @@ export default function withLayout(
     }
 
     if (cachedLayoutItem) {
+        // Cancel any pending layout jobs as we've found a valid cached version.
         if (oldState.currentLayoutJobId !== null) {
             triggerCancellation(oldState.currentLayoutJobId);
         }
@@ -55,6 +62,9 @@ export default function withLayout(
     }, oldState, withConceptsToMoveBox, withDefaultLayoutBox, withCanUndoRedo);
 }
 
+/**
+ * Retrieves a cached layout item by its unique state signature.
+ */
 function tryGetLayoutFromCache(
     layoutCache: ReadonlyMap<string, ConceptLatticeLayoutCacheItem>,
     stateId: string,

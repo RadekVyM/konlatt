@@ -4,6 +4,11 @@ import useDataStructuresStore from "../useDataStructuresStore";
 import { DiagramStore } from "./useDiagramStore";
 import withFilteredDiagramLabeling from "./withFilteredDiagramLabeling";
 
+/**
+ * Manages the calculation of attribute and object labels for a diagram.
+ * It determines whether to use the full lattice labeling or to recalculate 
+ * labels based specifically on a highlighted sublattice.
+ */
 export default function withDiagramLabeling(newState: Partial<DiagramStore>, oldState: DiagramStore): Partial<DiagramStore> {
     const sublatticeConceptIndexes = withFallback(newState.sublatticeConceptIndexes, oldState.sublatticeConceptIndexes);
     const displayHighlightedSublatticeOnly = withFallback(newState.displayHighlightedSublatticeOnly, oldState.displayHighlightedSublatticeOnly);

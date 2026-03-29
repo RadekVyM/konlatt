@@ -11,7 +11,9 @@ type ConceptsFilterSliceState = {
     searchTerms: ReadonlyArray<string>,
     sortType: ConceptSortType,
     sortDirection: SortDirection,
+    /** Indexes of concepts matching the current filter criteria; `null` if no filter is active. */
     filteredConceptIndexes: ReadonlySet<number> | null,
+    /** The actual concept objects matching the filter; `null` if no filter is active. */
     filteredConcepts: FormalConcepts | null,
     strictSelectedObjects: boolean,
     strictSelectedAttributes: boolean,
@@ -24,9 +26,13 @@ type ConceptsFilterSliceState = {
 }
 
 type ConceptsFilterSliceActions = {
+    /** Updates the search input and triggers a re-filter. */
     setDebouncedSearchInput: (debouncedSearchInput: string) => void,
+    /** Sets the criteria by which concepts are sorted. */
     setSortType: (objecsortTypetsSortType: ConceptSortType) => void,
+    /** Sets the sorting order (ascending or descending). */
     setSortDirection: (sortDirection: SortDirection) => void,
+    /** Updates multiple filter constraints at once and triggers a re-filter. */
     setSelectedFilters: (
         strictSelectedObjects: boolean,
         strictSelectedAttributes: boolean,
@@ -58,6 +64,9 @@ export const initialState: ConceptsFilterSliceState = {
     maxAttributesCount: null,
 };
 
+/**
+ * Slice for a Zustand store that manages the state representing the active filters and resulting data for formal concepts.
+ */
 export default function createConceptsFilterSlice(set: (partial: ConceptsFilterSlice | Partial<ConceptsFilterSlice> | ((state: ConceptsFilterSlice) => ConceptsFilterSlice | Partial<ConceptsFilterSlice>), replace?: false) => void): ConceptsFilterSlice {
     return {
         ...initialState,
@@ -87,6 +96,9 @@ export default function createConceptsFilterSlice(set: (partial: ConceptsFilterS
     };
 }
 
+/**
+ * Computes the filtered concept list whenever relevant state changes.
+ */
 function withFilteredConceptIndexes(newState: Partial<ConceptsFilterSlice>, oldState: ConceptsFilterSlice): Partial<ConceptsFilterSlice> {
     const debouncedSearchInput = withFallback(newState.debouncedSearchInput, oldState.debouncedSearchInput);
     const strictSelectedObjects = withFallback(newState.strictSelectedObjects, oldState.strictSelectedObjects);
@@ -99,6 +111,7 @@ function withFilteredConceptIndexes(newState: Partial<ConceptsFilterSlice>, oldS
     const maxAttributesCount = withFallback(newState.maxAttributesCount, oldState.maxAttributesCount);
     const searchTerms = toSearchTerms(debouncedSearchInput);
 
+    // If no filters are active, return early to reset the filtered state to null
     if (
         searchTerms.length === 0 &&
         selectedFilterObjects.size === 0 &&
@@ -152,6 +165,14 @@ function withFilteredConceptIndexes(newState: Partial<ConceptsFilterSlice>, oldS
     };
 }
 
+/**
+ * Evaluates whether a single concept meets all current filter criteria.
+ * Logic order:
+ * 1. Count constraints (min/max objects/attributes)
+ * 2. Mandatory object inclusions (strict vs loose)
+ * 3. Mandatory attribute inclusions (strict vs loose)
+ * 4. Fuzzy search terms across object/attribute labels
+ */
 function conceptFilter(
     concept: FormalConcept,
     searchTerms: ReadonlyArray<string>,
@@ -180,6 +201,7 @@ function conceptFilter(
     selectedFilterObjects = new Set(selectedFilterObjects);
     selectedFilterAttributes = new Set(selectedFilterAttributes);
 
+    // If strict, concept must contain ALL filter objects. If loose, at least ONE.
     if (selectedFilterObjects.size > 0) {
         const selectedObjects = concept.objects.filter((obj) => selectedFilterObjects.has(obj));
         const hasObjects = strictSelectedObjects ?
@@ -191,6 +213,7 @@ function conceptFilter(
         }
     }
 
+    // If strict, concept must contain ALL filter attributes. If loose, at least ONE.
     if (selectedFilterAttributes.size > 0) {
         const selectedAttributes = concept.attributes.filter((attr) => selectedFilterAttributes.has(attr));
         const hasAttributes = strictSelectedAttributes ?
@@ -202,6 +225,7 @@ function conceptFilter(
         }
     }
 
+    // Every search term must be found in at least one object label or attribute label
     const hasSearchTerms = searchTerms.length === 0 ||
         searchTerms.every((term) =>
             concept.objects.some((obj) => context.objects[obj].toLocaleLowerCase().includes(term)) ||
