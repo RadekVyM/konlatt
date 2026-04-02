@@ -1,4 +1,4 @@
-export type ExportDiagramWorkerResponse = BlobResponse | DrawDoneResponse
+export type ExportDiagramWorkerResponse = BlobResponse | DrawDoneResponse | DrawingResponse
 
 export type BlobResponse = {
     type: "blob",
@@ -7,4 +7,8 @@ export type BlobResponse = {
 
 export type DrawDoneResponse = {
     type: "draw-done",
+}
+
+export type DrawingResponse = {
+    type: "drawing",
 }

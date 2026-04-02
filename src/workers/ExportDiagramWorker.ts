@@ -2,7 +2,7 @@ import { Font } from "../types/export/Font";
 import { LabelGroup } from "../types/export/LabelGroup";
 import { TextBackgroundType } from "../types/export/TextBackgroundType";
 import { ExportDiagramWorkerRequest } from "../types/workers/ExportDiagramWorkerRequest";
-import { BlobResponse, DrawDoneResponse } from "../types/workers/ExportDiagramWorkerResponse";
+import { BlobResponse, DrawDoneResponse, DrawingResponse } from "../types/workers/ExportDiagramWorkerResponse";
 import { drawLabels } from "../utils/drawing";
 
 // Worker that handles export diagram drawing using OffscreenCanvas
@@ -91,6 +91,7 @@ self.onmessage = async (event: MessageEvent<ExportDiagramWorkerRequest>) => {
     }
 
     timeout = setTimeout(draw, DEBOUNCE_DELAY);
+    postDrawing();
 }
 
 /**
@@ -141,10 +142,7 @@ function draw() {
     drawLabelGroups(context);
     context.restore();
 
-    const response: DrawDoneResponse = {
-        type: "draw-done",
-    };
-    postMessage(response);
+    postDrawDone();
 }
 
 function drawBackground(context: OffscreenCanvasRenderingContext2D) {
@@ -237,4 +235,18 @@ function createBlobResponse(blob: Blob | null): BlobResponse {
         type: "blob",
         blob,
     };
+}
+
+function postDrawing() {
+    const response: DrawingResponse = {
+        type: "drawing",
+    };
+    postMessage(response);
+}
+
+function postDrawDone() {
+    const response: DrawDoneResponse = {
+        type: "draw-done",
+    };
+    postMessage(response);
 }

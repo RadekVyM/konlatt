@@ -19,6 +19,7 @@ import ExportDiagramWorker from "../../../workers/ExportDiagramWorker?worker";
 import { ExportDiagramWorkerResponse } from "../../../types/workers/ExportDiagramWorkerResponse";
 import toast from "../../../components/toast";
 import withTooLarge from "./withTooLarge";
+import { MIN_CANVAS_SIZE } from "../../../constants/diagram-export";
 
 type ExportDiagramStoreState = {
     transformedLayout: ReadonlyArray<Point> | null,
@@ -40,6 +41,7 @@ type ExportDiagramStoreState = {
     linkThickness: number,
     /** Tracks if the first render of the preview worker has finished */
     isInitialPreviewCanvasDrawDone: boolean,
+    isDrawing: boolean,
     isExporting: boolean,
     /** Dedicated worker for handling heavy canvas drawing operations */
     worker: Worker | null,
@@ -61,6 +63,7 @@ type ExportDiagramStoreActions = {
     /** Sets dimensions based on orientation (landscape vs portrait) */
     setDimensions: (largerSize: number, smallerSize: number) => void,
     setIsInitialPreviewCanvasDrawDone: (isInitialPreviewCanvasDrawDone: boolean) => void,
+    setIsDrawing: (isDrawing: boolean) => void,
     setIsExporting: (isExporting: boolean) => void,
     /** Should be triggered when the export dialog is fully visible */
     onDialogShown: () => void,
@@ -91,6 +94,7 @@ const initialState: ExportDiagramStoreState = {
     defaultNodeColor: createHsvaColor(0, 0, 0, 1),
     defaultLinkColor: createHsvaColor(0, 0, 0.7, 1),
     isInitialPreviewCanvasDrawDone: false,
+    isDrawing: false,
     isExporting: false,
     worker: null,
 };
@@ -104,7 +108,7 @@ const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
     ...labelsSliceInitialState,
     ...createDiagramOptionsSlice(set),
     setMaxWidth: (maxWidth) => set((old) => {
-        maxWidth = Math.max(maxWidth, 0);
+        maxWidth = Math.max(maxWidth, MIN_CANVAS_SIZE);
 
         if (!old.lockedAspectRatio || old.maxWidth === 0) {
             return w({ maxWidth }, old, withValidDimensions, withCanvasDimensions, withTextResult);
@@ -119,7 +123,7 @@ const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
         }, old, withValidDimensions, withCanvasDimensions, withTextResult);
     }),
     setMaxHeight: (maxHeight) => set((old) => {
-        maxHeight = Math.max(maxHeight, 0);
+        maxHeight = Math.max(maxHeight, MIN_CANVAS_SIZE);
 
         if (!old.lockedAspectRatio || old.maxHeight === 0) {
             return w({ maxHeight }, old, withValidDimensions, withCanvasDimensions, withTextResult);
@@ -134,8 +138,8 @@ const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
         }, old, withValidDimensions, withCanvasDimensions, withTextResult);
     }),
     setDimensions: (largerSize, smallerSize) => set((old) => {
-        largerSize = Math.max(largerSize, 0);
-        smallerSize = Math.max(smallerSize, 0);
+        largerSize = Math.max(largerSize, MIN_CANVAS_SIZE);
+        smallerSize = Math.max(smallerSize, MIN_CANVAS_SIZE);
 
         if (!old.transformedLayout) {
             return w({}, old, withCanvasDimensions, withTextResult);
@@ -170,6 +174,7 @@ const useExportDiagramStore = create<ExportDiagramStore>((set) => ({
     setNodeRadius: (nodeRadius) => set((old) => w({ nodeRadius }, old, withPositionedLabelGroups, withTextResult)),
     setLinkThickness: (linkThickness) => set((old) => w({ linkThickness }, old, withTextResult)),
     setIsInitialPreviewCanvasDrawDone: (isInitialPreviewCanvasDrawDone) => set({ isInitialPreviewCanvasDrawDone }),
+    setIsDrawing: (isDrawing) => set({ isDrawing }),
     setIsExporting: (isExporting) => set({ isExporting }),
     onDialogShown: () => set((old) => w({}, old, withTransformedLayout, withLinks, withLabels, withTooLarge, withTextResult)),
     onDialogShowing: () => set((old) => {
@@ -207,8 +212,12 @@ export default useExportDiagramStore;
  */
 function handleWorkerResponse(event: MessageEvent<ExportDiagramWorkerResponse>) {
     switch (event.data.type) {
+        case "drawing":
+            useExportDiagramStore.getState().setIsDrawing(true);
+            break;
         case "draw-done":
             useExportDiagramStore.getState().setIsInitialPreviewCanvasDrawDone(true);
+            useExportDiagramStore.getState().setIsDrawing(false);
             break;
     }
 }

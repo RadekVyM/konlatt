@@ -82,7 +82,7 @@ export default function RasterDownloadButtons(props: {
                 copyButtonIcon={copySuccessful ? LuCheck : LuCopy}
                 onDownloadClick={onDownloadClick} />
         </div>
-    )
+    );
 }
 
 async function getCanvasImageBlob(type: string): Promise<Blob | null> {

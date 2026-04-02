@@ -1,5 +1,5 @@
 import { LuLock, LuLockOpen } from "react-icons/lu";
-import { EXPORT_DIMENSIONS_TEMPLATES } from "../../../constants/diagram-export";
+import { EXPORT_DIMENSIONS_TEMPLATES, MIN_CANVAS_SIZE } from "../../../constants/diagram-export";
 import useExportDiagramStore from "../../../stores/export/diagram/useExportDiagramStore";
 import { DiagramExportDimensionsTemplateKey } from "../../../types/export/DiagramExportDimensionsTemplate";
 import { cn } from "../../../utils/tailwind";
@@ -166,7 +166,7 @@ function MaxDimensions() {
                     delay={DEBOUNCE_DELAY}
                     className="col-1 row-1"
                     prefix="W"
-                    min={0}
+                    min={MIN_CANVAS_SIZE}
                     value={maxWidth}
                     onChange={setMaxWidth} />
                 <DebouncedPrefixedNumberInput
@@ -174,7 +174,7 @@ function MaxDimensions() {
                     delay={DEBOUNCE_DELAY}
                     className="col-2 row-1"
                     prefix="H"
-                    min={0}
+                    min={MIN_CANVAS_SIZE}
                     value={maxHeight}
                     onChange={setMaxHeight} />
                 <Button

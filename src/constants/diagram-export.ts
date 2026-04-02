@@ -4,6 +4,7 @@ import { DiagramExportDimensionsTemplate } from "../types/export/DiagramExportDi
 export const MAX_CANVAS_HEIGHT = 32767;
 export const MAX_CANVAS_WIDTH = 32767;
 export const MAX_CANVAS_AREA = 16384 * 16384;
+export const MIN_CANVAS_SIZE = 1;
 
 export const CANVAS_ID = "export-diagram-canvas";
 

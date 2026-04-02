@@ -1,9 +1,9 @@
-import { useContext, useEffect, useRef } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import useExportDiagramStore from "../../../stores/export/diagram/useExportDiagramStore";
 import { cn } from "../../../utils/tailwind";
 import ZoomBar from "../../ZoomBar";
 import Button from "../../inputs/Button";
-import { LuFocus } from "react-icons/lu";
+import { LuFocus, LuLoaderCircle } from "react-icons/lu";
 import { AppearanceRequest, DimensionsRequest, InitCanvasRequest, InitLayoutRequest, InitLinksRequest, LabelGroupsRequest, LabelsAppearanceRequest } from "../../../types/workers/ExportDiagramWorkerRequest";
 import { hsvaToHexa } from "../../../utils/colors";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
@@ -69,6 +69,9 @@ export default function ExportDiagramOffscreenCanvas(props: {
             <Controls
                 className="absolute bottom-0 right-0" />
 
+            <DrawingIndicator
+                className="absolute bottom-0 left-0" />
+
             <Centering
                 canvasRef={canvasRef} />
         </ExportDiagramZoomContextProvider>
@@ -94,6 +97,35 @@ function Controls(props: {
                 onClick={() => zoomActions.current?.centerView(1)}>
                 <LuFocus />
             </Button>
+        </div>
+    );
+}
+
+function DrawingIndicator(props: {
+    className?: string,
+}) {
+    const isDrawing = useExportDiagramStore((state) => state.isDrawing);
+    const [isVisible, setIsVisible] = useState(false);
+
+    useEffect(() => {
+        if (isDrawing) {
+            setIsVisible(true);
+            return;
+        }
+
+        const timeout = setTimeout(() => setIsVisible(false), 500);
+        return () => clearTimeout(timeout);
+    }, [isDrawing]);
+
+    return (
+        <div
+            className={cn(
+                "m-3 text-xs text-primary dark:text-primary-dim bg-primary-lite px-2 py-0.5 rounded-md flex items-center gap-1 transition-all duration-150 ease-in-out",
+                "pointer-events-none select-none",
+                !isVisible && "opacity-0 translate-y-0.5",
+                props.className)}>
+            <LuLoaderCircle className="animate-spin" />
+            <span className="mt-0.75 block">Drawing...</span>
         </div>
     );
 }
