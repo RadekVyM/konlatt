@@ -69,10 +69,29 @@ else
     ASSERTIONS_VAL=1
 fi
 
+# Silence the temporary deprecation error (TS5101) until Emscripten SDK is updated:
+# Option 'outFile' is deprecated and will stop functioning in TypeScript 7.0. Specify compilerOption '"ignoreDeprecations": "6.0"' to silence this error.
+
+# [TS5101]: Create a tiny JavaScript shim to inject the missing flag
+cat << 'EOF' > inject_fix.cjs
+// Modify the global process.argv directly before any other script runs
+if (process.argv.some(arg => arg.includes('tsc'))) {
+  const index = process.argv.indexOf('--outFile');
+  if (index !== -1) {
+    // Inject the silence flag right before --outFile
+    process.argv.splice(index, 0, '--ignoreDeprecations', '6.0');
+  }
+}
+EOF
+
 echo "============================================="
 echo "Compiling wasm bindings"
 echo "============================================="
 (
+    # [TS5101]: Force every Node process (including Emscripten's internal tsc) 
+    # to load the shim and ignore the deprecation error.
+    export NODE_OPTIONS="--require $(pwd)/inject_fix.cjs"
+
     # Compile C/C++ code
     emcc \
     -lembind \
@@ -96,3 +115,6 @@ echo "============================================="
 echo "============================================="
 echo "Compiling wasm bindings done"
 echo "============================================="
+
+# [TS5101]: Cleanup
+rm inject_fix.cjs

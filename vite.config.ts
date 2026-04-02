@@ -54,6 +54,9 @@ export default defineConfig({
   test: {
     exclude: ["**/node_modules/**", "**/dist/**", "./benchmarks"],
   },
+  optimizeDeps: {
+    exclude: ["./benchmarks/as/index.js"], 
+  },
   server: {
     watch: {
       ignored: [

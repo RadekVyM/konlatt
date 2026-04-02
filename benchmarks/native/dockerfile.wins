@@ -11,4 +11,4 @@ RUN clang --version
 RUN llvm-config --version
 
 # Compile the C++ code with clang for Windows target and static linking
-CMD ["clang++", "--target=x86_64-w64-windows-gnu", "-O3", "-o", "./benchmarks/native/main_clang.exe", "./benchmarks/native/main.cpp", "-static-libgcc", "-static-libstdc++", "-static"]
+CMD ["clang++", "--target=x86_64-w64-windows-gnu", "-std=gnu++17", "-O3", "-o", "./benchmarks/native/main_clang.exe", "./benchmarks/native/main.cpp", "-static-libgcc", "-static-libstdc++", "-static"]

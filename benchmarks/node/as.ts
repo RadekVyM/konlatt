@@ -1,8 +1,13 @@
-// npx vite-node ./benchmarks/node/as.ts
+// npx vite-node@5.3.0 ./benchmarks/node/as.ts
+
+// The older version of Vite Node needs to be used because the new Vite bundler (Rolldown)
+// does not like the way AssemblyScript exports things to modules
 
 import mushroomep from "../../datasets/mushroomep.cxt?raw";
-import { __collect, inClose, parseBurmeister } from "../as";
+import * as wasm from "../as";
 import { generateStats } from "../stats";
+
+const { __collect, inClose, parseBurmeister } = wasm;
 
 const RUNS_COUNT = 50;
 
