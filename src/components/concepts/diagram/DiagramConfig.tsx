@@ -140,12 +140,12 @@ function NodesLinksSection() {
             <ToggleSwitch
                 checked={selectedLinksHighlightingEnabled}
                 onChange={(e) => setSelectedLinksHighlightingEnabled(e.currentTarget.checked)}>
-                Highlight links of selected concept
+                Highlight links of selected node
             </ToggleSwitch>
             <ToggleSwitch
                 checked={hoveredLinksHighlightingEnabled}
                 onChange={(e) => setHoveredLinksHighlightingEnabled(e.currentTarget.checked)}>
-                Highlight links on hover
+                Highlight links of hovered node
             </ToggleSwitch>
         </ConfigSection>
     );

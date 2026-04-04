@@ -3,15 +3,17 @@ import { ConceptLatticeLayoutCacheItem } from "../../types/diagram/ConceptLattic
 import { DiagramLayoutState } from "../../types/diagram/DiagramLayoutState";
 import { DiagramOffsetMementos } from "../../types/diagram/DiagramOffsetMementos";
 import { createNodeOffsetMemento } from "../../types/diagram/NodeOffsetMemento";
-import { createPoint, Point } from "../../types/Point";
+import { createPoint, isZero, Point } from "../../types/Point";
 import { rotatePoint } from "../../utils/layout";
 import { w, withFallback } from "../../utils/stores";
 import { DiagramStore } from "./useDiagramStore";
 import { createConceptLayoutIndexesRelations, createDefaultDiagramOffsets, createDiagramLayoutStateId, createEmptyDiagramOffsetMementos } from "./utils";
+import withCameraControlsEnabled from "./withCameraControlsEnabled";
 import { withCanUndoRedo } from "./withCanUndoRedo";
 import withConceptsToMoveBox from "./withConceptsToMoveBox";
 import withDefaultLayoutBox from "./withDefaultLayoutBox";
 import withDiagramLabeling from "./withDiagramLabeling";
+import withEventsEnabled from "./withEventsEnabled";
 
 const CACHE_MAX_SIZE = 5_000_000;
 
@@ -42,7 +44,7 @@ type DiagramLayoutSliceActions = {
     /** Tracks an active layout computation job */
     setCurrentLayoutJobId: (currentLayoutJobId: number | null, layoutState: DiagramLayoutState | null) => void,
     /** Updates the positional offsets for a set of concepts (e.g., after a drag interaction) */
-    updateNodeOffsets: (conceptIndexes: Iterable<number>, offset: Point) => void,
+    applyDragOffset: () => void,
     undo: () => void,
     redo: () => void,
 }
@@ -97,13 +99,19 @@ export default function createDiagramLayoutSlice(set: (partial: DiagramStore | P
             currentLayoutJobId,
             currentLayoutJobStateId: layoutState === null ? null : createDiagramLayoutStateId(layoutState),
         })),
-        updateNodeOffsets: (conceptIndexes, offset) => set((old) => {
+        applyDragOffset: () => set((old) => {
+            let offset = old.dragOffset;
+            const conceptIndexes = old.conceptsToMoveIndexes;
             const diagramOffsets = old.diagramOffsets;
             const conceptToLayoutIndexesMapping = old.conceptToLayoutIndexesMapping;
             const rotationDegrees = old.rotationDegrees;
+            const distance = Math.sqrt(Math.pow(offset[0], 2) + Math.pow(offset[1], 2) + Math.pow(offset[2], 2));
 
-            if (!diagramOffsets || !conceptToLayoutIndexesMapping) {
-                return {};
+            if (!diagramOffsets || !conceptToLayoutIndexesMapping || distance <= 0.001 || conceptIndexes.size === 0) {
+                return w({
+                    dragOffset: isZero(old.dragOffset) ? old.dragOffset : createPoint(0, 0, 0),
+                    isDraggingNodes: false,
+                }, old, withCameraControlsEnabled, withEventsEnabled);
             }
 
             const layoutIndexes = new Array<number>();
@@ -122,12 +130,14 @@ export default function createDiagramLayoutSlice(set: (partial: DiagramStore | P
             const newOffsets = [...diagramOffsets];
             applyOffset(newOffsets, layoutIndexes, offset);
 
-            return withNodeOffsetsUpdated({
+            return w({
+                dragOffset: createPoint(0, 0, 0),
+                isDraggingNodes: false,
                 diagramOffsets: newOffsets,
                 diagramOffsetMementos: {
                     redos: [], undos: [...old.diagramOffsetMementos.undos, createNodeOffsetMemento(layoutIndexes, offset)],
                 },
-            }, old);
+            }, old, withNodeOffsetsUpdated, withCameraControlsEnabled, withEventsEnabled);
         }),
         undo: () => set((old) => {
             const diagramOffsets = old.diagramOffsets;

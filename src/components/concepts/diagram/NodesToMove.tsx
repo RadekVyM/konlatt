@@ -1,5 +1,5 @@
 import { PivotControls } from "@react-three/drei";
-import { RefObject, useLayoutEffect, useMemo, useRef } from "react";
+import { RefObject, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Group, InstancedMesh, Matrix4, Object3D } from "three";
 import { getPoint, themedColor } from "./utils";
 import useDiagramStore from "../../../stores/diagram/useDiagramStore";
@@ -7,6 +7,7 @@ import { createPoint, Point } from "../../../types/Point";
 import useGlobalsStore from "../../../stores/useGlobalsStore";
 import { transformedPoint } from "../../../utils/layout";
 import { PRIMARY_COLOR_DARK, PRIMARY_COLOR_LIGHT } from "../../../constants/canvas-drawing";
+import useEventListener from "../../../hooks/useEventListener";
 
 /**
  * Component that renders a set of selectable nodes with interactive pivot controls 
@@ -44,7 +45,6 @@ function PivotControlsInternal(props: {
     const pivotControlsRef = useRef<Group>(null);
     const layout = useDiagramStore((state) => state.layout);
     const diagramOffsets = useDiagramStore((state) => state.diagramOffsets);
-    const dragOffset = useDiagramStore((state) => state.dragOffset);
     const conceptsToMoveIndexes = useDiagramStore((state) => state.conceptsToMoveIndexes);
     const cameraType = useDiagramStore((state) => state.cameraType);
     const horizontalScale = useDiagramStore((state) => state.horizontalScale);
@@ -53,10 +53,12 @@ function PivotControlsInternal(props: {
     const isDraggingNodes = useDiagramStore((state) => state.isDraggingNodes);
     const setIsDraggingNodes = useDiagramStore((state) => state.setIsDraggingNodes);
     const setDragOffset = useDiagramStore((state) => state.setDragOffset);
-    const updateNodeOffsets = useDiagramStore((state) => state.updateNodeOffsets);
+    const applyDragOffset = useDiagramStore((state) => state.applyDragOffset);
 
     const activeAxes: [boolean, boolean, boolean] | undefined = cameraType === "2d" ? [true, true, false] : undefined;
-    
+
+    const { pivotResetKey } = useDragStateReset();
+
     useLayoutEffect(() => {
         if (!pivotControlsRef.current || conceptsToMoveIndexes.size === 0) {
             return;
@@ -96,18 +98,12 @@ function PivotControlsInternal(props: {
     }
 
     function onDragEnd() {
-        const distance = Math.sqrt(Math.pow(dragOffset[0], 2) + Math.pow(dragOffset[1], 2) + Math.pow(dragOffset[2], 2));
-
-        if (distance > 0.001) {
-            updateNodeOffsets(conceptsToMoveIndexes, dragOffset);
-        }
-
-        setDragOffset([0, 0, 0]);
-        setIsDraggingNodes(false);
+        applyDragOffset();
     }
 
     return (
         <PivotControls
+            key={pivotResetKey}
             ref={pivotControlsRef}
             enabled={conceptsToMoveIndexes.size > 0}
             disableRotations
@@ -116,8 +112,7 @@ function PivotControlsInternal(props: {
             activeAxes={activeAxes}
             onDragStart={onDragStart}
             onDrag={onDrag}
-            onDragEnd={onDragEnd}>
-        </PivotControls>
+            onDragEnd={onDragEnd} />
     );
 }
 
@@ -185,4 +180,26 @@ function usePoints() {
 
         return newPoints;
     }, [conceptsToMoveIndexes, layout, cameraType, diagramOffsets, dragOffset, horizontalScale, verticalScale, rotationDegrees]);
+}
+
+function useDragStateReset() {
+    const [pivotResetKey, setPivotResetKey] = useState(0);
+
+    // For example, when I am dragging some nodes (`isDraggingNodes` is true) and switch browser tabs
+    // using ctrl+tab, `isDraggingNodes` stays stuck on true and is not reset back to false.
+    // This is more of a workaround than a proper fix
+    useEventListener("pointerup", handler);
+    useEventListener("pointercancel", handler);
+    useEventListener("blur", handler);
+
+    function handler() {
+        if (useDiagramStore.getState().isDraggingNodes) {
+            useDiagramStore.getState().applyDragOffset();
+            setPivotResetKey(Math.random());
+        }
+    }
+
+    return {
+        pivotResetKey
+    };
 }

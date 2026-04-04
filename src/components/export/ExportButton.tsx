@@ -1,4 +1,4 @@
-import { LuDownload } from "react-icons/lu";
+import { LuSquareArrowOutUpRight } from "react-icons/lu";
 import Button from "../inputs/Button";
 import ExportDialog from "./ExportDialog";
 import { useNavigate } from "react-router-dom";
@@ -28,7 +28,7 @@ export default function ExportButton<TKey extends string>(props: {
                 variant={props.isHighlighted ? "icon-secondary" : "icon-default"}
                 size={props.isHighlighted ? "default" : "sm"}
                 onClick={() => navigate(props.route)}>
-                <LuDownload />
+                <LuSquareArrowOutUpRight />
             </Button>
 
             <ExportDialog

@@ -417,6 +417,7 @@ function useKeyBoardEvents(
     const redo = useDiagramStore((state) => state.redo);
     const setEditingEnabled = useDiagramStore((state) => state.setEditingEnabled);
     const setMultiselectEnabled = useDiagramStore((state) => state.setMultiselectEnabled);
+    const updateNodeOffsets = useDiagramStore((state) => state.applyDragOffset);
 
     useEventListener("keydown", (event) => {
         if (window.document.activeElement && isEditableElement(window.document.activeElement)) {
@@ -448,7 +449,7 @@ function useKeyBoardEvents(
             return;
         }
         if (!isCtrl(event) && isTemporarilyEditableRef.current) {
-            setEditingEnabled(false);
+            disableEditing();
         }
         if (!event.shiftKey && isTemporarilyMultiselectEnabledRef.current) {
             setMultiselectEnabled(false);
@@ -457,12 +458,19 @@ function useKeyBoardEvents(
 
     useEventListener("blur", () => {
         if (isTemporarilyEditableRef.current) {
-            setEditingEnabled(false);
+            disableEditing();
         }
         if (isTemporarilyMultiselectEnabledRef.current) {
             setMultiselectEnabled(false);
         }
     });
+
+    function disableEditing() {
+        if (useDiagramStore.getState().isDraggingNodes) {
+            updateNodeOffsets();
+        }
+        setEditingEnabled(false);
+    }
 }
 
 function ctrlKey() {

@@ -12,6 +12,7 @@ import withCameraControlsEnabled from "./withCameraControlsEnabled";
 import withConceptsToMoveBox from "./withConceptsToMoveBox";
 import withDefaultLayoutBox from "./withDefaultLayoutBox";
 import withDiagramLabeling from "./withDiagramLabeling";
+import withEventsEnabled from "./withEventsEnabled";
 import withLayout from "./withLayout";
 
 type DiagramOptionsSliceState = {
@@ -118,11 +119,12 @@ export default function createDiagramOptionsSlice(set: (partial: DiagramStore | 
 
             return withCameraControlsEnabled(newValue === old.editingEnabled ?
                 {} :
-                withConceptsToMoveBox({
+                w({
+                    isDraggingNodes: false,
                     editingEnabled: newValue,
                     multiselectEnabled: false,
-                    conceptsToMoveIndexes: new Set()
-                }, old), old);
+                    conceptsToMoveIndexes: new Set(),
+                }, old, withConceptsToMoveBox, withEventsEnabled), old);
         }),
         setGridWhileEditingEnabled: (gridWhileEditingEnabled) => set((old) => ({
             gridWhileEditingEnabled: (typeof gridWhileEditingEnabled === "function" ?

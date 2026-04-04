@@ -1,9 +1,11 @@
 import { Box } from "../../types/Box";
 import { Point } from "../../types/Point";
+import { w } from "../../utils/stores";
 import { DiagramStore } from "./useDiagramStore";
 import withCameraControlsEnabled from "./withCameraControlsEnabled";
 import withConceptsToMoveBox from "./withConceptsToMoveBox";
 import withDragOffsetSnapping from "./withDragOffsetSnapping";
+import withEventsEnabled from "./withEventsEnabled";
 
 type R3FCanvasSliceState = {
     defaultLayoutBox: Box | null,
@@ -87,10 +89,9 @@ export default function createR3FCanvasSlice(set: (partial: DiagramStore | Parti
                 set((old) => createIsDraggingNodesState(isDraggingNodes, old));
             }
         },
-        setIsCameraMoving: (isCameraMoving) => set((old) => ({
+        setIsCameraMoving: (isCameraMoving) => set((old) => withEventsEnabled({
             isCameraMoving,
-            eventsEnabled: !isCameraMoving && !old.isDraggingNodes,
-        })),
+        }, old)),
         setDragOffset: (dragOffset) => set((old) => withDragOffsetSnapping({ dragOffset }, old)),
         setConceptsToMoveIndexes: (conceptsToMoveIndexes) => set((old) => withConceptsToMoveBox({
             conceptsToMoveIndexes: typeof conceptsToMoveIndexes === "function" ?
@@ -107,8 +108,7 @@ export default function createR3FCanvasSlice(set: (partial: DiagramStore | Parti
  * ensuring camera controls are enabled/disabled correctly.
  */
 function createIsDraggingNodesState(isDraggingNodes: boolean, old: DiagramStore): Partial<R3FCanvasSlice> {
-    return withCameraControlsEnabled({
+    return w({
         isDraggingNodes,
-        eventsEnabled: !old.isCameraMoving && !isDraggingNodes,
-    }, old);
+    }, old, withCameraControlsEnabled, withEventsEnabled);
 }
