@@ -8,14 +8,16 @@ export default function CheckBox({ className, children, ...rest }: {
 } & React.InputHTMLAttributes<HTMLInputElement>) {
     return (
         <label
-            className={cn("checkbox w-fit flex gap-2 items-center text-sm cursor-pointer select-none", className)}>
+            className={cn(
+                "checkbox w-fit flex gap-2 items-center text-sm cursor-pointer select-none",
+                className)}>
             <input
                 type="checkbox"
-                className="accent-primary mb-[2px] border-outline sr-only"
+                className="peer mb-[2px] border-outline sr-only"
                 {...rest} />
             <LuCheck
                 className={cn(
-                    "w-4 h-4 p-0.5 border rounded-sm")} />
+                    "w-4 h-4 p-0.5 border rounded-sm peer-focus-visible:ring-1 peer-focus-visible:ring-offset-1 peer-focus-visible:ring-on-surface")} />
             {children}
         </label>
     );

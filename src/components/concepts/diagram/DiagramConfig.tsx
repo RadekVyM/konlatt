@@ -108,6 +108,7 @@ function LabelsSection() {
 }
 
 function NodesLinksSection() {
+    const cameraType = useDiagramStore((state) => state.cameraType);
     const linksVisibleEnabled = useDiagramStore((state) => state.linksVisibleEnabled);
     const hoveredLinksHighlightingEnabled = useDiagramStore((state) => state.hoveredLinksHighlightingEnabled);
     const selectedLinksHighlightingEnabled = useDiagramStore((state) => state.selectedLinksHighlightingEnabled);
@@ -128,16 +129,6 @@ function NodesLinksSection() {
                 Show links
             </ToggleSwitch>
             <ToggleSwitch
-                checked={semitransparentLinksEnabled}
-                onChange={(e) => setSemitransparentLinksEnabled(e.currentTarget.checked)}>
-                Semitransparent links
-            </ToggleSwitch>
-            <ToggleSwitch
-                checked={flatLinksEnabled}
-                onChange={(e) => setFlatLinksEnabled(e.currentTarget.checked)}>
-                Flat links
-            </ToggleSwitch>
-            <ToggleSwitch
                 checked={selectedLinksHighlightingEnabled}
                 onChange={(e) => setSelectedLinksHighlightingEnabled(e.currentTarget.checked)}>
                 Highlight links of selected node
@@ -147,6 +138,17 @@ function NodesLinksSection() {
                 onChange={(e) => setHoveredLinksHighlightingEnabled(e.currentTarget.checked)}>
                 Highlight links of hovered node
             </ToggleSwitch>
+            <ToggleSwitch
+                checked={semitransparentLinksEnabled}
+                onChange={(e) => setSemitransparentLinksEnabled(e.currentTarget.checked)}>
+                Semitransparent links
+            </ToggleSwitch>
+            {cameraType === "3d" &&
+                <ToggleSwitch
+                    checked={flatLinksEnabled}
+                    onChange={(e) => setFlatLinksEnabled(e.currentTarget.checked)}>
+                    Flat links
+                </ToggleSwitch>}
         </ConfigSection>
     );
 }

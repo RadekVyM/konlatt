@@ -21,10 +21,10 @@ import { triggerInitialization } from "../services/triggers";
 
 const DEFAULT_FILE_FORMAT: ImportFormat = "burmeister";
 const FILE_TYPES: ReadonlyArray<{ key: ImportFormat, label: string, idealExtension: string }> = [
-    { key: "burmeister", label: "Burmeister (.cxt)", idealExtension: ".cxt" },
-    { key: "json", label: "Konlatt JSON (.json)", idealExtension: ".json" },
-    { key: "xml", label: "Konlatt XML (.xml)", idealExtension: ".xml" },
-    { key: "csv", label: "CSV (.csv)", idealExtension: ".csv" },
+    { key: "burmeister", label: "Burmeister (.cxt)", idealExtension: "cxt" },
+    { key: "json", label: "Konlatt JSON (.json)", idealExtension: "json" },
+    { key: "xml", label: "Konlatt XML (.xml)", idealExtension: "xml" },
+    { key: "csv", label: "CSV (.csv)", idealExtension: "csv" },
 ];
 
 /**
@@ -50,19 +50,21 @@ export default function NewProjectDialog(props: {
         }
     }, [props.state.isOpen]);
 
-    function onFileSelect(file: File | null | undefined) {
-        setSelectedFile(file);
-
-        if (!file) {
+    useEffect(() => {
+        if (!selectedFile) {
             return;
         }
 
         for (const item of FILE_TYPES) {
-            if (file.name.endsWith(item.idealExtension)) {
+            if (selectedFile.name.toLowerCase().endsWith(item.idealExtension)) {
                 setSelectedFileFormat(item.key);
                 return;
             }
         }
+    }, [selectedFile]);
+
+    function onFileSelect(file: File | null | undefined) {
+        setSelectedFile(file);
     }
 
     async function onCreateClick() {

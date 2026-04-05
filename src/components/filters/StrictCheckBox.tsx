@@ -1,3 +1,4 @@
+import Hint from "../Hint";
 import CheckBox from "../inputs/CheckBox";
 
 /**
@@ -9,10 +10,14 @@ export default function StrictCheckBox(props: {
 }) {
     return (
         <CheckBox
-            className="mx-6.5 mb-2"
+            className="mx-6.5 mb-2 mt-1"
             checked={props.checked}
             onChange={(e) => props.onChange(e.currentTarget.checked)}>
             Use strict filtering
+            <Hint
+                text={<>
+                    When checked, items must match all selected filters.<br/>Otherwise, items matching any selected filter are shown.
+                </>} />
         </CheckBox>
     );
 }

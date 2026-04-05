@@ -1,10 +1,10 @@
-import { LuSquareArrowOutUpRight } from "react-icons/lu";
 import Button from "../inputs/Button";
 import ExportDialog from "./ExportDialog";
 import { useNavigate } from "react-router-dom";
 import { ExportItem } from "./types/ExportItem";
 import { ExportButtonProps } from "./types/ExportButtonProps";
 import { SelectedFormatStoreType } from "../../stores/export/types/SelectedFormatStoreType";
+import { LuUpload } from "react-icons/lu";
 
 /**
  * A specialized button component that triggers an export workflow.
@@ -28,7 +28,7 @@ export default function ExportButton<TKey extends string>(props: {
                 variant={props.isHighlighted ? "icon-secondary" : "icon-default"}
                 size={props.isHighlighted ? "default" : "sm"}
                 onClick={() => navigate(props.route)}>
-                <LuSquareArrowOutUpRight />
+                <LuUpload />
             </Button>
 
             <ExportDialog

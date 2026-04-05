@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import useEventListener from "../hooks/useEventListener";
 import { createPortal } from "react-dom";
 import { cn } from "../utils/tailwind";
@@ -9,7 +9,7 @@ const TOOLTIP_TIMEOUT = 300;
  * Portal-based tooltip component that attaches to a reference element.
 */
 export default function Tooltip(props: {
-    tooltip: string,
+    tooltip: React.ReactNode,
     shortcutKeys?: string,
     elementRef: React.RefObject<HTMLElement | null>,
 }) {
@@ -109,7 +109,8 @@ export default function Tooltip(props: {
             className={cn("open:fixed block invisible open:visible z-50 translate-x-[-50%] translate-y-0 select-none pointer-events-none inset-[unset]",
                 "text-xs w-max px-1.5 pb-0.5 pt-1 bg-on-surface-container text-surface-container drop-shadow-md shadow-shade rounded-md",
                 !isVisible && "invisible",
-                isVisible && "animate-fadeIn")}
+                isVisible && "animate-fadeIn",
+                "text-center")}
             aria-hidden
             style={{
                 left: position[0],

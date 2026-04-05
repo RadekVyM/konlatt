@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import Button, { ButtonVariantProps } from "../inputs/Button";
 import { cn } from "../../utils/tailwind";
-import { LuFile, LuFileUp } from "react-icons/lu";
+import { LuFile, LuFileInput } from "react-icons/lu";
 
 export function FileSelection(props: {
     className?: string,
@@ -48,7 +48,7 @@ export function LargeFileSelection(props: {
             disabled={props.disabled}>
             <div
                 className="grid grid-flow-row justify-items-center gap-y-4">
-                <LuFileUp
+                <LuFileInput
                     className="w-8 h-8"/>
                 <span className="font-semibold">
                     Click to upload <span className="font-normal">or drag and drop</span>
