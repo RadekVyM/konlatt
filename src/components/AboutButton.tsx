@@ -57,8 +57,8 @@ function Description() {
     return (
         <>
             <p className="mb-4">
-                Konlatt is a streamlined web application built for the intuitive visualization and analysis of concept lattices.
-                It bridges the gap between complex Formal Concept Analysis (FCA) and user-friendly interaction,
+                Konlatt is a web application built for the intuitive visualization and analysis of concept lattices.
+                It bridges the gap between complex formal concept analysis (FCA) and user-friendly interaction,
                 making conceptual data exploration accessible to anyone with a browser.
             </p>
 

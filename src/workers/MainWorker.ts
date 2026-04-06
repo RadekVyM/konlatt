@@ -173,6 +173,14 @@ async function calculateLayout(
 ) {
     postStatusMessage(jobId, "Computing layout");
 
+    if (concepts.length === 1) {
+        const layoutResponse = createLayoutComputationResponse(
+            jobId,
+            concepts.map((c) => createConceptPoint(0, 0, 0, c.index)));
+        self.postMessage(layoutResponse);
+        return;
+    }
+
     const worker = new DiagramLayoutWorker();
     const { request, reverseIndexMapping } = createCompleteLayoutComputationRequest(
         concepts,
@@ -193,17 +201,13 @@ async function calculateLayout(
             switch (response.type) {
                 case "progress":
                     postProgressMessage(jobId, response.progress);
-
                     break;
                 case "result":
-                    const layoutMessage: LayoutComputationResponse = {
+                    const layoutResponse = createLayoutComputationResponse(
                         jobId,
-                        time: new Date().getTime(),
-                        type: "layout",
-                        layout: convertToConceptLatticeLayout(response.layout, request.conceptsCount, reverseIndexMapping),
-                        computationTime: response.computationTime,
-                    };
-                    self.postMessage(layoutMessage);
+                        convertToConceptLatticeLayout(response.layout, request.conceptsCount, reverseIndexMapping),
+                        response.computationTime);
+                    self.postMessage(layoutResponse);
 
                     workerInstances.delete(jobId);
                     resolve(undefined);
@@ -285,6 +289,16 @@ function createLatticeComputationResponse(jobId: number, lattice: ConceptLattice
         time: new Date().getTime(),
         type: "lattice",
         lattice,
+        computationTime,
+    };
+}
+
+function createLayoutComputationResponse(jobId: number, layout: ConceptLatticeLayout, computationTime?: number): LayoutComputationResponse {
+    return {
+        jobId,
+        time: new Date().getTime(),
+        type: "layout",
+        layout,
         computationTime,
     };
 }
