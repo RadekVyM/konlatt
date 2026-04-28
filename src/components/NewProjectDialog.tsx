@@ -18,6 +18,7 @@ import CsvSeparatorSelect from "./CsvSeparatorSelect";
 import { CsvSeparator } from "../types/CsvSeparator";
 import InputLabel from "./inputs/InputLabel";
 import { triggerInitialization } from "../services/triggers";
+import toast from "./toast";
 
 const DEFAULT_FILE_FORMAT: ImportFormat = "burmeister";
 const FILE_TYPES: ReadonlyArray<{ key: ImportFormat, label: string, idealExtension: string }> = [
@@ -74,17 +75,24 @@ export default function NewProjectDialog(props: {
 
         setDisabled(true);
 
-        triggerInitialization(
-            await selectedFile.text(),
-            selectedFileFormat,
-            selectedCsvSeparator,
-            withoutExtension(selectedFile.name),
-            async () => {
-                navigate("/context", { replace: true });
-                setDisabled(false);
-                await props.state.hide();
-            },
-            () => setDisabled(false));
+        try {
+            triggerInitialization(
+                await selectedFile.text(),
+                selectedFileFormat,
+                selectedCsvSeparator,
+                withoutExtension(selectedFile.name),
+                async () => {
+                    navigate("/context", { replace: true });
+                    setDisabled(false);
+                    await props.state.hide();
+                },
+                () => setDisabled(false));
+        }
+        catch (e) {
+            console.error(e);
+            toast("Failed to load the file.");
+            setDisabled(false);
+        }
     }
 
     return (
