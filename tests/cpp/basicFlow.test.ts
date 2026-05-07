@@ -1,4 +1,4 @@
-import { expect, test, describe } from "vitest";
+import { expect, describe, it } from "vitest";
 import { parseFileContent } from "../../src/services/parsing";
 import { computeConcepts } from "../../src/services/concepts";
 import { conceptsToLattice } from "../../src/services/lattice";
@@ -19,7 +19,7 @@ describe.each<TestValue>([
     let savedConcepts: FormalConcepts = null!;
     let savedLattice: ConceptLattice = null!;
 
-    test(`parsing context: ${value.title}`, async () => {
+    it(`should parse context of ${value.title}`, async () => {
         ({ context: savedContext } = await parseFileContent(value.fileContent, "burmeister"));
         expect(savedContext.cellsPerObject).toBe(value.contextCellsPerObject);
         expect(savedContext.objects.length).toBe(value.objectsCount);
@@ -27,14 +27,14 @@ describe.each<TestValue>([
         //expect(context).toMatchSnapshot();
     }, 60000);
 
-    test(`concepts: ${value.title}`, async () => {
+    it(`should compute concepts of ${value.title}`, async () => {
         const { concepts } = await computeConcepts(savedContext);
         savedConcepts = concepts;
         expect(concepts.length).toBe(value.conceptsCount);
         //expect(concepts).toMatchSnapshot();
     }, 60000);
 
-    test(`lattice: ${value.title}`, async () => {
+    it(`should compute a lattice of ${value.title}`, async () => {
         const { lattice } = await conceptsToLattice(savedConcepts, savedContext);
         savedLattice = lattice;
         expect(lattice.subconceptsRelation.reduce((prev, curr) => prev + curr.size, 0))
@@ -44,7 +44,7 @@ describe.each<TestValue>([
         //expect(lattice.subconceptsRelation).toMatchSnapshot();
     }, 60000);
 
-    test(`layers by the longest path: ${value.title}`, () => {
+    it(`should assing nodes to layers by the longest path: ${value.title}`, () => {
         const { layers } = assignNodesToLayersByLongestPath(getSupremum(savedConcepts).index, savedLattice.subconceptsRelation);
 
         for (let i = 0; i < value.byLongestPathLayersCounts.length; i++) {

@@ -12,6 +12,15 @@ import { transformedPoint } from "./layout";
 import { Object3D, Vector3 } from "three";
 import { Relation } from "../types/Relation";
 
+/**
+ * Transforms a 3D object to act as a link between two nodes (points).
+ * Adjusts position, rotation (quaternion), and scale to span the distance.*
+ * @param temp - The 3D object to transform.
+ * @param from - Start point.
+ * @param to - End point.
+ * @param initialDirection - The default orientation vector of the geometry (usually Vector3(1, 0, 0)).
+ * @param lineThickness - The thickness (scale) applied to the non-length axes.
+ */
 export function setupLinkTransform(temp: Object3D, from: Point, to: Point, initialDirection: Vector3, lineThickness: number) {
     // Vector math for link placement
     const dx = to[0] - from[0];
@@ -29,6 +38,14 @@ export function setupLinkTransform(temp: Object3D, from: Point, to: Point, initi
     temp.updateMatrix();
 }
 
+/**
+ * Determines the color for a node based on its selection, filtering, and theme state.
+ * @param conceptIndex - The index of the current concept node.
+ * @param selectedConceptIndex - The index of the currently selected concept.
+ * @param filteredConceptIndexes - A set of concept indexes that should remain highlighted.
+ * @param currentTheme
+ * @param forceDimColor - If `true`, ignores selection/filter and returns the dimmed color.
+ */
 export function getNodeColor(
     conceptIndex: number | null | undefined,
     selectedConceptIndex: number | null,
@@ -57,6 +74,15 @@ export function getNodeColor(
     return color;
 }
 
+/**
+ * Generates an array of `Link` objects representing links between concepts in a lattice.
+ * Handles visibility logic for sublattices and filtered views.
+ * @param concepts - List of concept objects containing their indexes.
+ * @param subconceptsRelation - Mapping of concept index to its direct children/subconcepts.
+ * @param sublatticeConceptIndexes - Set of indexes belonging to the currently focused sublattice.
+ * @param filteredConceptIndexes - Set of indexes that are currently filtered.
+ * @param displayHighlightedSublatticeOnly - If `true`, hides links not contained within the sublattice.
+ */
 export function getDiagramLinks(
     concepts: ReadonlyArray<{ conceptIndex: number }> | null,
     subconceptsRelation: Relation | null,
@@ -100,6 +126,14 @@ export function getDiagramLinks(
     return links;
 }
 
+/**
+ * Creates unpositioned label objects for concept nodes.
+ * @param idPrefix - Prefix for the label ID.
+ * @param itemLabels - Full list of available string labels.
+ * @param latticeLabeling - Map associating concept indexes with an array of label indexes.
+ * @param placement - Vertical alignment relative to the node.
+ * @param options - Text formatting options.
+ */
 export function createLabels(
     idPrefix: string,
     itemLabels: ReadonlyArray<string> | undefined,
@@ -131,6 +165,21 @@ export function createLabels(
     return newLabels;
 }
 
+/**
+ * Creates label objects and calculates their coordinates based on the lattice layout.
+ * @param idPrefix - Prefix for the label ID.
+ * @param itemLabels - Full list of available string labels.
+ * @param latticeLabeling - Map associating concept indexes with an array of label indexes.
+ * @param layout - Layout of the concept nodes.
+ * @param conceptToLayoutIndexesMapping - Map associating concept indexes with layout indexes.
+ * @param cameraType - Affects z-depth offsetting.
+ * @param horizontalScale - Scale factor for X coordinates.
+ * @param verticalScale - Scale factor for Y coordinates.
+ * @param rotationDegrees - Global diagram rotation.
+ * @param diagramOffsets - Per-node positional offsets.
+ * @param placement - Vertical alignment relative to the node.
+ * @param options - Text formatting options.
+ */
 export function createLabelsWithPositions(
     idPrefix: string,
     itemLabels: ReadonlyArray<string> | undefined,
@@ -181,6 +230,9 @@ export function createLabelsWithPositions(
     return newLabels;
 }
 
+/**
+ * Sorts labels primarily by their Y-coordinate and secondarily by X-coordinate.
+ */
 export function sortedLabelsByPosition(
     labels: ReadonlyArray<ConceptLabel>,
     layout: ReadonlyArray<Point>,
@@ -212,6 +264,10 @@ export function sortedLabelsByPosition(
     return newLabels;
 }
 
+/**
+ * Internal helper to format and wrap text for concept labels.
+ * Implements logic for line length constraints, word wrapping, and ellipsis.
+ */
 function createLabelText(labelIndexes: ReadonlyArray<number>, labels: ReadonlyArray<string>, options?: LabelOptions) {
     const defaultOptions = {
         lineSeparator: "\n",

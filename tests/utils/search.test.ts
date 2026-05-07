@@ -24,7 +24,6 @@ describe("searchTermsToRegex()", () => {
 
     it("should escape special regex characters", () => {
         const regex = searchTermsToRegex(["h.i"]);
-        // Should match literal "h.i", not "hai"
         expect(regex).toBeInstanceOf(RegExp);
         expect("h.i".match(regex!)).toBeTruthy();
         expect("hai".match(regex!)).toBeNull();

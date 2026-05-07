@@ -1,11 +1,19 @@
 import { HsvaColor } from "../types/HsvaColor";
 import { RgbaColor } from "../types/RgbaColor";
 
+/**
+ * Converts an HSVA color object to an 8-digit HEXA string.
+ * @returns An 8-digit hex string (e.g., "#rrggbbaa").
+ */
 export function hsvaToHexa(color: HsvaColor) {
     const rgba = hsvaToRgba(color);
     return rgbaToHexa(rgba);
 }
 
+/**
+ * Converts an HSVA color object to an RGBA color object.
+ * @returns An RGBA color object where R, G, B, and A are 0-1.
+ */
 export function hsvaToRgba({ hue, saturation, value, alpha }: HsvaColor): RgbaColor {
     // https://en.wikipedia.org/wiki/HSL_and_HSV#HSV_to_RGB
 
@@ -49,6 +57,10 @@ export function hsvaToRgba({ hue, saturation, value, alpha }: HsvaColor): RgbaCo
     };
 }
 
+/**
+ * Converts an RGBA color object to an 8-digit HEXA string.
+ * @returns An 8-digit hex string (e.g., "#rrggbbaa").
+ */
 export function rgbaToHexa(color: RgbaColor): string {
     const red = Math.round(color.red * 255);
     const green = Math.round(color.green * 255);
@@ -58,6 +70,11 @@ export function rgbaToHexa(color: RgbaColor): string {
     return `#${toHex(red)}${toHex(green)}${toHex(blue)}${toHex(rgbAlpha)}`;
 }
 
+/**
+ * Converts a HEX/HEXA string (supports 3, 6, or 8 digits) to an HSVA color object.
+ * Returns `null` if the input string is not a valid hex color.
+ * @returns An HSVA color object or `null` if invalid.
+ */
 export function hexaToHsva(value: string): HsvaColor | null {
     const rgba = hexaToRgba(value);
 
@@ -97,6 +114,11 @@ export function hexaToHsva(value: string): HsvaColor | null {
     };
 }
 
+/**
+ * Converts a hex string (supports 3, 6, or 8 digits) to an RGBA color object.
+ * Returns `null` if the input string is not a valid hex color.
+ * @returns An RGBA object or `null` if invalid.
+ */
 export function hexaToRgba(value: string) {
     const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
     value = value

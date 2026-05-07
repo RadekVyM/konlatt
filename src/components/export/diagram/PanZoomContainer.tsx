@@ -14,7 +14,6 @@ export default function PanZoomContainer(props: {
     contentWrapperClassName?: string,
     children?: React.ReactNode,
 }) {
-    // Gemini helped a lot with all the math
     const { actions, setScale } = useContext(ExportDiagramZoomContext);
     const containerRef = useRef<HTMLDivElement>(null);
     const contentRef = useRef<HTMLDivElement>(null);
@@ -141,26 +140,26 @@ export default function PanZoomContainer(props: {
 
         let minX, maxX, minY, maxY;
 
-        // Horizontal Logic
+        // Horizontal logic
         if (scaledWidth < containerRect.width) {
-            // Content is smaller: Force to center
+            // Content is smaller => force to center
             const centerOffsetX = (containerRect.width - scaledWidth) / 2;
             minX = maxX = centerOffsetX;
         }
         else {
-            // Content is larger: Allow panning between edges
+            // Content is larger => allow panning between edges
             minX = containerRect.width - scaledWidth;
             maxX = 0;
         }
 
-        // Vertical Logic
+        // Vertical logic
         if (scaledHeight < containerRect.height) {
-            // Content is smaller: Force to center
+            // Content is smaller => force to center
             const centerOffsetY = (containerRect.height - scaledHeight) / 2;
             minY = maxY = centerOffsetY;
         }
         else {
-            // Content is larger: Allow panning
+            // Content is larger => allow panning
             minY = containerRect.height - scaledHeight;
             maxY = 0;
         }

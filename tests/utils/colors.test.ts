@@ -2,18 +2,6 @@ import { describe, expect, it } from "vitest";
 import { createHsvaColor, HsvaColor } from "../../src/types/HsvaColor";
 import { hexaToHsva, hsvaToHexa } from "../../src/utils/colors";
 
-const expectHsvaToBeCloseTo = (actual: HsvaColor | null, expected: HsvaColor, tolerance: number = 4) => {
-    if (!actual) {
-        throw new Error("Actual HSVA value is null");
-    }
-    if (actual.saturation > 0 || actual.value > 0) {
-        expect(actual.hue).toBeCloseTo(expected.hue, tolerance);
-    }
-    expect(actual.saturation).toBeCloseTo(expected.saturation, tolerance);
-    expect(actual.value).toBeCloseTo(expected.value, tolerance);
-    expect(actual.alpha).toBeCloseTo(expected.alpha, tolerance);
-};
-
 describe("hsvaToHexa()", () => {
     it("should convert Red (0, 1, 1, 1) to #ff0000ff", () => {
         const hsva = createHsvaColor(0, 1, 1, 1);
@@ -88,3 +76,15 @@ describe("hexaToHsva()", () => {
         expect(hexaToHsva("#123456789")).toBeNull(); // Too long
     });
 });
+
+function expectHsvaToBeCloseTo(actual: HsvaColor | null, expected: HsvaColor, tolerance: number = 4) {
+    if (!actual) {
+        throw new Error("Actual HSVA value is null");
+    }
+    if (actual.saturation > 0 || actual.value > 0) {
+        expect(actual.hue).toBeCloseTo(expected.hue, tolerance);
+    }
+    expect(actual.saturation).toBeCloseTo(expected.saturation, tolerance);
+    expect(actual.value).toBeCloseTo(expected.value, tolerance);
+    expect(actual.alpha).toBeCloseTo(expected.alpha, tolerance);
+}

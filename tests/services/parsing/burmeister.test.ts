@@ -1,4 +1,4 @@
-import { expect, test } from "vitest";
+import { describe, expect, it } from "vitest";
 import { DIGITS, NOM10CRX, MUSHROOMEP } from "../../constants/flowTestValues";
 import parseBurmeister from "../../../src/services/parsing/burmeister";
 
@@ -18,29 +18,31 @@ const DIGITS_OBJECTS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 const DIGITS_ATTRIBUTES = ["a", "b", "c", "d", "e", "f", "g"];
 const DIGITS_CELLS_PER_OBJECT = 1;
 
-test("digits context is parsed correctly", async () => {
-    const context = parseBurmeister(DIGITS.fileContent);
+describe("parseBurmeister()", () => {
+    it("should parse digits context correctly", async () => {
+        const context = parseBurmeister(DIGITS.fileContent);
 
-    expect(context.relation).toEqual(DIGITS_CONTEXT);
-    expect(context.objects).toEqual(DIGITS_OBJECTS);
-    expect(context.attributes).toEqual(DIGITS_ATTRIBUTES);
-    expect(context.cellsPerObject).toBe(DIGITS_CELLS_PER_OBJECT);
-});
+        expect(context.relation).toEqual(DIGITS_CONTEXT);
+        expect(context.objects).toEqual(DIGITS_OBJECTS);
+        expect(context.attributes).toEqual(DIGITS_ATTRIBUTES);
+        expect(context.cellsPerObject).toBe(DIGITS_CELLS_PER_OBJECT);
+    });
 
-test("nom10crx context is parsed", async () => {
-    const context = parseBurmeister(NOM10CRX.fileContent);
+    it("should parse nom10crx context", async () => {
+        const context = parseBurmeister(NOM10CRX.fileContent);
 
-    expect(context.relation.length > 0).toBe(true);
-    expect(context.objects.length).toBe(653);
-    expect(context.attributes.length).toBe(85);
-    expect(context.cellsPerObject).toBe(3);
-});
+        expect(context.relation.length > 0).toBe(true);
+        expect(context.objects.length).toBe(653);
+        expect(context.attributes.length).toBe(85);
+        expect(context.cellsPerObject).toBe(3);
+    });
 
-test("mushroomep context is parsed", async () => {
-    const context = parseBurmeister(MUSHROOMEP.fileContent);
+    it("should parse mushroomep context", async () => {
+        const context = parseBurmeister(MUSHROOMEP.fileContent);
 
-    expect(context.relation.length > 0).toBe(true);
-    expect(context.objects.length).toBe(8124);
-    expect(context.attributes.length).toBe(126);
-    expect(context.cellsPerObject).toBe(4);
+        expect(context.relation.length > 0).toBe(true);
+        expect(context.objects.length).toBe(8124);
+        expect(context.attributes.length).toBe(126);
+        expect(context.cellsPerObject).toBe(4);
+    });
 });

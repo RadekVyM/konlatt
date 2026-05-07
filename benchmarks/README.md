@@ -39,7 +39,7 @@ Run the compiled binary:
 
 ### Compile C++ into WebAssembly
 
-Use Docker to compile the C++ code into WebAssembly (WASM) with the Emscripten SDK. Choose the appropriate command for your operating system.
+Use Docker to compile the C++ code into WebAssembly (WASM) with the Emscripten SDK. Choose the appropriate command for your operating system:
 
 - Windows:
     ```bash

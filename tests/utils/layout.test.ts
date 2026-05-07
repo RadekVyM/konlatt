@@ -108,7 +108,6 @@ describe("rotatePoint()", () => {
         const point = createPoint(10, 5, 0);
         const result = rotatePoint(point, 180);
 
-        // cos(180) = -1, sin(180) = 0
         expect(result[0]).toBeCloseTo(-10);
         expect(result[1]).toBe(5); // Y remains unchanged
         expect(result[2]).toBeCloseTo(0);
@@ -123,7 +122,6 @@ describe("layoutRect()", () => {
             createPoint(25, 0, 0));
 
         const rect = layoutRect(layout);
-
         expect(rect).toEqual({
             left: 0,
             right: 50,

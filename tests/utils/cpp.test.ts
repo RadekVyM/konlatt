@@ -36,8 +36,8 @@ describe("C++ utils", () => {
 
         try {
             expect(cppArray.size()).toBe(1);
-            const first = cppArray.get(0)!;
 
+            const first = cppArray.get(0)!;
             expect(first.attributes.size()).toBe(2);
             expect(first.attributes.get(1)).toBe(2);
         }
@@ -65,7 +65,6 @@ describe("C++ utils", () => {
         cppArray.push_back("WASM");
 
         const result = [...cppStringArrayToJs(cppArray, true)];
-
         expect(result).toEqual(["Hello", "WASM"]);
     });
 
@@ -74,11 +73,10 @@ describe("C++ utils", () => {
         cppArray.push_back(1.5);
         cppArray.push_back(2.5);
 
-        const f32Array = cppFloatArrayToFloat32Array(cppArray, module, true);
-
-        expect(f32Array).toBeInstanceOf(Float32Array);
-        expect(f32Array[0]).toBe(1.5);
-        expect(f32Array[1]).toBe(2.5);
+        const result = cppFloatArrayToFloat32Array(cppArray, module, true);
+        expect(result).toBeInstanceOf(Float32Array);
+        expect(result[0]).toBe(1.5);
+        expect(result[1]).toBe(2.5);
     });
 
     it("cppUIntArrayToJs should yield values from UIntArray", () => {
@@ -106,12 +104,10 @@ describe("C++ utils", () => {
         const inner2 = new module.IntArray();
         inner2.push_back(2);
         inner2.push_back(3);
-
         outer.push_back(inner1);
         outer.push_back(inner2);
 
         const result = [...cppIntMultiArrayToJs(outer, true)];
-
         expect(result).toEqual([[1], [2, 3]]);
     });
 
@@ -131,7 +127,6 @@ describe("C++ utils", () => {
         conceptArray.push_back(new module.FormalConcept());
 
         const result = [...cppFormalConceptArrayToJs(conceptArray, true)];
-
         expect(result).toHaveLength(2);
         expect(result[0]).toEqual({
             index: 0,
@@ -145,9 +140,8 @@ describe("C++ utils", () => {
         const data = [1.0, 2.0, 3.0, 10.0, 20.0, 30.0];
         data.forEach(v => cppArray.push_back(v));
 
-        const points = cppFloatArrayToPoints(cppArray, 2, true);
-
-        expect(points).toEqual([
+        const result = cppFloatArrayToPoints(cppArray, 2, true);
+        expect(result).toEqual([
             [1.0, 2.0, 3.0],
             [10.0, 20.0, 30.0]
         ]);
