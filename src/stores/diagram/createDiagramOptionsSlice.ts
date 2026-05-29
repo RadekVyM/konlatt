@@ -1,9 +1,10 @@
-import { MAX_SEED_LENGTH_REDRAW } from "../../constants/canvas-drawing";
+import { MAX_NODES_DISTANCE, MAX_ROTATION_DEGREES, MAX_SEED_LENGTH_REDRAW, MIN_NODES_DISTANCE, MIN_ROTATION_DEGREES } from "../../constants/diagram";
 import { calculateConeConceptIndexes } from "../../services/lattice";
 import { CameraType } from "../../types/diagram/CameraType";
 import { DiagramLayoutState } from "../../types/diagram/DiagramLayoutState";
 import { LayeredLayoutPlacement } from "../../types/diagram/LayeredLayoutPlacement";
 import { LayoutMethod } from "../../types/diagram/LayoutMethod";
+import { clamp } from "../../utils/numbers";
 import { w } from "../../utils/stores";
 import { generateRandomSeed } from "../../utils/string";
 import useDataStructuresStore from "../useDataStructuresStore";
@@ -186,8 +187,11 @@ export default function createDiagramOptionsSlice(set: (partial: DiagramStore | 
             },
             old)),
         setSeedReDraw: (seedReDraw) => set((old) => withLayout({ seedReDraw }, old)),
-        setHorizontalScale: (horizontalScale) => set((old) => w({ horizontalScale }, old, withConceptsToMoveBox, withDefaultLayoutBox)),
-        setVerticalScale: (verticalScale) => set((old) => w({ verticalScale }, old, withConceptsToMoveBox, withDefaultLayoutBox)),
-        setRotationDegrees: (rotationDegrees) => set((old) => w({ rotationDegrees }, old, withConceptsToMoveBox, withDefaultLayoutBox)),
+        setHorizontalScale: (horizontalScale) => set((old) =>
+            w({ horizontalScale: clamp(horizontalScale, MIN_NODES_DISTANCE, MAX_NODES_DISTANCE) }, old, withConceptsToMoveBox, withDefaultLayoutBox)),
+        setVerticalScale: (verticalScale) => set((old) =>
+            w({ verticalScale: clamp(verticalScale, MIN_NODES_DISTANCE, MAX_NODES_DISTANCE) }, old, withConceptsToMoveBox, withDefaultLayoutBox)),
+        setRotationDegrees: (rotationDegrees) => set((old) =>
+            w({ rotationDegrees: clamp(rotationDegrees, MIN_ROTATION_DEGREES, MAX_ROTATION_DEGREES) }, old, withConceptsToMoveBox, withDefaultLayoutBox)),
     };
 }

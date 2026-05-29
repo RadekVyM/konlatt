@@ -12,6 +12,8 @@ export default function ZoomBar(props: {
     onDecreaseClick: () => void,
     onIncreaseClick: () => void,
 }) {
+    const zoomLevel = 100 * props.currentZoomLevel;
+
     return (
         <div
             className={cn("flex items-center gap-1 bg-secondary rounded-md", props.className)}>
@@ -22,7 +24,9 @@ export default function ZoomBar(props: {
                 <LuMinus />
             </Button>
             <span className="text-sm w-10 text-center">
-                {Math.round(100 * props.currentZoomLevel)}%
+                {zoomLevel < 1 ?
+                    zoomLevel.toLocaleString(undefined, { maximumFractionDigits: 2 }) :
+                    Math.round(zoomLevel)}%
             </span>
             <Button
                 variant="icon-secondary"

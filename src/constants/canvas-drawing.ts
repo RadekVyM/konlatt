@@ -36,8 +36,6 @@ export const OPAQUE_COLORED_LINK_COLOR_DARK = new Color("#4f0926");
 
 export const LINE_THICKNESS = 0.03;
 
-export const MAX_SEED_LENGTH_REDRAW = 9;
-
 // https://codesandbox.io/p/sandbox/react-three-fiber-poc-segments-with-instancedmesh-and-hightlight-drag-2vcl9i
 // Base geometry for flat 2D lines (a thin rectangle)
 export const FLAT_LINE_SHAPE = new Shape();

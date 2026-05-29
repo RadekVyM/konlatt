@@ -6,7 +6,6 @@ import useDiagramStore from "../../../stores/diagram/useDiagramStore";
 import { LayoutMethod } from "../../../types/diagram/LayoutMethod";
 import useDebouncedSetter from "../../../hooks/useDebouncedSetter";
 import Input from "../../inputs/Input";
-import { MAX_SEED_LENGTH_REDRAW } from "../../../constants/canvas-drawing";
 import { generateRandomSeed, isNullOrWhiteSpace } from "../../../utils/string";
 import { cn } from "../../../utils/tailwind";
 import Button from "../../inputs/Button";
@@ -16,6 +15,7 @@ import { LayeredLayoutPlacement } from "../../../types/diagram/LayeredLayoutPlac
 import InputLabel from "../../inputs/InputLabel";
 import ConfigSection from "../../layouts/ConfigSection";
 import LabelsSelectionButton from "./LabelsSelectionButton";
+import { MAX_NODES_DISTANCE, MAX_ROTATION_DEGREES, MAX_SEED_LENGTH_REDRAW, MIN_NODES_DISTANCE, MIN_ROTATION_DEGREES, MIN_SEED_LENGTH_REDRAW } from "../../../constants/diagram";
 
 const INPUT_DELAY = 500;
 
@@ -268,7 +268,8 @@ function ScaleInputs() {
                 label="Vertical nodes distance"
                 id="vertical-nodes-distance"
                 placeholder="1"
-                min={0.5}
+                min={MIN_NODES_DISTANCE}
+                max={MAX_NODES_DISTANCE}
                 step={0.5}
                 minimumFractionDigits={1}
                 value={verticalScaleInput}
@@ -278,7 +279,8 @@ function ScaleInputs() {
                 label="Horizontal nodes distance"
                 id="horizontal-nodes-distance"
                 placeholder="1"
-                min={0.5}
+                min={MIN_NODES_DISTANCE}
+                max={MAX_NODES_DISTANCE}
                 step={0.5}
                 minimumFractionDigits={1}
                 value={horizontalScaleInput}
@@ -295,6 +297,10 @@ function RotationInput() {
 
     useDebouncedSetter(rotationDegreesInput, setRotationDegrees, INPUT_DELAY);
 
+    function setInputValue(value: number) {
+        setRotationDegreesInput(Math.max(MIN_ROTATION_DEGREES, Math.min(MAX_ROTATION_DEGREES, value)));
+    }
+
     return (
         <div>
             <NumberInput
@@ -302,16 +308,16 @@ function RotationInput() {
                 id="diagram-rotation"
                 className="mb-2"
                 placeholder="1"
-                min={-180}
-                max={180}
+                min={MIN_ROTATION_DEGREES}
+                max={MAX_ROTATION_DEGREES}
                 step={1}
                 value={rotationDegreesInput}
-                onChange={setRotationDegreesInput} />
+                onChange={setInputValue} />
 
             <AngleSlider
                 id="rotation-degrees"
                 value={rotationDegreesInput}
-                onChange={setRotationDegreesInput} />
+                onChange={setInputValue} />
         </div>
     );
 }
@@ -350,7 +356,7 @@ function SeedReDrawInput(props: {
                     }
                 }}
                 size={1}
-                minLength={1}
+                minLength={MIN_SEED_LENGTH_REDRAW}
                 maxLength={MAX_SEED_LENGTH_REDRAW}
                 className={"w-full"} />
 

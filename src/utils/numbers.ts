@@ -8,6 +8,13 @@ export function degreesToRadians(angle: number) {
 }
 
 /**
+ * Clamps a number to the bounds.
+ */
+export function clamp(value: number, min: number = Number.MIN_VALUE, max: number = Number.MAX_VALUE) {
+    return Math.min(max, Math.max(min, value));
+}
+
+/**
  * Formats a numeric byte value into a human-readable string with units (e.g., KB, MB).
  * @param bytes - The number of bytes to format.
  * @param locales - Optional locale string or array for number formatting.

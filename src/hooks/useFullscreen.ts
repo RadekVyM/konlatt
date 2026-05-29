@@ -13,7 +13,7 @@ export default function useFullscreen(element: RefObject<HTMLElement | null>): F
     useEventListener("fullscreenchange", onFullscreenChange, element);
 
     useEventListener("keydown", (event) => {
-        const key = event.key.toLocaleLowerCase();
+        const key = event.key?.toLocaleLowerCase();
 
         if (key !== "f" || isCtrl(event) || (window.document.activeElement && isEditableElement(window.document.activeElement)) || document.querySelectorAll("dialog").length) {
             return;

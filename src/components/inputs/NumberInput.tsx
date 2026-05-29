@@ -39,14 +39,7 @@ export default function NumberInput({
     }, [value, minimumFractionDigits]);
 
     function onSpinnerClick(delta: number) {
-        let newValue = (value || 0) + delta;
-        if (rest.max !== undefined) {
-            newValue = Math.min(newValue, toNumber(rest.max));
-        }
-        if (rest.min !== undefined) {
-            newValue = Math.max(newValue, toNumber(rest.min));
-        }
-
+        const newValue = clampValue((value || 0) + delta);
         onChange?.(newValue);
     }
 
@@ -57,14 +50,25 @@ export default function NumberInput({
         if (value === "" || /^-?\d*\.?\d*$/.test(value)) {
             setInputValue(value);
             const parsedValue = parseFloat(value);
-            onChange?.(isNaN(parsedValue) ? 0 : parsedValue);
+            onChange?.(isNaN(parsedValue) ? 0 : clampValue(parsedValue));
         }
     }
 
     function onInputBlur() {
         // Clean up the formatting on blur (e.g., "1." becomes "1.00")
-        const parsed = parseFloat(inputValue);
-        setInputValue(formatNumber(isNaN(parsed) ? 0 : parsed, minimumFractionDigits || 0));
+        const parsed = value ?? parseFloat(inputValue);
+        setInputValue(formatNumber(isNaN(parsed) ? 0 : clampValue(parsed), minimumFractionDigits || 0));
+    }
+
+    function clampValue(value: number) {
+        let newValue = value;
+        if (rest.max !== undefined) {
+            newValue = Math.min(newValue, toNumber(rest.max));
+        }
+        if (rest.min !== undefined) {
+            newValue = Math.max(newValue, toNumber(rest.min));
+        }
+        return newValue;
     }
 
     return (
