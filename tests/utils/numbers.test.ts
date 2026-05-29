@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { degreesToRadians, formatBytes, formatTimeInterval } from "../../src/utils/numbers";
+import { clamp, degreesToRadians, formatBytes, formatTimeInterval } from "../../src/utils/numbers";
 
 describe("degreesToRadians()", () => {
     it("converts common angles correctly", () => {
@@ -12,6 +12,41 @@ describe("degreesToRadians()", () => {
 
     it("handles negative angles", () => {
         expect(degreesToRadians(-180)).toBe(-Math.PI);
+    });
+});
+
+describe("clamp()", () => {
+    it("returns the value if it is within the bounds", () => {
+        expect(clamp(5, 1, 10)).toBe(5);
+        expect(clamp(0, -5, 5)).toBe(0);
+    });
+
+    it("clamps the value to the min bound if it is below min", () => {
+        expect(clamp(0, 1, 10)).toBe(1);
+        expect(clamp(-10, -5, 5)).toBe(-5);
+    });
+
+    it("clamps the value to the max bound if it is above max", () => {
+        expect(clamp(15, 1, 10)).toBe(10);
+        expect(clamp(20, -5, 5)).toBe(5);
+    });
+
+    it("handles values exactly at the boundaries", () => {
+        expect(clamp(1, 1, 10)).toBe(1);
+        expect(clamp(10, 1, 10)).toBe(10);
+    });
+
+    it("works when min and max are equal", () => {
+        expect(clamp(5, 5, 5)).toBe(5);
+        expect(clamp(10, 5, 5)).toBe(5);
+        expect(clamp(0, 5, 5)).toBe(5);
+    });
+
+    it("uses Number.MIN_VALUE and Number.MAX_VALUE as defaults", () => {
+        expect(clamp(42)).toBe(42);
+        expect(clamp(5, 10)).toBe(10);
+        expect(clamp(15, 10)).toBe(15);
+        expect(clamp(-100)).toBe(Number.MIN_VALUE);
     });
 });
 
