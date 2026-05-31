@@ -597,8 +597,9 @@ void initializeLayout(
 ) {
     layout.resize(getLayoutDimension(dimension) * conceptsCount);
 
+    std::seed_seq ss{seed};
     // Random number generation setup
-    std::mt19937 gen(seed);
+    std::mt19937 gen(ss);
     // Uniform distribution for numbers between -0.5 and 0.5
     std::uniform_real_distribution<> distrib(-0.5, 0.5);
 
